@@ -1,5 +1,5 @@
 /*!
- * Benchmark.js v2.1.0 <https://benchmarkjs.com/>
+ * Benchmark.js <https://benchmarkjs.com/>
  * Copyright 2010-2016 Mathias Bynens <https://mths.be/>
  * Based on JSLitmus.js, copyright Robert Kieffer <http://broofa.com/>
  * Modified by John-David Dalton <http://allyoucanleet.com/>
@@ -124,7 +124,7 @@
    */
   function runInContext(context) {
     // Exit early if unable to acquire lodash.
-    var _ = context && context._ || req('lodash') || root._;
+    var _ = context && context._ || require('lodash') || root._;
     if (!_) {
       Benchmark.runInContext = runInContext;
       return Benchmark;
@@ -163,6 +163,9 @@
         sqrt = Math.sqrt,
         toString = objectProto.toString,
         unshift = arrayRef.unshift;
+
+    /** Used to avoid inclusion in Browserified bundles. */
+    var req = require;
 
     /** Detect DOM document object. */
     var doc = isHostType(context, 'document') && context.document;
@@ -641,7 +644,7 @@
      * @param {string} id The module id.
      * @returns {*} The exported module or `null`.
      */
-    function req(id) {
+    function require(id) {
       try {
         var result = freeExports && freeRequire(id);
       } catch(e) {}
@@ -1032,7 +1035,7 @@
      * @param {string} name A name to identify the benchmark.
      * @param {Function|string} fn The test to benchmark.
      * @param {Object} [options={}] Options object.
-     * @returns {Object} The benchmark instance.
+     * @returns {Object} The suite instance.
      * @example
      *
      * // basic usage
@@ -1241,7 +1244,7 @@
      * @memberOf Benchmark, Benchmark.Suite
      * @param {string} [type] The event type.
      * @param {Function} [listener] The function to unregister.
-     * @returns {Object} The benchmark instance.
+     * @returns {Object} The current instance.
      * @example
      *
      * // unregister a listener for an event type
@@ -1292,7 +1295,7 @@
      * @memberOf Benchmark, Benchmark.Suite
      * @param {string} type The event type.
      * @param {Function} listener The function to register.
-     * @returns {Object} The benchmark instance.
+     * @returns {Object} The current instance.
      * @example
      *
      * // register a listener for an event type
@@ -1527,8 +1530,18 @@
           result = bench.name || (_.isNaN(id) ? id : '<Test #' + id + '>');
 
       if (error) {
-        result += ': ' + join(error);
-      } else {
+        var errorStr;
+        if (!_.isObject(error)) {
+          errorStr = String(error);
+        } else if (!_.isError(Error)) {
+          errorStr = join(error);
+        } else {
+          // Error#name and Error#message properties are non-enumerable.
+          errorStr = join(_.assign({ 'name': error.name, 'message': error.message }, error));
+        }
+        result += ': ' + errorStr;
+      }
+      else {
         result += ' x ' + formatNumber(hz.toFixed(hz < 100 ? 2 : 0)) + ' ops/sec ' + pm +
           stats.rme.toFixed(2) + '% (' + size + ' run' + (size == 1 ? '' : 's') + ' sampled)';
       }
@@ -2257,7 +2270,7 @@
        * @memberOf Benchmark
        * @type Object
        */
-      'platform': context.platform || req('platform') || ({
+      'platform': context.platform || require('platform') || ({
         'description': context.navigator && context.navigator.userAgent || null,
         'layout': null,
         'product': null,
@@ -2278,7 +2291,7 @@
        * @memberOf Benchmark
        * @type string
        */
-      'version': '2.1.0'
+      'version': '2.1.2'
     });
 
     _.assign(Benchmark, {

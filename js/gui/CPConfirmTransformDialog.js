@@ -32,7 +32,7 @@ export default function CPConfirmTransformDialog(parent, controller) {
 	                <div class="modal-content">
 	                    <div class="modal-header">
 	                        <h5 class="modal-title">Complete transform</h5>
-	                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	                        <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
 	                            <span aria-hidden="true">&times;</span>
 	                        </button>
 	                    </div>
@@ -42,9 +42,9 @@ export default function CPConfirmTransformDialog(parent, controller) {
 							</p>
 	                    </div>
 	                    <div class="modal-footer">
-	                        <button type="button" class="btn btn-light" data-dismiss="modal">${_("Cancel")}</button>
-	                        <button type="button" class="btn btn-light chickenpaint-reject-transform" data-dismiss="modal">Undo transform</button>
-	                        <button type="button" class="btn btn-primary chickenpaint-accept-transform" data-dismiss="modal">Apply transform</button>
+	                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_("Cancel")}</button>
+	                        <button type="button" class="btn btn-light chickenpaint-reject-transform" data-bs-dismiss="modal">Undo transform</button>
+	                        <button type="button" class="btn btn-primary chickenpaint-accept-transform" data-bs-dismiss="modal">Apply transform</button>
 	                    </div>
 	                </div>
 	            </div>
@@ -66,28 +66,22 @@ export default function CPConfirmTransformDialog(parent, controller) {
 		that.emitEvent("reject");
 	});
 
-	dialog
-		.modal({
-			show: false
-		})
-		.on('shown.bs.modal', function() {
-			applyButton.focus();
-		})
-		.on("hidden.bs.modal", function(e) {
+	dialog.modal({
+		show: false
+	}).on('shown.bs.modal', function () {
+		applyButton.focus();
+	}).on("hidden.bs.modal", function(e) {
 			// Destroy the modal upon close
 			dialog.remove();
-		})
-		.on('keypress', function(e) {
-			if (e.key === "Enter") {
-				applyButton.trigger('click');
-			}
-		});
-
+	}).on('keydown', function (e) {
+		if (e.key === "Enter") {
+			applyButton.trigger('click');
+		}
+	});
+	
 	// Fix the backdrop location in the DOM by reparenting it to the chickenpaint container
-	dialog.data("bs.modal").$body = $(parent);
-
 	parent.appendChild(dialog[0]);
-
+	
 	this.show = function() {
 		dialog.modal("show");
 	};

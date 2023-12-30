@@ -32,7 +32,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                     <div class="modal-content" data-stage="saving">
                         <div class="modal-header">
                             <h5 class="modal-title">${_("Saving drawing...")}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -44,13 +44,13 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-light chickenpaint-send-cancel" data-dismiss="modal">${_("Cancel")}</button>
+                            <button type="button" class="btn btn-light chickenpaint-send-cancel" data-bs-dismiss="modal">${_("Cancel")}</button>
                         </div>
                     </div>
                     <div class="modal-content" data-stage="success-not-previously-posted" style="display:none">
                         <div class="modal-header">
                             <h5 class="modal-title">${_("Drawing saved!")}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -58,15 +58,15 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                             <p>${_("Your drawing has been saved, would you like to post it to the forum now?")}</p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary chickenpaint-post-drawing" data-dismiss="modal">${_("Yes, post it now")}</button>
-                            <button type="button" class="btn btn-light chickenpaint-continue-drawing" data-dismiss="modal">${_("No, keep drawing")}</button>
-                            <button type="button" class="btn btn-light chickenpaint-exit" data-dismiss="modal">${_("No, quit and I'll finish it later")}</button>
+                            <button type="button" class="btn btn-primary chickenpaint-post-drawing" data-bs-dismiss="modal">${_("Yes, post it now")}</button>
+                            <button type="button" class="btn btn-light chickenpaint-continue-drawing" data-bs-dismiss="modal">${_("No, keep drawing")}</button>
+                            <button type="button" class="btn btn-light chickenpaint-exit" data-bs-dismiss="modal">${_("No, quit and I'll finish it later")}</button>
                         </div>
                     </div>
                     <div class="modal-content" data-stage="success-already-posted" style="display:none">
                         <div class="modal-header">
                             <h5 class="modal-title">Drawing saved!</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -74,14 +74,14 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                             <p>${_("Your drawing has been saved, would you like to view it on the forum now?")}</p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary chickenpaint-post-drawing" data-dismiss="modal">${_("Yes, view the post")}</button>
-                            <button type="button" class="btn btn-light chickenpaint-continue-drawing" data-dismiss="modal">${_("No, keep drawing")}</button>
+                            <button type="button" class="btn btn-primary chickenpaint-post-drawing" data-bs-dismiss="modal">${_("Yes, view the post")}</button>
+                            <button type="button" class="btn btn-light chickenpaint-continue-drawing" data-bs-dismiss="modal">${_("No, keep drawing")}</button>
                         </div>
                     </div>
                     <div class="modal-content" data-stage="success-redirect" style="display:none">
                         <div class="modal-header">
                             <h5 class="modal-title">Drawing saved!</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>

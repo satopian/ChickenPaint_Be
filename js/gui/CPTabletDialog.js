@@ -32,7 +32,7 @@ export default function CPTabletDialog(parent) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Drawing tablet support</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -114,48 +114,51 @@ export default function CPTabletDialog(parent) {
                 </div>
             </div>
        `);
-    
-    let
-        wacomSupportElem = $(".chickenpaint-wacom-support", dialog),
-        peSupportElem = $(".chickenpaint-pointerevents-support", dialog),
-        bothOptionsElem = $(".chickenpaint-tablet-there-are-two-options", dialog),
-        
-        wacomPresent = CPWacomTablet.getRef().isTabletPresent(),
-        peSupported = !!window.hasNativePointerEvents;
-    
-    wacomSupportElem.toggleClass("supported", wacomPresent);
-    
-    if (wacomPresent) {
-        // Don't bother displaying info about Pointer Events if we have the Wacom plugin installed
-        peSupportElem.hide();
-        bothOptionsElem.hide();
-    } else {
-        // Chrome has dropped NPAPI support, so the Wacom plugin cannot be installed
-        if (/Chrome/i.test(navigator.userAgent) && !/OPR/.test(navigator.userAgent)
-                || /iPad/.test(navigator.userAgent) || /iPhone/.test(navigator.userAgent)) {
-            wacomSupportElem.addClass("not-supported");
-        }
-        
-        // Don't bother showing the Wacom plugin details if this browser supports pointer events
-        if (peSupported) {
-            wacomSupportElem.hide();
-            bothOptionsElem.hide();
-        }
-    }
-    
-    peSupportElem.toggleClass("supported", peSupported);
-    peSupportElem.toggleClass("not-supported", !peSupported);
+  
+	   let
+	   wacomSupportElem = $(".chickenpaint-wacom-support", dialog),
+	   peSupportElem = $(".chickenpaint-pointerevents-support", dialog),
+	   bothOptionsElem = $(".chickenpaint-tablet-there-are-two-options", dialog),
+	   
+	   wacomPresent = CPWacomTablet.getRef().isTabletPresent(),
+	   peSupported = !!window.hasNativePointerEvents;
+   
+   wacomSupportElem.toggleClass("supported", wacomPresent);
+   
+   if (wacomPresent) {
+	   // Don't bother displaying info about Pointer Events if we have the Wacom plugin installed
+	   peSupportElem.hide();
+	   bothOptionsElem.hide();
+   } else {
+	   // Chrome has dropped NPAPI support, so the Wacom plugin cannot be installed
+	   if (/Chrome/i.test(navigator.userAgent) && !/OPR/.test(navigator.userAgent)
+			   || /iPad/.test(navigator.userAgent) || /iPhone/.test(navigator.userAgent)) {
+		   wacomSupportElem.addClass("not-supported");
+	   }
+	   
+	   // Don't bother showing the Wacom plugin details if this browser supports pointer events
+	   if (peSupported) {
+		   wacomSupportElem.hide();
+		   bothOptionsElem.hide();
+	   }
+   }
+   
+   peSupportElem.toggleClass("supported", peSupported);
+   peSupportElem.toggleClass("not-supported", !peSupported);
 
-    dialog.modal({
-        show: false
+  
+    // Destroy the modal upon close
+    dialog.on("hidden.bs.modal", function (e) {
+        dialog.remove();
     });
-    
-    // Fix the backdrop location in the DOM by reparenting it to the chickenpaint container
-    dialog.data("bs.modal").$body = $(parent);
-    
+
+    // Initialize the modal using Bootstrap 5 methods
+    var modalInstance = new bootstrap.Modal(dialog[0]);
+
     parent.appendChild(dialog[0]);
 
-    this.show = function() {
-        dialog.modal("show");
+    // Show method
+    this.show = function () {
+        modalInstance.show();
     };
 }

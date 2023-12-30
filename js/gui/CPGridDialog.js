@@ -31,7 +31,7 @@ export default function CPGridDialog(parent, canvas) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">${_("Grid options")}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -44,8 +44,8 @@ export default function CPGridDialog(parent, canvas) {
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-dismiss="modal">${_("Cancel")}</button>
-                            <button type="button" class="btn btn-primary chickenpaint-apply-grid-settings" data-dismiss="modal">${_("Ok")}</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_("Cancel")}</button>
+                            <button type="button" class="btn btn-primary chickenpaint-apply-grid-settings" data-bs-dismiss="modal">${_("Ok")}</button>
                         </div>
                     </div>
                 </div>

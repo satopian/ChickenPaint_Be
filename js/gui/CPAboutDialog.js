@@ -30,7 +30,7 @@ export default function CPAboutDialog(parent) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">About ChickenPaint v2</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -178,22 +178,18 @@ Includes Font Awesome by Dave Gandy - <a href="https://fontawesome.io" target="_
             </div>
         </div>
     `);
-    
-    // Destroy the modal upon close
-    dialog.on("hidden.bs.modal", function(e) {
-        dialog.remove();
-    });
-    
-    dialog.modal({
-        show: false
-    });
-    
-    // Fix the backdrop location in the DOM by reparenting it to the chickenpaint container
-    dialog.data("bs.modal").$body = $(parent);
-    
-    parent.appendChild(dialog[0]);
 
-    this.show = function() {
-        dialog.modal("show");
-    };
+	// Destroy the modal upon close
+	dialog.on("hidden.bs.modal", function (e) {
+		dialog.remove();
+	});
+
+	// Initialize the modal using Bootstrap 5 methods
+	var modalInstance = new bootstrap.Modal(dialog[0]);
+
+	parent.appendChild(dialog[0]);
+
+	this.show = function () {
+		modalInstance.show();
+	};
 }

@@ -12,6 +12,7 @@ let
     currentLangName = "en";
 
 export function setLanguage(languageCode) {
+	//取得した言語がja-jpなら、jaのみにする
 	languageCode = languageCode.split(/[-_]/, 1)[0].toLowerCase();
 
     if (languageCode in languages) {

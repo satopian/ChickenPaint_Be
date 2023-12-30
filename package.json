@@ -27,26 +27,26 @@
     "serve": "^14.1.2",
     "uglify-js": "=3.4.8"
   },
-  "scripts": {
-    "start": "serve",
-    "test": "babel-node node_modules/.bin/_mocha -- test/*.js",
-    "prepare": "make all min"
-  },
   "type": "module",
   "dependencies": {
-    "bootstrap": "^4.6.2",
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.0",
     "core-js": "^3.20.3",
     "file-saver": "^2.0.5",
     "jquery": "^3.7.0",
     "mkdirp": "^1.0.4",
     "pako": "^1.0.11",
     "pepjs": "=0.4.3",
-    "popper.js": "^1.15.0",
     "random-js": "^2.1.0",
     "uuid": "^9.0.1",
     "wolfy87-eventemitter": "^5.2.9"
   },
   "browser": {
     "./js/util/Canvas.js": "./js/browser/util/Canvas.js"
+  },
+  "scripts": {
+    "start": "serve",
+    "test": "babel-node node_modules/.bin/_mocha -- test/*.js",
+    "prepare": "make all min"
   }
 }

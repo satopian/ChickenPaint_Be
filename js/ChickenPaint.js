@@ -33,7 +33,7 @@ import "core-js/stable/string/ends-with.js";
 
 import $ from "jquery";
 
-import "bootstrap";
+// import "bootstrap";
 
 import "../lib/raf.js";
 
@@ -69,7 +69,6 @@ if (window.PointerEvent) {
 }
 
 require("pepjs"); // Needs to use require() instead of import so we can run code before it
-
 function checkBrowserSupport() {
     let
         supportsAPIs = isCanvasSupported() && "Uint8Array" in window;

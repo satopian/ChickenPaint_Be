@@ -250,15 +250,15 @@ export default function CPLayersPalette(controller) {
 
             longPressTimer = null;
 
-        function onDismissDropdown(e) {
-            // Firefox wrongly fires click events for the right mouse button!
-            if (!("button" in e) || e.button === BUTTON_PRIMARY) {
-                clearDropDown();
-
-                $(this).off("click", onDismissDropdown);
-            }
-        }
-
+			function onDismissDropdown(e) {
+				// Firefox wrongly fires click events for the right mouse button!
+				if (!("button" in e) || e.button === BUTTON_PRIMARY) {
+					clearDropDown();
+	
+					$(this).off("click", onDismissDropdown);
+				}
+			}
+	
 	    /**
          * Get the element that represents the layer with the given display index.
          *
@@ -689,14 +689,9 @@ export default function CPLayersPalette(controller) {
                     $(this).parent().toggleClass("disabled", action !== "CPRenameLayer" && !controller.isActionAllowed(action));
                 });
 
-                $(getElemFromDisplayIndex(displayIndex))
-                    .dropdown("toggle")
-                    .off("click.bs.dropdown");
-
-                /* We don't want Bootstrap's default show or hide handlers, since they show the popup menu on left click,
-                 * and slow down all clicks on the document, respectively.
-                 */
-                $(document).off("click.bs.dropdown.data-api");
+			const dropdownElement = $(getElemFromDisplayIndex(displayIndex));
+			const dropdownInstance = new bootstrap.Dropdown(dropdownElement.get(0));
+			dropdownInstance.toggle();
             }
         }
 
@@ -1065,14 +1060,14 @@ export default function CPLayersPalette(controller) {
             return layerElem;
         };
 
-        function clearDropDown() {
-            if ($(dropdownParent).hasClass("show")) {
-                $(dropdownParent)
-                    .dropdown("toggle")
-                    .off("click.bs.dropdown");
-            }
-        }
-
+		function clearDropDown() {
+			if ($(dropdownParent).hasClass("show")) {
+				$(dropdownParent)
+					.collapse("hide")
+					.off("click.bs.dropdown");
+			}
+		}
+		
         function createLayerDropdownMenu() {
             const
                 menu = document.createElement("div"),
@@ -1552,22 +1547,24 @@ export default function CPLayersPalette(controller) {
         layerWidget.setRotation90(newRotation);
     };
 
-    this.dismissNotification = function() {
-        $(".chickenpaint-layer[aria-describedby],.chickenpaint-slider[aria-describedby]", body)
-            .each((index, elem) => {
-                elem = $(elem);
-
-                if (elem.data('bs.popover')) {
-                    elem.popover("dispose");
-                }
-            });
-
-        if (notificationDismissTimer) {
-            clearTimeout(notificationDismissTimer);
-            notificationDismissTimer = false;
-        }
-    };
-
+	this.dismissNotification = function() {
+		$(".chickenpaint-layer[aria-describedby],.chickenpaint-slider[aria-describedby]", body)
+			.each((index, elem) => {
+				elem = $(elem);
+	
+				const popoverInstance = bootstrap.Popover.getInstance(elem[0]);
+	
+				if (popoverInstance) {
+					popoverInstance.dispose();
+				}
+			});
+	
+		if (notificationDismissTimer) {
+			clearTimeout(notificationDismissTimer);
+			notificationDismissTimer = false;
+		}
+	};
+	
     this.showNotification = (layer, message, where) => {
         let
             notificationLayerIndex = getDisplayIndexFromLayer(layer),
@@ -1581,18 +1578,18 @@ export default function CPLayersPalette(controller) {
 
         this.dismissNotification();
 
-        $(target)
-            .popover({
-                html: false,
-                content: message,
-                placement: "left",
-                trigger: "manual",
-                fallbackPlacement: [],
-                boundary: "window",
-                container: palette.getElement()
-            })
-            .popover("show");
-
+		const popoverInstance = new bootstrap.Popover(target, {
+			html: false,
+			content: message,
+			placement: "left",
+			trigger: "manual",
+			fallbackPlacement: [],
+			boundary: "window",
+			container: palette.getElement()
+		});
+		
+		popoverInstance.show();
+		
         notificationDismissTimer = setTimeout(() => {
             notificationDismissTimer = false;
             this.dismissNotification();

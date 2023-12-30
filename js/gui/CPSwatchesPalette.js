@@ -236,22 +236,25 @@ export default function CPSwatchesPalette(controller) {
             }
             
             e.preventDefault();
+            var dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
+			$(swatch)
+			.off("click.bs.dropdown")
+			.on("click", function () {
+				dropdown.toggle(); // Bootstrap 5: ドロップダウンの表示/非表示を切り替え
+			});
+		
             
-            $(swatch)
-                .dropdown("toggle")
-                .off("click.bs.dropdown"); // Remove Bootstrap's left-click handler installed by toggle
-
-            let
-                onDismissSwatchMenu = function(e) {
-                    // Firefox wrongly fires click events for the right mouse button!
-                    if (!("button" in e) || e.button === 0) {
-                        if ($(swatch).closest(".chickenpaint-color-swatch-wrapper").hasClass("show")) {
-                            $(swatch).closest(".dropdown-toggle").dropdown("toggle");
-                        }
-
-                        $(this).off("click", onDismissSwatchMenu);
-                    }
-                };
+			let onDismissSwatchMenu = function (e) {
+				// Firefox wrongly fires click events for the right mouse button!
+				if (!("button" in e) || e.button === 0) {
+					var closestWrapper = $(e.target).closest(".chickenpaint-color-swatch-wrapper");
+					if (closestWrapper.hasClass("show")) {
+						dropdown.hide(); // Bootstrap 5: ドロップダウンを非表示にする
+					}
+			
+					$(document).off("click", onDismissSwatchMenu);
+				}
+			};
 
             $(document).on("click", onDismissSwatchMenu);
         });
@@ -316,29 +319,20 @@ export default function CPSwatchesPalette(controller) {
         btnSettingsContainer.appendChild(btnSettings);
         btnSettingsContainer.appendChild(settingsMenu);
 
-        $(btnSettings).dropdown();
+		var dropdown = new bootstrap.Dropdown($(btnSettings)); // Bootstrap 5: ドロップダウンを初期化
 
-        let
-            onDismissSettingsMenu = function(e) {
-                // Firefox wrongly fires click events for the right mouse button!
-                if (!("button" in e) || e.button === 0) {
-                    if ($(btnSettingsContainer).hasClass("show")) {
-                        $(btnSettings).dropdown("toggle");
-                    }
+		let onDismissSettingsMenu = function (e) {
+			// Firefox wrongly fires click events for the right mouse button!
+			if (!("button" in e) || e.button === 0) {
+				if ($(btnSettingsContainer).hasClass("show")) {
+					dropdown.toggle(); // Bootstrap 5: ドロップダウンの表示/非表示を切り替える
+				}
+		
+				$(this).off("click", onDismissSettingsMenu);
+			}
+		};
 
-                    $(this).off("click", onDismissSettingsMenu);
-                }
-            };
-
-        $(btnSettingsContainer).on("show.bs.dropdown", function() {
-            /* Instead of Bootstrap's extremely expensive data API, we'll only listen for dismiss clicks on the
-             * document *while the menu is open!*
-             */
-
-            $(document).on("click", onDismissSettingsMenu);
-        });
-
-        btnAdd.addEventListener("click", function(e) {
+		btnAdd.addEventListener("click", function(e) {
             addSwatch(controller.getCurColor().getRgb());
             modified = true;
         });

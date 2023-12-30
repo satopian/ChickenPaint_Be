@@ -2855,7 +2855,7 @@ export default function CPArtwork(_width, _height) {
 		
 		        this.composeCanvas = createCanvas(that.width, that.height);
 		
-				// willReadFrequently
+				// willReadFrequently オプションを使用して Canvas コンテキストを取得
 				this.composeCanvasContext = this.composeCanvas.getContext("2d", {	
 					willReadFrequently: true,
 				});

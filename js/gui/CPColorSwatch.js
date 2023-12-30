@@ -128,35 +128,39 @@ export default function CPColorSwatch(initialColor, initialAlpha, containerEleme
         alpha = initialAlpha;
     }
 
-    // Clicking outside the popover will dismiss it
-    const closeClickHandler = function(e) {
-        if ($(e.target).closest(".popover").length == 0 && $(e.target).closest(".chickenpaint-color-pick-swatch")[0] != element) {
-            $(element).popover("hide");
-        }
-    };
+// Clicking outside the popover will dismiss it
+const closeClickHandler = function (e) {
+    const popoverElement = element.closest('.popover');
+    const swatchElement = element.closest('.chickenpaint-color-pick-swatch');
 
-    $(element)
-        .popover({
-            html: true,
-            content: function() {
-                window.addEventListener("mousedown", closeClickHandler);
+	const bootstrapPopover = new bootstrap.Popover(element);
 
-                return buildColorEditPanel();
-            },
-            trigger: "manual",
-            placement: "bottom",
-            container: containerElement || false // Popover requires boolean for empty, not "undefined"
-        })
-        .on("click", function(e) {
-            e.preventDefault();
-            $(this).popover("toggle");
-        })
-        .on("hidden.bs.popover", function() {
-            window.removeEventListener("mousedown", closeClickHandler);
-        });
+	if (!bootstrapPopover._tip.contains(e.target) && swatchElement !== e.target) {
+		bootstrapPopover.hide();
+	}
+		
+};
+const bootstrapPopover = new bootstrap.Popover(element, {
+    html: true,
+    content: function () {
+        window.addEventListener("mousedown", closeClickHandler);
+        return buildColorEditPanel();
+    },
+    trigger: "manual",
+    placement: "bottom",
+    container: containerElement || false
+});
 
-    paint();
+element.addEventListener("click", function (e) {
+    e.preventDefault();
+    bootstrapPopover.toggle();
+});
+
+element.addEventListener("hidden.bs.popover", function () {
+    window.removeEventListener("mousedown", closeClickHandler);
+});
+
+paint();
 }
-
 CPColorSwatch.prototype = Object.create(EventEmitter.prototype);
 CPColorSwatch.prototype.constructor = CPColorSwatch;

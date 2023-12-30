@@ -455,7 +455,7 @@ export default function CPCanvas(controller) {
     CPDrawingMode.prototype.resume = CPDrawingMode.prototype.enter;
 
     CPDrawingMode.prototype.paint = function() {
-        if (this.shouldPaintBrushPreview) {
+        if (this.shouldPaintBrushPreview) {//円カーソルを表示
             this.shouldPaintBrushPreview = false;
 
             var
@@ -510,6 +510,9 @@ export default function CPCanvas(controller) {
     };
 
     CPFreehandMode.prototype.mouseDrag = function(e, pressure) {
+		if(!navigator.maxTouchPoints || navigator.maxTouchPoints < 2){//タッチデバイスでは無い時に
+			CPDrawingMode.prototype.mouseMove.call(this, e, pressure);//円カーソルをmouseDrag時に表示
+		}
         if (this.capture) {
             var
                 pf = coordToDocument({x: mouseX, y: mouseY}),
@@ -2284,8 +2287,8 @@ export default function CPCanvas(controller) {
     }
     
     function handleKeyUp(e) {
-		// Fixes an issue where shortcut keys stop working immediately after pressing the alt key
-		if (e.key.toLowerCase()==="alt") {
+		//altキーを押下した直後にショートカットキーが動作しなくなる問題を修正
+		if (e.key.toLowerCase()==="alt") {//altキーが離された時のDefaultの動作をキャンセル
 			e.preventDefault();
 		}
         modeStack.keyUp(e);

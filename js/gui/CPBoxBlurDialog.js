@@ -31,7 +31,7 @@ export default function CPBoxBlurDialog(parent, controller) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">${_("Box blur")}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -48,45 +48,42 @@ export default function CPBoxBlurDialog(parent, controller) {
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-dismiss="modal">${_("Cancel")}</button>
-                            <button type="button" class="btn btn-primary chickenpaint-apply-box-blur" data-dismiss="modal">${_("Ok")}</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_("Cancel")}</button>
+                            <button type="button" class="btn btn-primary chickenpaint-apply-box-blur" data-bs-dismiss="modal">${_("Ok")}</button>
                         </div>
                     </div>
                 </div>
             </div>
         `),
         
-        blurAmountElem = $(".chickenpaint-blur-amount", dialog),
-        blurIterationsElem = $(".chickenpaint-blur-iterations", dialog),
-        applyButton = $(".chickenpaint-apply-box-blur", dialog);
-
-    this.show = function() {
-        dialog.modal("show");
-    };
-    
-    applyButton.on('click',function(e) {
-        let
-            blur = Math.max(parseInt(blurAmountElem.val(), 10), 1),
-            iterations = Math.min(Math.max(parseInt(blurIterationsElem.val(), 10), 1), 8);
-        
-        controller.getArtwork().boxBlur(blur, blur, iterations);
-    });
-    
-    dialog
-        .modal({
-            show: false
-        })
-        .on('shown.bs.modal', function() {
-            blurAmountElem.trigger('focus');
-        })
-        .on('keypress', function(e) {
-            if (e.key === "Enter") {
-                applyButton.trigger('click');
-            }
-        });
-    
-    // Fix the backdrop location in the DOM by reparenting it to the chickenpaint container
-    dialog.data("bs.modal").$body = $(parent);
-    
-    parent.appendChild(dialog[0]);
-}
+		blurAmountElem = $(".chickenpaint-blur-amount", dialog),
+		blurIterationsElem = $(".chickenpaint-blur-iterations", dialog),
+		applyButton = $(".chickenpaint-apply-box-blur", dialog);
+		
+		this.show = function() {
+			// Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
+			var modal = new bootstrap.Modal(dialog[0]);
+			modal.show();
+		};
+		
+		applyButton.on('click', function(e) {
+			let
+				blur = Math.max(parseInt(blurAmountElem.val(), 10), 1),
+				iterations = Math.min(Math.max(parseInt(blurIterationsElem.val(), 10), 1), 8);
+		
+			controller.getArtwork().boxBlur(blur, blur, iterations);
+		});
+		
+		dialog.on('shown.bs.modal', function () {
+			blurAmountElem.trigger('focus');
+		});
+		
+		$(document).on('keypress', function (e) {
+			if (e.key === "Enter" && dialog.hasClass('show')) {
+				applyButton.trigger('click');
+			}
+		});
+		
+		// Bootstrap 5: modalオプションが不要なため削除
+		parent.appendChild(dialog[0]);
+	}

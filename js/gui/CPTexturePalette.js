@@ -364,10 +364,11 @@ export default function CPTexturePalette(controller) {
             okayButton.className = "btn btn-primary btn-sm";
             okayButton.type = "button";
             
-            okayButton.addEventListener("click", function(e) {
-                $(btnCustomize).popover('hide');
-            });
-            
+			const bootstrapPopover = new bootstrap.Popover(btnCustomize);
+			okayButton.addEventListener("click", function (e) {
+				bootstrapPopover.hide();
+			});
+						
             panel.appendChild(okayButton);
             panel.appendChild(document.createTextNode(" "));
             
@@ -411,17 +412,17 @@ export default function CPTexturePalette(controller) {
 
         textureControlsPanel = buildTextureControlsPanel();
         
-        $(btnCustomize)
-            .popover({
-                html: true,
-                content: () => textureControlsPanel,
-                trigger: "manual",
-                container: body
-            }).
-            on("click", function() {
-                $(this).popover("toggle");
-            });
-        
+		const bootstrapPopover = new bootstrap.Popover(btnCustomize, {
+			html: true,
+			content: () => textureControlsPanel,
+			trigger: "manual",
+			container: body
+		});
+		
+		btnCustomize.addEventListener("click", function() {
+			bootstrapPopover.toggle();
+		});
+				
         panel.appendChild(btnCustomize);
         
         this.updateTexture();
