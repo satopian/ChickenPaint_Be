@@ -31,7 +31,7 @@ export default function CPGridDialog(parent, canvas) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">${_("Grid options")}</h5>
-                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -52,36 +52,34 @@ export default function CPGridDialog(parent, canvas) {
             </div>
         `),
         
-        gridSizeElem = $(".chickenpaint-grid-size", dialog),
-        applyButton = $(".chickenpaint-apply-grid-settings", dialog);
-    
-    gridSizeElem.val(canvas.getGridSize());
-    
-    $(".chickenpaint-apply-grid-settings", dialog).on('click',function(e) {
-        var
-            gridSize = parseInt(gridSizeElem.val(), 10);
-        
-        canvas.setGridSize(gridSize);
-    });
- 
-    dialog
-        .modal({
-            show: false
-        })
-        .on('shown.bs.modal', function() {
-            gridSizeElem.trigger('focus');
-        }).on('keypress', function(e) {
-            if (e.key === "Enter") {
-                applyButton.trigger('click');
-            }
-        });
-    
-    // Fix the backdrop location in the DOM by reparenting it to the chickenpaint container
-    dialog.data("bs.modal").$body = $(parent);
-    
-    parent.appendChild(dialog[0]);
-    
-    this.show = function() {
-        dialog.modal("show");
-    };
-}
+		gridSizeElem = $(".chickenpaint-grid-size", dialog),
+		applyButton = $(".chickenpaint-apply-grid-settings", dialog);
+
+		this.show = function () {
+			// Bootstrap 5: Modal コンストラクタを使用して modal を初期化
+			var modal = new bootstrap.Modal(dialog[0]);
+			modal.show();
+		};
+	
+		gridSizeElem.val(canvas.getGridSize());
+	
+		applyButton.on('click', function(e) {
+			var gridSize = parseInt(gridSizeElem.val(), 10);
+			canvas.setGridSize(gridSize);
+			var modal = bootstrap.Modal.getInstance(dialog[0]); // インスタンスを取得
+			modal.hide(); // モーダルを手動で閉じる
+		});
+		dialog.on('shown.bs.modal', function () {
+			gridSizeElem.trigger('focus');
+		});
+	
+		// Enter キーが押されたときの処理を追加
+		dialog.on('keypress', function (e) {
+			if (e.key === "Enter") {
+				e.preventDefault(); // デフォルトのフォーム送信を阻止
+				applyButton.trigger('click');
+			}
+		});
+	
+		parent.appendChild(dialog[0]);
+	}

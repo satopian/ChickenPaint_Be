@@ -261,9 +261,9 @@ const
                     checkbox: true,
                     checked: false
                 },
-                {
-                    name: "-"
-                },
+                // {
+                //     name: "-"
+                // },本来ならフルスクリーンモードで起動した時は自動的にこの罫線は消える。
                 {
                     name: "Zoom in",
                     action: "CPZoomIn",
@@ -504,7 +504,7 @@ export default function CPMainMenu(controller, mainGUI) {
                 .toggleClass("hidden", !actionAllowed && thisElem.data("hideIfNotAvailable") === true);
         });
 
-        // Hide dividers if all of the menu options in the section they delineate were hidden
+		// Hide dividers if all of the menu options in the section they delineate were hidden
         $(".dropdown-divider", menuElem).removeClass("hidden");
 
         let

@@ -32,7 +32,7 @@ export default function CPTabletDialog(parent) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Drawing tablet support</h5>
-                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>

@@ -32,7 +32,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                     <div class="modal-content" data-stage="saving">
                         <div class="modal-header">
                             <h5 class="modal-title">${_("Saving drawing...")}</h5>
-                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -50,7 +50,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                     <div class="modal-content" data-stage="success-not-previously-posted" style="display:none">
                         <div class="modal-header">
                             <h5 class="modal-title">${_("Drawing saved!")}</h5>
-                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -66,7 +66,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                     <div class="modal-content" data-stage="success-already-posted" style="display:none">
                         <div class="modal-header">
                             <h5 class="modal-title">Drawing saved!</h5>
-                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -81,7 +81,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                     <div class="modal-content" data-stage="success-redirect" style="display:none">
                         <div class="modal-header">
                             <h5 class="modal-title">Drawing saved!</h5>
-                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -98,90 +98,88 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
 
         that = this;
     
-    resourceSaver.on("savingProgress", function(progress, message) {
-        progress *= 100;
-        
-        progressMessageElem.text(message);
-        
-        $(progressElem)
-            .attr("aria-valuenow", progress)
-            .css("width", progress + "%");
-    });
- 
-    resourceSaver.on("savingComplete", function() {
-        $(".modal-content[data-stage='saving']", dialog).hide();
+		resourceSaver.on("savingProgress", function(progress, message) {
+			progress *= 100;
+	
+			progressMessageElem.text(message);
+	
+			$(progressElem)
+			.attr("aria-valuenow", progress)
+				.css("width", progress + "%");
+		});
+	
+		resourceSaver.on("savingComplete", function() {
+			$(".modal-content[data-stage='saving']", dialog).hide();
+	
+			if (controller.isActionSupported("CPContinue")) {
+				if (controller.isActionSupported("CPExit")) {
+					$(".modal-content[data-stage='success-not-previously-posted']", dialog).show();
+				} else {
+					$(".modal-content[data-stage='success-already-posted']", dialog).show();
+				}
+			} else {
+				$(".modal-content[data-stage='success-redirect']", dialog).show();
+			}
+		});
+	
+		resourceSaver.on("savingFailure", function(serverMessage) {
 
-        if (controller.isActionSupported("CPContinue")) {
-            if (controller.isActionSupported("CPExit")) {
-                $(".modal-content[data-stage='success-not-previously-posted']", dialog).show();
-            } else {
-                $(".modal-content[data-stage='success-already-posted']", dialog).show();
-            }
-        } else {
-            $(".modal-content[data-stage='success-redirect']", dialog).show();
-        }
-    });
-
-    resourceSaver.on("savingFailure", function(serverMessage) {
-        progressElem.addClass("progress-bar-danger");
-        
-        let
-            errorMessage = _("Sorry, your drawing could not be saved, please try again later.");
-        
-        if (serverMessage) {
-            serverMessage = serverMessage.replace(/^CHIBIERROR\s*/, "");
-            
-            if (serverMessage.length > 0) {
-                errorMessage += "<br><br>The error returned from the server was:";
-                
-                progressError
-                    .text(serverMessage)
-                    .show();
-            }
-            
-            progressMessageElem.html(errorMessage);
-        }
-        
-    });
-    
-    $(".chickenpaint-post-drawing", dialog).on('click',function() {
-        controller.actionPerformed({action: "CPPost"});
-    });
-
-    $(".chickenpaint-exit", dialog)
-        .toggle(controller.isActionSupported("CPExit"))
-        .on('click',function() {
-            alert("When you want to come back and finish your drawing, just click the 'new drawing' button again and "
-                + "you can choose to continue this drawing.");
-            controller.actionPerformed({action: "CPExit"});
-        });
-    
-    $(".chickenpaint-send-cancel", dialog).on('click',function() {
-        resourceSaver.cancel();
-    });
-    
-    // Destroy the modal upon close
-    dialog.on("hidden.bs.modal", function(e) {
-        dialog.remove();
-    });
-    
-    dialog.modal({
-        show: false
-    });
-
-    dialog.on('shown.bs.modal', function() {
-        that.emitEvent("shown");
-    });
-    
-    // Fix the backdrop location in the DOM by reparenting it to the chickenpaint container
-    dialog.data("bs.modal").$body = $(parent);
-    
-    parent.appendChild(dialog[0]);
-
-    this.show = function() {
-        dialog.modal("show");
-    };
-}
-
-CPSendDialog.prototype = Object.create(EventEmitter.prototype);
-CPSendDialog.prototype.contructor = CPSendDialog;
+			console.log("savingFailure",resourceSaver);
+			progressElem.addClass("progress-bar-danger");
+	
+			let 
+			errorMessage = _("Sorry, your drawing could not be saved, please try again later.");
+	
+			if (serverMessage) {
+				serverMessage = serverMessage.replace(/^CHIBIERROR\s*/, "");
+	
+				if (serverMessage.length > 0) {
+					errorMessage += "<br><br>The error returned from the server was:";
+	
+					progressError
+						.text(serverMessage)
+						.show();
+				}
+	
+				progressMessageElem.html(errorMessage);
+			}
+	
+		});
+	
+		$(".chickenpaint-post-drawing", dialog).on('click',function() {
+			controller.actionPerformed({action: "CPPost"});
+		});
+	
+		$(".chickenpaint-exit", dialog)
+			.toggle(controller.isActionSupported("CPExit"))
+			.on('click',function() {
+				alert("When you want to come back and finish your drawing, just click the 'new drawing' button again and "
+					+ "you can choose to continue this drawing.");
+				controller.actionPerformed({action: "CPExit"});
+			});
+	
+		$(".chickenpaint-send-cancel", dialog).on('click',function() {
+			resourceSaver.cancel();
+		});
+	
+		// Destroy the modal upon close
+		dialog.on("hidden.bs.modal", function(e) {
+			dialog.remove();
+		});
+	
+		// Bootstrap 5のModalを初期化
+		let modal = new bootstrap.Modal(dialog[0]);
+	
+		dialog.on('shown.bs.modal', function() {
+			that.emitEvent("shown");
+		});
+	
+		parent.appendChild(dialog[0]);
+	
+		this.show = function() {
+			modal.show();
+		};
+	}
+	
+	CPSendDialog.prototype = Object.create(EventEmitter.prototype);
+	CPSendDialog.prototype.contructor = CPSendDialog;
