@@ -1,0 +1,6 @@
+/test
+/.idea
+/coverage
+/example
+/resources/gfx/*.psd
+/resources/gfx/icons-source
