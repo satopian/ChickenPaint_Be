@@ -104,7 +104,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
 			progressMessageElem.text(message);
 	
 			$(progressElem)
-			.attr("aria-valuenow", progress)
+				.attr("aria-valuenow", progress)
 				.css("width", progress + "%");
 		});
 	
@@ -123,12 +123,10 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
 		});
 	
 		resourceSaver.on("savingFailure", function(serverMessage) {
-
-			console.log("savingFailure",resourceSaver);
 			progressElem.addClass("progress-bar-danger");
 	
-			let 
-			errorMessage = _("Sorry, your drawing could not be saved, please try again later.");
+			let
+				errorMessage = _("Sorry, your drawing could not be saved, please try again later.");
 	
 			if (serverMessage) {
 				serverMessage = serverMessage.replace(/^CHIBIERROR\s*/, "");
@@ -143,7 +141,6 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
 	
 				progressMessageElem.html(errorMessage);
 			}
-	
 		});
 	
 		$(".chickenpaint-post-drawing", dialog).on('click',function() {
@@ -158,28 +155,26 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
 				controller.actionPerformed({action: "CPExit"});
 			});
 	
-		$(".chickenpaint-send-cancel", dialog).on('click',function() {
+		$(".chickenpaint-send-cancel", dialog).on('click', function () {
 			resourceSaver.cancel();
+			// dialog.modal('hide');
 		});
 	
 		// Destroy the modal upon close
-		dialog.on("hidden.bs.modal", function(e) {
+		dialog.on("hidden.bs.modal", function (e) {
 			dialog.remove();
 		});
+	
+		dialog.appendTo(parent);
 	
 		// Bootstrap 5のModalを初期化
 		let modal = new bootstrap.Modal(dialog[0]);
 	
-		dialog.on('shown.bs.modal', function() {
-			that.emitEvent("shown");
-		});
-	
-		parent.appendChild(dialog[0]);
-	
 		this.show = function() {
 			modal.show();
-		};
+			that.emitEvent("shown");
+	};
 	}
 	
 	CPSendDialog.prototype = Object.create(EventEmitter.prototype);
-	CPSendDialog.prototype.contructor = CPSendDialog;
+	CPSendDialog.prototype.constructor = CPSendDialog;
