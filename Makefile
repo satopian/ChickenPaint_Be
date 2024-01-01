@@ -51,7 +51,7 @@ OSASCRIPT := $(shell command -v osascript 2> /dev/null)
 
 CAIROSVG := $(shell command -v cairosvg 2> /dev/null)
 
-all : resources/css/chickenpaint.css resources/js/chickenpaint.js \
+all : resources/js/chickenpaint.js \
 	resources/gfx/icons-dark-32.png resources/gfx/icons-dark-64.png \
 	resources/gfx/icons-light-32.png resources/gfx/icons-light-64.png
 
@@ -63,7 +63,7 @@ endif
 
 min : resources/js/chickenpaint.min.js
 
-chickenpaint.zip: resources/css/chickenpaint.css resources/js/chickenpaint.js resources/js/chickenpaint.min.js resources/js/chickenpaint.min.js.map js/engine/CPBlend.js
+chickenpaint.zip: resources/js/chickenpaint.js resources/js/chickenpaint.min.js resources/js/chickenpaint.min.js.map js/engine/CPBlend.js
 	rm -f $@
 	git archive -o $@ HEAD
 	zip $@ $^
@@ -71,9 +71,9 @@ chickenpaint.zip: resources/css/chickenpaint.css resources/js/chickenpaint.js re
 # node_modules/.bin/sass node_modules/.bin/browserify node_modules/.bin/icomoon-build :
 # 	npm install
 
-resources/css/chickenpaint.css : resources/css/chickenpaint.scss resources/fonts/ChickenPaint-Symbols.scss node_modules/.bin/sass
-	node_modules/.bin/sass $< > $@
-	node_modules/.bin/postcss --replace $@
+#  : resources/css/chickenpaint.scss resources/fonts/ChickenPaint-Symbols.scss node_modules/.bin/sass
+# 	node_modules/.bin/sass $< > $@
+# 	node_modules/.bin/postcss --replace $@
 
 resources/js/chickenpaint.min.js resources/js/chickenpaint.min.js.map : resources/js/chickenpaint.js
 	cd resources/js && ../../node_modules/.bin/uglifyjs --compress --mangle \
@@ -146,7 +146,7 @@ js/engine/CPBlend.js : codegenerator/BlendGenerator.js
 	node codegenerator/BlendGenerator.js > js/engine/CPBlend.js
 
 clean :
-	rm -f resources/css/chickenpaint.css resources/js/chickenpaint{.js,.js.map} resources/js/chickenpaint.min{.js,.js.map}
+	rm -f resources/js/chickenpaint{.js,.js.map} resources/js/chickenpaint.min{.js,.js.map}
 	rm -f test/blending_bench/blending_test.js test/blending_bench/blending.js test/integration_test/integration.js js/engine/CPBlend.js
 	rm -f resources/fonts/ChickenPaint-Symbols.{scss,ttf,woff,eot}
 	rm -f chickenpaint.zip
