@@ -1061,13 +1061,16 @@ export default function CPLayersPalette(controller) {
         };
 
 		function clearDropDown() {
+			
 			if ($(dropdownParent).hasClass("show")) {
+				var collapseInstance = new bootstrap.Collapse(dropdownParent);
+				collapseInstance.hide();
 				$(dropdownParent)
 					.collapse("hide")
-					.off("click.bs.dropdown");
+					.off("click");
 			}
 		}
-		
+				
         function createLayerDropdownMenu() {
             const
                 menu = document.createElement("div"),

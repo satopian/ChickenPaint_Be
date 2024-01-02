@@ -666,14 +666,10 @@ export default function CPMainMenu(controller, mainGUI) {
 			// Since we don't use the data-api
 			$(".navbar-toggler", bar).on('click', e => {
 				var collapseTarget = $('.collapse', bar);
-				if (collapseTarget.hasClass('show')) {
-					collapseTarget.collapse('hide');
-				} else {
-					collapseTarget.collapse('show');
-				}
+				new bootstrap.Collapse(collapseTarget[0]);
 				e.preventDefault();
 			});
-			
+						
     function onPaletteVisChange(paletteName, show) {
         // Toggle the tickbox of the corresponding menu entry to match the new palette visibility
         let
