@@ -80,10 +80,14 @@ export default function CPPaletteManager(cpController) {
             palElement = palette.getElement();
         
         if (show) {
-            parentElem.appendChild(palElement);
+			if (!parentElem.contains(palElement)) {
+				parentElem.appendChild(palElement);
+			}
         } else {
-            parentElem.removeChild(palElement);
-        }
+			if (parentElem.contains(palElement)) {
+				parentElem.removeChild(palElement);
+			} 
+       }
         that.emitEvent("paletteVisChange", [palette.name, show]);
 
         // FIXME: focus hack

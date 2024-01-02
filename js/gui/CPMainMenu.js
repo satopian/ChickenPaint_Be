@@ -452,7 +452,7 @@ export default function CPMainMenu(controller, mainGUI) {
 	macPlatform = /^Mac/i.test(navigator.platform);
 
     function menuItemClicked(target) {
-        let
+			let
             action = target.data('action'),
             checkbox = target.data('checkbox'),
             selected;
@@ -461,16 +461,16 @@ export default function CPMainMenu(controller, mainGUI) {
             if (checkbox) {
                 target.toggleClass("selected");
                 selected = target.hasClass("selected");
-            } else {
-                selected = false;
-            }
+			} else {
+				selected = false;
+			}
 
-            controller.actionPerformed({
+			controller.actionPerformed({
                 action: action,
                 checkbox: checkbox,
                 selected: selected
             });
-        }
+		}
     }
     
     function presentShortcutText(shortcut) {
@@ -628,37 +628,32 @@ export default function CPMainMenu(controller, mainGUI) {
 				}));
 			}
 			function fillWidgetTray(menuElem, entries) {
-				entries
-					.filter(item => !!item.mnemonic && controller.isActionSupported(item.action))
-					.forEach(entry => {
-						let widgetMenuElem = document.createElement('button');
-						widgetMenuElem.classList.add('widget-toggler', 'selected');
-						widgetMenuElem.setAttribute('type', 'button');
-						widgetMenuElem.setAttribute('data-action', entry.action);
-						widgetMenuElem.setAttribute('data-checkbox', 'true');
-						widgetMenuElem.setAttribute('data-selected', !entry.checked);
-						
-						let spanElement = document.createElement('span');
-						spanElement.textContent = entry.mnemonic;
-						widgetMenuElem.appendChild(spanElement);
-						
-						widgetMenuElem.addEventListener('click', e => {
-							menuItemClicked(widgetMenuElem);
-							e.preventDefault();
-						});
-			
-						menuElem.append(widgetMenuElem);
-					});
+				menuElem.append(entries.filter(item => !!item.mnemonic && controller.isActionSupported(item.action)).map(entry => {
+					let
+						widgetMenuElem = $(
+							`<button class="widget-toggler selected" type="button" data-action="${entry.action}" data-checkbox="true" data-selected="${!entry.checked}">`
+								+ '<span>'
+									+ entry.mnemonic
+								+'</span>'
+							+ '</button>'
+						);
+					widgetMenuElem.on('click',e => {
+					
+						menuItemClicked(widgetMenuElem);
+						e.preventDefault();
+					})
+					return widgetMenuElem;
+				}));
 			}
-			
-			this.getElement = function () {
+
+			this.getElement = function() {
 				return bar[0];
 			};
 			
 			fillMenu($(".navbar-nav", bar), MENU_ENTRIES);
 			fillWidgetTray($(".widget-nav", bar), MENU_ENTRIES[5].children);
 			
-			bar.on('click', 'a:not(.dropdown-toggle)', function (e) {
+			$(bar).on('click', 'a:not(.dropdown-toggle)', function(e) {
 				menuItemClicked($(this));
 				e.preventDefault();
 			});
