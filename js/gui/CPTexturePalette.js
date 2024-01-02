@@ -304,6 +304,7 @@ export default function CPTexturePalette(controller) {
 			html: true,
 			content: () => textureControlsPanel,
 			trigger: "manual",
+			placement: "right",  // ツールチップの位置を右に指定
 			container: body
 		});       
         function updatePopoverControls() {
@@ -413,6 +414,8 @@ export default function CPTexturePalette(controller) {
 
         btnCustomize.type = "button";
         btnCustomize.className = "btn btn-light btn-sm";
+		btnCustomize.setAttribute("data-bs-toggle", "popover");
+		btnCustomize.setAttribute("data-bs-placement", "right");
         btnCustomize.innerHTML = _("Customize");
 
         textureControlsPanel = buildTextureControlsPanel();
