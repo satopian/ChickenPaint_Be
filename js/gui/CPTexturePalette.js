@@ -299,7 +299,13 @@ export default function CPTexturePalette(controller) {
             btnCustomize = document.createElement("button"),
             
             textureControlsPanel;
-        
+		// Bootstrap Popover インスタンス
+		const bootstrapPopover = new bootstrap.Popover(btnCustomize, {
+			html: true,
+			content: () => textureControlsPanel,
+			trigger: "manual",
+			container: body
+		});       
         function updatePopoverControls() {
             cbInverse.checked = inverse;
             cbMirror.checked = mirror;
@@ -360,11 +366,10 @@ export default function CPTexturePalette(controller) {
                 okayButton = document.createElement("button"),
                 resetButton = document.createElement("button");
             
-            okayButton.innerHTML = "Ok";
+            okayButton.textContent = "Ok";
             okayButton.className = "btn btn-primary btn-sm";
             okayButton.type = "button";
             
-			const bootstrapPopover = new bootstrap.Popover(btnCustomize);
 			okayButton.addEventListener("click", function (e) {
 				bootstrapPopover.hide();
 			});
@@ -372,7 +377,7 @@ export default function CPTexturePalette(controller) {
             panel.appendChild(okayButton);
             panel.appendChild(document.createTextNode(" "));
             
-            resetButton.innerHTML = "Reset";
+            resetButton.textContent = "Reset";
             resetButton.className = "btn btn-secondary btn-sm";
             resetButton.type = "button";
 
@@ -412,12 +417,6 @@ export default function CPTexturePalette(controller) {
 
         textureControlsPanel = buildTextureControlsPanel();
         
-		const bootstrapPopover = new bootstrap.Popover(btnCustomize, {
-			html: true,
-			content: () => textureControlsPanel,
-			trigger: "manual",
-			container: body
-		});
 		
 		btnCustomize.addEventListener("click", function() {
 			bootstrapPopover.toggle();
