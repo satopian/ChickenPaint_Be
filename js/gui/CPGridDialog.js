@@ -39,7 +39,7 @@ export default function CPGridDialog(parent, canvas) {
                             <form>
                                 <div class="form-group">
                                     <label>${_("Grid size")}</label>
-                                    <input type="text" class="form-control chickenpaint-grid-size" value="" autofocus>
+                                    <input type="number" class="form-control chickenpaint-grid-size" value="" autofocus>
                                 </div>
                             </form>
                         </div>
