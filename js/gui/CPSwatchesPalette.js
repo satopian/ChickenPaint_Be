@@ -260,14 +260,17 @@ export default function CPSwatchesPalette(controller) {
 			};
 			
 			$(document).on("click", onDismissSwatchMenu);
-		});
-		btnAdd.addEventListener('show.bs.dropdown', event => {//ドロップダウンメニューが表示されていたら
-			// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
-			Array.from(btnSettingsContainer.querySelectorAll(".dropdown-item")).forEach(function (item) {
-				item.addEventListener("click", function () {
-					dropdown.hide(); // ドロップダウンを非表示にする
+
+			// btnAdd.addEventListener('show.bs.dropdown', event => {//ドロップダウンメニューが表示されてたら
+				// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
+				Array.from(btnSettingsContainer.querySelectorAll(".dropdown-item")).forEach(function (item) {
+					item.addEventListener("click", function () {
+						dropdown.hide(); // ドロップダウンを非表示にする
+					});
 				});
-			});
+			// });
+	
+
 		});
 	}
 
@@ -332,7 +335,19 @@ export default function CPSwatchesPalette(controller) {
 
 		var dropdown = new bootstrap.Dropdown($(btnSettings)); // Bootstrap 5: ドロップダウンを初期化
 
-		let onDismissSettingsMenu = function (e) {
+			btnSettings.addEventListener("click", function () {
+				// ドロップダウンが表示されている場合の処理
+				dropdown.toggle(); // Bootstrap 5: ドロップダウンの表示/非表示を切り替える
+			});
+			btnSettings.addEventListener('show.bs.dropdown', event => {//ドロップダウンメニューが表示されてたら
+				// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
+				Array.from(btnSettingsContainer.querySelectorAll(".dropdown-item")).forEach(function (item) {
+					item.addEventListener("click", function () {
+						dropdown.hide(); // ドロップダウンを非表示にする
+					});
+				});
+			});
+			let onDismissSettingsMenu = function (e) {
 			// Firefox wrongly fires click events for the right mouse button!
 			if (!("button" in e) || e.button === 0) {
 				if ($(btnSettingsContainer).hasClass("show")) {
@@ -342,15 +357,6 @@ export default function CPSwatchesPalette(controller) {
 				$(this).off("click", onDismissSettingsMenu);
 			}
 		};
-
-		$(btnSettings).addEventListener('show.bs.dropdown', event => {//ドロップダウンメニューが表示されてたら
-			// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
-			Array.from(btnSettingsContainer.querySelectorAll(".dropdown-item")).forEach(function (item) {
-				item.addEventListener("click", function () {
-					dropdown.hide(); // ドロップダウンを非表示にする
-				});
-			});
-		});
 
 		btnAdd.addEventListener("click", function(e) {
             addSwatch(controller.getCurColor().getRgb());
