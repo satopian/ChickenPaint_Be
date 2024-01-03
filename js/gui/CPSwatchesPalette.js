@@ -221,16 +221,9 @@ export default function CPSwatchesPalette(controller) {
             if (!/chickenpaint-color-swatch/.test(swatch.className)) {
                 return;
             }
-            
-            if (e.button == 0 /* Left */ && swatch.getAttribute("data-color") !== undefined) {
-                controller.setCurColor(new CPColor(parseInt(swatch.getAttribute("data-color"), 10)));
-                e.stopPropagation();
-                e.preventDefault();
-                that.userIsDoneWithUs();
-            }
         });
 		
-        swatchPanel.addEventListener("contextmenu", function(e) {
+		swatchPanel.addEventListener("contextmenu", function(e) {
             let
                 swatch = e.target;
             
@@ -241,7 +234,7 @@ export default function CPSwatchesPalette(controller) {
             e.preventDefault();
 			var dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
 			dropdown.toggle();
-	
+
 			// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
 			document.addEventListener("click", function onDocumentClick(event) {
 				if (!$(swatch).find(event.target).length) {
@@ -250,26 +243,9 @@ export default function CPSwatchesPalette(controller) {
 					document.removeEventListener("click", onDocumentClick);
 				}
 			});
-			// Handle right click to toggle the dropdown
-
-			let onDismissSwatchMenu = function (e) {
-				// Firefox wrongly fires click events for the right mouse button!
-				if (!("button" in e) || e.button === 0) {
-					var closestWrapper = $(e.target).closest(".chickenpaint-color-swatch-wrapper");
-					if (closestWrapper.length > 0 && closestWrapper.hasClass("show")) {
-						dropdown.hide(); // Bootstrap 5: ドロップダウンを非表示にする
-					}
-			
-					$(swatch).off("click", onDismissSwatchMenu);
-				}
-			};
-			
-			$(document).on("click", onDismissSwatchMenu);
 
 		});
-	}
-
-	
+	}	
     function createIcon(iconName) {
         let
             icon = document.createElement("span");
