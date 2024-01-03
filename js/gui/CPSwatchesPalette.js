@@ -213,19 +213,6 @@ export default function CPSwatchesPalette(controller) {
         
 		let dropdown;
 
-		// ここでドロップダウンを初期化
-		document.addEventListener("DOMContentLoaded", function () {
-			dropdown = new bootstrap.Dropdown($(swatchPanel.querySelector(".chickenpaint-color-swatch")), { autoClose: false });
-		});
-
-		querySelector(".chickenpaint-color-swatch").addEventListener('show.bs.dropdown', event => {//ドロップダウンメニューが表示されてたら
-		// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
-			Array.from(btnSettingsContainer.querySelectorAll(".dropdown-item")).forEach(function (item) {
-				item.addEventListener("click", function () {
-					dropdown.hide(); // ドロップダウンを非表示にする
-				});
-			});
-		});
 
         swatchPanel.addEventListener("click", function(e) {
             let
@@ -252,16 +239,18 @@ export default function CPSwatchesPalette(controller) {
             }
             
             e.preventDefault();
-			// var dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
-			$(swatch)
-			.off("click.bs.dropdown")
-			.on("click", function (e) {
-				e.stopPropagation();
-				dropdown._menu.classList.contains('show') ? dropdown.hide() : dropdown.show();
-			});
-	
-			// Handle right click to toggle the dropdown
+			var dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
 			dropdown.toggle();
+	
+			// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
+			document.addEventListener("click", function onDocumentClick(event) {
+				if (!$(swatch).find(event.target).length) {
+					// クリックがドロップダウン内でない場合はドロップダウンを閉じる
+					dropdown.hide();
+					document.removeEventListener("click", onDocumentClick);
+				}
+			});
+			// Handle right click to toggle the dropdown
 
 			let onDismissSwatchMenu = function (e) {
 				// Firefox wrongly fires click events for the right mouse button!
