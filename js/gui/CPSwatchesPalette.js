@@ -226,7 +226,7 @@ export default function CPSwatchesPalette(controller) {
                 that.userIsDoneWithUs();
             }
         });
-        
+		
         swatchPanel.addEventListener("contextmenu", function(e) {
             let
                 swatch = e.target;
@@ -236,29 +236,40 @@ export default function CPSwatchesPalette(controller) {
             }
             
             e.preventDefault();
-            var dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
+			var dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
 			$(swatch)
 			.off("click.bs.dropdown")
-			.on("click", function () {
-				dropdown.toggle(); // Bootstrap 5: ドロップダウンの表示/非表示を切り替え
+			.on("click", function (e) {
+				e.stopPropagation();
+				dropdown._menu.classList.contains('show') ? dropdown.hide() : dropdown.show();
 			});
-		
-            
+	
+			// Handle right click to toggle the dropdown
+			dropdown.toggle();
+
 			let onDismissSwatchMenu = function (e) {
 				// Firefox wrongly fires click events for the right mouse button!
 				if (!("button" in e) || e.button === 0) {
 					var closestWrapper = $(e.target).closest(".chickenpaint-color-swatch-wrapper");
-					if (closestWrapper.hasClass("show")) {
+					if (closestWrapper.length > 0 && closestWrapper.hasClass("show")) {
 						dropdown.hide(); // Bootstrap 5: ドロップダウンを非表示にする
 					}
 			
-					$(document).off("click", onDismissSwatchMenu);
+					$(swatch).off("click", onDismissSwatchMenu);
 				}
 			};
-
-            $(document).on("click", onDismissSwatchMenu);
-        });
-    }
+			
+			$(document).on("click", onDismissSwatchMenu);
+		});
+		btnAdd.addEventListener('show.bs.dropdown', event => {//ドロップダウンメニューが表示されていたら
+			// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
+			Array.from(btnSettingsContainer.querySelectorAll(".dropdown-item")).forEach(function (item) {
+				item.addEventListener("click", function () {
+					dropdown.hide(); // ドロップダウンを非表示にする
+				});
+			});
+		});
+	}
 
     function createIcon(iconName) {
         let
@@ -331,6 +342,15 @@ export default function CPSwatchesPalette(controller) {
 				$(this).off("click", onDismissSettingsMenu);
 			}
 		};
+
+		$(btnSettings).addEventListener('show.bs.dropdown', event => {//ドロップダウンメニューが表示されてたら
+			// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
+			Array.from(btnSettingsContainer.querySelectorAll(".dropdown-item")).forEach(function (item) {
+				item.addEventListener("click", function () {
+					dropdown.hide(); // ドロップダウンを非表示にする
+				});
+			});
+		});
 
 		btnAdd.addEventListener("click", function(e) {
             addSwatch(controller.getCurColor().getRgb());
