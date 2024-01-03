@@ -211,6 +211,22 @@ export default function CPSwatchesPalette(controller) {
             swatchPanel.appendChild(new CPColorSwatch(INIT_COLORS[i]).getElement());
         }
         
+		let dropdown;
+
+		// ここでドロップダウンを初期化
+		document.addEventListener("DOMContentLoaded", function () {
+			dropdown = new bootstrap.Dropdown($(swatchPanel.querySelector(".chickenpaint-color-swatch")), { autoClose: false });
+		});
+
+		querySelector(".chickenpaint-color-swatch").addEventListener('show.bs.dropdown', event => {//ドロップダウンメニューが表示されてたら
+		// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
+			Array.from(btnSettingsContainer.querySelectorAll(".dropdown-item")).forEach(function (item) {
+				item.addEventListener("click", function () {
+					dropdown.hide(); // ドロップダウンを非表示にする
+				});
+			});
+		});
+
         swatchPanel.addEventListener("click", function(e) {
             let
                 swatch = e.target;
@@ -236,7 +252,7 @@ export default function CPSwatchesPalette(controller) {
             }
             
             e.preventDefault();
-			var dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
+			// var dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
 			$(swatch)
 			.off("click.bs.dropdown")
 			.on("click", function (e) {
@@ -261,19 +277,10 @@ export default function CPSwatchesPalette(controller) {
 			
 			$(document).on("click", onDismissSwatchMenu);
 
-			// btnAdd.addEventListener('show.bs.dropdown', event => {//ドロップダウンメニューが表示されてたら
-				// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
-				Array.from(btnSettingsContainer.querySelectorAll(".dropdown-item")).forEach(function (item) {
-					item.addEventListener("click", function () {
-						dropdown.hide(); // ドロップダウンを非表示にする
-					});
-				});
-			// });
-	
-
 		});
 	}
 
+	
     function createIcon(iconName) {
         let
             icon = document.createElement("span");
