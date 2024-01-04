@@ -227,10 +227,9 @@ export default function CPSwatchesPalette(controller) {
             let
                 swatch = e.target;
             
-            if (!/chickenpaint-color-swatch/.test(swatch.className)) {
-                return;
-            }
-            
+			if (!/^<a data-color=/i.test(swatch.outerHTML) || !/chickenpaint-color-swatch/.test(swatch.className)) {
+				return;//<a data-color=で始まらない場合もreturn
+				}
             e.preventDefault();
 			var dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
 			dropdown.toggle();
