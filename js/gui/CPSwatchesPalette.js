@@ -218,10 +218,17 @@ export default function CPSwatchesPalette(controller) {
             let
                 swatch = e.target;
             
-            if (!/chickenpaint-color-swatch/.test(swatch.className)) {
-                return;
+			if (!/^<a data-color=/i.test(swatch.outerHTML) || !/chickenpaint-color-swatch/.test(swatch.className)) {
+				return;//<a data-color=で始まらない場合もreturn
+			}
+	
+			if (e.button == 0 /* Left */ && swatch.getAttribute("data-color") !== undefined) {
+                controller.setCurColor(new CPColor(parseInt(swatch.getAttribute("data-color"), 10)));
+                e.stopPropagation();
+                e.preventDefault();
+                that.userIsDoneWithUs();
             }
-        });
+       });
 		
 		swatchPanel.addEventListener("contextmenu", function(e) {
             let
