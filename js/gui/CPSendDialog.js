@@ -32,8 +32,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                     <div class="modal-content" data-stage="saving">
                         <div class="modal-header">
                             <h5 class="modal-title">${_("Saving drawing...")}</h5>
-                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close">
                             </button>
                         </div>
                         <div class="modal-body">
@@ -50,8 +49,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                     <div class="modal-content" data-stage="success-not-previously-posted" style="display:none">
                         <div class="modal-header">
                             <h5 class="modal-title">${_("Drawing saved!")}</h5>
-                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close">
                             </button>
                         </div>
                         <div class="modal-body">
@@ -66,8 +64,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                     <div class="modal-content" data-stage="success-already-posted" style="display:none">
                         <div class="modal-header">
                             <h5 class="modal-title">Drawing saved!</h5>
-                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close">
                             </button>
                         </div>
                         <div class="modal-body">
@@ -81,8 +78,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                     <div class="modal-content" data-stage="success-redirect" style="display:none">
                         <div class="modal-header">
                             <h5 class="modal-title">Drawing saved!</h5>
-                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close">
                             </button>
                         </div>
                         <div class="modal-body">

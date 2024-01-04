@@ -306,8 +306,8 @@ export default function CPPalette(cpController, className, title, options) {
     collapseIcon.className = "collapse-icon fas fa-angle-down";
     
     closeButton.type = "button";
-    closeButton.className = "close";
-    closeButton.innerHTML = "&times;";
+    closeButton.className = "btn btn-close";
+    closeButton.innerHTML = "";
     
     containerElement.className = "chickenpaint-palette chickenpaint-palette-" + className;
     
