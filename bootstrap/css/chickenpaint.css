@@ -5424,6 +5424,10 @@ pre code {
   color: inherit;
   word-break: normal;
 }
+.chickenpaint .pre-scrollable {
+	max-height: 340px;
+	overflow-y: scroll;
+}
 
 code {
   font-size: 0.875em;
