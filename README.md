@@ -1,5 +1,7 @@
 # ChickenPaint_for_Petit_Note_bs5
 
+[ChickenPaintのショートカットキーを拡張しました｜さとぴあ](https://note.com/satopian/n/n79fee71aa102)
+
 ## Building
 
 In the root of ChickenPaint, run `npm install` to install required dependencies. 
