@@ -10,6 +10,7 @@ Then run `make all` to build ChickenPaint.
 Include ChickenPaint's main JS and CSS files:
 
 ```html
+//use bootstrap.bundle.min.js which contains Popper.
 <script src="chickenpaint/js/bootstrap.bundle.min.js"></script>
 <script src="chickenpaint/js/chickenpaint.min.js"></script>
 <link rel="stylesheet" href="chickenpaint/css/chickenpaint.css">
