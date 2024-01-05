@@ -1,14 +1,14 @@
 # ChickenPaint_for_Petit_Note_bs5
-
-ChickenPaintは、Nicholas Sherlock氏によって開発されたペイントソフトです。  
+ChickenPaintは、Nicholas Sherlock氏が開発したペイントソフトです。  
+[thenickdude/chickenpaint: An HTML5 Port of the ChibiPaint multi-layer Oekaki painting tool](https://github.com/thenickdude/chickenpaint)  
+  
 そして、このリポジトリにあるのは、そのChickenPaintを改造したものです。  
-IEのサポートが完全に終了したため、互換性のための古いJavaScriptが必要なくなりました。
-そして、古くなり非推奨になったJavaScriptを推奨されるものに置き換える作業が必要になりました。  
+IEのサポートが完全に終了したため、互換性のための古いJavaScriptが必要なくなりました。  
+そして、古い非推奨のJavaScriptを推奨されるものに置き換える作業が必要になりました。  
 その作業の過程で、キーボードインベントの処理の書き直しをすすめてきましたが、bootstrap4にも非推奨のキーボードイベントが使用されていました。
-そのため、bootstrap4のコードを含むビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするといったとても無駄な作業が発生していました。 
-つまり、ChickenPaintのマイナーなバグを自分で使うために修正するたびに、bootstrap4の該当箇所の修正の繰り返しが必要でした。  
+そのため、bootstrap4のコードを含むChickenPaintのビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするとても無駄な作業が発生していました。  
 そのため、ChickenPaintのbootstrap5対応版を作りました。  
-機能的には、オリジナルのChickenPaintとほとんど同じです。  
+機能的は、オリジナルのChickenPaintとほぼ同じです。    
 
 ## 変更点
 
