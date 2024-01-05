@@ -1,6 +1,32 @@
 # ChickenPaint_for_Petit_Note_bs5
 
+ChickenPaintは、Nicholas Sherlock氏によって開発されたペイントソフトです。  
+そして、このリポジトリにあるのは、そのChickenPaintを改造したものです。  
+IEのサポートが完全に終了したため、互換性のための古いJavaScriptが必要なくなりました。
+そして、古くなり非推奨になったJavaScriptを推奨されるものに置き換える作業が必要になりました。  
+その作業の過程で、キーボードインベントの処理の書き直しをすすめてきましたが、bootstrap4にも非推奨のキーボードイベントが使用されていました。
+そのため、bootstrap4のコードを含むビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするといったとても無駄な作業が発生していました。 
+つまり、ChickenPaintのマイナーなバグを自分で使うために修正するたびに、bootstrap4の該当箇所の修正の繰り返しが必要でした。  
+そのため、ChickenPaintのbootstrap5対応版を作りました。  
+機能的には、オリジナルのChickenPaintとほとんど同じです。  
+
+## 変更点
+
+### 描画時にも円カーソルが表示されるようになりました。
+[PaintBBS NEOとChickenPaintの円カーソルの表示を変更しました｜さとぴあ](https://note.com/satopian/n/ne102c07b8adf)
+### ショートカットキーの変更と拡張
 [ChickenPaintのショートカットキーを拡張しました｜さとぴあ](https://note.com/satopian/n/n79fee71aa102)
+- R+左クリックでキャンバスの回転  
+- Wで水彩
+- Aでエアブラシ  
+- Sで薄消しゴム  
+- Dで指先ツール  
+- Cで混色ツール  
+### ぼかしフィルタやグリッド等数値を入力する箇所は数値のみに
+### 数値を入力する箇所は input type="number" に
+- これまでは、アルファベットやひらがなも入力可能でした。
+### グリッド設定でエンターキーを押下すると描画画面から移動してしまう問題
+- エンターキーのデフォルトの動作をキャンセルして、画面が移動しないようにしました。  
 
 ## Building
 
@@ -12,7 +38,7 @@ Then run `make all` to build ChickenPaint.
 Include ChickenPaint's main JS and CSS files:
 
 ```html
-//use bootstrap.bundle.min.js which contains Popper.
+//Use bootstrap.bundle.min.js which contains Popper.
 <script src="chickenpaint/js/bootstrap.bundle.min.js"></script>
 <script src="chickenpaint/js/chickenpaint.min.js"></script>
 <link rel="stylesheet" href="chickenpaint/css/chickenpaint.css">
