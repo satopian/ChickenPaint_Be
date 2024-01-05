@@ -127,40 +127,44 @@ export default function CPColorSwatch(initialColor, initialAlpha, containerEleme
     if (initialAlpha) {
         alpha = initialAlpha;
     }
+	const bootstrapPopover = new bootstrap.Popover(element, {
+		html: true,
+		content: function () {
+			window.addEventListener("mousedown", closeClickHandler);
+			return buildColorEditPanel();
+		},
+		trigger: "manual",
+		placement: "bottom",
+		container: containerElement || false
+	});
+	
+	// Clicking outside the popover will dismiss it
+	const closeClickHandler = function (e) {
+		const colorpicker=e.target;
+		const isColorPicker = 
+		colorpicker.closest('.popover-body')
+		|| colorpicker.classList.contains('chickenpaint-color-pick-panel')
+		|| colorpicker.classList.contains('chickenpaint-colorpicker-select')
+		|| colorpicker.classList.contains('chickenpaint-colorpicker-slider');
 
-// Clicking outside the popover will dismiss it
-const closeClickHandler = function (e) {
-    const popoverElement = element.closest('.popover');
-    const swatchElement = element.closest('.chickenpaint-color-pick-swatch');
-
-	const bootstrapPopover = new bootstrap.Popover(element);
-
-	if (!bootstrapPopover._tip.contains(e.target) && swatchElement !== e.target) {
+		e.preventDefault();
+		// console.log("closeClickHandler",e);
+		if(isColorPicker){//カラーピッカーをクリックした時は表示したままにする
+			return;
+		}
 		bootstrapPopover.hide();
 	}
-		
-};
-const bootstrapPopover = new bootstrap.Popover(element, {
-    html: true,
-    content: function () {
-        window.addEventListener("mousedown", closeClickHandler);
-        return buildColorEditPanel();
-    },
-    trigger: "manual",
-    placement: "bottom",
-    container: containerElement || false
-});
 
-element.addEventListener("click", function (e) {
-    e.preventDefault();
-    bootstrapPopover.toggle();
-});
+	element.addEventListener("click", function (e) {
+		e.preventDefault();
+		bootstrapPopover.toggle();
+	});
 
-element.addEventListener("hidden.bs.popover", function () {
-    window.removeEventListener("mousedown", closeClickHandler);
-});
+	element.addEventListener("hidden.bs.popover", function () {
+		window.removeEventListener("mousedown", closeClickHandler);
+	});
 
-paint();
+	paint();
 }
 CPColorSwatch.prototype = Object.create(EventEmitter.prototype);
 CPColorSwatch.prototype.constructor = CPColorSwatch;
