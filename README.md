@@ -5,8 +5,9 @@ ChickenPaintは、Nicholas Sherlock氏が開発したペイントソフトです
 そして、このリポジトリにあるのは、そのChickenPaintを改造したものです。  
 IEのサポートが完全に終了したため、互換性のための古いJavaScriptが必要なくなりました。  
 そして、古い非推奨のJavaScriptを推奨されるものに置き換える作業が必要になりました。  
-その作業の過程で、キーボードインベントの処理の書き直しをすすめてきましたが、bootstrap4にも非推奨のキーボードイベントが使用されていました。
-そのため、bootstrap4のコードを含むChickenPaintのビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするとても無駄な作業が発生していました。  
+その作業の過程で、キーボードインベントの処理の書き直しをすすめてきました。  
+しかし、bootstrap4には非推奨になったキーボードイベントが残っていました。  
+そのため、bootstrap4のコードを含むChickenPaintのビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするとても無駄な作業が発生しました。  
 そのため、ChickenPaintのbootstrap5対応版を作りました。  
 機能的は、オリジナルのChickenPaintとほぼ同じです。    
 
@@ -28,14 +29,11 @@ IEのサポートが完全に終了したため、互換性のための古いJav
 ### グリッド設定でエンターキーを押下すると描画画面から移動してしまう問題
 - エンターキーのデフォルトの動作をキャンセルして、画面が移動しないようにしました。  
 
-## Building
+### このバージョンのchickenpaint.jsにはBootstrapのコードが入っていません
+- Bootstrapのコードは従来のバージョンのChickenPaintには入っていましたが、このBootstrap5対応版には入っていません。
 
-In the root of ChickenPaint, run `npm install` to install required dependencies. 
-Then run `make all` to build ChickenPaint.
-
-## Usage
-
-Include ChickenPaint's main JS and CSS files:
+そのため、chickenpaint.jsを読み込む前に、Popperを含むBundle版のBootstrapの読み込みが必要です。
+CDNのBootstrap5でも動作します。  
 
 ```html
 //Use bootstrap.bundle.min.js which contains Popper.
@@ -43,6 +41,13 @@ Include ChickenPaint's main JS and CSS files:
 <script src="chickenpaint/js/chickenpaint.min.js"></script>
 <link rel="stylesheet" href="chickenpaint/css/chickenpaint.css">
 ```
+
+
+## Building
+
+In the root of ChickenPaint, run `npm install` to install required dependencies. 
+Then run `make all` to build ChickenPaint.
+
 
 Prevent zooming on mobile devices by adding this to your head:
 
