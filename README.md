@@ -6,9 +6,9 @@ ChickenPaintは、Nicholas Sherlock氏が開発したペイントソフトです
 IEのサポートが完全に終了したため、互換性のための古いJavaScriptが必要なくなりました。  
 そして、古い非推奨のJavaScriptを推奨されるものに置き換える作業が必要になりました。  
 その作業の過程で、キーボードインベントの処理の書き直しをすすめてきました。  
-しかし、bootstrap4には非推奨になったキーボードイベントが残っていました。  
-そのため、bootstrap4のコードを含むChickenPaintのビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするとても無駄な作業が発生しました。  
-そのため、ChickenPaintのbootstrap5対応版を作りました。  
+しかし、Bootstrap4には非推奨になったキーボードイベントが残っていました。  
+そのため、Bootstrap4のコードを含むChickenPaintのビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするとても無駄な作業が発生しました。  
+そのため、ChickenPaintのBootstrap5対応版を作りました。  
 機能的は、オリジナルのChickenPaintとほぼ同じです。    
 
 ## 変更点
@@ -41,7 +41,6 @@ CDNのBootstrap5でも動作します。
 <script src="chickenpaint/js/chickenpaint.min.js"></script>
 <link rel="stylesheet" href="chickenpaint/css/chickenpaint.css">
 ```
-
 
 ## Building
 
