@@ -21,7 +21,7 @@
 */
 
 import $ from "jquery";
-
+import {_} from "../languages/lang.js";
 import CPColor from '../util/CPColor.js';
 
 import CPSlider from './CPSlider.js';
@@ -102,7 +102,7 @@ export default function CPColorSwatch(initialColor, initialAlpha, containerEleme
 
         alphaSlider.value = alpha;
         alphaSlider.title = function(alpha) {
-            return "Opacity: " + alpha;
+            return _("Opacity: ") + alpha;
         };
         alphaSlider.on("valueChange", function(alpha) {
             that.setAlpha(alpha);

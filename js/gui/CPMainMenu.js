@@ -575,7 +575,7 @@ export default function CPMainMenu(controller, mainGUI) {
 						let entryElem;
 			
 						if (entry.name == '-') {
-							entryElem = $('<div class="dropdown-divider"></div>');
+							entryElem = $('<hr class="dropdown-divider"></hr>');
 						} else {
 							entryElem = $(
 								'<a class="dropdown-item" href="#" data-action="' + entry.action + '"><span>' + _(entry.name) + '</span></a>'
@@ -659,9 +659,10 @@ export default function CPMainMenu(controller, mainGUI) {
 			});
 			
 			// Since we don't use the data-api
-			$(".navbar-toggler", bar).on('click', e => {
-				var collapseTarget = $('.collapse', bar);
-				new bootstrap.Collapse(collapseTarget[0]);
+			$(".navbar-toggler", bar).on('click', e => {//ハンバーガーメニューをクリックした時
+				//元のコードをbootstrap5形式に対応させようとするとエラーが出る
+				//コメントアウトしても動作に支障は出ていない
+				// $('.collapse', bar).collapse('toggle');
 				e.preventDefault();
 			});
 						

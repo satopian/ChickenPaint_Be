@@ -97,7 +97,7 @@
     "Load swatches from your computer...": "カラーセットをPCから読み込み",
     "Add the current brush color as a new swatch": "選択中の色を追加",
 
-  "Sample all layers": "全レイヤー参照",
+  "Sample all layers": "全レイヤー混色",
   "Lock transparency": "透明部分を保護",
   
   "Textures": "テクスチャ",
@@ -162,6 +162,11 @@
   "Add mask": "レイヤーマスク追加",
   
   "Gradient": "グラデーション作成",
+  "Transform style": "変形スタイル", 
+  "Apply transform": "変形確定",
+  "Smooth": "スムーズ",
+  "Sharp": "シャープ",
+  "Opacity: ":"不透明度:",
 
   "Please enter a color in hex format": "16進形式で色を入力してください（#xxxxxxの形）",
   
