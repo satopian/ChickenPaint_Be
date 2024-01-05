@@ -64,26 +64,26 @@ export default function CPConfirmTransformDialog(parent, controller) {
 		controller.actionPerformed({action: "CPTransformReject"});
 		that.emitEvent("reject");
 	});
-
-	dialog.modal({
-		show: false
-	}).on('shown.bs.modal', function () {
-		applyButton.focus();
-	}).on("hidden.bs.modal", function(e) {
-			// Destroy the modal upon close
-			dialog.remove();
-	}).on('keydown', function (e) {
-		if (e.key === "Enter") {
-			applyButton.trigger('click');
-		}
-	});
+	//bootstrap4の処理のためmodalは関数ではないというエラーが発生 コメントアウトしても動作には支障が無い
+	// dialog.modal({
+	// 	show: false
+	// }).on('shown.bs.modal', function () {
+	// 	applyButton.focus();
+	// }).on("hidden.bs.modal", function(e) {
+	// 		// Destroy the modal upon close
+	// 		dialog.remove();
+	// }).on('keydown', function (e) {
+	// 	if (e.key === "Enter") {
+	// 		applyButton.trigger('click');
+	// 	}
+	// });
 	
 	// Fix the backdrop location in the DOM by reparenting it to the chickenpaint container
 	parent.appendChild(dialog[0]);
 	
-	this.show = function() {
-		dialog.modal("show");
-	};
+	// this.show = function() {
+	// 	dialog.modal("show");
+	// };
 }
 
 CPConfirmTransformDialog.prototype = Object.create(EventEmitter.prototype);
