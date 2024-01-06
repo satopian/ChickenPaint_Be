@@ -19,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
+import {_} from "../languages/lang.js";
 
 import EventEmitter from "wolfy87-eventemitter";
 import $ from "jquery";
@@ -1746,11 +1747,11 @@ export default function CPCanvas(controller) {
             activeLayer = artwork.getActiveLayer();
 
         if (!(activeLayer.visible && activeLayer.ancestorsAreVisible())) {
-            controller.showLayerNotification(activeLayer, "Whoops! This layer is currently hidden", "layer");
+            controller.showLayerNotification(activeLayer, _("Whoops! This layer is currently hidden"), "layer");
 
             return false;
         } else if (activeLayer.alpha == 0) {
-            controller.showLayerNotification(activeLayer, "Whoops! This layer's opacity is currently 0%", "opacity");
+            controller.showLayerNotification(activeLayer, _("Whoops! This layer's opacity is currently 0%"), "opacity");
 
             return false;
         }
@@ -1769,7 +1770,7 @@ export default function CPCanvas(controller) {
             activeLayer = artwork.getActiveLayer();
 
         if (activeLayer instanceof CPLayerGroup && !artwork.isEditingMask()) {
-            controller.showLayerNotification(activeLayer, "Whoops! You can't draw on a group", "layer");
+            controller.showLayerNotification(activeLayer, _("Whoops! You can't draw on a group"), "layer");
 
             return false;
         }
