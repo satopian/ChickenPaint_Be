@@ -465,11 +465,11 @@ export default function ChickenPaint(options) {
                         layer = that.artwork.getActiveLayer();
 
                     if (!layer.visible) {
-                        that.showLayerNotification(layer, "Whoops! This layer is currently hidden", "layer");
+                        that.showLayerNotification(layer, _("Whoops! This layer is currently hidden"), "layer");
                     } else if (layer.alpha == 0) {
-                        that.showLayerNotification(layer, "Whoops! This layer's opacity is currently 0%", "opacity");
+                        that.showLayerNotification(layer, _("Whoops! This layer's opacity is currently 0%"), "opacity");
                     } else if (that.artwork.transformAffineBegin() == null) {
-                        that.showLayerNotification(layer, "Whoops! All of the selected pixels are transparent!", "layer");
+                        that.showLayerNotification(layer, _("Whoops! All of the selected pixels are transparent!"), "layer");
                     } else {
                         setMode(ChickenPaint.M_TRANSFORM);
                     }
