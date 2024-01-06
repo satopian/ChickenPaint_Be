@@ -1,4 +1,4 @@
-# ChickenPaint_for_Petit_Note_bs5
+# ChickenPaint_for_Petit_Note
 ChickenPaintは、Nicholas Sherlock氏が開発したペイントソフトです。  
 [thenickdude/chickenpaint: An HTML5 Port of the ChibiPaint multi-layer Oekaki painting tool](https://github.com/thenickdude/chickenpaint)  
   
