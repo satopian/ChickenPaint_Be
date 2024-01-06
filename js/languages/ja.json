@@ -164,6 +164,10 @@
   "Gradient": "グラデーション作成",
   "Transform style": "変形スタイル", 
   "Apply transform": "変形確定",
+  "Complete transform": "変形を完了",
+  "Undo transform": "取り消し",
+  "You need to finish transforming this layer before you can do that. What would you like to do with the transform?":
+   "続行するために変形を完了します。",
   "Smooth": "スムーズ",
   "Sharp": "シャープ",
   "Opacity: ":"不透明度:",

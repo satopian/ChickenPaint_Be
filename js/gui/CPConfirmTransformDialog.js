@@ -31,19 +31,19 @@ export default function CPConfirmTransformDialog(parent, controller) {
 	            <div class="modal-dialog">
 	                <div class="modal-content">
 	                    <div class="modal-header">
-	                        <h5 class="modal-title">Complete transform</h5>
+	                        <h5 class="modal-title">${_("Complete transform")}</h5>
 	                        <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close">
 	                        </button>
 	                    </div>
 	                    <div class="modal-body">
 	                        <p>
-	                            You need to finish transforming this layer before you can do that. What would you like to do with the transform?
+							${_("You need to finish transforming this layer before you can do that. What would you like to do with the transform?")}
 							</p>
 	                    </div>
 	                    <div class="modal-footer">
 	                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_("Cancel")}</button>
-	                        <button type="button" class="btn btn-light chickenpaint-reject-transform" data-bs-dismiss="modal">Undo transform</button>
-	                        <button type="button" class="btn btn-primary chickenpaint-accept-transform" data-bs-dismiss="modal">Apply transform</button>
+	                        <button type="button" class="btn btn-light chickenpaint-reject-transform" data-bs-dismiss="modal">${_("Undo transform")}</button>
+	                        <button type="button" class="btn btn-primary chickenpaint-accept-transform" data-bs-dismiss="modal">${_("Apply transform")}</button>
 	                    </div>
 	                </div>
 	            </div>
@@ -64,26 +64,18 @@ export default function CPConfirmTransformDialog(parent, controller) {
 		controller.actionPerformed({action: "CPTransformReject"});
 		that.emitEvent("reject");
 	});
-	//bootstrap4の処理のためmodalは関数ではないというエラーが発生 コメントアウトしても動作には支障が無い
-	// dialog.modal({
-	// 	show: false
-	// }).on('shown.bs.modal', function () {
-	// 	applyButton.focus();
-	// }).on("hidden.bs.modal", function(e) {
-	// 		// Destroy the modal upon close
-	// 		dialog.remove();
-	// }).on('keydown', function (e) {
-	// 	if (e.key === "Enter") {
-	// 		applyButton.trigger('click');
-	// 	}
-	// });
+	  // Fix the backdrop location in the DOM by reparenting it to the chickenpaint container
+	  parent.appendChild(dialog[0]);
+
+	  // Bootstrap 5 modal initialization
+	  var modal = new bootstrap.Modal(dialog[0]);
+  
+	  this.show = function () {
+		  modal.show();
+	  };
+
+	  parent.appendChild(dialog[0]);
 	
-	// Fix the backdrop location in the DOM by reparenting it to the chickenpaint container
-	parent.appendChild(dialog[0]);
-	
-	// this.show = function() {
-	// 	dialog.modal("show");
-	// };
 }
 
 CPConfirmTransformDialog.prototype = Object.create(EventEmitter.prototype);
