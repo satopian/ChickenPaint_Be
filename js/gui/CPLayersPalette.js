@@ -1496,7 +1496,7 @@ export default function CPLayersPalette(controller) {
             e.stopPropagation();
         });
 
-        textBox.addEventListener("keypress", function(e) {
+        textBox.addEventListener("keydown", function(e) {
             if (e.key === "Enter") { // Enter
                 that.renameAndHide();
             }

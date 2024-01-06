@@ -73,7 +73,7 @@ export default function CPGridDialog(parent, canvas) {
 		});
 	
 		// Enter キーが押されたときの処理を追加
-		dialog.on('keypress', function (e) {
+		dialog.on('keydown', function (e) {
 			if (e.key === "Enter") {
 				e.preventDefault(); // デフォルトのフォーム送信を阻止
 				applyButton.trigger('click');

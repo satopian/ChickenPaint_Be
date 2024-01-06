@@ -64,17 +64,24 @@ export default function CPConfirmTransformDialog(parent, controller) {
 		controller.actionPerformed({action: "CPTransformReject"});
 		that.emitEvent("reject");
 	});
-	  // Fix the backdrop location in the DOM by reparenting it to the chickenpaint container
-	  parent.appendChild(dialog[0]);
 
-	  // Bootstrap 5 modal initialization
-	  var modal = new bootstrap.Modal(dialog[0]);
-  
-	  this.show = function () {
-		  modal.show();
-	  };
+	// Bootstrap 5 modal initialization
+	var modal = new bootstrap.Modal(dialog[0]);
 
-	  parent.appendChild(dialog[0]);
+	this.show = function () {
+		modal.show();
+	};
+	// Enterキーが押されたときの処理
+	parent.addEventListener("keydown", function keydown_EnterKey (e) {
+		if (e.key === "Enter") {
+			// Enterキーが押されたら非表示にする
+			modal.hide();
+			parent.removeEventListener("keydown",keydown_EnterKey);
+		}
+	});
+
+	// Fix the backdrop location in the DOM by reparenting it to the chickenpaint container
+	parent.appendChild(dialog[0]);
 	
 }
 

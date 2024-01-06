@@ -77,7 +77,7 @@ export default function CPBoxBlurDialog(parent, controller) {
 			blurAmountElem.trigger('focus');
 		});
 		
-		$(document).on('keypress', function (e) {
+		$(document).on('keydown', function (e) {
 			if (e.key === "Enter" && dialog.hasClass('show')) {
 				applyButton.trigger('click');
 			}
