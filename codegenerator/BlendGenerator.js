@@ -801,7 +801,9 @@ function getFunctionBody(func) {
 
 	// Remove trailing and leading empty lines
 	source = source.replace(/^(\s*\n)*/, "");
-	source = source.replace(/(\n\s*)*$/, "");
+	// source = source.replace(/(\n\s*)*$/, "");コードスキャンでバックトラッキングが指摘されたためコメントアウト
+	source = source.replace(/^[\s\n]*|[\s\n]*$/g, "");//行の先頭からも末尾からも空白を除去するので、元のコードとまったく同じ動作ではない
+
 
 	return source;
 }
