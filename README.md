@@ -9,7 +9,7 @@ IEのサポートが完全に終了したため、互換性のための古いJav
 しかし、Bootstrap4には非推奨になったキーボードイベント処理が残っていました。  
 そのため、Bootstrap4のコードを含むChickenPaintのビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするとても無駄な作業が発生しました。  
 そのため、ChickenPaintのBootstrap5対応版を作りました。  
-機能的は、オリジナルのChickenPaintとほぼ同じです。    
+機能は、オリジナルのChickenPaintとほぼ同じです。    
 
 ## 変更点
 
@@ -24,23 +24,32 @@ IEのサポートが完全に終了したため、互換性のための古いJav
 - Dで指先ツール  
 - Cで混色ツール  
 ### ぼかしフィルタやグリッド等数値を入力する箇所は数値のみに
-### 数値を入力する箇所は input type="number" に
-- これまでは、アルファベットやひらがなも入力可能でした。
+#### 数値を入力する箇所は input type="number" に変更しました
+- これまでは、数値を入力する項目にアルファベットやひらがなの入力が可能でした。
 ### グリッド設定でエンターキーを押下すると描画画面から移動してしまう問題
-- エンターキーのデフォルトの動作をキャンセルして、画面が移動しないようにしました。  
+- エンターキーのデフォルトの動作をキャンセルして、画面が移動しないようにしました。
+### Firefoxで、Altキーを押すとメニューが開閉する問題
+- Alt押下でキャンバスの色をスポイトできますが、この時にFirefoxのメニューバーが開閉する問題がありました。
+Altキーのブラウザのデフォルトの動作をキャンセルしてこの問題を修正しました。
 
 ### このバージョンのchickenpaint.jsにはBootstrapのコードが入っていません
 - Bootstrapのコードは従来のバージョンのChickenPaintには入っていましたが、このBootstrap5対応版には入っていません。
 
 そのため、chickenpaint.jsを読み込む前に、Popperを含むBundle版のBootstrapの読み込みが必要です。
-CDNのBootstrap5でも動作します。  
 
 ```html
-//Use bootstrap.bundle.min.js which contains Popper.
-<script src="chickenpaint/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 <script src="chickenpaint/js/chickenpaint.min.js"></script>
 <link rel="stylesheet" href="chickenpaint/css/chickenpaint.css">
 ```
+
+### このバージョンにはオリジナルのChickenPaintには存在しない固有の問題があるかもしれません  
+
+- もしも動作に問題がある場合は、このリポジトリのIssueを開いてください。
+- GitHubにアカウントが無い場合は、[サポート掲示板](https://paintbbs.sakura.ne.jp/cgi/neosample/support/)をご利用ください。
+- かなりの箇所に手を加えているため、オリジナルのChickenPaintには無い固有の問題が存在している可能性があります。
+- オリジナル版のChickenPaintで発生していない問題をオリジナルのChickenPaintのリポジトリに問い合わせないようお願いします。
+ 
 
 ## Building
 
