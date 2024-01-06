@@ -36,7 +36,12 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 - Bootstrapのコードは従来のバージョンのChickenPaintには入っていましたが、このBootstrap5対応版には入っていません。
 
 そのため、chickenpaint.jsを読み込む前に、Popperを含むBundle版のBootstrapの読み込みが必要です。
-CDNのBootstrap5でも動作します。  
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<script src="chickenpaint/js/chickenpaint.min.js"></script>
+<link rel="stylesheet" href="chickenpaint/css/chickenpaint.css">
+```
 
 ### このバージョンにはオリジナルのChickenPaintには存在しない固有の問題があるかもしれません  
 
@@ -45,12 +50,6 @@ CDNのBootstrap5でも動作します。
 - かなりの箇所に手を加えているため、オリジナルのChickenPaintでは発生しない固有の問題が存在している可能性があります。
 - オリジナル版のChickenPaintで発生していない問題をオリジナルのChickenPaintのリポジトリに問い合わせないようお願いします。
  
-```html
-//Use bootstrap.bundle.min.js which contains Popper.
-<script src="chickenpaint/js/bootstrap.bundle.min.js"></script>
-<script src="chickenpaint/js/chickenpaint.min.js"></script>
-<link rel="stylesheet" href="chickenpaint/css/chickenpaint.css">
-```
 
 ## Building
 
