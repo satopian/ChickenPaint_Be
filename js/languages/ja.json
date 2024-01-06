@@ -97,7 +97,7 @@
     "Load swatches from your computer...": "カラーセットをPCから読み込み",
     "Add the current brush color as a new swatch": "選択中の色を追加",
 
-  "Sample all layers": "全レイヤー混色",
+  "Sample all layers": "全レイヤー混合",
   "Lock transparency": "透明部分を保護",
   
   "Textures": "テクスチャ",
@@ -108,7 +108,7 @@
     "Contrast": "コントラスト",
     "Reset": "リセット",
   
-  "Blending mode": "合成モード",
+	"Layer blending mode": "合成モード",
     "Normal": "通常",
     "Multiply": "乗算",
     "Add": "加算",
