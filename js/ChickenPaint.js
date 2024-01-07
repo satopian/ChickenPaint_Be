@@ -480,6 +480,8 @@ export default function ChickenPaint(options) {
 				},
 				modifies: {mode: true},
 				allowed: function() {
+					const layer = that.artwork.getActiveLayer();
+
 					if (!layer.visible) {//非表示レイヤーを変形しようとした時にエラーメッセージを出す
 						that.showLayerNotification(layer, (0, _lang._)("Whoops! This layer is currently hidden"), "layer");
 					  } else if (layer.alpha == 0) {
