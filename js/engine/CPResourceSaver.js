@@ -201,13 +201,16 @@ export default function CPResourceSaver(options) {
 
                     postDrawing(formData);
                 } else {
-                    FileSaver.saveAs(flatBlob, "oekaki.png");
+
+					const saveFilename='oekaki_' + (new Date()).toISOString().split('.')[0].replace(/[^0-9]/g, '_');
+					
+                    FileSaver.saveAs(flatBlob, saveFilename+".png");
 
                     if (chibiResult) {
-                        FileSaver.saveAs(chibiResult.bytes, "oekaki.chi");
+                        FileSaver.saveAs(chibiResult.bytes, saveFilename+".chi");
                     }
                     if (swatchesBlob) {
-                        FileSaver.saveAs(swatchesBlob, "oekaki.aco");
+                        FileSaver.saveAs(swatchesBlob, saveFilename+".aco");
                     }
                 }
             })
