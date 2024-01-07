@@ -468,25 +468,28 @@ export default function ChickenPaint(options) {
 
             // Layer transform
 
-            CPTransform: {
-                action: function () {
-                    let
-                        layer = that.artwork.getActiveLayer();
+			CPTransform: {
+				action: function () {
+					const layer = that.artwork.getActiveLayer();
 
-                    if (!layer.visible) {
-                        that.showLayerNotification(layer, _("Whoops! This layer is currently hidden"), "layer");
-                    } else if (layer.alpha == 0) {
-                        that.showLayerNotification(layer, _("Whoops! This layer's opacity is currently 0%"), "opacity");
-                    } else if (that.artwork.transformAffineBegin() == null) {
-                        that.showLayerNotification(layer, _("Whoops! All of the selected pixels are transparent!"), "layer");
-                    } else {
-                        setMode(ChickenPaint.M_TRANSFORM);
-                    }
-                },
-                modifies: {mode: true},
-                allowed: function() {
-                    return that.artwork.getActiveLayer().getEffectiveAlpha() != 0;
-                }
+					if (that.artwork.transformAffineBegin() == null) {
+						that.showLayerNotification(layer, _("Whoops! All of the selected pixels are transparent!"), "layer");
+					} else {
+						setMode(ChickenPaint.M_TRANSFORM);
+					}
+				},
+				modifies: {mode: true},
+				allowed: function() {
+					if (!layer.visible) {//非表示レイヤーを変形しようとした時にエラーメッセージを出す
+						that.showLayerNotification(layer, (0, _lang._)("Whoops! This layer is currently hidden"), "layer");
+					  } else if (layer.alpha == 0) {
+						that.showLayerNotification(layer, (0, _lang._)("Whoops! This layer's opacity is currently 0%"), "opacity");
+					  } else if (that.artwork.transformAffineBegin() == null) {
+						that.showLayerNotification(layer, (0, _lang._)("Whoops! All of the selected pixels are transparent!"), "layer");
+					  } else {
+						return layer.getEffectiveAlpha() != 0;
+					}
+				}
             },
             CPTransformAccept: {
                 action: function () {
