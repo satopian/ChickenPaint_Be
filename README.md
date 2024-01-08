@@ -2,7 +2,7 @@
 ｢ChickenPaint｣は、Nicholas Sherlock氏が開発したペイントソフトです。  
 [thenickdude/chickenpaint: An HTML5 Port of the ChibiPaint multi-layer Oekaki painting tool](https://github.com/thenickdude/chickenpaint)  
   
-そして、このリポジトリにあるのは、その｢ChickenPaint｣を改造したものです。
+そして、このリポジトリにあるのは、その｢ChickenPaint｣を改造したものです。  
 IEのサポートが完全に終了したため、互換性のための古いJavaScriptが必要なくなりました。  
 そして、古い非推奨のJavaScriptを推奨されるものに置き換える作業が必要になりました。  
 その作業の過程で、キーボードインベントの処理の書き直しを行いました。  
