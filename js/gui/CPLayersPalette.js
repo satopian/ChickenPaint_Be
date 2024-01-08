@@ -666,33 +666,15 @@ export default function CPLayersPalette(controller) {
             let
                 displayIndex = getDisplayIndexFromElem(e.target);
 
-            if (displayIndex != -1) {
+			if (displayIndex != -1) {
                 let
                     layer = artwork.getActiveLayer(),
                     facts = computeLayerPredicates(layer);
 
-                dropdownLayer = layer;
-                dropdownMousePos = {x: e.clientX, y: e.clientY};
+					showRenameBoxForLayer(getDisplayIndexFromElem(e.target));
 
-                for (let requirement of ["image-layer", "layer-group", "clipping-mask", "no-clipping-mask", "no-mask"]) {
-                    $(".chickenpaint-action-require-" + requirement, dropdownLayerMenu).toggle(facts[requirement]);
-                }
-
-                for (let requirement of ["mask", "mask-enabled", "mask-disabled"]) {
-                    $(".chickenpaint-action-require-" + requirement, dropdownLayerMenu).toggle(dropdownOnMask && facts[requirement]);
-                }
-
-                $("[data-action]", dropdownLayerMenu).each(function () {
-                    let
-                        action = this.getAttribute("data-action");
-
-                    $(this).parent().toggleClass("disabled", action !== "CPRenameLayer" && !controller.isActionAllowed(action));
-                });
-
-			const dropdownElement = $(getElemFromDisplayIndex(displayIndex));
-			const dropdownInstance = new bootstrap.Dropdown(dropdownElement.get(0));
-			dropdownInstance.toggle();
-            }
+					e.preventDefault();
+				}
         }
 
         function onPointerDown(e) {
@@ -789,9 +771,8 @@ export default function CPLayersPalette(controller) {
 
                             layerContainer.addEventListener("pointermove", onPointerDragged);
                             layerContainer.addEventListener("pointerup", onPointerUp);
-	                    } else if (e.button == BUTTON_SECONDARY) {
+	                    } else if ((e.button == BUTTON_SECONDARY) && !layerChanged) {
 	                        e.preventDefault();
-
 	                        showContextMenu(e);
                         }
                     }
@@ -1478,16 +1459,25 @@ export default function CPLayersPalette(controller) {
             this.hide();
         };
 
-        this.show = function(_layer, _layerElem) {
-            layer = _layer;
-            origName = layer.name;
+		this.show = function(_layer, _layerElem) {
+			layer = _layer;
+			origName = layer.name;
 
-            textBox.value = origName;
-
-            $(".chickenpaint-layer-name", _layerElem).empty().append(textBox);
-            textBox.select();
-        };
-
+			textBox.value = origName;
+		
+			var layerNameElem = _layerElem.querySelector('.chickenpaint-layer-name');
+			if (layerNameElem) {
+				// 親ノードから削除されている場合にのみ処理を実行
+				if (layerNameElem.parentNode) {
+					while (layerNameElem.firstChild) {
+						layerNameElem.removeChild(layerNameElem.firstChild);
+					}
+					layerNameElem.appendChild(textBox);
+				}
+			}
+		
+			textBox.select();
+		};
         textBox.type = "text";
         textBox.className = "chickenpaint-layer-rename form-control input-sm";
 
