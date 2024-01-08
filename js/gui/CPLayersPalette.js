@@ -1465,16 +1465,16 @@ export default function CPLayersPalette(controller) {
 			var layerNameElem = _layerElem.querySelector('.chickenpaint-layer-name');
 			if (layerNameElem) {
 			// 親ノードから削除されている場合にのみ処理を実行
-			if (layerNameElem.parentNode) {
-				// 現在の子ノードを取得
-				let currentChild = layerNameElem.firstChild;
-				// テキストノードが存在する場合にのみ削除
-				if (currentChild && currentChild.nodeType === Node.TEXT_NODE) {
-					layerNameElem.removeChild(currentChild);
-					layerNameElem.appendChild(textBox);
+				if (layerNameElem.parentNode) {
+					// 現在の子ノードを取得
+					let currentChild = layerNameElem.firstChild;
+					// テキストノードが存在する場合にのみ削除
+					if (currentChild && currentChild.nodeType === Node.TEXT_NODE) {
+						layerNameElem.removeChild(currentChild);
+						layerNameElem.appendChild(textBox);
+					}
 				}
 			}
-
 			textBox.select();
 		};
         textBox.type = "text";
