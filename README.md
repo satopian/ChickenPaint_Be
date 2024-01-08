@@ -2,15 +2,15 @@
 ｢ChickenPaint｣は、Nicholas Sherlock氏が開発したペイントソフトです。  
 [thenickdude/chickenpaint: An HTML5 Port of the ChibiPaint multi-layer Oekaki painting tool](https://github.com/thenickdude/chickenpaint)  
   
-そして、このリポジトリにあるのは、その｢ChickenPaint｣を改造した｢ChickenPaint Be｣です。  
+そして、このリポジトリにあるのは、その｢ChickenPaint｣を改造したものです。
 IEのサポートが完全に終了したため、互換性のための古いJavaScriptが必要なくなりました。  
 そして、古い非推奨のJavaScriptを推奨されるものに置き換える作業が必要になりました。  
 その作業の過程で、キーボードインベントの処理の書き直しを行いました。  
 しかし、Bootstrap4にも非推奨になったキーボードイベントのコードが残っていました。  
-Bootstrap4のコードを含むChickenPaintのビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするとても無駄な作業が発生しました。  
+Bootstrap4のコードを含む｢ChickenPaint｣のビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするとても無駄な作業が発生しました。  
 それらの問題を解決するためにBootstrap5対応版を作りました。  
-改造したバージョンのChickenPaintの名称は｢ChickenPaint Be｣です。  
-追加された機能と廃止された機能があり、またこの改造版に固有の問題が存在する可能性もあるため名称を変更しました。   
+改造したバージョンの｢ChickenPaint｣の名称は｢ChickenPaint Be｣です。  
+追加された機能と廃止された機能があり、またこの改造版に固有の問題が存在する可能性もあるため名称を変更しました。  
 
 ## 変更点
 
