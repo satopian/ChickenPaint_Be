@@ -58,7 +58,7 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 ### このバージョンのchickenpaint.jsにはBootstrapのコードが入っていません
 - Bootstrapのコードは従来のバージョンのChickenPaintには入っていましたが、このBootstrap5対応版には入っていません。
 
-そのため、chickenpaint.jsを読み込む前に、Popperを含むBundle版のBootstrapの読み込みが必要です。
+そのため、chickenpaint.jsを読み込む前に、Popperを含むBundle版のBootstrapを読み込む必要があります。
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
