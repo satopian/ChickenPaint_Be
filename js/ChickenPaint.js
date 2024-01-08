@@ -1,6 +1,6 @@
 /*
-    ChickenPaint for Petit Note
-    https://github.com/satopian/ChickenPaint_for_Petit_Note
+    ChickenPaint Be
+    https://github.com/satopian/ChickenPaint_Be
     by satopian
     Customized from ChickenPaint by Nicholas Sherlock.
     GNU GENERAL PUBLIC LICENSE
