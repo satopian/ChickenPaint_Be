@@ -1,8 +1,8 @@
 # ChickenPaint Be
-ChickenPaintは、Nicholas Sherlock氏が開発したペイントソフトです。  
+｢ChickenPaint｣は、Nicholas Sherlock氏が開発したペイントソフトです。  
 [thenickdude/chickenpaint: An HTML5 Port of the ChibiPaint multi-layer Oekaki painting tool](https://github.com/thenickdude/chickenpaint)  
   
-そして、このリポジトリにあるのは、そのChickenPaintを改造した｢ChickenPaint Be｣です。  
+そして、このリポジトリにあるのは、その｢ChickenPaint｣を改造した｢ChickenPaint Be｣です。  
 IEのサポートが完全に終了したため、互換性のための古いJavaScriptが必要なくなりました。  
 そして、古い非推奨のJavaScriptを推奨されるものに置き換える作業が必要になりました。  
 その作業の過程で、キーボードインベントの処理の書き直しを行いました。  
@@ -11,13 +11,30 @@ IEのサポートが完全に終了したため、互換性のための古いJav
 そのため、ChickenPaintのBootstrap5対応版を作りました。  
 機能は、オリジナルのChickenPaintとほぼ同じです。    
 
-オリジナルのChickenPaintからの改造によって追加された機能と廃止された機能があり、この改造版には固有の問題が存在するかもしれません。  
-そのため、アプリの名称を｢ChickenPaint Be｣としました。  
+オリジナルの｢ChickenPaint｣からの改造によって追加された機能と廃止された機能があり、この改造版には固有の問題が存在するかもしれません。  
+そのため、アプリの名称を｢ChickenPaint Be｣としました。
 
 ## 変更点
 
+#### ChickenPaintのダイヤログ、ポップオーバーの日本語未翻訳箇所を翻訳して実装しました
+
+![Screen-2024-01-06_14-51-15](https://github.com/satopian/Petit_Note/assets/44894014/4a81d9b1-e146-4f59-8ed1-39ddd4e82b1f)
+
+![Screen-2024-01-06_15-15-24](https://github.com/satopian/Petit_Note/assets/44894014/e6e98ef2-9ccd-48a3-bee8-552a24e6615d)
+
+#### 変形確定前に別のレイヤーを選択、または新規レイヤーを追加しようとした時に表示されるダイヤログの動作を改良
+
+https://github.com/satopian/Petit_Note/assets/44894014/10c54317-482f-4d7b-9327-99629578e640
+
+- 変形確定前にレイヤーを追加しようとすると変形を確定する取り消すなどの操作を促すダイヤログが表示されますが、従来の動作では、変形確定のエンターキーの押下で変形は確定されるものの、ダイヤログはすぐには消えず、レイヤーの追加も行われませんでした。  
+今回の修正により、エンターキーによる変形の確定と同時にダイヤログは閉じられ、かつ、レイヤーも追加されるようになります。  
+また、一連のダイヤログの日本語対応も行いました。
+
 ### 描画時にも円カーソルが表示されるようになりました。
 [PaintBBS NEOとChickenPaintの円カーソルの表示を変更しました｜さとぴあ](https://note.com/satopian/n/ne102c07b8adf)
+
+https://github.com/satopian/Petit_Note/assets/44894014/a79c6e5d-1a9d-4520-8a83-fe68ea8d3e6a
+
 ### ショートカットキーの変更と拡張
 [ChickenPaintのショートカットキーを拡張しました｜さとぴあ](https://note.com/satopian/n/n79fee71aa102)
 - R+左クリックでキャンバスの回転  
@@ -34,6 +51,9 @@ IEのサポートが完全に終了したため、互換性のための古いJav
 ### Firefoxで、Altキーを押すとメニューが開閉する問題
 - Alt押下でキャンバスの色をスポイトできますが、この時にFirefoxのメニューバーが開閉する問題がありました。
 Altキーのブラウザのデフォルトの動作をキャンセルしてこの問題を修正しました。
+
+### 変形操作をレイヤーが非表示、不透明度0%の時に行おうとした時のポップオーバーによるメッセージを追加
+- レイヤーの不透明度が0%の時や非表示の時にも、変形操作ができない理由を説明するポップオーバーが表示されるようになりました。
 
 ### このバージョンのchickenpaint.jsにはBootstrapのコードが入っていません
 - Bootstrapのコードは従来のバージョンのChickenPaintには入っていましたが、このBootstrap5対応版には入っていません。
