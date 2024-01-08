@@ -54,7 +54,7 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 - レイヤーの不透明度が0%の時や非表示の時にも、変形操作ができない理由を説明するポップオーバーが表示されるようになりました。
 
 ### このバージョンのchickenpaint.jsにはBootstrapのコードが入っていません
-- Bootstrapのコードは従来のバージョンのChickenPaintには入っていましたが、このBootstrap5対応版には入っていません。
+- Bootstrapのコードは従来のバージョンの｢ChickenPaint｣には入っていましたが、このBootstrap5対応版には入っていません。
 
 そのため、chickenpaint.jsを読み込む前に、Popperを含むBundle版のBootstrapを読み込む必要があります。
 
@@ -64,12 +64,12 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 <link rel="stylesheet" href="chickenpaint/css/chickenpaint.css">
 ```
 
-### このバージョンにはオリジナルのChickenPaintには存在しない固有の問題があるかもしれません  
+### このバージョンにはオリジナルの｢ChickenPaint｣には存在しない固有の問題があるかもしれません  
 
 - もしも動作に問題がある場合は、このリポジトリのIssueを開いてください。
 - GitHubにアカウントが無い場合は、[サポート掲示板](https://paintbbs.sakura.ne.jp/cgi/neosample/support/)をご利用ください。
-- かなりの箇所に手を加えているため、オリジナルのChickenPaintには無い固有の問題が存在している可能性があります。
-- オリジナル版のChickenPaintで発生していない問題をオリジナルのChickenPaintのリポジトリに問い合わせないようお願いします。
+- かなりの箇所に手を加えているため、オリジナルの｢ChickenPaint｣には無い固有の問題が存在している可能性があります。
+- オリジナル版の｢ChickenPaint｣で発生していない問題をオリジナルの｢ChickenPaint｣のリポジトリに問い合わせないようお願いします。
  
 
 ## Building
