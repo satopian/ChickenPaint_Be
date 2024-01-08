@@ -645,7 +645,7 @@ export default function CPLayersPalette(controller) {
 					layer = getLayerFromDisplayIndex(displayIndex),
                     elem = getElemFromDisplayIndex(displayIndex);
 
-				if (layer && elem) {
+					if (layer && elem) {
 					renameField.show(layer, elem);
 				}
 			}
@@ -663,14 +663,11 @@ export default function CPLayersPalette(controller) {
         }
 
         function showContextMenu(e) {
-            let
-                displayIndex = getDisplayIndexFromElem(e.target);
-
+            let displayIndex = getDisplayIndexFromElem(e.target);
 			if (displayIndex != -1) {
-                let
-                    layer = artwork.getActiveLayer(),
-                    facts = computeLayerPredicates(layer);
-
+				//コンテキストメニューのBootstrap5対応ができなかったが
+				//マウス使用時にレイヤー名を変更できないと困るので
+				//右クリックでレイヤー名の変更になるように動作を変更した。
 					showRenameBoxForLayer(getDisplayIndexFromElem(e.target));
 
 					e.preventDefault();
@@ -1467,15 +1464,17 @@ export default function CPLayersPalette(controller) {
 		
 			var layerNameElem = _layerElem.querySelector('.chickenpaint-layer-name');
 			if (layerNameElem) {
-				// 親ノードから削除されている場合にのみ処理を実行
-				if (layerNameElem.parentNode) {
-					while (layerNameElem.firstChild) {
-						layerNameElem.removeChild(layerNameElem.firstChild);
-					}
+			// 親ノードから削除されている場合にのみ処理を実行
+			if (layerNameElem.parentNode) {
+				// 現在の子ノードを取得
+				let currentChild = layerNameElem.firstChild;
+				// テキストノードが存在する場合にのみ削除
+				if (currentChild && currentChild.nodeType === Node.TEXT_NODE) {
+					layerNameElem.removeChild(currentChild);
 					layerNameElem.appendChild(textBox);
 				}
 			}
-		
+
 			textBox.select();
 		};
         textBox.type = "text";
