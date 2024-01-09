@@ -172,7 +172,8 @@ const
                 {
                     hideIfNotAvailable: true,
                     name: "Apply layer mask",
-                    action: "CPApplyLayerMask"
+                    action: "CPApplyLayerMask",
+                    shortcut: "ctrl+m",
                 },
                 {
                     name: "-"
