@@ -146,11 +146,13 @@ const
                     name: "Merge group",
                     action: "CPGroupMerge",
                     mnemonic: "G",
+                    shortcut: "shift+ctrl+g",
                     title: "Merges the contents of the selected group"
                 },
                 {
                     name: "Merge all layers",
                     action: "CPLayerMergeAll",
+                    shortcut: "shift+ctrl+e",
                     mnemonic: "A",
                     title: "Merges all the layers"
                 },

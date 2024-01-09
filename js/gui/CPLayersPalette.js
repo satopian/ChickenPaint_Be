@@ -1278,6 +1278,11 @@ export default function CPLayersPalette(controller) {
                     action: "CPAddLayer"
                 },
                 {
+                    title: "Merge down",
+                    icon: createFontAwesomeIcon("fa-arrow-down"),
+                    action: "CPLayerMergeDown",
+                },
+                {
                     title: "Add group",
                     icon: createFontAwesomeIcon("fa-folder"),
                     action: "CPAddGroup"
@@ -1287,7 +1292,7 @@ export default function CPLayersPalette(controller) {
                     icon: createChickenPaintIcon("mask"),
                     action: "CPAddLayerMask"
                 },
-                {
+				{
                     title: "Clip to the layer below",
                     icon: createFontAwesomeIcon("fa-level-down-alt fa-flip-horizontal"),
                     action: "CPCreateClippingMask",
