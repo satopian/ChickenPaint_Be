@@ -243,11 +243,8 @@ export default function CPSwatchesPalette(controller) {
 
 			// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
 			document.addEventListener("click", function onDocumentClick(event) {
-				if (!$(swatch).find(event.target).length) {
-					// クリックがドロップダウン内でない場合はドロップダウンを閉じる
 					dropdown.hide();
 					document.removeEventListener("click", onDocumentClick);
-				}
 			});
 
 		});
