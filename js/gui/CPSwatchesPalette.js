@@ -324,6 +324,13 @@ export default function CPSwatchesPalette(controller) {
 						dropdown.hide(); // ドロップダウンを非表示にする
 					});
 				});
+				document.addEventListener("click", function _onDocumentClick(event) {
+					// 範囲外のクリックが検出されたら、ドロップダウンを非表示にする
+					if (!btnSettings.contains(event.target)) {
+						dropdown.hide();
+					document.removeEventListener("click", _onDocumentClick);
+					}
+				});
 			});
 			let onDismissSettingsMenu = function (e) {
 			// Firefox wrongly fires click events for the right mouse button!
