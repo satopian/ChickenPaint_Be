@@ -29,12 +29,21 @@ export default function CPAboutDialog(parent) {
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">About ChickenPaint v2</h5>
+                            <h5 class="modal-title">About ChickenPaint Be</h5>
                             <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close">
                             </button>
                         </div>
                         <div class="modal-body">
-                            <a class="chickenpaint-on-github" target="_blank" href="https://github.com/thenickdude/chickenpaint"><span class="fab fa-github"></span> ChickenPaint on GitHub</a>
+						<a class="chickenpaint-on-github" target="_blank" href="https://github.com/satopian/ChickenPaint_Be"><span class="fab fa-github"></span> ChickenPaint Be on GitHub</a>
+						<p>
+						Customized from <a href="https://github.com/thenickdude/chickenpaint" target="_blank">ChickenPaint</a>.<br>
+						GNU GENERAL PUBLIC LICENSE<br>
+						Version 3, 29 June 2007<br>
+						<a href="http://www.gnu.org/licenses/" target="_blank">http://www.gnu.org/licenses/</a><br>
+					
+						by satopian.</p>
+						
+						<a class="chickenpaint-on-github" target="_blank" href="https://github.com/thenickdude/chickenpaint"><span class="fab fa-github"></span> ChickenPaint on GitHub</a>
                             
                             <p>
                                 ChickenPaint is a translation of <a href="https://github.com/thenickdude/chibipaint" target="_blank">ChibiPaint</a>

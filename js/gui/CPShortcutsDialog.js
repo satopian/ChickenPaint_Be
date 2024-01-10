@@ -21,6 +21,7 @@
 */
 
 import $ from "jquery";
+import {_} from "../languages/lang.js";
 
 export default function CPShortcutsDialog(parent) {
     var
@@ -29,21 +30,20 @@ export default function CPShortcutsDialog(parent) {
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Shortcuts</h5>
+                            <h5 class="modal-title">${_("Shortcuts")}</h5>
                             <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close">
                             </button>
                         </div>
                         <div class="modal-body">
                             <p>
-                                Many of the menu options and painting tools have keyboard shortcuts which are
-                                written next to them or appear when you hover.
+                                ${_("Many of the menu options and painting tools have keyboard shortcuts which are written next to them or appear when you hover.")}
                             </p>
                             <p>
-                                Here are some other shortcuts which are not as obvious!
+                                ${_("Here are some other shortcuts which are not as obvious!")}
                             </p>
                             <div class="chickenpaint-shortcuts-sections">
                                 <div class="chickenpaint-shortcuts-section">
-                                    <h5>Color swatches palette</h5>
+                                    <h5>${_("Color swatches palette")}</h5>
                                     <ul class="chickenpaint-shortcuts-list list-unstyled">
                                         <li>
                                             <dl>
@@ -51,20 +51,20 @@ export default function CPShortcutsDialog(parent) {
                                                     <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Left</span>
                                                 </dt>
                                                 <dd>
-                                                    Use as the drawing color
+                                                    ${_("Use as the drawing color")}
                                                 </dd>
                                                 <dt>
                                                     <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Right</span>
                                                 </dt>
                                                 <dd>
-                                                    Remove or replace a color swatch
+                                                    ${_("Remove or replace a color swatch")}
                                                 </dd>
                                              </dl>
                                         </li>
                                     </ul>
                                 </div>
                                 <div class="chickenpaint-shortcuts-section">
-                                    <h5>Line drawing mode</h5>
+                                    <h5>${_("Line drawing mode")}</h5>
                                     <ul class="chickenpaint-shortcuts-list list-unstyled">
                                         <li>
                                             <dl>
@@ -72,14 +72,14 @@ export default function CPShortcutsDialog(parent) {
                                                     <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span> + <span class="fa fa-mouse-pointer"></span> Left</span>
                                                 </dt>
                                                 <dd>
-                                                    Snap line to nearest 45 degrees
+                                                   ${ _("Snap line to nearest 45 degrees")}
                                                 </dd>
                                              </dl>
                                         </li>
                                     </ul>
                                 </div>
                                 <div class="chickenpaint-shortcuts-section">
-                                    <h5>Painting tools</h5>
+                                    <h5>${_("Painting tools")}</h5>
                                     <ul class="chickenpaint-shortcuts-list list-unstyled">
                                         <li>
                                             <dl>
@@ -87,20 +87,20 @@ export default function CPShortcutsDialog(parent) {
                                                     <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">1</span> - <span class="chickenpaint-shortcut-key">9</span> , <span class="chickenpaint-shortcut-key">0</span></span>
                                                 </dt>
                                                 <dd>
-                                                    Change brush opacity
+                                                    ${_("Change brush opacity")}
                                                 </dd>
                                                 <dt>
                                                     <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">[</span> , <span class="chickenpaint-shortcut-key">]</span></span>
                                                 </dt>
                                                 <dd>
-                                                    Change brush size
+                                                    ${_("Change brush size")}
                                                 </dd>
                                             </dl>
                                         </li>
                                     </ul>
                                 </div>
                                 <div class="chickenpaint-shortcuts-section">
-                                    <h5>Brush palette</h5>
+                                    <h5>${_("Brush palette")}</h5>
                                     <ul class="chickenpaint-shortcuts-list list-unstyled">
                                         <li>
                                             <dl>
@@ -108,14 +108,14 @@ export default function CPShortcutsDialog(parent) {
                                                     <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Right drag</span>
                                                 </dt>
                                                 <dd>
-                                                    Adjust brush sliders more precisely
+                                                    ${_("Adjust brush sliders more precisely")}
                                                 </dd>
                                             </dl>
                                         </li>
                                     </ul>
                                 </div>
                                 <div class="chickenpaint-shortcuts-section">
-                                    <h5>Drawing canvas</h5>
+                                    <h5>${_("Drawing canvas")}</h5>
                                     <ul class="chickenpaint-shortcuts-list list-unstyled">
                                         <li>
                                             <dl>
@@ -123,34 +123,34 @@ export default function CPShortcutsDialog(parent) {
                                                     <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Middle</span> <span class="chickenpaint-shortcut-alternate">or</span> <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Space</span> + <span class="fa fa-mouse-pointer"></span> Left</span>
                                                 </dt>
                                                 <dd>
-                                                    Move the canvas around
+                                                    ${_("Move the canvas around")}
                                                 </dd>
                                                 <dt>
                                                     <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">R</span> + <span class="fa fa-mouse-pointer"></span> Left</span>
                                                 </dt>
                                                 <dd>
-                                                    Rotate the canvas
+                                                    ${_("Rotate the canvas")}
                                                 </dd>
                                                 <dt>
                                                     <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Right</span> <span class="chickenpaint-shortcut-alternate">or</span> <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Alt</span> + <span class="fa fa-mouse-pointer"></span> Left</span>
                                                 </dt>
                                                 <dd>
-                                                    Sample the color under the cursor
+                                                    ${_("Sample the color under the cursor")}
                                                 </dd>
                                              </dl>
                                         </li>
                                     </ul>
                                 </div>
                                 <div class="chickenpaint-shortcuts-section">
-                                    <h5>Layers palette</h5>
+                                    <h5>${_("Layers palette")}</h5>
                                     <ul class="chickenpaint-shortcuts-list list-unstyled">
                                         <li>
                                             <dl>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Double click</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Double click</span> <span class="chickenpaint-shortcut-alternate">or</span> <span class="fa fa-mouse-pointer"></span> Right</span>
                                                 </dt>
                                                 <dd>
-                                                    Rename layer
+                                                    ${_("Rename layer")}
                                                 </dd>
                                              </dl>
                                         </li>

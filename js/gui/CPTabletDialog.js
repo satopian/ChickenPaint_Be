@@ -45,10 +45,6 @@ export default function CPTabletDialog(parent) {
                                 </h5>
                                 <div class="chickenpaint-supported-browsers">
                                     <div class="chickenpaint-supported-browser">
-                                        <span class="fab fa-internet-explorer"></span>
-                                        IE 10, 11
-                                    </div>
-                                    <div class="chickenpaint-supported-browser">
                                         <span class="fab fa-firefox"></span>
                                         Firefox (32-bit only)
                                     </div>
@@ -83,21 +79,17 @@ export default function CPTabletDialog(parent) {
                                     <small>macOS, Windows 8 or newer</small>
                                 </h5>
                                 <div class="chickenpaint-supported-browsers">
-                                    <div class="chickenpaint-supported-browser">
-                                        <span class="fab fa-internet-explorer"></span>
-                                        IE (Windows 8)
-                                    </div>
-                                        <div class="chickenpaint-supported-browser">
+									<div class="chickenpaint-supported-browser">
+									<span class="fab fa-chrome"></span>
+										Chrome
+									</div>
+									<div class="chickenpaint-supported-browser">
                                         <span class="fab fa-edge"></span>
                                         Edge (Windows 10)
                                     </div>
                                     <div class="chickenpaint-supported-browser">
                                         <span class="fab fa-firefox"></span>
-                                        Firefox (<a href="https://github.com/thenickdude/chickenpaint/blob/master/help/Firefox pressure support.md" target="_blank">help <i class="fa fa-external-link-alt"></i></a>)
-                                    </div>
-                                    <div class="chickenpaint-supported-browser">
-                                        <span class="fab fa-chrome"></span>
-                                        Chrome
+                                        Firefox (<a href="https://github.com/satopian/ChickenPaint_Be/blob/main/help/Firefox%20pressure%20support.md" target="_blank">help <i class="fa fa-external-link-alt"></i></a>)
                                     </div>
                                 </div>
                                 <p class="chickenpaint-not-supported">
