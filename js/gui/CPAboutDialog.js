@@ -34,19 +34,17 @@ export default function CPAboutDialog(parent) {
                             </button>
                         </div>
                         <div class="modal-body">
-						<a class="chickenpaint-on-github" target="_blank" href="https://github.com/satopian/ChickenPaint_Be"><span class="fab fa-github"></span> ChickenPaint Be on GitHub</a>
+						<a class="chickenpaint-on-github" target="_blank" href="https://github.com/satopian/ChickenPaint_Be" rel="noopener"><span class="fab fa-github"></span> ChickenPaint Be on GitHub</a>
 						<p>
-						Customized from <a href="https://github.com/thenickdude/chickenpaint" target="_blank">ChickenPaint</a>.<br>
-						GNU GENERAL PUBLIC LICENSE<br>
-						Version 3, 29 June 2007<br>
-						<a href="http://www.gnu.org/licenses/" target="_blank">http://www.gnu.org/licenses/</a><br>
-					
-						by satopian.</p>
+						Customized from <a href="https://github.com/thenickdude/chickenpaint" target="_blank" rel="noopener">ChickenPaint</a>.<br>
+						by satopian.<br>
+						<a href="https://www.gnu.org/licenses/" target="_blank" rel="noopener">GNU General Public License</a></br>
+						</p>
 						
-						<a class="chickenpaint-on-github" target="_blank" href="https://github.com/thenickdude/chickenpaint"><span class="fab fa-github"></span> ChickenPaint on GitHub</a>
+						<a class="chickenpaint-on-github" target="_blank" href="https://github.com/thenickdude/chickenpaint" rel="noopener"><span class="fab fa-github"></span> ChickenPaint on GitHub</a>
                             
                             <p>
-                                ChickenPaint is a translation of <a href="https://github.com/thenickdude/chibipaint" target="_blank">ChibiPaint</a>
+                                ChickenPaint is a translation of <a href="https://github.com/thenickdude/chibipaint" target="_blank" rel="noopener">ChibiPaint</a>
                                 from Java to JavaScript by Nicholas Sherlock / Chicken Smoothie
                             </p>
                             <p>
@@ -63,13 +61,13 @@ export default function CPAboutDialog(parent) {
                                 ChickenPaint is distributed in the hope that it will be useful,
                                 but WITHOUT ANY WARRANTY; without even the implied warranty of
                                 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-                                <a target="_blank" href="https://www.gnu.org/licenses/">GNU General Public License</a> for more details.
+                                <a target="_blank" href="https://www.gnu.org/licenses/" rel="noopener">GNU General Public License</a> for more details.
                             </p>
         
-                            <pre class="pre-scrollable chickenpaint-third-party-licenses">Toolbar icons designed by <a target="_blank" href="https://github.com/Anteira">Miglena Lapavicheva (Anteira)</a>
-    These icons are dual-licensed under <a target="_blank" href="https://spdx.org/licenses/GPL-3.0-or-later.html">GPL-3.0-or-later</a> and <a target="_blank" href="https://creativecommons.org/licenses/by/3.0/">CC-BY-3.0</a>
+                            <pre class="pre-scrollable chickenpaint-third-party-licenses">Toolbar icons designed by <a target="_blank" href="https://github.com/Anteira" rel="noopener">Miglena Lapavicheva (Anteira)</a>
+    These icons are dual-licensed under <a target="_blank" href="https://spdx.org/licenses/GPL-3.0-or-later.html" rel="noopener">GPL-3.0-or-later</a> and <a target="_blank" href="https://creativecommons.org/licenses/by/3.0/" rel="noopener">CC-BY-3.0</a>
 
-Includes icons from the <a target="_blank" href="https://extensions.libreoffice.org/en/extensions/show/tango-icon-theme-for-libreoffice">Tango Icon Theme for LibreOffice</a>:
+Includes icons from the <a target="_blank" href="https://extensions.libreoffice.org/en/extensions/show/tango-icon-theme-for-libreoffice" rel="noopener">Tango Icon Theme for LibreOffice</a>:
     All artwork is licensed under the Creative Commons Attribution-Share Alike 3.0
     United States License. To view a copy of this licence, visit
     https://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative
@@ -82,19 +80,19 @@ Includes icons from the <a target="_blank" href="https://extensions.libreoffice.
     
 Includes these MIT-licensed libraries:
 
-    Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js">FileSaver.js library</a>
-    FileSaver.js Copyright © 2015 <a target="_blank" href="https://eligrey.com/">Eli Grey</a>
+    Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js" rel="noopener">FileSaver.js library</a>
+    FileSaver.js Copyright © 2015 <a target="_blank" href="https://eligrey.com/" rel="noopener">Eli Grey</a>
 
-    Includes the <a target="_blank" href="https://github.com/nodeca/pako">Pako zlib compression library</a>
+    Includes the <a target="_blank" href="https://github.com/nodeca/pako" rel="noopener">Pako zlib compression library</a>
     Copyright (C) 2014-2015 by Vitaly Puzrin
     
-    Includes the <a target="_blank" href="https://github.com/madrobby/keymaster">keymaster.js</a> keyboard library
+    Includes the <a target="_blank" href="https://github.com/madrobby/keymaster" rel="noopener">keymaster.js</a> keyboard library
     Copyright (c) 2011-2013 Thomas Fuchs
 
-    Includes the <a target="_blank" href="https://github.com/stefanpenner/es6-promise">es6-promise</a> library
+    Includes the <a target="_blank" href="https://github.com/stefanpenner/es6-promise" rel="noopener">es6-promise</a> library
     Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors
 
-    Includes the <a target="_blank" href="https://benalman.com/projects/jquery-throttle-debounce-plugin/">jQuery throttle-debounce</a> library
+    Includes the <a target="_blank" href="https://benalman.com/projects/jquery-throttle-debounce-plugin/" rel="noopener">jQuery throttle-debounce</a> library
     Copyright (c) 2010 "Cowboy" Ben Alman
 
     Permission is hereby granted, free of charge, to any person
@@ -118,8 +116,8 @@ Includes these MIT-licensed libraries:
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
     OTHER DEALINGS IN THE SOFTWARE.
 
-Includes the <a href="https://www.jquery.com/" target="_blank">jQuery library</a> 
-Copyright <a href="https://jquery.org/" target="_blank">jQuery Foundation and other contributors</a>
+Includes the <a href="https://www.jquery.com/" target="_blank" rel="noopener">jQuery library</a> 
+Copyright <a href="https://jquery.org/" target="_blank" rel="noopener">jQuery Foundation and other contributors</a>
     
     This software consists of voluntary contributions made by many
     individuals. For exact contribution history, see the revision 
@@ -149,7 +147,7 @@ Copyright <a href="https://jquery.org/" target="_blank">jQuery Foundation and ot
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
     OTHER DEALINGS IN THE SOFTWARE.
 
-Includes the <a href="https://github.com/jquery/PEP/" target="_blank">jQuery PEP library</a>
+Includes the <a href="https://github.com/jquery/PEP/" target="_blank" rel="noopener">jQuery PEP library</a>
 Copyright jQuery Foundation and other contributors, https://jquery.org/
     
     This software consists of voluntary contributions made by many
@@ -180,7 +178,7 @@ Copyright jQuery Foundation and other contributors, https://jquery.org/
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR 
     OTHER DEALINGS IN THE SOFTWARE.
 
-Includes Font Awesome by Dave Gandy - <a href="https://fontawesome.io" target="_blank">https://fontawesome.io</a>
+Includes Font Awesome by Dave Gandy - <a href="https://fontawesome.io" target="_blank" rel="noopener">https://fontawesome.io</a>
                     </pre>
                 </div>
             </div>

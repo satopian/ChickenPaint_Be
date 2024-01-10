@@ -76,7 +76,7 @@ export default function CPTabletDialog(parent) {
                             <div class="chickenpaint-tablet-support chickenpaint-pointerevents-support">
                                 <h5>
                                     Built-in support for most tablets.
-                                    <small>macOS, Windows 8 or newer</small>
+                                    <small>macOS, Windows 10 or newer</small>
                                 </h5>
                                 <div class="chickenpaint-supported-browsers">
 									<div class="chickenpaint-supported-browser">
@@ -89,7 +89,7 @@ export default function CPTabletDialog(parent) {
                                     </div>
                                     <div class="chickenpaint-supported-browser">
                                         <span class="fab fa-firefox"></span>
-                                        Firefox (<a href="https://github.com/satopian/ChickenPaint_Be/blob/main/help/Firefox%20pressure%20support.md" target="_blank">help <i class="fa fa-external-link-alt"></i></a>)
+                                        Firefox (<a href="https://github.com/satopian/ChickenPaint_Be/blob/main/help/Firefox%20pressure%20support.md" target="_blank" rel="noopener">help <i class="fa fa-external-link-alt"></i></a>)
                                     </div>
                                 </div>
                                 <p class="chickenpaint-not-supported">
