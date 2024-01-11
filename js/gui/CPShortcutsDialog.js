@@ -147,7 +147,7 @@ export default function CPShortcutsDialog(parent) {
                                         <li>
                                             <dl>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Double click</span> <span class="chickenpaint-shortcut-alternate">or</span> <span class="fa fa-mouse-pointer"></span> Right</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Double click</span> <span class="chickenpaint-shortcut-alternate">or</span> <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Right</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Rename layer")}
