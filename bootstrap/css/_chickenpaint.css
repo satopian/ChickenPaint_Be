@@ -3696,7 +3696,7 @@
   margin-bottom: 0;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem;
 }
 .chickenpaint .navbar .dropdown-item {
   display: -ms-flexbox;
