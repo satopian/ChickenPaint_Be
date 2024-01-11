@@ -3705,7 +3705,7 @@
   border-bottom-left-radius: 0;
   padding: 0.5rem 0.5rem;
 }
-  
+
 .chickenpaint .navbar .dropdown-item {
   display: -ms-flexbox;
   display: flex;
@@ -9019,8 +9019,8 @@ textarea.form-control-lg {
   --bs-navbar-brand-padding-y: 0.3125rem;
   --bs-navbar-brand-margin-end: 0.6rem;
   --bs-navbar-brand-font-size: 1.18rem;
-  --bs-navbar-brand-color: rgb(66 67 75);
-  --bs-navbar-brand-hover-color: rgb(66 67 75);
+  --bs-navbar-brand-color: rgb(66 66 66);
+  --bs-navbar-brand-hover-color: rgb(66 66 66);
   --bs-navbar-nav-link-padding-x: 0.5rem;
   --bs-navbar-toggler-padding-y: 0.25rem;
   --bs-navbar-toggler-padding-x: 0.75rem;
