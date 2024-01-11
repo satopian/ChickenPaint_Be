@@ -761,7 +761,7 @@ export default function ChickenPaint(options) {
             CPRemoveLayer: {
                 action: function() {
                     if (!that.artwork.removeLayer()) {
-                        alert("Sorry, you can't remove the last remaining layer in the drawing.");
+                        alert(_("Sorry, you can't remove the last remaining layer in the drawing."));
                     }
                 },
                 modifies: {document: true},
