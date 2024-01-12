@@ -156,18 +156,18 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode) {
     function pointerDragged(e) {
 		switch (dragMode) {
             case DRAG_MODE_NORMAL:
-                mouseSelect(e);
-            break;
+                return mouseSelect(e);
             case DRAG_MODE_PRECISE:
 
+			let title=that.title();
+			//ブラシサイズと不透明度以外は細やかなスライダーの動作をしない
+			if(!(title.includes(_("Brush size"))||title.includes(_("Opacity")))){
+				return mouseSelect(e);
+			}
 			let diff = (e.pageX - dragPreciseX) / PRECISE_DRAG_SCALE;
-			// console.log("diff", diff);
-			// console.log("valueRange", valueRange);
-			//散乱の時は０%から1000%のレンジ幅
-			let factor = valueRange>=1000 ?  5080 : ((valueRange === 199) ? 199 : 208);
 			if (diff !== 0) {
 
-				let unrounded = that.value + (diff / (valueRange/factor));  //除算しているが増減幅は増えている
+				let unrounded = that.value + diff;
 				let rounded = Math.floor(unrounded);
 
 				that.setValue(rounded);
@@ -177,7 +177,7 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode) {
 					*/
 				dragPreciseX = e.pageX - (unrounded - rounded) * PRECISE_DRAG_SCALE;
 			}
-						break;
+		break;
         }
     }
 
