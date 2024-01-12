@@ -48,7 +48,7 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode) {
         doneInitialPaint = false,
         
         that = this;
-    
+
     this.value = undefined;
 
     /**
@@ -144,63 +144,68 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode) {
             left = $(canvas).offset().left,
 
             proportion = (e.pageX - left) / width;
-
+			
         if (expMode) {
             // Give the user finer control over the low values
             proportion = Math.pow(Math.max(proportion, 0.0), EXP_MODE_FACTOR);
         }
 
         that.setValue(proportion * valueRange + minValue);
-    }
+	}
         
     function pointerDragged(e) {
-        switch (dragMode) {
+		switch (dragMode) {
             case DRAG_MODE_NORMAL:
                 mouseSelect(e);
             break;
             case DRAG_MODE_PRECISE:
-                let
-                    diff = (e.pageX - dragPreciseX) / PRECISE_DRAG_SCALE;
 
-                if (diff !== 0) {
-                    let
-                        unrounded = that.value + diff,
-                        rounded = unrounded | 0;
+			let diff = (e.pageX - dragPreciseX) / PRECISE_DRAG_SCALE;
+			// console.log("diff", diff);
+			// console.log("valueRange", valueRange);
+			//散乱の時は０%から1000%のレンジ幅
+			let factor = valueRange>=1000 ?  5080 : ((valueRange === 199) ? 199 : 208);
+			if (diff !== 0) {
 
-                    that.setValue(rounded);
+				let unrounded = that.value + (diff / (valueRange/factor));  //除算しているが増減幅は増えている
+				let rounded = unrounded | 0;
 
-                    /* Tweak the "old mouseX" position such that the fractional part of the value we were unable to set
-                     * will be accumulated
-                     */
-                    dragPreciseX = e.pageX - (unrounded - rounded) * PRECISE_DRAG_SCALE;
-                }
-            break;
+				that.setValue(rounded);
+			
+				/* Tweak the "old mouseX" position such that the fractional part of the value we were unable to set
+					* will be accumulated
+					*/
+				dragPreciseX = e.pageX - (unrounded - rounded) * PRECISE_DRAG_SCALE;
+			}
+						break;
         }
     }
 
-    function pointerUp(e) {
-        if (dragMode !== DRAG_MODE_IDLE) {
+	canvas.addEventListener("pointerup", (e)=>{
+
+		if (dragMode === DRAG_MODE_IDLE) {
+			canvas.releasePointerCapture(e.pointerId);
+			return canvas.removeEventListener("pointermove", pointerDragged);
+		}
+		if (dragMode !== DRAG_MODE_IDLE) {
             switch (dragMode) {
                 case DRAG_MODE_NORMAL:
-                    if (e.button === 0) {
+                    if (e.button === 0 && !e.shiftKey) {
                         dragMode = DRAG_MODE_IDLE;
                     }
                     break;
                 case DRAG_MODE_PRECISE:
-                    if (e.button == 2) {
+                    if (e.button == 2 ||(e.button === 0 && e.shiftKey)) {
                         dragMode = DRAG_MODE_IDLE;
                     }
                     break;
                 default:
                     return;
             }
-
-            if (dragMode === DRAG_MODE_IDLE) {
-                canvas.releasePointerCapture(e.pointerId);
-                canvas.removeEventListener("pointermove", pointerDragged);
-            }
         }
-    }
+		canvas.releasePointerCapture(e.pointerId);
+		return canvas.removeEventListener("pointermove", pointerDragged);
+    });
     
     this.setValue = function(_value) {
         _value = ~~Math.max(minValue, Math.min(maxValue, _value));
@@ -247,25 +252,20 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode) {
     
     canvas.addEventListener("pointerdown", function(e) {
         if (dragMode === DRAG_MODE_IDLE) {
-            switch (e.button) {
-                case 0: // Left
-                    dragMode = DRAG_MODE_NORMAL;
-                    mouseSelect(e);
-                break;
-                case 2: // Right
-                    dragMode = DRAG_MODE_PRECISE;
-                    dragPreciseX = e.pageX;
-                break;
-                default:
-                    return;
-            }
 
-            canvas.setPointerCapture(e.pointerId);
+			if(e.button === 2 ||(e.button === 0 && e.shiftKey)){
+				dragMode = DRAG_MODE_PRECISE;
+				dragPreciseX = e.pageX;
+			}else{
+				dragMode = DRAG_MODE_NORMAL;
+				mouseSelect(e);
+			}
+
+			canvas.setPointerCapture(e.pointerId);
             canvas.addEventListener("pointermove", pointerDragged);
         }
     });
 
-    canvas.addEventListener("pointerup", pointerUp);
 
     canvas.addEventListener("contextmenu", function(e) {
         e.preventDefault();

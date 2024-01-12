@@ -105,7 +105,9 @@ export default function CPShortcutsDialog(parent) {
                                         <li>
                                             <dl>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Right drag</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> Right</span>
+													<span class="chickenpaint-shortcut-alternate">or</span>
+													<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span> + <span class="fa fa-mouse-pointer"></span> Left</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Adjust brush sliders more precisely")}
