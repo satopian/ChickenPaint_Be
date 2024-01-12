@@ -168,7 +168,7 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode) {
 			if (diff !== 0) {
 
 				let unrounded = that.value + (diff / (valueRange/factor));  //除算しているが増減幅は増えている
-				let rounded = unrounded | 0;
+				let rounded = Math.floor(unrounded);
 
 				that.setValue(rounded);
 			
