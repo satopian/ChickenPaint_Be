@@ -181,7 +181,7 @@
 
   "Whoops! This layer is currently hidden": "非表示レイヤーです。",
   "Whoops! This layer's opacity is currently 0%": "レイヤーの不透明度が0%です",
-  "Whoops! You can't draw on a group": "レイヤーグループには描けません",
+  "Whoops! You can't draw on a group": "グループフォルダには描けません",
   "Whoops! All of the selected pixels are transparent!": "レイヤーが空です",
  
   "Sorry, you can't remove the last remaining layer in the drawing.": "レイヤーが1つしか残っていないため削除できません。",

@@ -1290,7 +1290,14 @@ export default function CPLayersPalette(controller) {
                 {
                     title: "Add layer mask",
                     icon: createChickenPaintIcon("mask"),
-                    action: "CPAddLayerMask"
+                    action: "CPAddLayerMask",
+					require: ["no-mask"],
+                },
+                {
+                    title: "Apply mask",
+                    icon: createChickenPaintIcon("mask"),
+					action: "CPApplyLayerMask",
+					require: ["mask"],
                 },
 				{
                     title: "Clip to the layer below",
@@ -1338,7 +1345,7 @@ export default function CPLayersPalette(controller) {
             activeLayer = artwork.getActiveLayer(),
             facts = computeLayerPredicates(activeLayer);
 
-        for (let requirement of ["clipping-mask", "no-clipping-mask-or-is-group"]) {
+        for (let requirement of ["mask" , "no-mask" , "clipping-mask", "no-clipping-mask-or-is-group"]) {
             $(".chickenpaint-action-require-" + requirement, layerActionButtons).css("display", facts[requirement] ? "inline-block" : "none");
         }
 

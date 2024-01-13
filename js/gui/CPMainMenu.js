@@ -167,7 +167,8 @@ const
                 {
                     hideIfNotAvailable: true,
                     name: "Delete layer mask",
-                    action: "CPRemoveLayerMask"
+                    action: "CPRemoveLayerMask",
+                    shortcut: "shift+m",
                 },
                 {
                     hideIfNotAvailable: true,
