@@ -59,7 +59,7 @@ const
                     name: "Redo",
                     action: "CPRedo",
                     mnemonic: "R",
-                    shortcut: "shift+ctrl+z",
+                    shortcut: "ctrl+y",
                     title: "Redoes a previously undone action"
                 },
                 {
@@ -117,7 +117,7 @@ const
                     name: "Transform",
                     action: "CPTransform",
                     mnemonic: "T",
-                    shortcut: "ctrl+y"
+                    shortcut: "ctrl+h"
                 }
             ]
         },
