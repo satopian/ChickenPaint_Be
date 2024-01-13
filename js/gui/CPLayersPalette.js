@@ -1340,22 +1340,27 @@ export default function CPLayersPalette(controller) {
         return layerButtonsList;
     }
 
-    function updateActiveLayerActionButtons() {
-        let
-            activeLayer = artwork.getActiveLayer(),
-            facts = computeLayerPredicates(activeLayer);
-
-        for (let requirement of ["mask" , "no-mask" , "clipping-mask", "no-clipping-mask-or-is-group"]) {
-            $(".chickenpaint-action-require-" + requirement, layerActionButtons).css("display", facts[requirement] ? "inline-block" : "none");
-        }
-
-        $("[data-action]", layerActionButtons).each(function () {
-            let
-                action = this.getAttribute("data-action");
-
-            $(this).toggleClass("disabled", !controller.isActionAllowed(action));
-        });
-    }
+	function updateActiveLayerActionButtons() {
+		let
+			activeLayer = artwork.getActiveLayer(),
+			facts = computeLayerPredicates(activeLayer);
+	
+		for (let requirement of ["mask", "no-mask", "clipping-mask", "no-clipping-mask-or-is-group"]) {
+			let elements = layerActionButtons.getElementsByClassName("chickenpaint-action-require-" + requirement);
+	
+			for (let element of elements) {
+				element.style.display = facts[requirement] ? "inline-block" : "none";
+			}
+		}
+	
+		let actions = layerActionButtons.querySelectorAll("[data-action]");
+	
+		actions.forEach(function (element) {
+			let action = element.getAttribute("data-action");
+			element.classList.toggle("disabled", !controller.isActionAllowed(action));
+		});
+	}
+	
 
     function updateActiveLayerControls() {
         let
