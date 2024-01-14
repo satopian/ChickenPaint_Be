@@ -1288,6 +1288,11 @@ export default function CPLayersPalette(controller) {
                     action: "CPAddGroup"
                 },
                 {
+                    title: "Merge group",
+                    icon: createFontAwesomeIcon("fa-compress-arrows-alt"),
+                    action: "CPGroupMerge"
+                },
+                {
                     title: "Add layer mask",
                     icon: createChickenPaintIcon("mask"),
                     action: "CPAddLayerMask",
