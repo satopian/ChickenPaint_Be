@@ -1451,6 +1451,12 @@
 .chickenpaint .fa-folder:before {
   content: "\f07b";
 }
+.chickenpaint .fa-compress-arrows-alt:before {
+	content: "\f78c";
+}
+.chickenpaint .fa-compress-alt:before {
+content: "\f422";
+}
 .chickenpaint .fa-folder-open:before {
   content: "\f07c";
 }
