@@ -532,18 +532,19 @@ export default function CPMainMenu(controller, mainGUI) {
 			
 					// Bootstrap 5: ドロップダウンを初期化
 					var dropdown = new bootstrap.Dropdown(dropdownToggle[0]);
+					dropdownToggle[0].addEventListener('show.bs.dropdown', event => {
 			
-					topLevelMenuElem.on("show.bs.dropdown", function () {
 						updateMenuStates(topLevelMenuElem);
 			
 						/* Instead of Bootstrap's extremely expensive data API, we'll only listen for dismiss clicks on the
 						 * document *while the menu is open!*
 						 */
-						$(document).one("click", function () {
-							if (dropdownMenu.hasClass("show")) {
-								dropdown.hide(); // Bootstrap 5: ドロップダウンを非表示にする
-							}
-						});
+						//メニューが表示されなくなってしまうのでコメントアウト
+						// $(document).one("click", function () {
+						// 	if (dropdownMenu.hasClass("show")) {
+						// 		dropdown.hide(); // Bootstrap 5: ドロップダウンを非表示にする
+						// 	}
+						// });
 					});
 			
 					dropdownMenu.append(topLevelMenuEntry.children.map(entry => {
