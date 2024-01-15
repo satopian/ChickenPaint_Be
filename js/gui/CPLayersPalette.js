@@ -227,8 +227,8 @@ export default function CPLayersPalette(controller) {
             widgetContainer = document.createElement("div"),
             layerContainer = document.createElement("div"),
             scrollContainer = layerContainer,
-
-            dropdownLayerMenu = createLayerDropdownMenu(),
+			//ドロップダウンメニュー関連項目のコメントアウト
+            // dropdownLayerMenu = createLayerDropdownMenu(),
             dropdownMousePos = {x: 0, y: 0},
 
             /**
@@ -1059,102 +1059,105 @@ export default function CPLayersPalette(controller) {
 					.off("click");
 			}
 		}
-				
-        function createLayerDropdownMenu() {
-            const
-                menu = document.createElement("div"),
 
-                actions = [
-                    {
-                        title: "Rename...",
-                        action: "CPRenameLayer"
-                    },
-                    {
-                        require: ["image-layer"],
-                        title: "Delete layer",
-                        action: "CPRemoveLayer"
-                    },
-                    {
-                        require: ["layer-group"],
-                        title: "Delete group",
-                        action: "CPRemoveLayer"
-                    },
-                    {
-                        require: ["image-layer", "no-clipping-mask"],
-                        title: "Clip to the layer below",
-                        action: "CPCreateClippingMask"
-                    },
-                    {
-                        require: ["image-layer", "clipping-mask"],
-                        title: "Unclip from the layer below",
-                        action: "CPReleaseClippingMask"
-                    },
-                    {
-                        require: ["no-mask"],
-                        title: "Add mask",
-                        action: "CPAddLayerMask"
-                    },
-                    {
-                        require: ["mask"],
-                        title: "Delete mask",
-                        action: "CPRemoveLayerMask"
-                    },
-                    {
-                        require: ["mask"],
-                        title: "Apply mask",
-                        action: "CPApplyLayerMask"
-                    },
-                    {
-                        require: ["layer-group"],
-                        title: "Merge group",
-                        action: "CPGroupMerge"
-                    },
-                    {
-                        require: ["mask-enabled"],
-                        title: "Disable mask",
-                        action: "CPSetMaskVisible",
-                        actionData: {
-                            visible: "false"
-                        }
-                    },
-                    {
-                        require: ["mask-disabled"],
-                        title: "Enable mask",
-                        action: "CPSetMaskVisible",
-                        actionData: {
-                            visible: "true"
-                        }
-                   }
-                ];
+		//ドロップダウンメニュー関連項目のコメントアウト
 
-            menu.className = "dropdown-menu";
+		// function createLayerDropdownMenu() {
 
-            for (let action of actions) {
-                let
-                    menuItemElem = document.createElement("a");
+        //     const
+        //         menu = document.createElement("div"),
 
-                menuItemElem.className = "dropdown-item";
+        //         actions = [
+        //             {
+        //                 title: "Rename...",
+        //                 action: "CPRenameLayer"
+        //             },
+        //             {
+        //                 require: ["image-layer"],
+        //                 title: "Delete layer",
+        //                 action: "CPRemoveLayer"
+        //             },
+        //             {
+        //                 require: ["layer-group"],
+        //                 title: "Delete group",
+        //                 action: "CPRemoveLayer"
+        //             },
+        //             {
+        //                 require: ["image-layer", "no-clipping-mask"],
+        //                 title: "Clip to the layer below",
+        //                 action: "CPCreateClippingMask"
+        //             },
+        //             {
+        //                 require: ["image-layer", "clipping-mask"],
+        //                 title: "Unclip from the layer below",
+        //                 action: "CPReleaseClippingMask"
+        //             },
+        //             {
+        //                 require: ["no-mask"],
+        //                 title: "Add mask",
+        //                 action: "CPAddLayerMask"
+        //             },
+        //             {
+        //                 require: ["mask"],
+        //                 title: "Delete mask",
+        //                 action: "CPRemoveLayerMask"
+        //             },
+        //             {
+        //                 require: ["mask"],
+        //                 title: "Apply mask",
+        //                 action: "CPApplyLayerMask"
+        //             },
+        //             {
+        //                 require: ["layer-group"],
+        //                 title: "Merge group",
+        //                 action: "CPGroupMerge"
+        //             },
+        //             {
+        //                 require: ["mask-enabled"],
+        //                 title: "Disable mask",
+        //                 action: "CPSetMaskVisible",
+        //                 actionData: {
+        //                     visible: "false"
+        //                 }
+        //             },
+        //             {
+        //                 require: ["mask-disabled"],
+        //                 title: "Enable mask",
+        //                 action: "CPSetMaskVisible",
+        //                 actionData: {
+        //                     visible: "true"
+        //                 }
+        //            }
+        //         ];
 
-                if (action.require) {
-                    menuItemElem.className = menuItemElem.className + " " + action.require.map(requirement => "chickenpaint-action-require-" + requirement).join(" ");
-                }
-                menuItemElem.href = "#";
-                menuItemElem.innerHTML = _(action.title);
-                menuItemElem.setAttribute("data-action", action.action);
+        //     menu.className = "dropdown-menu";
 
-                if (action.actionData) {
-                    for (let key in action.actionData) {
-                        if (action.actionData.hasOwnProperty(key)) {
-                            menuItemElem.setAttribute("data-action-" + key, action.actionData[key]);
-                        }
-                    }
-                }
+        //     for (let action of actions) {
+        //         let
+        //             menuItemElem = document.createElement("a");
 
-                menu.appendChild(menuItemElem);
-            }
+        //         menuItemElem.className = "dropdown-item";
 
-            return menu;
-        }
+        //         if (action.require) {
+        //             menuItemElem.className = menuItemElem.className + " " + action.require.map(requirement => "chickenpaint-action-require-" + requirement).join(" ");
+        //         }
+        //         menuItemElem.href = "#";
+        //         menuItemElem.innerHTML = _(action.title);
+        //         menuItemElem.setAttribute("data-action", action.action);
+
+        //         if (action.actionData) {
+        //             for (let key in action.actionData) {
+        //                 if (action.actionData.hasOwnProperty(key)) {
+        //                     menuItemElem.setAttribute("data-action-" + key, action.actionData[key]);
+        //                 }
+        //             }
+        //         }
+
+        //         menu.appendChild(menuItemElem);
+        //     }
+
+        //     return menu;
+        // }
 
         function onDropdownActionClick(e) {
             let
@@ -1208,7 +1211,8 @@ export default function CPLayersPalette(controller) {
         widgetContainer.className = "chickenpaint-layers-widget well";
         widgetContainer.addEventListener("contextmenu", e => e.preventDefault(), true /* Capture phase, prevent context menu on all children */);
 
-        dropdownLayerMenu.addEventListener("click", onDropdownActionClick);
+		//ドロップダウンメニュー関連項目のコメントアウト
+		// dropdownLayerMenu.addEventListener("click", onDropdownActionClick);
 
         layerContainer.className = "list-group";
         layerContainer.addEventListener("dblclick", onDoubleClick);
@@ -1221,29 +1225,31 @@ export default function CPLayersPalette(controller) {
         }
 
         widgetContainer.appendChild(layerContainer);
-        widgetContainer.appendChild(dropdownLayerMenu);
+		//ドロップダウンメニュー関連項目のコメントアウト
+        // widgetContainer.appendChild(dropdownLayerMenu);
 
-        $(dropdownParent)
-            .on("show.bs.dropdown", function(e) {
-                let
-                    layerElem = $(e.relatedTarget)[0],
-                    $dropdownElem = $(dropdownParent).find(".dropdown-menu"),
+        // $(dropdownParent)
+        //     .on("show.bs.dropdown", function(e) {
+        //         let
+        //             layerElem = $(e.relatedTarget)[0],
+        //             $dropdownElem = $(dropdownParent).find(".dropdown-menu"),
 
-                    layerPos = layerElem.getBoundingClientRect(),
-                    positionRootPos = dropdownParent.getBoundingClientRect();
+        //             layerPos = layerElem.getBoundingClientRect(),
+        //             positionRootPos = dropdownParent.getBoundingClientRect();
 
-                // Convert the offset to palette-relative coordinates (since that's its offset parent)
-                $dropdownElem.css({
-                    left: (dropdownMousePos.x - $dropdownElem.outerWidth(true) - positionRootPos.left + 1) + "px",
-                    top: ((layerPos.top - $dropdownElem.outerHeight(true) / 2) - positionRootPos.top) + "px"
-                });
+        //         // Convert the offset to palette-relative coordinates (since that's its offset parent)
+        //         $dropdownElem.css({
+        //             left: (dropdownMousePos.x - $dropdownElem.outerWidth(true) - positionRootPos.left + 1) + "px",
+        //             top: ((layerPos.top - $dropdownElem.outerHeight(true) / 2) - positionRootPos.top) + "px"
+        //         });
 
-                /* Instead of Bootstrap's extremely expensive data API, we'll only listen for dismiss clicks on the
-                 * document *while the menu is open!*
-                 */
-                $(document).on("click", onDismissDropdown);
-            });
-    }
+        //         /* Instead of Bootstrap's extremely expensive data API, we'll only listen for dismiss clicks on the
+        //          * document *while the menu is open!*
+        //          */
+        //         $(document).on("click", onDismissDropdown);
+        //     });
+    
+	}
 
     function updateAvailableBlendModes() {
 		let

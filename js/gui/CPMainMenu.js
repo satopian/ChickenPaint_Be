@@ -254,9 +254,9 @@ const
                     checkbox: true,
                     checked: false
                 },
-                // {
-                //     name: "-"
-                // },本来ならフルスクリーンモードで起動した時は自動的にこの罫線は消える。
+                {
+                    name: "-"
+                },
                 {
                     name: "Zoom in",
                     action: "CPZoomIn",
