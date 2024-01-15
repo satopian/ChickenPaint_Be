@@ -532,7 +532,7 @@ export default function CPMainMenu(controller, mainGUI) {
 			
 					// Bootstrap 5: ドロップダウンを初期化
 					var dropdown = new bootstrap.Dropdown(dropdownToggle[0]);
-					dropdownToggle[0].addEventListener('show.bs.dropdown', event => {
+					dropdownToggle[0].addEventListener('show.bs.dropdown', (e) => {
 			
 						updateMenuStates(topLevelMenuElem);
 			
@@ -573,6 +573,7 @@ export default function CPMainMenu(controller, mainGUI) {
 									.toggleClass("selected", !!entry.checked);
 							}
 							if (entry.hideIfNotAvailable) {
+								console.log("entry.hideIfNotAvailable",entry.hideIfNotAvailable);
 								entryElem.data("hideIfNotAvailable", true);
 							}
 						}
