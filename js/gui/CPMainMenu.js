@@ -573,7 +573,6 @@ export default function CPMainMenu(controller, mainGUI) {
 									.toggleClass("selected", !!entry.checked);
 							}
 							if (entry.hideIfNotAvailable) {
-								console.log("entry.hideIfNotAvailable",entry.hideIfNotAvailable);
 								entryElem.data("hideIfNotAvailable", true);
 							}
 						}

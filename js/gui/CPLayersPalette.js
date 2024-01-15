@@ -1225,29 +1225,29 @@ export default function CPLayersPalette(controller) {
         }
 
         widgetContainer.appendChild(layerContainer);
+
 		//ドロップダウンメニュー関連項目のコメントアウト
         // widgetContainer.appendChild(dropdownLayerMenu);
+        // $(dropdownParent)
+        //     .on("show.bs.dropdown", function(e) {
+        //         let
+        //             layerElem = $(e.relatedTarget)[0],
+        //             $dropdownElem = $(dropdownParent).find(".dropdown-menu"),
 
-        $(dropdownParent)
-            .on("show.bs.dropdown", function(e) {
-                let
-                    layerElem = $(e.relatedTarget)[0],
-                    $dropdownElem = $(dropdownParent).find(".dropdown-menu"),
+        //             layerPos = layerElem.getBoundingClientRect(),
+        //             positionRootPos = dropdownParent.getBoundingClientRect();
 
-                    layerPos = layerElem.getBoundingClientRect(),
-                    positionRootPos = dropdownParent.getBoundingClientRect();
+        //         // Convert the offset to palette-relative coordinates (since that's its offset parent)
+        //         $dropdownElem.css({
+        //             left: (dropdownMousePos.x - $dropdownElem.outerWidth(true) - positionRootPos.left + 1) + "px",
+        //             top: ((layerPos.top - $dropdownElem.outerHeight(true) / 2) - positionRootPos.top) + "px"
+        //         });
 
-                // Convert the offset to palette-relative coordinates (since that's its offset parent)
-                $dropdownElem.css({
-                    left: (dropdownMousePos.x - $dropdownElem.outerWidth(true) - positionRootPos.left + 1) + "px",
-                    top: ((layerPos.top - $dropdownElem.outerHeight(true) / 2) - positionRootPos.top) + "px"
-                });
-
-                /* Instead of Bootstrap's extremely expensive data API, we'll only listen for dismiss clicks on the
-                 * document *while the menu is open!*
-                 */
-                $(document).on("click", onDismissDropdown);
-            });
+        //         /* Instead of Bootstrap's extremely expensive data API, we'll only listen for dismiss clicks on the
+        //          * document *while the menu is open!*
+        //          */
+        //         $(document).on("click", onDismissDropdown);
+        //     });
     
 	}
 
