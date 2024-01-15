@@ -154,6 +154,31 @@ export default function CPShortcutsDialog(parent) {
                                                 <dd>
                                                     ${_("Rename layer")}
                                                 </dd>
+                                                <dt>
+												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span> + <span class="fa fa-mouse-pointer"></span> Left</span>
+                                                </dt>
+                                                <dd>
+                                                    ${_("Toggle mask enable/disable")}
+                                                </dd>
+                                                <dt>
+												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Alt</span> + <span class="fa fa-mouse-pointer"></span> Left</span>
+                                                </dt>
+                                                <dd>
+                                                    ${_("Toggle mask View")}
+                                                </dd>
+												<dt>
+												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Ctrl</span> + <span class="fa fa-mouse-pointer"></span> Left</span>
+                                                </dt>
+                                                <dd>
+                                                    ${_("Apply layer mask")}
+                                                </dd>
+												<dt>
+												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span></span> +
+												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Ctrl</span> + <span class="fa fa-mouse-pointer"></span> Left</span>
+                                                </dt>
+                                                <dd>
+                                                    ${_("Delete layer mask")}
+                                                </dd>
                                              </dl>
                                         </li>
                                     </ul>

@@ -702,7 +702,7 @@ export default function CPLayersPalette(controller) {
                     dropdownOnMask = $(e.target).closest("." + CLASSNAME_LAYER_MASK_THUMBNAIL).length > 0
                         || (layer instanceof CPLayerGroup && layer.mask !== null && layerChanged);
 
-                    if (e.button == BUTTON_PRIMARY && e.shiftKey && dropdownOnMask) {
+                    if (e.button == BUTTON_PRIMARY && e.shiftKey && !e.ctrlKey && dropdownOnMask) {
 	                    controller.actionPerformed({
 		                    action: "CPSetMaskVisible",
 		                    layer: layer,
@@ -736,7 +736,18 @@ export default function CPLayersPalette(controller) {
                             controller.actionPerformed({
                                 action: "CPToggleMaskView"
                             });
-                        } else if (e.button == BUTTON_PRIMARY) {
+                        }
+						else if(selectMask && !e.shiftKey && e.ctrlKey) {
+                            controller.actionPerformed({
+								action: "CPApplyLayerMask"
+                            });
+						}						
+						else if(selectMask && e.shiftKey && e.ctrlKey) {
+                            controller.actionPerformed({
+								action: "CPRemoveLayerMask"
+                            });
+						}						
+						else if (e.button == BUTTON_PRIMARY) {
 	                        if (e.pointerType === "pen" || e.pointerType === "touch") {
                                 drag.state = DRAG_STATE_PRE_PAN;
                                 drag.initialScrollTop = scrollContainer.scrollTop;

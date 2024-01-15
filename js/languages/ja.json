@@ -229,6 +229,9 @@
 "Sample the color under the cursor": "キャンバスの色をスポイト",
 "Layers palette": "レイヤーパレット",
 "Rename layer": "レイヤー名を変更",
+"Toggle mask enable/disable": "マスクの有効/無効切り替え",
+"Toggle mask View":"マスクの表示/非表示切り替え",
+
 
   "Save Oekaki": "保存",
   
