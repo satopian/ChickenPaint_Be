@@ -1283,16 +1283,6 @@ export default function CPLayersPalette(controller) {
                     action: "CPLayerMergeDown",
                 },
                 {
-                    title: "Add group",
-                    icon: createFontAwesomeIcon("fa-folder"),
-                    action: "CPAddGroup"
-                },
-                {
-                    title: "Merge group",
-                    icon: createFontAwesomeIcon("fa-compress-arrows-alt"),
-                    action: "CPGroupMerge"
-                },
-                {
                     title: "Add layer mask",
                     icon: createChickenPaintIcon("mask"),
                     action: "CPAddLayerMask",
@@ -1315,6 +1305,16 @@ export default function CPLayersPalette(controller) {
                     icon: createFontAwesomeIcon("fa-level-down-alt fa-flip-horizontal"),
                     action: "CPReleaseClippingMask",
                     require: "clipping-mask"
+                },
+                {
+                    title: "Add group",
+                    icon: createFontAwesomeIcon("fa-folder"),
+                    action: "CPAddGroup"
+                },
+                {
+                    title: "Merge group",
+                    icon: createFontAwesomeIcon("fa-compress-arrows-alt"),
+                    action: "CPGroupMerge"
                 },
                 {
                     title: "Delete layer",

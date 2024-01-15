@@ -53,20 +53,18 @@ const
                     action: "CPUndo",
                     mnemonic: "U",
                     shortcut: "ctrl+z",
-                    title: "Undoes the most recent action"
                 },
                 {
                     name: "Redo",
                     action: "CPRedo",
                     mnemonic: "R",
                     shortcut: "shift+ctrl+z",
-                    title: "Redoes a previously undone action"
                 },
                 {
                     name: "Clear history",
                     action: "CPClearHistory",
                     mnemonic: "H",
-                    title: "Removes all undo/redo information to regain memory"
+                    title: _("Removes all undo/redo information to regain memory")
                 },
                 {
                     name: "-"
@@ -130,7 +128,6 @@ const
                     action: "CPLayerDuplicate",
                     mnemonic: "D",
                     shortcut: "shift+ctrl+d",
-                    title: "Creates a copy of the currently selected layer"
                 },
                 {
                     name: "-"
@@ -140,21 +137,18 @@ const
                     action: "CPLayerMergeDown",
                     mnemonic: "E",
                     shortcut: "ctrl+e",
-                    title: "Merges the currently selected layer with the one directly below it"
                 },
                 {
                     name: "Merge group",
                     action: "CPGroupMerge",
                     mnemonic: "G",
                     shortcut: "shift+ctrl+g",
-                    title: "Merges the contents of the selected group"
                 },
                 {
                     name: "Merge all layers",
                     action: "CPLayerMergeAll",
                     shortcut: "shift+ctrl+e",
                     mnemonic: "A",
-                    title: "Merges all the layers"
                 },
                 {
                     name: "-"
@@ -200,33 +194,29 @@ const
                     action: "CPClear",
                     mnemonic: "D",
                     shortcut: "del,backspace",
-                    title: "Clears the selected area"
                 },
                 {
                     name: "Fill",
                     action: "CPFill",
                     mnemonic: "F",
                     shortcut: "ctrl+f",
-                    title: "Fills the selected area with the current color"
                 },
                 {
                     name: "Flip horizontal",
                     action: "CPHFlip",
                     mnemonic: "H",
                     shortcut: "h",
-                    title: "Flips the current selected area horizontally"
                 },
                 {
                     name: "Flip vertical",
                     action: "CPVFlip",
                     mnemonic: "V",
-                    title: "Flips the current selected area vertically"
                 },
                 {
                     name: "Invert",
                     action: "CPFXInvert",
                     mnemonic: "I",
-                    title: "Invert the image colors"
+                    title: _("Invert the image colors")
                 },
                 {
                     name: "-"
@@ -235,7 +225,6 @@ const
                     name: "Box blur...",
                     action: "CPFXBoxBlur",
                     mnemonic: "B",
-                    title: "Blur effect"
                 },
                 {
                     name: "-"
@@ -244,13 +233,13 @@ const
                     name: "Monochromatic noise",
                     action: "CPMNoise",
                     mnemonic: "M",
-                    title: "Fills the selection with noise"
+                    title: _("Fills the selection with noise")
                 },
                 {
                     name: "Color noise",
                     action: "CPCNoise",
                     mnemonic: "C",
-                    title: "Fills the selection with colored noise"
+                    title: _("Fills the selection with colored noise")
                 }
             ]
         },
@@ -273,21 +262,18 @@ const
                     action: "CPZoomIn",
                     mnemonic: "I",
                     shortcut: "ctrl+=",
-                    title: "Zooms in"
                 },
                 {
                     name: "Zoom out",
                     action: "CPZoomOut",
                     mnemonic: "O",
                     shortcut: "ctrl+-",
-                    title: "Zooms out"
                 },
                 {
                     name: "Zoom 100%",
                     action: "CPZoom100",
                     mnemonic: "1",
                     shortcut: "ctrl+0",
-                    title: "Resets the zoom factor to 100%"
                 },
                 {
                     action: "CPLinearInterpolation",
@@ -297,7 +283,7 @@ const
                     name: "Smooth-out zoomed canvas",
                     action: "CPLinearInterpolation",
                     mnemonic: "L",
-                    title: "Linear interpolation is used to give a smoothed looked to the picture when zoomed in",
+                    title: _("Linear interpolation is used to give a smoothed looked to the picture when zoomed in"),
                     checkbox: true
                 },
                 {
@@ -308,7 +294,6 @@ const
                     action: "CPToggleGrid",
                     mnemonic: "G",
                     shortcut: "ctrl+g",
-                    title: "Displays a grid over the image",
                     checkbox: true,
                     checked: false
                 },
@@ -316,7 +301,6 @@ const
                     name: "Grid options...",
                     action: "CPGridOptions",
                     mnemonic: "D",
-                    title: "Shows the grid options dialog box"
                 }
             ]
         },
@@ -327,14 +311,14 @@ const
                 {
                     name: "Rearrange",
                     action: "CPArrangePalettes",
-                    title: "Rearrange the palette windows"
+                    title: _("Rearrange the palette windows")
                 },
                 {
                     name: "Toggle palettes",
                     action: "CPTogglePalettes",
                     mnemonic: "P",
                     shortcut: "tab",
-                    title: "Hides or shows all palettes"
+                    title: _("Hides or shows all palettes")
                 },
                 {
                     name: "Use old icons",
@@ -411,13 +395,11 @@ const
                     name: "Tablet support",
                     mnemonic: "T",
                     action: "CPTabletSupport",
-                    title: "Help with getting a drawing tablet working"
                 },
                 {
                     name: "Shortcuts",
                     mnemonic: "S",
                     action: "CPShortcuts",
-                    title: "List of keyboard and mouse shortcuts"
                 },
                 {
                     name: "-"
@@ -426,7 +408,6 @@ const
                     name: "About",
                     mnemonic: "A",
                     action: "CPAbout",
-                    title: "Displays some information about ChickenPaint"
                 }
             ]
         }
@@ -586,7 +567,7 @@ export default function CPMainMenu(controller, mainGUI) {
 							);
 			
 							if (entry.checkbox) {
-								entryElem
+								$(entryElem)
 									.data("checkbox", true)
 									.toggleClass("selected", !!entry.checked);
 							}

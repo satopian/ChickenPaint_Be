@@ -37,6 +37,7 @@
     "Flip vertical": "上下反転",
     "Invert": "ネガポジ反転",
     "Box blur...": "ぼかし",
+    "Box blur": "ぼかし",
     "Blur amount (pixels)": "ぼかし量(ピクセル単位)",
     "Iterations (1-8, larger gives smoother blur)": "反復(1-8,大きいほどぼかしが滑らか)",
     "Monochromatic noise": "単色ノイズ",
@@ -68,9 +69,20 @@
   "Help": "ヘルプ",
     "Tablet support":  "タブレットサポート",
     "Shortcuts": "ショートカット",
-    "About": "ChickenPaintについて",
+    "About": "ChickenPaint beについて",
   
-  "Misc": "操作",
+	"Removes all undo/redo information to regain memory": "履歴をクリアしてメモリを開放します",
+	"Clears the selected area":	"消去",
+	"Invert the image colors": "ネガポジ反転",
+	"Blur effect": "ぼかしフィルタ",
+	"Fills the selection with noise": "単色ノイズで塗り潰し",
+	"Fills the selection with colored noise": "カラーノイズで塗り潰し",
+	"Linear interpolation is used to give a smoothed looked to the picture when zoomed in":
+	"画像の拡大時に補完して滑らかに表示します",
+	"Rearrange the palette windows": "パレットを再配置",
+	"Hides or shows all palettes": "パレットの表示/非表示",
+
+"Misc": "操作",
   
   "Round Pixelated": "円ピクセル",
   "Round Hard Edge": "円ハードエッジ",
