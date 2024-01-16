@@ -79,7 +79,8 @@ export default function CPSwatchesPalette(controller) {
         
         swatchElem.href = "#";
         swatchElem.className = "chickenpaint-color-swatch dropdown-toggle";
-        swatchElem.setAttribute("data-toggle", "dropdown");
+		//"data-bs-toggle"に設定 bs5
+        swatchElem.setAttribute("data-bs-toggle", "dropdown");
 
         mnuRemove.className = "dropdown-item";
         mnuRemove.href = "#";
@@ -211,16 +212,17 @@ export default function CPSwatchesPalette(controller) {
             swatchPanel.appendChild(new CPColorSwatch(INIT_COLORS[i]).getElement());
         }
         
-		let dropdown;
-
-
         swatchPanel.addEventListener("click", function(e) {
-            let
+
+			let
                 swatch = e.target;
-            
+				
 			if (!/^<a data-color=/i.test(swatch.outerHTML) || !/chickenpaint-color-swatch/.test(swatch.className)) {
 				return;//<a data-color=で始まらない場合もreturn
 			}
+			//コンテキストメニューを閉じる
+			let dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
+			dropdown.hide();
 	
 			if (e.button == 0 /* Left */ && swatch.getAttribute("data-color") !== undefined) {
                 controller.setCurColor(new CPColor(parseInt(swatch.getAttribute("data-color"), 10)));
@@ -275,7 +277,8 @@ export default function CPSwatchesPalette(controller) {
 
         btnSettings.type = "button";
         btnSettings.className = "btn dropdown-toggle chickenpaint-small-toolbar-button chickenpaint-color-swatch-settings";
-        btnSettings.setAttribute("data-toggle", "dropdown");
+		//"data-bs-toggle"に設定 bs5
+		btnSettings.setAttribute("data-bs-toggle", "dropdown");
         btnSettings.appendChild(createIcon("cog"));
 
         mnuSave.className = "dropdown-item";
@@ -307,38 +310,6 @@ export default function CPSwatchesPalette(controller) {
         btnSettingsContainer.className = "btn-group dropright";
         btnSettingsContainer.appendChild(btnSettings);
         btnSettingsContainer.appendChild(settingsMenu);
-
-		var dropdown = new bootstrap.Dropdown($(btnSettings)); // Bootstrap 5: ドロップダウンを初期化
-
-			btnSettings.addEventListener("click", function () {
-				// ドロップダウンが表示されている場合の処理
-				dropdown.toggle(); // Bootstrap 5: ドロップダウンの表示/非表示を切り替える
-			});
-			btnSettings.addEventListener('show.bs.dropdown', event => {//ドロップダウンメニューが表示されてたら
-				// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
-				Array.from(btnSettingsContainer.querySelectorAll(".dropdown-item")).forEach(function (item) {
-					item.addEventListener("click", function () {
-						dropdown.hide(); // ドロップダウンを非表示にする
-					});
-				});
-				document.addEventListener("click", function _onDocumentClick(event) {
-					// 範囲外のクリックが検出されたら、ドロップダウンを非表示にする
-					if (!btnSettings.contains(event.target)) {
-						dropdown.hide();
-					document.removeEventListener("click", _onDocumentClick);
-					}
-				});
-			});
-			let onDismissSettingsMenu = function (e) {
-			// Firefox wrongly fires click events for the right mouse button!
-			if (!("button" in e) || e.button === 0) {
-				if ($(btnSettingsContainer).hasClass("show")) {
-					dropdown.toggle(); // Bootstrap 5: ドロップダウンの表示/非表示を切り替える
-				}
-		
-				$(this).off("click", onDismissSettingsMenu);
-			}
-		};
 
 		btnAdd.addEventListener("click", function(e) {
             addSwatch(controller.getCurColor().getRgb());

@@ -530,8 +530,9 @@ export default function CPMainMenu(controller, mainGUI) {
 					let dropdownToggle = $(".dropdown-toggle", topLevelMenuElem);
 					let dropdownMenu = $(".dropdown-menu", topLevelMenuElem);
 			
+					//data-bs-toggle="dropdown"を指定ずみのため、初期化不要
 					// Bootstrap 5: ドロップダウンを初期化
-					var dropdown = new bootstrap.Dropdown(dropdownToggle[0]);
+					// var dropdown = new bootstrap.Dropdown(dropdownToggle[0]);
 					dropdownToggle[0].addEventListener('show.bs.dropdown', (e) => {
 			
 						updateMenuStates(topLevelMenuElem);
