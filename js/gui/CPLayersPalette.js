@@ -250,14 +250,14 @@ export default function CPLayersPalette(controller) {
 
             longPressTimer = null;
 
-			function onDismissDropdown(e) {
-				// Firefox wrongly fires click events for the right mouse button!
-				if (!("button" in e) || e.button === BUTTON_PRIMARY) {
-					clearDropDown();
+			// function onDismissDropdown(e) {
+			// 	// Firefox wrongly fires click events for the right mouse button!
+			// 	if (!("button" in e) || e.button === BUTTON_PRIMARY) {
+			// 		clearDropDown();
 	
-					$(this).off("click", onDismissDropdown);
-				}
-			}
+			// 		$(this).off("click", onDismissDropdown);
+			// 	}
+			// }
 	
 	    /**
          * Get the element that represents the layer with the given display index.
@@ -1049,16 +1049,16 @@ export default function CPLayersPalette(controller) {
             return layerElem;
         };
 
-		function clearDropDown() {
+		// function clearDropDown() {
 			
-			if ($(dropdownParent).hasClass("show")) {
-				var collapseInstance = new bootstrap.Collapse(dropdownParent);
-				collapseInstance.hide();
-				$(dropdownParent)
-					.collapse("hide")
-					.off("click");
-			}
-		}
+		// 	if ($(dropdownParent).hasClass("show")) {
+		// 		var collapseInstance = new bootstrap.Collapse(dropdownParent);
+		// 		collapseInstance.hide();
+		// 		$(dropdownParent)
+		// 			.collapse("hide")
+		// 			.off("click");
+		// 	}
+		// }
 
 		//ドロップダウンメニュー関連項目のコメントアウト
 
