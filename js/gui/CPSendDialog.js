@@ -128,7 +128,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
 				serverMessage = serverMessage.replace(/^CHIBIERROR\s*/, "");
 	
 				if (serverMessage.length > 0) {
-					errorMessage += "<br><br>The error returned from the server was:";
+					errorMessage += `<br><br>${_("The error returned from the server was")}:`;
 	
 					progressError
 						.text(serverMessage)
