@@ -1,1 +1,0 @@
-google-closure-compiler --js dest/chickenpaint.js --js_output_file dest/temp.min.js
