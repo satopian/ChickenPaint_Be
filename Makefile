@@ -151,4 +151,3 @@ clean :
 	rm -f resources/fonts/ChickenPaint-Symbols.{scss,ttf,woff,eot}
 	rm -f chickenpaint.zip
 	# rm -rf resources/gfx/icons-source/dark resources/gfx/icons-source/light
-
