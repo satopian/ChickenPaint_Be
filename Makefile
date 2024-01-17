@@ -150,5 +150,5 @@ clean :
 	rm -f test/blending_bench/blending_test.js test/blending_bench/blending.js test/integration_test/integration.js js/engine/CPBlend.js
 	rm -f resources/fonts/ChickenPaint-Symbols.{scss,ttf,woff,eot}
 	rm -f chickenpaint.zip
-	rm -rf resources/gfx/icons-source/dark resources/gfx/icons-source/light
+	# rm -rf resources/gfx/icons-source/dark resources/gfx/icons-source/light
 
