@@ -1,0 +1,1 @@
+cat "bootstrap/js/header.txt" "dest/temp.min.js" > "dest/chickenpaint.min.js"
