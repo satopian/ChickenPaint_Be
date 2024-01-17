@@ -79,8 +79,8 @@ export default function CPSwatchesPalette(controller) {
         
         swatchElem.href = "#";
         swatchElem.className = "chickenpaint-color-swatch dropdown-toggle";
-		//"data-bs-toggle"に設定 bs5
-        swatchElem.setAttribute("data-bs-toggle", "dropdown");
+		//"data-bs-toggle"に設定しない 
+        // swatchElem.setAttribute("data-bs-toggle", "dropdown");
 
         mnuRemove.className = "dropdown-item";
         mnuRemove.href = "#";
@@ -220,9 +220,10 @@ export default function CPSwatchesPalette(controller) {
 			if (!/^<a data-color=/i.test(swatch.outerHTML) || !/chickenpaint-color-swatch/.test(swatch.className)) {
 				return;//<a data-color=で始まらない場合もreturn
 			}
+			//"data-bs-toggle"に設定していなければ必要ないため、コメントアウト
 			//コンテキストメニューを閉じる
-			let dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
-			dropdown.hide();
+			// let dropdown = new bootstrap.Dropdown($(swatch)); // Bootstrap 5: ドロップダウンを初期化
+			// dropdown.hide();
 	
 			if (e.button == 0 /* Left */ && swatch.getAttribute("data-color") !== undefined) {
                 controller.setCurColor(new CPColor(parseInt(swatch.getAttribute("data-color"), 10)));
@@ -240,15 +241,14 @@ export default function CPSwatchesPalette(controller) {
 				return;//<a data-color=で始まらない場合もreturn
 				}
             e.preventDefault();
-			var dropdown = new bootstrap.Dropdown($(swatch), { autoClose: false }); // Bootstrap 5: ドロップダウンを初期化
+			var dropdown = new bootstrap.Dropdown($(swatch)); // Bootstrap 5: ドロップダウンを初期化
 			dropdown.toggle();
 
 			// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる
 			document.addEventListener("click", function onDocumentClick(event) {
-					dropdown.hide();
-					document.removeEventListener("click", onDocumentClick);
+				dropdown.hide();
+				document.removeEventListener("click", onDocumentClick);
 			});
-
 		});
 	}	
     function createIcon(iconName) {
