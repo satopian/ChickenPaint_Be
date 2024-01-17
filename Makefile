@@ -44,18 +44,18 @@ ENGINE_SOURCE = js/engine/* js/util/*
 # 	Zoom_In.svg \
 # 	Zoom_Out.svg
 
-ICON_DARK_COLOUR = \#333
-ICON_LIGHT_COLOUR = \#e3e3e3
+# ICON_DARK_COLOUR = \#333
+# ICON_LIGHT_COLOUR = \#e3e3e3
 
-OSASCRIPT := $(shell command -v osascript 2> /dev/null)
+# OSASCRIPT := $(shell command -v osascript 2> /dev/null)
 
-CAIROSVG := $(shell command -v cairosvg 2> /dev/null)
+# CAIROSVG := $(shell command -v cairosvg 2> /dev/null)
 
-all : resources/js/chickenpaint.js \
-	resources/gfx/icons-dark-32.png resources/gfx/icons-dark-64.png \
-	resources/gfx/icons-light-32.png resources/gfx/icons-light-64.png
+# all : resources/js/chickenpaint.js \
+# 	resources/gfx/icons-dark-32.png resources/gfx/icons-dark-64.png \
+# 	resources/gfx/icons-light-32.png resources/gfx/icons-light-64.png
 
-dist: all min chickenpaint.zip
+# dist: all min chickenpaint.zip
 
 ifdef OSASCRIPT
 	osascript -e 'display notification "Build successful" with title "ChickenPaint build complete"'
@@ -151,3 +151,4 @@ clean :
 	rm -f resources/fonts/ChickenPaint-Symbols.{scss,ttf,woff,eot}
 	rm -f chickenpaint.zip
 	rm -rf resources/gfx/icons-source/dark resources/gfx/icons-source/light
+
