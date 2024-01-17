@@ -633,8 +633,8 @@ export default function CPLayersPalette(controller) {
             layerDiv.appendChild(statusDiv);
             
             layerDiv.setAttribute("data-display-index", "" + index);
-            layerDiv.setAttribute("data-toggle", "dropdown");
-            layerDiv.setAttribute("data-target", "#chickenpaint-layer-pop");
+            // layerDiv.setAttribute("data-toggle", "dropdown");
+            // layerDiv.setAttribute("data-target", "#chickenpaint-layer-pop");
 
             return layerDiv;
         }
