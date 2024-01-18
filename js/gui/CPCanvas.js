@@ -2050,18 +2050,24 @@ export default function CPCanvas(controller) {
     // More advanced zoom methods
     function zoomOnCenter(zoom) {
         var 
-            width = $(canvas).width(),
-            height = $(canvas).height();
-            
+		width = $(canvas).width(),
+		height = $(canvas).height();
+			// zoomが1に近い場合、1に調整
+			const zoomString = zoom.toString();
+			const roundedZoom = parseFloat(zoomString.substring(0, zoomString.indexOf('.') + 3));
+		
+			if (Math.abs(roundedZoom - 1) < 0.1) {
+				zoom= 1;
+			}
         zoomOnPoint(zoom, width / 2, height / 2);
     }
 
     this.zoomIn = function() {
-        zoomOnCenter(this.getZoom() * 2);
+        zoomOnCenter(this.getZoom() * 1.41);
     };
 
     this.zoomOut = function() {
-        zoomOnCenter(this.getZoom() * 0.5);
+        zoomOnCenter(this.getZoom() * 0.7092);
     };
 
     this.zoom100 = function() {
