@@ -102,6 +102,18 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 <script src="chickenpaint/js/chickenpaint.min.js"></script>
 <link rel="stylesheet" href="chickenpaint/css/chickenpaint.css">
 ```
+Bootstrapを含んだ`chickenpaint.js`と`chickenpaint.min.js`が必要な場合は以下のコマンドでファイルを結合します。    
+
+`npm i`でパッケージのインストールと`make`によるビルドが実行されます。  
+ビルドに成功したら、次のコマンドを入力します。  
+  
+`bash cat.sh`で`bootstrap.bundle.min.js`と`chickenpaint.js`を結合します。
+  
+`bash min.sh`でminifyされた`chickenpaint.min.js`を作ります。  
+  
+この2つのファイルは、`dest`ディレクトリに出力されます。  
+minifyには、Google クロージャーコンパイラーを使っています。  
+`npm i -g google-closure-compiler`でグローバルにインストールして使います。  
 
 ### このバージョンにはオリジナルの｢ChickenPaint｣には存在しない固有の問題があるかもしれません  
 
