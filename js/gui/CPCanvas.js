@@ -2052,14 +2052,16 @@ export default function CPCanvas(controller) {
         var 
 		width = $(canvas).width(),
 		height = $(canvas).height();
-			// zoomが1に近い場合、1に調整
-			const zoomString = zoom.toString();
-			const roundedZoom = parseFloat(zoomString.substring(0, zoomString.indexOf('.') + 3));
-		
-			if (Math.abs(roundedZoom - 1) < 0.1) {
-				zoom= 1;
-			}
-        zoomOnPoint(zoom, width / 2, height / 2);
+		// 拡大を1.41、縮小を0.7092にした関係で、zoomが浮動小数点になるため、1倍2倍に近い時は値をまるめる
+		const roundedZoom = parseFloat(zoom);
+
+		if (Math.abs(roundedZoom - 1) < 0.2) {
+			zoom = 1;
+		} else if (Math.abs(roundedZoom - 2) < 0.2) {
+			zoom = 2;
+		}
+
+		zoomOnPoint(zoom, width / 2, height / 2);
     }
 
     this.zoomIn = function() {
@@ -2689,7 +2691,8 @@ export default function CPCanvas(controller) {
         that.setOffset(p.x, -value);
     });
     
-    this.setInterpolation(false);
+	//初期状態で、ズームのアンチエイリアスをOnに
+    this.setInterpolation(true);
 
     var
         canvasSpacingWrapper = document.createElement("div");

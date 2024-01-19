@@ -284,7 +284,8 @@ const
                     action: "CPLinearInterpolation",
                     mnemonic: "L",
                     title: _("Linear interpolation is used to give a smoothed looked to the picture when zoomed in"),
-                    checkbox: true
+                    checkbox: true,
+					checked: true //初期状態でズームのアンチエイリアスをOnに
                 },
                 {
                     name: "-"
