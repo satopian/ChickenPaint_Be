@@ -429,8 +429,8 @@ export default function CPMainMenu(controller, mainGUI) {
 				+ '<span class="navbar-toggler-icon"></span>'
 			+ '</button>'
 			+ '<div class="collapse navbar-collapse" id="chickenpaint-main-menu-content">'
-				+ '<ul class="navbar-nav mr-auto">'
-				+ '</ul>'
+				+ '<div class="navbar-nav mr-auto">'
+				+ '</div>'
 			+ '</div>'
 			+ '<div class="widget-nav" id="chickenpaint-palette-toggler-content"></div>'
 		+ '</nav>'
@@ -521,11 +521,11 @@ export default function CPMainMenu(controller, mainGUI) {
 	function fillMenu(menuElem, entries) {
 		menuElem.append(entries.map(topLevelMenuEntry => {
 		let topLevelMenuElem = $(
-						'<li class="nav-item dropdown">'
+						'<div class="nav-item dropdown">'
 						+ '<a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + _(topLevelMenuEntry.name) + '</a>'
-						+ '<div class="dropdown-menu">'
+						+ '<ul class="dropdown-menu">'
+						+ '</ul>'
 						+ '</div>'
-						+ '</li>'
 					);
 			
 					let dropdownToggle = $(".dropdown-toggle", topLevelMenuElem);
@@ -608,7 +608,8 @@ export default function CPMainMenu(controller, mainGUI) {
 								return false;
 							});
 						}
-			
+						// entryElemをliタグで囲う
+						entryElem = $('<li>').append(entryElem);
 						return entryElem;
 					}));
 			
