@@ -199,7 +199,7 @@
   "Image": "画像",
   "Layer mask": "レイヤーマスク",
 
-  "Sorry, you can't remove the last remaining layer in the drawing.": "レイヤーが1つしか残っていないため削除できません。",
+  "Sorry, you can't remove the last remaining layer in the drawing.": "最後の1つなので削除できません。",
  
   "Are you sure you want to send your drawing to the server and finish drawing now?": "お絵かきをサーバーに送信します。終了してもよろしいですか？",
   "Your drawing has unsaved changes! Are you sure to want to navigate away?": "お絵かきに未保存の変更があります。終了してもよろしいですか？",
@@ -213,6 +213,7 @@
 "Right" : "右",
 "Left" : "左",
 "Middle": "中",
+"or": "または",
 "Double click": "ダブルクリック",
 
 "Color swatches palette": "カラーセット",

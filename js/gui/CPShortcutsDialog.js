@@ -106,7 +106,7 @@ export default function CPShortcutsDialog(parent) {
                                             <dl>
                                                 <dt>
                                                     <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Right")}</span>
-													<span class="chickenpaint-shortcut-alternate">or</span>
+													<span class="chickenpaint-shortcut-alternate">${_("or")}</span>
 													<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
@@ -122,7 +122,7 @@ export default function CPShortcutsDialog(parent) {
                                         <li>
                                             <dl>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Middle")}</span> <span class="chickenpaint-shortcut-alternate">or</span> <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Space</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Middle")}</span> <span class="chickenpaint-shortcut-alternate">${_("or")}</span> <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Space</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Move the canvas around")}
@@ -134,7 +134,7 @@ export default function CPShortcutsDialog(parent) {
                                                     ${_("Rotate the canvas")}
                                                 </dd>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Right")}</span> <span class="chickenpaint-shortcut-alternate">or</span> <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Alt</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Right")}</span> <span class="chickenpaint-shortcut-alternate">${_("or")}</span> <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Alt</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Sample the color under the cursor")}
@@ -149,7 +149,7 @@ export default function CPShortcutsDialog(parent) {
                                         <li>
                                             <dl>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Double click")}</span> <span class="chickenpaint-shortcut-alternate">or</span> <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Right")}</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Double click")}</span> <span class="chickenpaint-shortcut-alternate">${_("or")}</span> <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Right")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Rename layer")}
