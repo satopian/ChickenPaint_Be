@@ -119,7 +119,7 @@ bash min.sh
 でminifyされた`chickenpaint.min.js`を作ります。  
   
 この2つのファイルは、`dest`ディレクトリに出力されます。  
-minifyには、Google クロージャーコンパイラーをを使用しています。
+minifyには、Google クロージャーコンパイラーをを使用しています。  
 Google クロージャーコンパイラーをグローバルインストールした状態での使用を想定しています。  
 ```
 npm i -g google-closure-compiler
