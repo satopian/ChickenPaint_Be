@@ -470,9 +470,9 @@ export default function CPMainMenu(controller, mainGUI) {
         shortcut = shortcut.replace("⌘+=", "⌘++");
         
         if (macPlatform) {
-            shortcut = shortcut.replace(/\+/g, "");
+            shortcut = shortcut.replace(/([^+])\+/g, "$1");
         } else {
-            shortcut = shortcut.replace(/\+/g, " ");
+            shortcut = shortcut.replace(/([^+])\+/g, "$1 ");
         }
         
         return shortcut;
