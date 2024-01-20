@@ -59,11 +59,14 @@ export default function CPSwatchesPalette(controller) {
         let
             wrapper = document.createElement("div"),
             swatchElem = document.createElement("a"),
-            swatchMenu = document.createElement("ul"),
+            swatchMenu = document.createElement("div"),
             
             mnuRemove = document.createElement("a"),
             mnuSetToCurrent = document.createElement("a"),
             
+			//DOMの操作が可能ならBootstrap5形式のul li a
+			//現時点ではdiv、a
+
             that = this;
         
         this.getElement = function() {
@@ -114,16 +117,6 @@ export default function CPSwatchesPalette(controller) {
         wrapper.appendChild(swatchElem);
         wrapper.appendChild(swatchMenu);
         
-        $(wrapper).on("show.bs.dropdown", function() {
-            let
-                $btnDropDown = $(this).find(".dropdown-toggle"),
-                $listHolder = $(this).find(".dropdown-menu");
-            
-            $listHolder.css({
-                "top": ($btnDropDown.position().top + $btnDropDown.outerHeight(true)) + "px",
-                "left": $btnDropDown.position().left + "px"
-            });
-        });
     }
     
     function clearSwatches() {
