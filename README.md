@@ -112,20 +112,20 @@ Bootstrapを含んだ`chickenpaint.js`と`chickenpaint.min.js`が必要な場合
 ```
 npm i
 ```
-でパッケージのインストールと`make`によるビルドが実行されます。  
+このコマンドでパッケージのインストールと`make`によるビルドを実行します。  
 ビルドに成功したら、次のコマンドを入力します。  
 ```
 bash cat.sh
 ```  
-で`bootstrap.bundle.min.js`と`chickenpaint.js`を結合します。
+このコマンドで`bootstrap.bundle.min.js`と`chickenpaint.js`を結合します。
 ```  
 bash min.sh
 ```
-でminifyされた`chickenpaint.min.js`を作ります。  
+このコマンドでminifyされた`chickenpaint.min.js`を作ります。  
   
 この2つのファイルは、`dest`ディレクトリに出力されます。  
 minifyには、Google クロージャーコンパイラーをを使用しています。  
-Google クロージャーコンパイラーをグローバルインストールした状態での使用を想定しています。  
+Google クロージャーコンパイラーのグローバルインストールが必要です。      
 ```
 npm i -g google-closure-compiler
 ```
