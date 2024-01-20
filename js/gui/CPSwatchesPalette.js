@@ -59,14 +59,11 @@ export default function CPSwatchesPalette(controller) {
         let
             wrapper = document.createElement("div"),
             swatchElem = document.createElement("a"),
-            swatchMenu = document.createElement("div"),
+            swatchMenu = document.createElement("ul"),
             
             mnuRemove = document.createElement("a"),
             mnuSetToCurrent = document.createElement("a"),
             
-			//DOMの操作が可能ならBootstrap5形式のul li a
-			//現時点ではdiv、a
-
             that = this;
         
         this.getElement = function() {
@@ -110,10 +107,14 @@ export default function CPSwatchesPalette(controller) {
         
         swatchMenu.className = "dropdown-menu";
         
-        swatchMenu.appendChild(mnuRemove);
-        swatchMenu.appendChild(mnuSetToCurrent);
-        
-        wrapper.className = "chickenpaint-color-swatch-wrapper";
+		let liRemove=document.createElement("li");
+		let liSetToCurrent=document.createElement("li");
+		liRemove.appendChild(mnuRemove);//liで囲う
+		liSetToCurrent.appendChild(mnuSetToCurrent);//liで囲う
+		swatchMenu.appendChild(liRemove);
+		swatchMenu.appendChild(liSetToCurrent);
+
+		wrapper.className = "chickenpaint-color-swatch-wrapper";
         wrapper.appendChild(swatchElem);
         wrapper.appendChild(swatchMenu);
         
@@ -258,7 +259,7 @@ export default function CPSwatchesPalette(controller) {
             btnSettings = document.createElement("button"),
             btnAdd = document.createElement("button"),
             
-            settingsMenu = document.createElement("div"),
+            settingsMenu = document.createElement("ul"),
             
             mnuSave = document.createElement("a"),
             mnuLoad  = document.createElement("a");
@@ -294,8 +295,12 @@ export default function CPSwatchesPalette(controller) {
         
         settingsMenu.className = "dropdown-menu";
         
-        settingsMenu.appendChild(mnuSave);
-        settingsMenu.appendChild(mnuLoad);
+		let limnuSave=document.createElement("li");
+		let limnuLoad=document.createElement("li");
+		limnuSave.appendChild(mnuSave);//liで囲う
+		limnuLoad.appendChild(mnuLoad);//liで囲う
+        settingsMenu.appendChild(limnuSave);
+        settingsMenu.appendChild(limnuLoad);
         
         let
             btnSettingsContainer = document.createElement("div");
