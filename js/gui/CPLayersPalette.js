@@ -66,7 +66,10 @@ function wrapBootstrapCheckbox(checkbox, title) {
         div = document.createElement("div"),
         label = document.createElement("label");
 
-    div.className = "form-check";
+	label.tabIndex = -1;
+	checkbox.tabIndex = -1;
+
+	div.className = "form-check";
 
     checkbox.className = "form-check-input";
 
@@ -1628,6 +1631,8 @@ export default function CPLayersPalette(controller) {
     };
 
     blendCombo.className = "form-control form-control-sm";
+	blendCombo.tabIndex = -1;
+
     blendCombo.title = _("Layer blending mode");
     blendCombo.addEventListener("change", function(e) {
         controller.actionPerformed({action: "CPSetLayerBlendMode", blendMode: parseInt(blendCombo.value, 10)});

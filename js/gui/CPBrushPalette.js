@@ -272,6 +272,8 @@ function CPBrushPanel(controller) {
     });
 
     tipCombo.className = "form-control form-control-sm";
+	tipCombo.tabIndex = -1;
+
     fillCombobox(tipCombo, TIP_NAMES);
 
     panel.appendChild(tipCombo);
