@@ -48,13 +48,13 @@ export default function CPShortcutsDialog(parent) {
                                         <li>
                                             <dl>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Use as the drawing color")}
                                                 </dd>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Right")}</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa icon-mouse-pointer"></span> ${_("Right")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Remove or replace a color swatch")}
@@ -69,7 +69,7 @@ export default function CPShortcutsDialog(parent) {
                                         <li>
                                             <dl>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+                                                    <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                    ${ _("Snap line to nearest 45 degrees")}
@@ -105,9 +105,9 @@ export default function CPShortcutsDialog(parent) {
                                         <li>
                                             <dl>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Right")}</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa icon-mouse-pointer"></span> ${_("Right")}</span>
 													<span class="chickenpaint-shortcut-alternate">${_("or")}</span>
-													<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+													<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Adjust brush sliders more precisely")}
@@ -122,19 +122,19 @@ export default function CPShortcutsDialog(parent) {
                                         <li>
                                             <dl>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Middle")}</span> <span class="chickenpaint-shortcut-alternate">${_("or")}</span> <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Space</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa icon-mouse-pointer"></span> ${_("Middle")}</span> <span class="chickenpaint-shortcut-alternate">${_("or")}</span> <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Space</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Move the canvas around")}
                                                 </dd>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">R</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+                                                    <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">R</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Rotate the canvas")}
                                                 </dd>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Right")}</span> <span class="chickenpaint-shortcut-alternate">${_("or")}</span> <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Alt</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa icon-mouse-pointer"></span> ${_("Right")}</span> <span class="chickenpaint-shortcut-alternate">${_("or")}</span> <span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Alt</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Sample the color under the cursor")}
@@ -149,32 +149,32 @@ export default function CPShortcutsDialog(parent) {
                                         <li>
                                             <dl>
                                                 <dt>
-                                                    <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Double click")}</span> <span class="chickenpaint-shortcut-alternate">${_("or")}</span> <span class="chickenpaint-shortcut"><span class="fa fa-mouse-pointer"></span> ${_("Right")}</span>
+                                                    <span class="chickenpaint-shortcut"><span class="fa icon-mouse-pointer"></span> ${_("Double click")}</span> <span class="chickenpaint-shortcut-alternate">${_("or")}</span> <span class="chickenpaint-shortcut"><span class="fa icon-mouse-pointer"></span> ${_("Right")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Rename layer")}
                                                 </dd>
                                                 <dt>
-												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Toggle mask enable/disable")}
                                                 </dd>
                                                 <dt>
-												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Alt</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Alt</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Toggle mask View")}
                                                 </dd>
 												<dt>
-												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Ctrl</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Ctrl</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Apply layer mask")}
                                                 </dd>
 												<dt>
 												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span></span> +
-												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Ctrl</span> + <span class="fa fa-mouse-pointer"></span> ${_("Left")}</span>
+												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Ctrl</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Delete layer mask")}

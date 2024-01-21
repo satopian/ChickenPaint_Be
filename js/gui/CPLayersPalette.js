@@ -564,10 +564,10 @@ export default function CPLayersPalette(controller) {
 
             if (layer.visible) {
                 layerDiv.className += " " + CLASSNAME_LAYER_VISIBLE;
-                eyeDiv.appendChild(createFontAwesomeIcon("fa-eye"));
+                eyeDiv.appendChild(createFontAwesomeIcon("icon-eye"));
             } else {
                 layerDiv.className += " " + CLASSNAME_LAYER_HIDDEN;
-                eyeDiv.appendChild(createFontAwesomeIcon("fa-eye-slash"));
+                eyeDiv.appendChild(createFontAwesomeIcon("icon-eye-slash"));
             }
 
             layerDiv.appendChild(eyeDiv);
@@ -577,7 +577,7 @@ export default function CPLayersPalette(controller) {
             if (layer instanceof CPImageLayer) {
                 if (layer.clip) {
                     layerDiv.className += " chickenpaint-layer-clipped";
-                    iconsDiv.appendChild(createFontAwesomeIcon("fa-level-down-alt fa-flip-horizontal"))
+                    iconsDiv.appendChild(createFontAwesomeIcon("icon-level-down-alt fa-flip-horizontal"))
                 }
                 
                 if (layer.lockAlpha) {
@@ -592,10 +592,10 @@ export default function CPLayersPalette(controller) {
 
                 if (layer.expanded) {
                     layerDiv.className += " " + CLASSNAME_LAYER_GROUP_EXPANDED;
-                    iconsDiv.appendChild(createFontAwesomeIcon("fa-folder-open chickenpaint-layer-group-toggle"));
+                    iconsDiv.appendChild(createFontAwesomeIcon("icon-folder-open chickenpaint-layer-group-toggle"));
                 } else {
                     layerDiv.className += " " + CLASSNAME_LAYER_GROUP_COLLAPSED;
-                    iconsDiv.appendChild(createFontAwesomeIcon("fa-folder chickenpaint-layer-group-toggle"));
+                    iconsDiv.appendChild(createFontAwesomeIcon("icon-folder chickenpaint-layer-group-toggle"));
                 }
             }
 
@@ -1294,12 +1294,12 @@ export default function CPLayersPalette(controller) {
             buttons = [
                 {
                     title: "Add layer",
-                    icon: createFontAwesomeIcon("fa-file"),
+                    icon: createFontAwesomeIcon("icon-file"),
                     action: "CPAddLayer"
                 },
                 {
                     title: "Merge down",
-                    icon: createFontAwesomeIcon("fa-arrow-down"),
+                    icon: createFontAwesomeIcon("icon-arrow-down"),
                     action: "CPLayerMergeDown",
                 },
                 {
@@ -1316,29 +1316,29 @@ export default function CPLayersPalette(controller) {
                 },
 				{
                     title: "Clip to the layer below",
-                    icon: createFontAwesomeIcon("fa-level-down-alt fa-flip-horizontal"),
+                    icon: createFontAwesomeIcon("icon-level-down-alt fa-flip-horizontal"),
                     action: "CPCreateClippingMask",
                     require: "no-clipping-mask-or-is-group"
                 },
                 {
                     title: "Unclip from the layer below",
-                    icon: createFontAwesomeIcon("fa-level-down-alt fa-flip-horizontal"),
+                    icon: createFontAwesomeIcon("icon-level-down-alt fa-flip-horizontal"),
                     action: "CPReleaseClippingMask",
                     require: "clipping-mask"
                 },
                 {
                     title: "Add group",
-                    icon: createFontAwesomeIcon("fa-folder"),
+                    icon: createFontAwesomeIcon("icon-folder"),
                     action: "CPAddGroup"
                 },
                 {
                     title: "Merge group",
-                    icon: createFontAwesomeIcon("fa-compress-arrows-alt"),
+                    icon: createFontAwesomeIcon("icon-compress-arrows-alt"),
                     action: "CPGroupMerge"
                 },
                 {
                     title: "Delete layer",
-                    icon: createFontAwesomeIcon("fa-trash"),
+                    icon: createFontAwesomeIcon("icon-trash"),
                     action: "CPRemoveLayer"
                 },
             ],

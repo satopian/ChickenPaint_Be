@@ -249,7 +249,7 @@ export default function CPSwatchesPalette(controller) {
         let
             icon = document.createElement("span");
 
-        icon.className = "fa fa-" + iconName;
+        icon.className = "fa icon-" + iconName;
 
         return icon;
     }

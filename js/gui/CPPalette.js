@@ -145,8 +145,8 @@ export default function CPPalette(cpController, className, title, options) {
         $containerElement.toggleClass("collapsed", collapse);
         
         $(collapseIcon)
-            .toggleClass("fa-angle-down", !collapse)
-            .toggleClass("fa-angle-up", collapse);
+            .toggleClass("icon-angle-down", !collapse)
+            .toggleClass("icon-angle-up", collapse);
         
         if (collapse) {
             // Move the header down to the old base position
@@ -303,7 +303,7 @@ export default function CPPalette(cpController, className, title, options) {
         containerElement.appendChild(horzHandle);
     }
 
-    collapseIcon.className = "collapse-icon fas fa-angle-down";
+    collapseIcon.className = "collapse-icon fas icon-angle-down";
     
     closeButton.type = "button";
     closeButton.className = "btn btn-close";
