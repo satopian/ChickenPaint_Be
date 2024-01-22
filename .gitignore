@@ -1,5 +1,6 @@
 dest/
 temp/
+resources/js/
 /node_modules/
 /js/engine/CPBlend2.js
 /js/engine/CPBlend.js
