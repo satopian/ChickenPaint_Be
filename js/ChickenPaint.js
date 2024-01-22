@@ -76,6 +76,12 @@ import CPUserPreferences from "./gui/CPUserPreferences.js";
 if (window.PointerEvent) {
     window.hasNativePointerEvents = true;
 }
+//ブラウザデフォルトのキー操作をキャンセル
+document.addEventListener("keydown",(e)=>{
+	if(e.key==="+"||e.key===";"||e.key==="="||e.key==="-"||e.key==="s"||e.key==="S"){
+		e.preventDefault();
+	}
+});
 
 require("pepjs"); // Needs to use require() instead of import so we can run code before it
 function checkBrowserSupport() {

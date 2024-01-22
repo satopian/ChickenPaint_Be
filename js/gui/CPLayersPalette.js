@@ -1633,10 +1633,14 @@ export default function CPLayersPalette(controller) {
     blendCombo.className = "form-control form-control-sm";
 	blendCombo.tabIndex = -1;
 
-    blendCombo.title = _("Layer blending mode");
-    blendCombo.addEventListener("change", function(e) {
-        controller.actionPerformed({action: "CPSetLayerBlendMode", blendMode: parseInt(blendCombo.value, 10)});
-    });
+	blendCombo.title = _("Layer blending mode");
+	blendCombo.addEventListener("change", function(e) {
+		controller.actionPerformed({action: "CPSetLayerBlendMode", blendMode: parseInt(blendCombo.value, 10)});
+	});
+	blendCombo.onfocus = ()=>{//フォーカスを検出したら
+		document.activeElement.blur();//フォーカスを外す
+		// console.log(document.activeElement);
+	}; 
 
     body.appendChild(blendCombo);
     
@@ -1654,6 +1658,7 @@ export default function CPLayersPalette(controller) {
     cbSampleAllLayers.type = "checkbox";
     cbSampleAllLayers.addEventListener("click", function(e) {
         artwork.setSampleAllLayers(cbSampleAllLayers.checked);
+		document.activeElement.blur();
     });
     
     body.appendChild(wrapBootstrapCheckbox(cbSampleAllLayers, _("Sample all layers")));
@@ -1662,6 +1667,7 @@ export default function CPLayersPalette(controller) {
     cbLockAlpha.type = "checkbox";
     cbLockAlpha.addEventListener("click", function(e) {
         controller.actionPerformed({action: "CPSetLayerLockAlpha", lock: cbLockAlpha.checked});
+		document.activeElement.blur();
     });
         
     body.appendChild(wrapBootstrapCheckbox(cbLockAlpha, _("Lock transparency")));
