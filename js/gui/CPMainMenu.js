@@ -58,7 +58,7 @@ const
                     name: "Redo",
                     action: "CPRedo",
                     mnemonic: "R",
-                    shortcut: "shift+ctrl+z",
+                    shortcut: "ctrl+y",
                 },
                 {
                     name: "Clear history",
@@ -115,7 +115,7 @@ const
                     name: "Transform",
                     action: "CPTransform",
                     mnemonic: "T",
-                    shortcut: "ctrl+y"
+                    shortcut: "ctrl+h"
                 }
             ]
         },
