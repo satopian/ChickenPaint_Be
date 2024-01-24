@@ -22,7 +22,9 @@
 
 import $ from "jquery";
 import {_} from "../languages/lang.js";
-macPlatform = /^Mac/i.test(navigator.platform);
+// const macPlatform = /^Mac/i.test(navigator.platform);
+const macPlatform = navigator.userAgent.toLowerCase().includes('mac os');
+
 const Ctrl= macPlatform ? "⌘" : "Ctrl";
 export default function CPShortcutsDialog(parent) {
     var

@@ -434,8 +434,11 @@ export default function CPMainMenu(controller, mainGUI) {
 			+ '</div>'
 			+ '<div class="widget-nav" id="chickenpaint-palette-toggler-content"></div>'
 		+ '</nav>'
-	),
-	macPlatform = /^Mac/i.test(navigator.platform);
+	);
+	// macPlatform = /^Mac/i.test(navigator.platform),
+	
+	const macPlatform = navigator.userAgent.toLowerCase().includes('mac os');
+
 
     function menuItemClicked(target) {
 			let
