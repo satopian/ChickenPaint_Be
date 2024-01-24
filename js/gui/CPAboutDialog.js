@@ -186,10 +186,9 @@ Includes Font Awesome by Dave Gandy - <a href="https://fontawesome.io" target="_
     `);
 
 	// Destroy the modal upon close
-	dialog.on("hidden.bs.modal", function (e) {
+	dialog[0].addEventListener('hidden.bs.modal', (e) => {
 		dialog.remove();
 	});
-
 	// Initialize the modal using Bootstrap 5 methods
 	var modalInstance = new bootstrap.Modal(dialog[0]);
 

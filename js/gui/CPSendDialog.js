@@ -157,9 +157,9 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
 		});
 	
 		// Destroy the modal upon close
-		dialog.on("hidden.bs.modal", function (e) {
-			dialog.remove();
-		});
+		dialog[0].addEventListener('hidden.bs.modal', (e) => {
+		dialog.remove();
+		})
 	
 		dialog.appendTo(parent);
 	

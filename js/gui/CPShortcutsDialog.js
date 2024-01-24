@@ -193,7 +193,7 @@ export default function CPShortcutsDialog(parent) {
             `);
 			
 	// Destroy the modal upon close
-	dialog.on("hidden.bs.modal", function (e) {
+	dialog[0].addEventListener('hidden.bs.modal', (e) => {
 		dialog.remove();
 	});
 

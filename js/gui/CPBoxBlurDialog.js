@@ -73,7 +73,7 @@ export default function CPBoxBlurDialog(parent, controller) {
 			controller.getArtwork().boxBlur(blur, blur, iterations);
 		});
 		
-		dialog.on('shown.bs.modal', function () {
+		dialog[0].addEventListener('shown.bs.modal', (e) => {
 			blurAmountElem.trigger('focus');
 		});
 		
@@ -84,5 +84,5 @@ export default function CPBoxBlurDialog(parent, controller) {
 		});
 		
 		// Bootstrap 5: modalオプションが不要なため削除
-		parent.appendChild(dialog[0]);
+		// parent.appendChild(dialog[0]);
 	}
