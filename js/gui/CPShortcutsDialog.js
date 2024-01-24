@@ -22,7 +22,8 @@
 
 import $ from "jquery";
 import {_} from "../languages/lang.js";
-
+macPlatform = /^Mac/i.test(navigator.platform);
+const Ctrl= macPlatform ? "⌘" : "Ctrl";
 export default function CPShortcutsDialog(parent) {
     var
         dialog = 
@@ -167,14 +168,14 @@ export default function CPShortcutsDialog(parent) {
                                                     ${_("Toggle mask View")}
                                                 </dd>
 												<dt>
-												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Ctrl</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
+												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">${Ctrl}</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Apply layer mask")}
                                                 </dd>
 												<dt>
 												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Shift</span></span> +
-												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Ctrl</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
+												<span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">${Ctrl}</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span>
                                                 </dt>
                                                 <dd>
                                                     ${_("Delete layer mask")}

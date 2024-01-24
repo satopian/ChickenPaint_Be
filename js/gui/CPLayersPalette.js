@@ -705,7 +705,7 @@ export default function CPLayersPalette(controller) {
                     dropdownOnMask = $(e.target).closest("." + CLASSNAME_LAYER_MASK_THUMBNAIL).length > 0
                         || (layer instanceof CPLayerGroup && layer.mask !== null && layerChanged);
 
-                    if (e.button == BUTTON_PRIMARY && e.shiftKey && !e.ctrlKey && dropdownOnMask) {
+                    if (e.button == BUTTON_PRIMARY && e.shiftKey && !(e.ctrlKey||e.metaKey)  && dropdownOnMask) {
 	                    controller.actionPerformed({
 		                    action: "CPSetMaskVisible",
 		                    layer: layer,
@@ -740,12 +740,12 @@ export default function CPLayersPalette(controller) {
                                 action: "CPToggleMaskView"
                             });
                         }
-						else if(selectMask && !e.shiftKey && e.ctrlKey) {
+						else if(selectMask && !e.shiftKey && (e.ctrlKey||e.metaKey)) {
                             controller.actionPerformed({
 								action: "CPApplyLayerMask"
                             });
 						}						
-						else if(selectMask && e.shiftKey && e.ctrlKey) {
+						else if(selectMask && e.shiftKey && (e.ctrlKey||e.metaKey)) {
                             controller.actionPerformed({
 								action: "CPRemoveLayerMask"
                             });
