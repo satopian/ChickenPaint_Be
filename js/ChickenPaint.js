@@ -79,10 +79,11 @@ if (window.PointerEvent) {
 //ブラウザデフォルトのキー操作をキャンセル
 document.addEventListener("keydown",(e)=>{
 	const keys = ["+", ";", "=","-","s","h","r"];
-	if (keys.includes(e.key.toLowerCase())) {
+	if ((e.ctrlKey||e.metaKey) && keys.includes(e.key.toLowerCase())||(e.key === "Enter")) {
 		// console.log("e.key",e.key);
 		e.preventDefault();
 	}
+	
 });
 require("pepjs"); // Needs to use require() instead of import so we can run code before it
 function checkBrowserSupport() {

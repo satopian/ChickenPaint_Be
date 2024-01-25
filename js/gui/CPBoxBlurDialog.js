@@ -83,12 +83,11 @@ export default function CPBoxBlurDialog(parent, controller) {
 			blurAmountElem.trigger('focus');
 		});
 
-		parent.addEventListener("keydown", function keydown_EnterKey (e) {
+		dialog[0].addEventListener("keydown", (e) => {
+
 			if (e.key === "Enter" && dialog.hasClass('show')) {
 				applyButton.trigger('click');
 				e.preventDefault(); // デフォルトのフォーム送信を阻止
-				parent.removeEventListener("keydown",keydown_EnterKey);
-
 			}
 		});
 		parent.appendChild(dialog[0]);

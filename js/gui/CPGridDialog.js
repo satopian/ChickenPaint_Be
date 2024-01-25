@@ -79,11 +79,10 @@ export default function CPGridDialog(parent, canvas) {
 		});
 	
 		// Enter キーが押されたときの処理を追加
-		dialog[0].addEventListener('keydown', function keydown_EnterKey (e) {
+		dialog[0].addEventListener('keydown', (e) => {
 			if (e.key === "Enter") {
 				e.preventDefault(); // デフォルトのフォーム送信を阻止
 				applyButton.trigger('click');
-				dialog[0].removeEventListener("keydown",keydown_EnterKey);
 			}
 		});
 	
