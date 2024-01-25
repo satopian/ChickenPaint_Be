@@ -84,7 +84,7 @@ export default function CPSwatchesPalette(controller) {
 
         mnuRemove.className = "dropdown-item";
         mnuRemove.href = "#";
-        mnuRemove.innerHTML = _("Remove");
+        mnuRemove.textContent = _("Remove");
         
         mnuRemove.addEventListener("click", function(e) {
             e.preventDefault();
@@ -95,7 +95,7 @@ export default function CPSwatchesPalette(controller) {
 
         mnuSetToCurrent.className = "dropdown-item";
         mnuSetToCurrent.href = "#";
-        mnuSetToCurrent.innerHTML = _("Replace with current color");
+        mnuSetToCurrent.textContent = _("Replace with current color");
         
         mnuSetToCurrent.addEventListener("click", function(e) {
             e.preventDefault();
@@ -277,7 +277,7 @@ export default function CPSwatchesPalette(controller) {
 
         mnuSave.className = "dropdown-item";
         mnuSave.href = "#";
-        mnuSave.innerHTML = _("Save swatches to your computer...");
+        mnuSave.textContent = _("Save swatches to your computer...");
         mnuSave.addEventListener("click", function(e) {
             e.preventDefault();
             
@@ -286,7 +286,7 @@ export default function CPSwatchesPalette(controller) {
 
         mnuLoad.className = "dropdown-item";
         mnuLoad.href = "#";
-        mnuLoad.innerHTML = _("Load swatches from your computer...");
+        mnuLoad.textContent = _("Load swatches from your computer...");
         mnuLoad.addEventListener("click", function(e) {
             e.preventDefault();
             

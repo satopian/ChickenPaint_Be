@@ -71,6 +71,10 @@ export default function CPConfirmTransformDialog(parent, controller) {
 	this.show = function () {
 		modal.show();
 	};
+
+	dialog[0].addEventListener('hidden.bs.modal', (e) => {
+		dialog.remove();
+	});
 	// Enterキーが押されたときの処理
 	parent.addEventListener("keydown", function keydown_EnterKey (e) {
 		if (e.key === "Enter") {

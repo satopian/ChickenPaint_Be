@@ -145,7 +145,7 @@ export default function CPTabletDialog(parent) {
     // Initialize the modal using Bootstrap 5 methods
     var modalInstance = new bootstrap.Modal(dialog[0]);
 
-    // parent.appendChild(dialog[0]);
+    parent.appendChild(dialog[0]);
 
     // Show method
     this.show = function () {

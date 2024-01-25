@@ -307,7 +307,7 @@ export default function CPPalette(cpController, className, title, options) {
     
     closeButton.type = "button";
     closeButton.className = "btn btn-close";
-    closeButton.innerHTML = "";
+    closeButton.textContent = "";
 	closeButton.tabIndex = -1;
     
     containerElement.className = "chickenpaint-palette chickenpaint-palette-" + className;

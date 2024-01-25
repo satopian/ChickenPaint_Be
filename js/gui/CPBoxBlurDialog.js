@@ -59,30 +59,37 @@ export default function CPBoxBlurDialog(parent, controller) {
 		blurIterationsElem = $(".chickenpaint-blur-iterations", dialog),
 		applyButton = $(".chickenpaint-apply-box-blur", dialog);
 		
+		// Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
+		var modal = new bootstrap.Modal(dialog[0]);
 		this.show = function() {
-			// Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
-			var modal = new bootstrap.Modal(dialog[0]);
 			modal.show();
 		};
 		
-		applyButton.on('click', function(e) {
+		applyButton[0].addEventListener('click', (e) => {
+
 			let
 				blur = Math.max(parseInt(blurAmountElem.val(), 10), 1),
 				iterations = Math.min(Math.max(parseInt(blurIterationsElem.val(), 10), 1), 8);
 		
 			controller.getArtwork().boxBlur(blur, blur, iterations);
+			// modal.hide();
 		});
 		
+		dialog[0].addEventListener('hidden.bs.modal', (e) => {
+			dialog.remove();
+		});
+
 		dialog[0].addEventListener('shown.bs.modal', (e) => {
 			blurAmountElem.trigger('focus');
 		});
-		
-		$(document).on('keydown', function (e) {
+
+		parent.addEventListener("keydown", function keydown_EnterKey (e) {
 			if (e.key === "Enter" && dialog.hasClass('show')) {
 				applyButton.trigger('click');
+				e.preventDefault(); // デフォルトのフォーム送信を阻止
+				parent.removeEventListener("keydown",keydown_EnterKey);
+
 			}
 		});
-		
-		// Bootstrap 5: modalオプションが不要なため削除
-		// parent.appendChild(dialog[0]);
+		parent.appendChild(dialog[0]);
 	}

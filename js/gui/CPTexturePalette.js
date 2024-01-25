@@ -416,7 +416,7 @@ export default function CPTexturePalette(controller) {
         btnCustomize.className = "btn btn-light btn-sm";
 		btnCustomize.setAttribute("data-bs-toggle", "popover");
 		btnCustomize.setAttribute("data-bs-placement", "right");
-        btnCustomize.innerHTML = _("Customize");
+        btnCustomize.textContent = _("Customize");
 
         textureControlsPanel = buildTextureControlsPanel();
         

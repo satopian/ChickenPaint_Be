@@ -54,29 +54,36 @@ export default function CPGridDialog(parent, canvas) {
 		gridSizeElem = $(".chickenpaint-grid-size", dialog),
 		applyButton = $(".chickenpaint-apply-grid-settings", dialog);
 
+		// Bootstrap 5: Modal コンストラクタを使用して modal を初期化
+		var modal = new bootstrap.Modal(dialog[0]);
 		this.show = function () {
-			// Bootstrap 5: Modal コンストラクタを使用して modal を初期化
-			var modal = new bootstrap.Modal(dialog[0]);
 			modal.show();
 		};
 	
 		gridSizeElem.val(canvas.getGridSize());
 	
-		applyButton.on('click', function(e) {
+		// Destroy the modal upon close
+		dialog[0].addEventListener('hidden.bs.modal', (e) => {
+			dialog.remove();
+		});
+
+		applyButton[0].addEventListener('click', (e) => {
+
 			var gridSize = parseInt(gridSizeElem.val(), 10);
 			canvas.setGridSize(gridSize);
 			var modal = bootstrap.Modal.getInstance(dialog[0]); // インスタンスを取得
 			modal.hide(); // モーダルを手動で閉じる
 		});
-		dialog.on('shown.bs.modal', function () {
+		dialog[0].addEventListener('shown.bs.modal', (e) => {
 			gridSizeElem.trigger('focus');
 		});
 	
 		// Enter キーが押されたときの処理を追加
-		dialog.on('keydown', function (e) {
+		dialog[0].addEventListener('keydown', function keydown_EnterKey (e) {
 			if (e.key === "Enter") {
 				e.preventDefault(); // デフォルトのフォーム送信を阻止
 				applyButton.trigger('click');
+				dialog[0].removeEventListener("keydown",keydown_EnterKey);
 			}
 		});
 	

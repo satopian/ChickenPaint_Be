@@ -477,7 +477,7 @@ function CPGradientPanel(controller) {
         title, colorsGroup, colorGroup;
 
     title = document.createElement("p");
-    title.innerHTML = _("Gradient");
+    title.textContent = _("Gradient");
 
     gradientPanel.appendChild(title);
     gradientPanel.appendChild(gradientPreview.getElement());
@@ -526,8 +526,8 @@ function CPTransformPanel(controller) {
     acceptButton.className = "btn btn-primary btn-block";
     rejectButton.className = "btn btn-light btn-block";
 
-    acceptButton.innerHTML = _("Apply transform");
-    rejectButton.innerHTML = _("Cancel");
+    acceptButton.textContent = _("Apply transform");
+    rejectButton.textContent = _("Cancel");
 
     interpCombo.addEventListener("change", function(e) {
         controller.setTransformInterpolation(this.value);
@@ -541,7 +541,7 @@ function CPTransformPanel(controller) {
             interpGroup = document.createElement("div"),
             interpLabel = document.createElement("label");
 
-        interpLabel.innerHTML = _("Transform style");
+        interpLabel.textContent = _("Transform style");
 
         interpGroup.className = "form-group";
         interpGroup.appendChild(interpLabel);
