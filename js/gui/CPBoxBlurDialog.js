@@ -42,7 +42,7 @@ export default function CPBoxBlurDialog(parent, controller) {
                                 </div>
                                 <div class="form-group">
                                     <label>${_("Iterations (1-8, larger gives smoother blur)")}</label>
-                                    <input type="number" class="form-control chickenpaint-blur-iterations" value="1">
+                                    <input type="number" class="form-control chickenpaint-blur-iterations" value="1" min="1" max="8">
                                 </div>
                             </form>
                         </div>
