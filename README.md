@@ -12,6 +12,10 @@ Bootstrap4のコードを含む｢ChickenPaint｣のビルドを行ったあと�
 改造したバージョンの｢ChickenPaint｣の名称は｢ChickenPaint Be｣です。  
 追加された機能と廃止された機能があり、またこの改造版に固有の問題が存在する可能性もあるため名称を変更しました。  
 
+noteにも、概要をまとめましたのでよろしくお願いします。
+
+[ChickenPaintを改良したChickenPaint Beの新機能｜さとぴあ](https://note.com/satopian/n/ne3958c47464d)
+
 ## 変更点
 
 #### ChickenPaintのダイヤログ、ポップオーバーの日本語未翻訳箇所を翻訳して実装しました
