@@ -903,6 +903,10 @@ export default function ChickenPaint(options) {
             },
             CPPost: {
                 action: function () {
+				//画面移動の関数が定義されている時はユーザーが定義した関数で画面移動
+				if (typeof handleExit === 'function') {
+					return handleExit();
+				}
                     window.location = options.postUrl;
                 },
                 isSupported: function() {
