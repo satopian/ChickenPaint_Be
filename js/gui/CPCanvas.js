@@ -2643,7 +2643,7 @@ export default function CPCanvas(controller) {
     canvas.addEventListener("pointerdown", handlePointerDown);
     canvas.addEventListener("pointermove", handlePointerMove);
     canvas.addEventListener("pointerup", handlePointerUp);
-    canvas.addEventListener("wheel", handleMouseWheel);
+    canvas.addEventListener("wheel", handleMouseWheel,{ passive: false });
     
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("keyup", handleKeyUp);
