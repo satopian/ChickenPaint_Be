@@ -1636,11 +1636,12 @@ export default function CPLayersPalette(controller) {
 	blendCombo.title = _("Layer blending mode");
 	blendCombo.addEventListener("change", function(e) {
 		controller.actionPerformed({action: "CPSetLayerBlendMode", blendMode: parseInt(blendCombo.value, 10)});
+		blendCombo.blur();
 	});
-	blendCombo.onfocus = ()=>{//フォーカスを検出したら
-		document.activeElement.blur();//フォーカスを外す
-		// console.log(document.activeElement);
-	}; 
+	// blendCombo.onfocus = ()=>{//フォーカスを検出したら
+	// 	document.activeElement.blur();//フォーカスを外す
+	// 	// console.log(document.activeElement);
+	// }; 
 
     body.appendChild(blendCombo);
     

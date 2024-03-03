@@ -269,11 +269,13 @@ function CPBrushPanel(controller) {
 
     tipCombo.addEventListener("change", function(e) {
         controller.getBrushInfo().tip = parseInt(tipCombo.value, 10);
-    });
-	tipCombo.onfocus = ()=>{//フォーカスを検出したら
-		document.activeElement.blur();//フォーカスを外す
-		// console.log(document.activeElement);
-	}; 
+		tipCombo.blur();
+	});
+	// tipCombo.onfocus = ()=>{//フォーカスを検出したら
+	// 	document.activeElement.blur();//フォーカスを外す
+	// 	// console.log(document.activeElement);
+
+	// }; 
 
     tipCombo.className = "form-control form-control-sm";
 	tipCombo.tabIndex = -1;
