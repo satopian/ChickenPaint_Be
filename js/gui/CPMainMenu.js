@@ -216,6 +216,7 @@ const
                     name: "Invert",
                     action: "CPFXInvert",
                     mnemonic: "I",
+                    shortcut: "ctrl+i",
                     title: _("Invert the image colors")
                 },
                 {
