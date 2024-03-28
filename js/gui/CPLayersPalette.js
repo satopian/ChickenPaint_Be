@@ -1494,20 +1494,23 @@ export default function CPLayersPalette(controller) {
             if (layer && layer.name != textBox.value) {
                 controller.actionPerformed({action: "CPSetLayerName", layer: layer, name: textBox.value});
             }
-			this.scrollToTop();
+			// this.scrollToTop();
             this.hide();
         };
 
-		this.scrollToTop = function () {
-			// スクロール位置がトップでない場合のみスクロール
-			if (window.scrollY > 0) {
-				// ページをトップにスクロールする
-				window.scrollTo({
-					top: 0,
-					behavior: 'smooth' // 必要に応じてスクロールを滑らかにする
-				});
-			}
-		};
+		// this.scrollToTop = function () {
+		// 	if(!is_fullScreen_force()){
+		// 		return;
+		// 	}
+		// 	// スクロール位置がトップでない場合のみスクロール
+		// 	if (window.scrollY > 0) {
+		// 		// ページをトップにスクロールする
+		// 		window.scrollTo({
+		// 			top: 0,
+		// 			behavior: 'smooth' // 必要に応じてスクロールを滑らかにする
+		// 		});
+		// 	}
+		// };
 
 		this.show = function(_layer, _layerElem) {
 			layer = _layer;
@@ -1547,7 +1550,7 @@ export default function CPLayersPalette(controller) {
 
         textBox.addEventListener("keyup", function(e) {
             if (e.key === "Escape") { // Escape
-				that.scrollToTop();
+				// that.scrollToTop();
                 that.hide();
             }
             e.stopPropagation();
