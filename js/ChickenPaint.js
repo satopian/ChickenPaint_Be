@@ -384,7 +384,7 @@ export default function ChickenPaint(options) {
         preferences = new CPUserPreferences(),
 
         boxBlurDialog, gridDialog,
-
+		
         actions = {
             // GUI actions
 

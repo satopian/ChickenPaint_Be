@@ -232,7 +232,7 @@ export default function CPLayersPalette(controller) {
             scrollContainer = layerContainer,
 			//ドロップダウンメニュー関連項目のコメントアウト
             // dropdownLayerMenu = createLayerDropdownMenu(),
-            dropdownMousePos = {x: 0, y: 0},
+            // dropdownMousePos = {x: 0, y: 0},
 
             /**
              * @type {int} Rotation of image in 90 degree units
@@ -1162,52 +1162,52 @@ export default function CPLayersPalette(controller) {
         //     return menu;
         // }
 
-        function onDropdownActionClick(e) {
-            let
-                action = e.target.getAttribute("data-action");
+        // function onDropdownActionClick(e) {
+        //     let
+        //         action = e.target.getAttribute("data-action");
 
-            if (!action) {
-                return;
-            }
+        //     if (!action) {
+        //         return;
+        //     }
 
-            e.preventDefault(); // Don't jump to anchor
+        //     e.preventDefault(); // Don't jump to anchor
 
-            /* Bootstrap will call this for us anyway when the click propagates out to the root
-             * of the document. However in the meantime we could have rebuilt the layer DOM nodes
-             * from scratch, breaking Bootstrap's un-pop code.
-             *
-             * So clear it up front now.
-             */
-            clearDropDown();
+        //     /* Bootstrap will call this for us anyway when the click propagates out to the root
+        //      * of the document. However in the meantime we could have rebuilt the layer DOM nodes
+        //      * from scratch, breaking Bootstrap's un-pop code.
+        //      *
+        //      * So clear it up front now.
+        //      */
+        //     clearDropDown();
 
-            controller.actionPerformed({
-                action: "CPSetActiveLayer",
-                layer: dropdownLayer,
-                mask: artwork.isEditingMask()
-            });
+        //     controller.actionPerformed({
+        //         action: "CPSetActiveLayer",
+        //         layer: dropdownLayer,
+        //         mask: artwork.isEditingMask()
+        //     });
 
-            let
-                actionData = {
-                    action: action,
-                    layer: dropdownLayer
-                },
-                attributes = e.target.attributes;
+        //     let
+        //         actionData = {
+        //             action: action,
+        //             layer: dropdownLayer
+        //         },
+        //         attributes = e.target.attributes;
 
-            for (let i = 0; i < attributes.length; i++) {
-                let
-                    matches = attributes[i].name.match(/^data-action-(.+)/);
+        //     for (let i = 0; i < attributes.length; i++) {
+        //         let
+        //             matches = attributes[i].name.match(/^data-action-(.+)/);
 
-                if (matches) {
-                    actionData[matches[1]] = JSON.parse(attributes[i].value);
-                }
-            }
+        //         if (matches) {
+        //             actionData[matches[1]] = JSON.parse(attributes[i].value);
+        //         }
+        //     }
 
-            if (action === "CPRenameLayer") {
-                showRenameBoxForLayer(getDisplayIndexFromLayer(dropdownLayer));
-            } else {
-                controller.actionPerformed(actionData);
-            }
-        }
+        //     if (action === "CPRenameLayer") {
+        //         showRenameBoxForLayer(getDisplayIndexFromLayer(dropdownLayer));
+        //     } else {
+        //         controller.actionPerformed(actionData);
+        //     }
+        // }
 
         dropdownParent.id = "chickenpaint-layer-pop";
 
@@ -1494,9 +1494,20 @@ export default function CPLayersPalette(controller) {
             if (layer && layer.name != textBox.value) {
                 controller.actionPerformed({action: "CPSetLayerName", layer: layer, name: textBox.value});
             }
-
+			this.scrollToTop();
             this.hide();
         };
+
+		this.scrollToTop = function () {
+			// スクロール位置がトップでない場合のみスクロール
+			if (window.scrollY > 0) {
+				// ページをトップにスクロールする
+				window.scrollTo({
+					top: 0,
+					behavior: 'smooth' // 必要に応じてスクロールを滑らかにする
+				});
+			}
+		};
 
 		this.show = function(_layer, _layerElem) {
 			layer = _layer;
@@ -1536,6 +1547,7 @@ export default function CPLayersPalette(controller) {
 
         textBox.addEventListener("keyup", function(e) {
             if (e.key === "Escape") { // Escape
+				that.scrollToTop();
                 that.hide();
             }
             e.stopPropagation();
