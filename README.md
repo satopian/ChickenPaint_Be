@@ -99,7 +99,49 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 ### 拡大縮小ボタン使用時の拡大縮小率の変更
 - 拡大で2倍、縮小で0.5倍だった拡縮率を拡大で 1.41倍、縮小で0.7092になるように変更しました。  
 また縮小率0.7092倍時に描線がきれいに表示されないため、初期状態ではオフだったズーム時のアンチエイリアス処理を初期値でOnになるように変更しました。  
-アンチエイリアスがかかると困る場合はメニューの｢表示｣の中にある、｢ズームをなめらかに表示する｣のチェックを外して使います。  
+アンチエイリアスがかかると困る場合はメニューの｢表示｣の中にある、｢ズームをなめらかに表示する｣のチェックを外して使います。
+
+### より安全な機密データの受け渡し
+パスワード等の機密データをGETパラメータにセットして送信する事がありました。  
+```
+postUrl: "./?pwd="パスワード",
+```
+これをより安全なPOSTに変更する事ができるようになりました。 
+投稿が完了して画面が移動する直前に、関数`handleExit`を実行します。  
+この関数を使いFetch APIを使ったPOSTによりパスワードの処理を行う事ができます。  
+```
+handleExit = ()=>{
+	const formData = new FormData();
+	formData.append("pwd", "パスワード"); // 画像差し換え
+fetch("./", {
+	method: 'POST',
+	mode: 'same-origin',
+	headers: {
+		'X-Requested-With': 'chickenpaint'
+		,
+	},
+	body: formData
+})
+.then(response => {
+	if (response.ok) {
+		if (response.redirected) {
+			return window.location.href = response.url;
+		}
+		response.text().then((text) => {
+			if (text.startsWith("error\n")) {
+					return window.location.href = "./?mode=paintcom";
+				}
+		})
+	}
+})
+.catch(error => {
+	console.error('There was a problem with the fetch operation:', error);
+	return window.location.href = "./?mode=paintcom";
+});
+}
+```
+`handleExit`という名前の関数が定義されていない時は、`handleExit`は実行されず、従来と同じ動作になります。  
+`handleExit`という関数名であれば、処理の中身は掲示板の作者が自由に設定できます。  
 
 ### このバージョンのchickenpaint.jsにはBootstrapのコードが入っていません
 - Bootstrapのコードは従来のバージョンの｢ChickenPaint｣には入っていましたが、このBootstrap5対応版には入っていません。
