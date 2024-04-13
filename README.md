@@ -107,8 +107,8 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 postUrl: "./?pwd="パスワード",
 ```
 これをより安全なPOSTに変更する事ができるようになりました。 
-投稿が完了して画面が移動する直前に、関数`handleExit`を実行します。  
-この関数を使いFetch APIを使ったPOSTによりパスワードの処理を行う事ができます。  
+投稿が完了して画面が移動する直前に、`handleExit`関数を実行します。  
+この関数でFetch APIを使ったPOSTを行えばパスワードなどの機密データをより安全に送信する事ができます。  
 ```
 handleExit = ()=>{
 	const formData = new FormData();
@@ -141,7 +141,7 @@ fetch("./", {
 }
 ```
 `handleExit`という名前の関数が定義されていない時は、`handleExit`は実行されず、従来と同じ動作になります。  
-`handleExit`関数で何を行うのかは掲示板の作者が決定します。  
+`handleExit`関数で何を行うのかは掲示板の作者が決定します。 
 
 ### このバージョンのchickenpaint.jsにはBootstrapのコードが入っていません
 - Bootstrapのコードは従来のバージョンの｢ChickenPaint｣には入っていましたが、このBootstrap5対応版には入っていません。
