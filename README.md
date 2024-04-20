@@ -48,6 +48,7 @@ https://github.com/satopian/Petit_Note/assets/44894014/a79c6e5d-1a9d-4520-8a83-f
 - SHIFT+CTRL+Gでグループ結合
 - CTRL+Mでマスク適用
 - SHIFT+Mでマスク削除
+- CTRL+Iでネガポジ反転
 - SHIFT+左クリックでブラシサイズと不透明度のスライダーを緩やかに調整
 
 ### レイヤーパレット固有のショートカットキー
