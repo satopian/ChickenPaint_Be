@@ -111,7 +111,7 @@ postUrl: "./?pwd=パスワード",
 投稿が完了して画面が移動する直前に、`handleExit`関数を実行します。  
 この関数でFetch APIを使ったPOSTを行えばパスワードなどの機密データをより安全に送信する事ができます。  
 ```
-handleExit = ()=>{
+const handleExit = ()=>{
 	const formData = new FormData();
 	formData.append("pwd", "パスワード"); // 画像差し換え
 fetch("./", {
@@ -141,6 +141,7 @@ fetch("./", {
 });
 }
 ```
+`chickenpaint.min.js`から参照可能なスコープの中で`const handleExit`を宣言します。  
 `handleExit`という名前の関数が定義されていない時は、`handleExit`は実行されず、従来と同じ動作になります。  
 `handleExit`関数で何を行うのかは掲示板の作者が決定します。 
 
