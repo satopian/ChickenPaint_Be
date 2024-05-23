@@ -1323,9 +1323,8 @@ export default function ChickenPaint(options) {
         if (isEventSupported("onbeforeunload")) {
             window.addEventListener("beforeunload", function(e) {
                 if (that.artwork.getHasUnsavedChanges()) {
-                    let
-                        confirmMessage = "Your drawing has unsaved changes!";
-                    e.returnValue = confirmMessage;
+                    let confirmMessage = "Your drawing has unsaved changes!";
+					e.preventDefault();
                     return confirmMessage;
                 }
             });
