@@ -781,7 +781,7 @@
   }
 
 .chickenpaint-tool-undo {
-  margin-left: 8px;
+  margin-left: 3px;
 }
 
 .chickenpaint-tool-undo .chickenpaint-toolbar-button-icon {
@@ -789,7 +789,7 @@
 }
 
 .chickenpaint-tool-redo {
-  margin-right: 8px;
+  margin-right: 3px;
 }
 
 .chickenpaint-tool-redo .chickenpaint-toolbar-button-icon {

@@ -8,7 +8,7 @@
     "Redo": "やり直し",
     "Cut": "切り取り",
     "Copy": "コピー",
-    "Clear history": "履歴削除",
+    "Clear history": "履歴消去",
     "Copy merged": "結合コピー",
     "Paste": "貼り付け",
     "Select all": "すべて選択",
@@ -81,6 +81,8 @@
 	"画像の拡大時に補完して滑らかに表示します",
 	"Rearrange the palette windows": "パレットを再配置",
 	"Hides or shows all palettes": "パレットの表示/非表示",
+
+	"You're about to clear the current Undo/Redo history.\nThis operation cannot be undone, are you sure you want to do that?":"アンドゥ・リドゥの履歴を消去しようとしています。\nこの操作は元に戻すことができません。本当に実行しますか?",
 
 "Misc": "操作",
   

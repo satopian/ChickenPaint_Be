@@ -443,7 +443,7 @@ export default function ChickenPaint(options) {
             },
             CPClearHistory: {
                 action: function () {
-                    if (confirm("You're about to clear the current Undo/Redo history.\nThis operation cannot be undone, are you sure you want to do that?")) {
+                    if (confirm(_("You're about to clear the current Undo/Redo history.\nThis operation cannot be undone, are you sure you want to do that?"))) {
                         that.artwork.clearHistory();
                     }
                 },
