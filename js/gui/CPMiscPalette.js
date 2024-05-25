@@ -47,6 +47,11 @@ export default function CPMiscPalette(cpController) {
                 toolTip: "Zoom 100%"
             },
             {
+                className: "chickenpaint-tool-flip-horizontal",
+                command: "CPHFlip",
+                toolTip: "Flip horizontal"
+            },
+            {
                 className: "chickenpaint-tool-undo",
                 command: "CPUndo",
                 toolTip: "Undo"

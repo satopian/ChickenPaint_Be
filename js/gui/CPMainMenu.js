@@ -322,12 +322,13 @@ const
                     shortcut: "tab",
                     title: _("Hides or shows all palettes")
                 },
-                {
-                    name: "Use old icons",
-                    action: "CPToolbarStyle",
-                    checkbox: true,
-                    checked: false
-                },
+				// 古いアイコンは使わない。
+                // {
+                //     name: "Use old icons",
+                //     action: "CPToolbarStyle",
+                //     checkbox: true,
+                //     checked: false
+                // },
                 {
                     name: "-"
                 },
@@ -669,7 +670,8 @@ export default function CPMainMenu(controller, mainGUI) {
 
     mainGUI.getPaletteManager().on("paletteVisChange", onPaletteVisChange);
 
-    let 
+	// 古いアイコンは使わない。
+	let 
         fullScreenToggle = $(".dropdown-item[data-action=CPFullScreen]", bar),
         toolbarStyleToggle = $(".dropdown-item[data-action=CPToolbarStyle]", bar);
     
