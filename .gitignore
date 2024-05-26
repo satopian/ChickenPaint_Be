@@ -17,3 +17,4 @@ resources/js/
 /resources/js/chickenpaint.min.js.map
 /resources/gfx/icons-source/dark/
 /resources/gfx/icons-source/light/
+*.afphoto~lock~
