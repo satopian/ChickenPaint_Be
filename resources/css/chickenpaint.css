@@ -1131,7 +1131,7 @@
   padding-right: 4.8px;
   margin-right: 6px;
 }
-/* ゴミ箱アイコンの右の余白を少なくする */
+/* ゴミ箱アイコンの右のマージンを0にする */
 
 .chickenpaint .chickenpaint-layer-buttons .chickenpaint-small-toolbar-button[data-action="CPRemoveLayer"] {
 	margin-right: 0;
