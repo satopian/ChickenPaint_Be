@@ -119,13 +119,16 @@ export default function CPMainGUI(controller, uiElem) {
         paletteManager.palettes.layers.setRotation90(newAngle);
     });
 
-	//リサイズ時にパレットの配置を初期化
+	// リサイズ時にパレットの配置を初期化
 	window.addEventListener("resize", () => {
-
-		// リサイズ
+		// 最初にリサイズ
 		this.resize();
+		// パレット初期化
+		controller.actionPerformed({action: "CPArrangePalettes"});
+		// 非同期的に2度目のリサイズとパレット初期化
 		Promise.resolve().then(() => {
-			// パレット初期化
+			this.resize();
+		}).then(() => {
 			controller.actionPerformed({action: "CPArrangePalettes"});
 		});
 	});
