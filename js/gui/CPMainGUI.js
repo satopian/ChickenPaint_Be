@@ -122,10 +122,9 @@ export default function CPMainGUI(controller, uiElem) {
 	//リサイズ時にパレットの配置を初期化
 	window.addEventListener("resize", () => {
 
+		// リサイズ
+		this.resize();
 		Promise.resolve().then(() => {
-			// リサイズ
-			this.resize();
-		}).then(() => {
 			// パレット初期化
 			controller.actionPerformed({action: "CPArrangePalettes"});
 		});
