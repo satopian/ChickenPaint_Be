@@ -120,7 +120,7 @@ export default function CPMainGUI(controller, uiElem) {
     });
 
     window.addEventListener("resize", this.resize.bind(this));
-	//Bootstrap5のコプラスでメニューバーが閉じる時にリサイズする
+	//Bootstrap5のコラプスでメニューバーが閉じる時にリサイズする
 	document.addEventListener('hidden.bs.collapse', this.resize.bind(this));
 
     controller.on("fullScreen", fullscreen => this.setFullScreenMode(fullscreen));
