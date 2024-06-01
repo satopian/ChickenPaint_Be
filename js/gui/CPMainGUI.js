@@ -119,8 +119,18 @@ export default function CPMainGUI(controller, uiElem) {
         paletteManager.palettes.layers.setRotation90(newAngle);
     });
 
-    window.addEventListener("resize", this.resize.bind(this));
-	//Bootstrap5のコラプスでメニューバーが閉じる時にリサイズする
+	//リサイズ時にパレットの配置を初期化
+	window.addEventListener("resize", () => {
+		this.resize();
+		Promise.resolve().then(() => {//リサイズが完了したら
+			controller.actionPerformed({action: "CPArrangePalettes"});
+		});
+		// controller.actionPerformed({action: "CPArrangePalettes"});
+		// setTimeout(() => {//非同期による2度目のパレット初期化
+		// 	controller.actionPerformed({action: "CPArrangePalettes"});
+		// }, 0);
+	});
+		//Bootstrap5のコラプスでメニューバーが閉じる時にリサイズする
 	document.addEventListener('hidden.bs.collapse', this.resize.bind(this));
 
     controller.on("fullScreen", fullscreen => this.setFullScreenMode(fullscreen));
