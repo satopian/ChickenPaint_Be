@@ -120,6 +120,7 @@ export default function CPMainGUI(controller, uiElem) {
     });
 
     window.addEventListener("resize", this.resize.bind(this));
+	document.addEventListener('hidden.bs.collapse', this.resize.bind(this));
 
     controller.on("fullScreen", fullscreen => this.setFullScreenMode(fullscreen));
     
