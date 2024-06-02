@@ -58,6 +58,15 @@ export default function CPGridDialog(parent, canvas) {
 		var modal = new bootstrap.Modal(dialog[0]);
 		this.show = function () {
 			modal.show();
+			// ハンバガーメニューとモーダルの二重表示防止
+			// chickenpaint-main-menu-contentのIDを持つcollapse要素を閉じる
+			const collapseElement = document.getElementById('chickenpaint-main-menu-content');
+			if (collapseElement && collapseElement.classList.contains('show')) {
+				const bsCollapse = new bootstrap.Collapse(collapseElement, {
+					toggle: false // すでに閉じている場合のエラーを防ぐ
+				});
+				bsCollapse.hide();
+			}
 		};
 	
 		gridSizeElem.val(canvas.getGridSize());
