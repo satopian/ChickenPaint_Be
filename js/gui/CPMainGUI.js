@@ -132,10 +132,22 @@ export default function CPMainGUI(controller, uiElem) {
 			controller.actionPerformed({action: "CPArrangePalettes"});
 		});
 	});
+
+	// ハンバガーメニューとモーダルの二重表示防止
+	document.addEventListener('show.bs.modal', () => {
+		// chickenpaint-main-menu-contentのIDを持つcollapse要素を閉じる
+		const collapseElement = document.getElementById('chickenpaint-main-menu-content');
+		if (collapseElement && collapseElement.classList.contains('show')) {
+			const bsCollapse = new bootstrap.Collapse(collapseElement, {
+				toggle: false // すでに閉じている場合のエラーを防ぐ
+			});
+			bsCollapse.hide();
+		}
+	});
 	//Bootstrap5のコラプスでメニューバーが閉じる時にリサイズする
 	document.addEventListener('hidden.bs.collapse', this.resize.bind(this));
 
-    controller.on("fullScreen", fullscreen => this.setFullScreenMode(fullscreen));
+	controller.on("fullScreen", fullscreen => this.setFullScreenMode(fullscreen));
     
     controller.on("toolbarStyleChange", newStyle => {
        $(uiElem).toggleClass("chickenpaint-toolbar-style-old", newStyle === "old"); 
