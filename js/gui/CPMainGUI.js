@@ -119,8 +119,8 @@ export default function CPMainGUI(controller, uiElem) {
         paletteManager.palettes.layers.setRotation90(newAngle);
     });
 
-	// リサイズ時にパレットの配置を初期化
-	window.addEventListener("orientationchange", () => {
+	// デバイスの向きの変更時にパレットの配置を初期化
+	screen.orientation.addEventListener("change", (e) => {
 		//何通りも、試してどれかが有効になる事を期待
 		this.resize();
 		// パレット初期化
