@@ -62,8 +62,7 @@ export default function CPBoxBlurDialog(parent, controller) {
 		// Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
 		var modal = new bootstrap.Modal(dialog[0]);
 		this.show = function() {
-			modal.show();
-
+			
 			// ハンバガーメニューとモーダルの二重表示防止
 			// chickenpaint-main-menu-contentのIDを持つcollapse要素を閉じる
 			const collapseElement = document.getElementById('chickenpaint-main-menu-content');
@@ -73,6 +72,8 @@ export default function CPBoxBlurDialog(parent, controller) {
 				});
 				bsCollapse.hide();
 			}
+			//モーダルを表示
+			modal.show();
 		};
 		
 		applyButton[0].addEventListener('click', (e) => {

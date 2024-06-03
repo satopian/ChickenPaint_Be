@@ -57,7 +57,6 @@ export default function CPGridDialog(parent, canvas) {
 		// Bootstrap 5: Modal コンストラクタを使用して modal を初期化
 		var modal = new bootstrap.Modal(dialog[0]);
 		this.show = function () {
-			modal.show();
 			// ハンバガーメニューとモーダルの二重表示防止
 			// chickenpaint-main-menu-contentのIDを持つcollapse要素を閉じる
 			const collapseElement = document.getElementById('chickenpaint-main-menu-content');
@@ -67,6 +66,8 @@ export default function CPGridDialog(parent, canvas) {
 				});
 				bsCollapse.hide();
 			}
+			//モーダルを表示
+			modal.show();
 		};
 	
 		gridSizeElem.val(canvas.getGridSize());
