@@ -120,15 +120,20 @@ export default function CPMainGUI(controller, uiElem) {
     });
 
 	// リサイズ時にパレットの配置を初期化
-	window.addEventListener("resize", () => {
-		// 最初にリサイズ
+	window.addEventListener("orientationchange", () => {
+		//何通りも、試してどれかが有効になる事を期待
 		this.resize();
 		// パレット初期化
 		controller.actionPerformed({action: "CPArrangePalettes"});
-		// 非同期的に2度目のリサイズとパレット初期化
+		setTimeout(() => {
+			this.resize();
+			// パレット初期化
+			controller.actionPerformed({action: "CPArrangePalettes"});
+		}, 10);
 		Promise.resolve().then(() => {
 			this.resize();
 		}).then(() => {
+		// パレット初期化
 			controller.actionPerformed({action: "CPArrangePalettes"});
 		});
 	});
@@ -145,7 +150,8 @@ export default function CPMainGUI(controller, uiElem) {
 		}
 	});
 	//Bootstrap5のコラプスでメニューバーが閉じる時にリサイズする
-	document.addEventListener('hidden.bs.collapse', this.resize.bind(this));
+	document.addEventListener("hidden.bs.collapse", this.resize.bind(this));
+	window.addEventListener("resize", this.resize.bind(this));
 
 	controller.on("fullScreen", fullscreen => this.setFullScreenMode(fullscreen));
     
