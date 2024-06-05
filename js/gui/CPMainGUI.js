@@ -140,9 +140,9 @@ export default function CPMainGUI(controller, uiElem) {
 		});
 	}
 	// ハンバガーメニューとモーダルの二重表示防止
+	const collapseElement = document.getElementById('chickenpaint-main-menu-content');
 	document.addEventListener('show.bs.modal', () => {
 		// chickenpaint-main-menu-contentのIDを持つcollapse要素を閉じる
-		const collapseElement = document.getElementById('chickenpaint-main-menu-content');
 		if (collapseElement && collapseElement.classList.contains('show')) {
 			const bsCollapse = new bootstrap.Collapse(collapseElement, {
 				toggle: false // すでに閉じている場合のエラーを防ぐ
@@ -150,6 +150,24 @@ export default function CPMainGUI(controller, uiElem) {
 			bsCollapse.hide();
 		}
 	});
+	if(collapseElement){
+		const WidgetNav = document.querySelector('.chickenpaint .widget-nav');
+		if (WidgetNav) {
+			collapseElement.addEventListener('show.bs.collapse', (e)=> {//ハンバガーメニューを表示する時に
+				// .navbar-nav を非表示にする
+				WidgetNav.classList.add('hidden');
+			})
+			collapseElement.addEventListener('hidden.bs.collapse', (e)=> {//ハンバガーメニューを閉じる時に
+				// .navbar-nav を表示する
+				WidgetNav.classList.remove('hidden');
+			})
+		}
+		window.addEventListener("resize",()=>{
+				// .navbar-nav を表示する
+				WidgetNav.classList.remove('hidden');
+		});
+	}
+	
 	//Bootstrap5のコラプスでメニューバーが閉じる時にリサイズする
 	document.addEventListener("hidden.bs.collapse", this.resize.bind(this));
 	window.addEventListener("resize", this.resize.bind(this));
