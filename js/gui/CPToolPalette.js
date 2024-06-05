@@ -180,7 +180,8 @@ export default function CPToolPalette(cpController) {
                 button = buttons[parseInt(this.getAttribute("data-buttonIndex"), 10)];
 
             cpController.actionPerformed({action: button.command});
-            that.userIsDoneWithUs();
+            // that.userIsDoneWithUs();
+			//ツールのボタンをクリックするとツールパレットの折りたたみになる機能を停止
         }
     }
 
