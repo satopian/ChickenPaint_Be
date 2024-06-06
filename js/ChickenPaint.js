@@ -76,15 +76,6 @@ import CPUserPreferences from "./gui/CPUserPreferences.js";
 if (window.PointerEvent) {
     window.hasNativePointerEvents = true;
 }
-//ブラウザデフォルトのキー操作をキャンセル
-document.addEventListener("keydown",(e)=>{
-	const keys = ["+", ";", "=","-","s","h","r","o"];
-	if ((e.ctrlKey||e.metaKey) && keys.includes(e.key.toLowerCase())||(e.key === "Enter")) {
-		// console.log("e.key",e.key);
-		e.preventDefault();
-	}
-	
-});
 require("pepjs"); // Needs to use require() instead of import so we can run code before it
 function checkBrowserSupport() {
     let
@@ -347,10 +338,26 @@ export default function ChickenPaint(options) {
         setLanguage(options.language);
     }
     
+	const uiElem = options.uiElem;
+
+	//ブラウザデフォルトのキー操作をキャンセル
+	document.addEventListener("keydown",(e)=>{
+		const keys = ["+", ";", "=","-","s","h","r","o"];
+		if ((e.ctrlKey||e.metaKey) && keys.includes(e.key.toLowerCase())||(e.key === "Enter")) {
+			// console.log("e.key",e.key);
+			e.preventDefault();
+		}
+		
+	});
+	//長押しでコンテキストメニューを開かない
+	uiElem.addEventListener('contextmenu', (e)=>{
+		e.preventDefault();
+		e.stopPropagation();
+	}, { passive: false });
+
     let
         that = this,
 
-        uiElem = options.uiElem,
 
 	    /**
          * @type {CPCanvas}
