@@ -181,7 +181,7 @@ export default function CPToolPalette(cpController) {
 
             cpController.actionPerformed({action: button.command});
             // that.userIsDoneWithUs();
-			//ツールのボタンをクリックするとツールパレットの折りたたみになる機能を停止
+			//ボタンクリック時にパレットを折りたたむ機能を削除
         }
     }
 

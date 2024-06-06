@@ -88,7 +88,8 @@ export default function CPStrokePalette(cpController) {
                 $(this).addClass("selected");
                 
                 cpController.actionPerformed({action: button.command});
-                that.userIsDoneWithUs();
+                // that.userIsDoneWithUs();
+				//ボタンクリック時にパレットを折りたたむ機能を削除
             });
 
         body.appendChild(listElem);

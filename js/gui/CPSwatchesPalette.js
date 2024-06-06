@@ -223,7 +223,8 @@ export default function CPSwatchesPalette(controller) {
                 controller.setCurColor(new CPColor(parseInt(swatch.getAttribute("data-color"), 10)));
                 e.stopPropagation();
                 e.preventDefault();
-                that.userIsDoneWithUs();
+                // that.userIsDoneWithUs();
+				//ボタンクリック時にパレットを折りたたむ機能を削除
             }
        });
 		
