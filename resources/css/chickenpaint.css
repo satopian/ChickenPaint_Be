@@ -1450,7 +1450,7 @@
 }
 
 .chickenpaint .widget-nav .widget-toggler.selected {
-  background-color: hsl(200 33% 91% / 1);
+  background-color: hsl(210 79% 90% / 1);
 }
 
 /* Full screen mode */
@@ -6670,7 +6670,6 @@ textarea.form-control-lg {
   --bs-list-group-disabled-color: var(--bs-secondary-color);
   --bs-list-group-disabled-bg: var(--bs-body-bg);
   --bs-list-group-active-color: #fff;
-  --bs-list-group-active-bg: #0d6efd;
   --bs-list-group-active-border-color: #0d6efd;
   display: flex;
   flex-direction: column;
