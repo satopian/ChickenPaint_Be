@@ -1497,18 +1497,15 @@ body.chickenpaint-full-screen {
 
 /* カラーセット */
 .chickenpaint-small-screen .chickenpaint-color-swatches {
-	width: 193px;
+	width: 196px;
 }
 .chickenpaint-small-screen .chickenpaint-color-swatch-wrapper {
-	margin: 6px;
+	margin: 8px;
 }
 .chickenpaint-small-screen .chickenpaint-color-swatches-buttons .chickenpaint-small-toolbar-button {
 	padding: 8px;
 }
-.chickenpaint-small-screen .chickenpaint-color-swatch {
-	width: 20px;
-	height: 20px;
-}
+
 
 /* More compact styles for small screens */
 @media (max-width: 767px) {
