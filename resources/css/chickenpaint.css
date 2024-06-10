@@ -1494,7 +1494,6 @@ body.chickenpaint-full-screen {
 /* カラーセット */
 .chickenpaint-small-screen .chickenpaint-color-swatches {
 	width: 196px;
-	/* padding-right: 3px; */
 }
 .chickenpaint-small-screen .chickenpaint-color-swatch-wrapper {
 	margin: 8px;
