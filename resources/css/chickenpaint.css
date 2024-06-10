@@ -1491,17 +1491,24 @@ body.chickenpaint-full-screen {
 .chickenpaint-small-screen .chickenpaint-palette-head .btn-close {
 	display: none;
 }
+.chickenpaint-small-screen select.form-control {
+	margin: 6px 0;
+}
+
 /* カラーセット */
 .chickenpaint-small-screen .chickenpaint-color-swatches {
-	width: 196px;
+	width: 193px;
 }
 .chickenpaint-small-screen .chickenpaint-color-swatch-wrapper {
-	margin: 8px;
+	margin: 6px;
 }
 .chickenpaint-small-screen .chickenpaint-color-swatches-buttons .chickenpaint-small-toolbar-button {
 	padding: 8px;
 }
-
+.chickenpaint-small-screen .chickenpaint-color-swatch {
+	width: 20px;
+	height: 20px;
+}
 
 /* More compact styles for small screens */
 @media (max-width: 767px) {
@@ -4025,7 +4032,8 @@ textarea.form-control-lg {
   display: block;
   min-height: 1.5rem;
   padding-left: 1.5em;
-  margin-bottom: 0.125rem;
+  /* margin-bottom: 0.125rem; */
+  margin-top: 0.125rem;
 }
 .form-check .form-check-input {
   float: left;
