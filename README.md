@@ -120,7 +120,8 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 横表示へ。  
 #### 小型iPad以下の画面サイズの端末の時はパレット折りたたみ式のモバイルUIで起動
 
-- 768px以下の幅と高さの端末の時は、パレット折りたたみ式のモバイルUIで起動します。
+- 768px以下の幅と高さの端末の時は、パレット折りたたみ式のモバイルUIで起動します。  
+  
 ![localhost_221021_59_Petit_Note_petitnote_(iPad Mini)](https://github.com/satopian/ChickenPaint_Be/assets/44894014/61584688-cbba-4a30-9837-c1fb86dd637f) ![paintbbs sakura ne jp_oeb_cgi_petit_(iPad Mini)](https://github.com/satopian/ChickenPaint_Be/assets/44894014/1d8ad310-ec10-4f6f-9b85-a39abc8bb250)  
 
 600px x 600pxのキャンバスを開いた時の画面の比較。
