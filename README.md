@@ -109,14 +109,23 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 また縮小率0.7092倍時に描線がきれいに表示されないため、初期状態ではオフだったズーム時のアンチエイリアス処理を初期値でOnになるように変更しました。  
 アンチエイリアスがかかると困る場合はメニューの｢表示｣の中にある、｢ズームをなめらかに表示する｣のチェックを外して使います。
 
-### スマホ･タブレットの縦横の向きが変った時は自動的にパレットの配置を初期化
+### モバイル端末に最適化されたUI
+#### スマホ･タブレットの縦横の向きが変った時は自動的にパレットの配置を初期化
 - スマホの縦横の画面の切り換えの時に使いにくいパレットの位置になってしまう事がありました。  
 画面の向きの変化を検出して自動的にパレットの配置を初期化する事でこの問題を解決しました。  
 
-![image](https://github.com/satopian/Petit_Note/assets/44894014/fa83e796-cc01-4e15-91af-bde7ed1359b9)  
+![Screenshot_20240611-161037](https://github.com/satopian/ChickenPaint_Be/assets/44894014/64e384d0-cd17-4a6b-8c83-f1dac217e7c4)  
 縦表示から  
-![image](https://github.com/satopian/Petit_Note/assets/44894014/dbf96a28-92e3-4624-8815-96b650f44f20)  
+![Screenshot_20240611-161051](https://github.com/satopian/ChickenPaint_Be/assets/44894014/a1725244-d47f-42a6-bedc-d15a1a1969ac)  
 横表示へ。  
+#### 小型iPad以下の画面サイズの端末の時はパレット折りたたみ式のモバイルUIで起動
+
+- 768px以下の幅と高さの端末の時は、パレット折りたたみ式のモバイルUIで起動します。  
+  
+![localhost_221021_59_Petit_Note_petitnote_(iPad Mini)](https://github.com/satopian/ChickenPaint_Be/assets/44894014/61584688-cbba-4a30-9837-c1fb86dd637f) ![paintbbs sakura ne jp_oeb_cgi_petit_(iPad Mini)](https://github.com/satopian/ChickenPaint_Be/assets/44894014/1d8ad310-ec10-4f6f-9b85-a39abc8bb250)  
+
+600px x 600pxのキャンバスを開いた時の画面の比較。
+左、旧UI。右、モバイル端末に最適化された新UI。
 
 ### より安全な機密データの受け渡し
 パスワード等の機密データをGETパラメータにセットして送信する事がありました。  
