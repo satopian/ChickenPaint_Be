@@ -132,7 +132,7 @@ export default function CPLayersPalette(controller) {
         dropdownParent = positionRoot,
 
         layerWidget = new CPLayerWidget(),
-        alphaSlider = new CPSlider(0, 100),
+        alphaSlider = new CPSlider(0, 100 , false , false , 218),
         blendCombo = document.createElement("select"),
     
         renameField = new CPRenameField(),

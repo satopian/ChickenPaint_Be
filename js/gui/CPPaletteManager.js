@@ -179,6 +179,7 @@ export default function CPPaletteManager(cpController) {
 
             palettes.layers.setLocation(palettes.brush.getX() + palettes.brush.getWidth() - palettes.layers.getWidth(), palettes.textures.getY() - palettes.layers.getHeight());
             palettes.layers.setHeight(palettes.textures.getY() - layersY - 1);
+            palettes.layers.setWidth(218);
 
             palettes.stroke.setLocation(palettes.misc.getX(), palettes.misc.getY() + palettes.misc.getHeight() + 1);
             palettes.swatches.setLocation(palettes.stroke.getX(), palettes.stroke.getY() + palettes.stroke.getHeight() + 1);

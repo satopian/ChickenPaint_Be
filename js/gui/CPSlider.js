@@ -27,7 +27,7 @@ import {_} from "../languages/lang";
 /**
  * A simple slider control.
  */
-export default function CPSlider(minValue, maxValue, centerMode, expMode) {
+export default function CPSlider(minValue, maxValue, centerMode, expMode, defaultWidth = 150) {
     const
         PRECISE_DRAG_SCALE = 4,
         EXP_MODE_FACTOR = 1.5,
@@ -63,12 +63,12 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode) {
     centerMode = centerMode || false;
 
     function paint() {
-        let
-            width = canvas.width,
-            height = canvas.height,
-            title = typeof that.title === "string" ? _(that.title) : that.title(that.value),
-            textX = 3 * window.devicePixelRatio,
-            textY = canvas.height * 0.75;
+        
+        let width = canvas.width || defaultWidth;
+        let height = canvas.height;
+        let title = typeof that.title === "string" ? _(that.title) : that.title(that.value);
+        let textX = 3 * window.devicePixelRatio;
+        let textY = canvas.height * 0.75;
 
         if (centerMode) {
             canvasContext.save();
@@ -234,7 +234,7 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode) {
     };
     
     this.resize = function() {
-        canvas.width = $(canvas).width() || 150;
+        canvas.width = $(canvas).width() || defaultWidth;
         canvas.height = $(canvas).height() || 20;
         
         if (window.devicePixelRatio > 1) {
