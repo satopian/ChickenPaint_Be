@@ -170,7 +170,11 @@ export default function CPPaletteManager(cpController) {
         if (cpController.getSmallScreenMode()) {
             palettes.tool.setLocation(0, 0);
             palettes.misc.setLocation(palettes.tool.getX() + palettes.tool.getWidth() + 1, 0);
-            palettes.brush.setLocation(windowDim.width - palettes.brush.getWidth() - 15, palettes.misc.getY() + palettes.misc.getHeight() + 1);
+
+			const BrushLocationY = (windowDim.width<560) ? (palettes.misc.getY() + palettes.misc.getHeight() + 1) : 0;
+			palettes.brush.setLocation(windowDim.width - palettes.brush.getWidth() - 15, BrushLocationY);
+	  
+			// palettes.brush.setLocation(windowDim.width - palettes.brush.getWidth() - 15, palettes.misc.getY() + palettes.misc.getHeight() + 1);
 
             let 
                 layersY = 330;
@@ -178,7 +182,7 @@ export default function CPPaletteManager(cpController) {
             palettes.textures.setWidth(windowDim.width - palettes.textures.getX());
 
             palettes.layers.setLocation(palettes.brush.getX() + palettes.brush.getWidth() - palettes.layers.getWidth(), palettes.textures.getY() - palettes.layers.getHeight());
-			const layerPaletteHeight = Math.max((palettes.textures.getY() - layersY - 1), 372);
+			const layerPaletteHeight = Math.max((palettes.textures.getY() - layersY - 1), 370);
 			palettes.layers.setHeight(layerPaletteHeight);
             // palettes.layers.setHeight(palettes.textures.getY() - layersY - 1);
             palettes.layers.setWidth(218);
