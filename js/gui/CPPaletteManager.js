@@ -178,7 +178,9 @@ export default function CPPaletteManager(cpController) {
             palettes.textures.setWidth(windowDim.width - palettes.textures.getX());
 
             palettes.layers.setLocation(palettes.brush.getX() + palettes.brush.getWidth() - palettes.layers.getWidth(), palettes.textures.getY() - palettes.layers.getHeight());
-            palettes.layers.setHeight(palettes.textures.getY() - layersY - 1);
+			const layerPaletteHeight = Math.max((palettes.textures.getY() - layersY - 1), 372);
+			palettes.layers.setHeight(layerPaletteHeight);
+            // palettes.layers.setHeight(palettes.textures.getY() - layersY - 1);
             palettes.layers.setWidth(218);
 
             palettes.stroke.setLocation(palettes.misc.getX(), palettes.misc.getY() + palettes.misc.getHeight() + 1);
