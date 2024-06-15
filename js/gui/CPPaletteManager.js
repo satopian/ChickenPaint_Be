@@ -171,7 +171,7 @@ export default function CPPaletteManager(cpController) {
             palettes.tool.setLocation(0, 0);
             palettes.misc.setLocation(palettes.tool.getX() + palettes.tool.getWidth() + 1, 0);
 
-			const BrushLocationY = ((windowDim.width - (palettes.tool.getWidth() + palettes.misc.getWidth() + palettes.brush.getWidth())) < 30) ? (palettes.misc.getY() + palettes.misc.getHeight() + 1) : 0;
+			const BrushLocationY = ((windowDim.width - (palettes.tool.getWidth() + palettes.misc.getWidth() + palettes.brush.getWidth())) <= 16) ? (palettes.misc.getY() + palettes.misc.getHeight() + 1) : 0;
 			palettes.brush.setLocation(windowDim.width - palettes.brush.getWidth() - 15, BrushLocationY);
 	  
 			// palettes.brush.setLocation(windowDim.width - palettes.brush.getWidth() - 15, palettes.misc.getY() + palettes.misc.getHeight() + 1);
