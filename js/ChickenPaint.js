@@ -99,7 +99,7 @@ function checkBrowserSupport() {
 }
 
 function isSmallScreen() {
-    return window.innerWidth <= 800 || window.innerHeight <= 800;
+    return window.innerWidth <= 820 || window.innerHeight <= 820;
 }
 
 function createDrawingTools() {
