@@ -91,8 +91,8 @@ export default function CPMainGUI(controller, uiElem) {
             newHeight;
 
         let
-            windowHeight = $(window).height(),
-            menuBarHeight = $(menuBar.getElement()).outerHeight();
+            windowHeight = window.innerHeight,
+            menuBarHeight = menuBar.getElement().getBoundingClientRect().height;
 
         if (fullScreenMode) {
             newHeight = windowHeight - menuBarHeight;
