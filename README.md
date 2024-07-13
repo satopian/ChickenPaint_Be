@@ -35,6 +35,13 @@ noteにも、概要をまとめましたのでご一読いただければ幸い�
 
 https://github.com/satopian/Petit_Note/assets/44894014/a79c6e5d-1a9d-4520-8a83-fe68ea8d3e6a
 
+### レイヤー2枚で起動するようになりました
+
+![image](https://github.com/user-attachments/assets/9a55fd0c-bc90-416d-a869-7ed897addf9d)
+  
+これまでは白い背景レイヤー1枚で起動していましたが、透明なレイヤーが1枚追加されレイヤー2枚で起動するようになりました。  
+間違って白い背景レイヤーに線画を描く事故を減らす事ができます。
+
 ### ショートカットキーの変更と拡張
 [ChickenPaintのショートカットキーを拡張しました｜さとぴあ](https://note.com/satopian/n/n79fee71aa102)
 - R+左クリックでキャンバスの回転
