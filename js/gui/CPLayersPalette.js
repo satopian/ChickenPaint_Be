@@ -1359,9 +1359,8 @@ export default function CPLayersPalette(controller) {
                 controller.actionPerformed({action: button.action});
             });
 
-			layerButtonsList.appendChild(elem);
+            layerButtonsList.appendChild(elem);
         }
-		controller.actionPerformed({action: "CPAddLayer"});
 
         return layerButtonsList;
     }

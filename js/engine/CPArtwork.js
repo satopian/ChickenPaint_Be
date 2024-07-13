@@ -877,14 +877,20 @@ export default function CPArtwork(_width, _height) {
     }
 
     this.addBackgroundLayer = function() {
-        let
-            layer = new CPImageLayer(that.width, that.height, this.getDefaultLayerName(false));
-        
+		//背景レイヤーを追加
+        let layer = new CPImageLayer(that.width, that.height, this.getDefaultLayerName(false));
         layer.image.clearAll(EMPTY_BACKGROUND_COLOR);
-        
         this.addLayerObject(this.getLayersRoot(), layer);
-    };
 
+    };
+    this.addDefaultLayer = function() {
+		//起動時に透明なレイヤーを1枚追加
+        let layer = new CPImageLayer(that.width, that.height, this.getDefaultLayerName(false));
+        layer.image.clearAll();
+        this.addLayerObject(this.getLayersRoot(), layer);
+		//アクティブレイヤーにセット
+		this.setActiveLayer(layer, false);
+	};
     /**
      * Merge together the visible layers and return the resulting image for display to the screen.
      * 

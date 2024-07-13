@@ -1277,11 +1277,11 @@ export default function ChickenPaint(options) {
                 action.action(e);
             }
         }
-
+    
         // callCPEventListeners(); TODO
     };
-    
-    this.setSmallScreenMode = function(small) {
+
+		this.setSmallScreenMode = function(small) {
         if (smallScreenMode !== small) {
             smallScreenMode = small;
 
@@ -1444,6 +1444,8 @@ export default function ChickenPaint(options) {
         } else {
             this.artwork = new CPArtwork(options.canvasWidth || 800, options.canvasHeight || 600);
             this.artwork.addBackgroundLayer();
+			//起動時に透明なレイヤーを1枚追加
+            this.artwork.addDefaultLayer();
         }
 
         startMainGUI();
