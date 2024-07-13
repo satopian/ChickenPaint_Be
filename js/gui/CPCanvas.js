@@ -511,7 +511,7 @@ export default function CPCanvas(controller) {
     };
 
     CPFreehandMode.prototype.mouseDrag = function(e, pressure) {
-		if((typeof navigator.maxTouchPoints === "undefined") || navigator.maxTouchPoints < 3){//タッチデバイスでは無い時に
+		if((typeof navigator.maxTouchPoints !== "number") || navigator.maxTouchPoints < 3){//タッチデバイスでは無い時に
 			CPDrawingMode.prototype.mouseMove.call(this, e, pressure);//円カーソルをmouseDrag時に表示
 		}
         if (this.capture) {
