@@ -132,7 +132,7 @@ export default function CPLayersPalette(controller) {
         dropdownParent = positionRoot,
 
         layerWidget = new CPLayerWidget(),
-        alphaSlider = new CPSlider(0, 100 , false , false , 206),
+        alphaSlider = new CPSlider(0, 100 , false , false , 208),
         blendCombo = document.createElement("select"),
     
         renameField = new CPRenameField(),
@@ -1299,20 +1299,15 @@ export default function CPLayersPalette(controller) {
                 },
                 {
                     title: "Merge down",
-                    icon: createFontAwesomeIcon("icon-arrow-down"),
+                    icon: createFontAwesomeIcon("icon-sign-in-alt fa-rotate-90"),
                     action: "CPLayerMergeDown",
+					require: ["image-layer"],
                 },
                 {
-                    title: "Add layer mask",
-                    icon: createChickenPaintIcon("mask"),
-                    action: "CPAddLayerMask",
-					require: ["no-mask"],
-                },
-                {
-                    title: "Apply mask",
-                    icon: createChickenPaintIcon("mask"),
-					action: "CPApplyLayerMask",
-					require: ["mask"],
+                    title: "Merge group",
+                    icon: createFontAwesomeIcon("icon-compress-arrows-alt"),
+                    action: "CPGroupMerge",
+                    require: ["layer-group"],
                 },
 				{
                     title: "Clip to the layer below",
@@ -1327,14 +1322,26 @@ export default function CPLayersPalette(controller) {
                     require: "clipping-mask"
                 },
                 {
+                    title: "Add layer mask",
+                    icon: createChickenPaintIcon("mask"),
+                    action: "CPAddLayerMask",
+					require: ["no-mask"],
+                },
+                {
+                    title: "Apply mask",
+                    icon: createChickenPaintIcon("mask"),
+					action: "CPApplyLayerMask",
+					require: ["mask"],
+                },
+				{
+                    title: "Duplicate",
+                    icon: createFontAwesomeIcon("icon-clone"),
+                    action: "CPLayerDuplicate",
+                },
+                {
                     title: "Add group",
                     icon: createFontAwesomeIcon("icon-folder"),
                     action: "CPAddGroup"
-                },
-                {
-                    title: "Merge group",
-                    icon: createFontAwesomeIcon("icon-compress-arrows-alt"),
-                    action: "CPGroupMerge"
                 },
                 {
                     title: "Delete layer",
@@ -1370,7 +1377,7 @@ export default function CPLayersPalette(controller) {
 			activeLayer = artwork.getActiveLayer(),
 			facts = computeLayerPredicates(activeLayer);
 	
-		for (let requirement of ["mask", "no-mask", "clipping-mask", "no-clipping-mask-or-is-group"]) {
+		for (let requirement of ["mask", "no-mask", "clipping-mask", "no-clipping-mask-or-is-group","image-layer","layer-group"]) {
 			let elements = layerActionButtons.getElementsByClassName("chickenpaint-action-require-" + requirement);
 	
 			for (let element of elements) {
