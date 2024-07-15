@@ -1298,8 +1298,13 @@ export default function CPLayersPalette(controller) {
                     action: "CPAddLayer"
                 },
                 {
+                    title: "Add group",
+                    icon: createFontAwesomeIcon("icon-folder"),
+                    action: "CPAddGroup"
+                },
+                {
                     title: "Merge down",
-                    icon: createFontAwesomeIcon("icon-sign-in-alt fa-rotate-90"),
+                    icon: createFontAwesomeIcon("icon-download"),
                     action: "CPLayerMergeDown",
 					require: ["image-layer"],
                 },
@@ -1337,11 +1342,6 @@ export default function CPLayersPalette(controller) {
                     title: "Duplicate",
                     icon: createFontAwesomeIcon("icon-clone"),
                     action: "CPLayerDuplicate",
-                },
-                {
-                    title: "Add group",
-                    icon: createFontAwesomeIcon("icon-folder"),
-                    action: "CPAddGroup"
                 },
                 {
                     title: "Delete layer",
