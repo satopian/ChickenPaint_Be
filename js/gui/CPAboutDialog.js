@@ -179,7 +179,7 @@ Copyright jQuery Foundation and other contributors, https://jquery.org/
     OTHER DEALINGS IN THE SOFTWARE.
 
 Includes Font Awesome by Dave Gandy - <a href="https://fontawesome.io" target="_blank" rel="noopener">https://fontawesome.io</a>
-Includes Material Icons by Google - <a href="https://fonts.google.com/" target="_blank" rel="noopener">https://fonts.google.com/</a>
+Includes Material Design icons by Google - <a href="https://fonts.google.com/" target="_blank" rel="noopener">https://fonts.google.com/</a>
                     </pre>
                 </div>
             </div>
