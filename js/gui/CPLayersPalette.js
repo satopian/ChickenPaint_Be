@@ -1304,7 +1304,7 @@ export default function CPLayersPalette(controller) {
                 },
                 {
                     title: "Merge down",
-                    icon: createFontAwesomeIcon("icon-download"),
+                    icon: createFontAwesomeIcon("icon-download_FILL"),
                     action: "CPLayerMergeDown",
 					require: ["image-layer"],
                 },
