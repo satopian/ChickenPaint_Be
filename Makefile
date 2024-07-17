@@ -51,11 +51,12 @@ ENGINE_SOURCE = js/engine/* js/util/*
 
 # CAIROSVG := $(shell command -v cairosvg 2> /dev/null)
 
-# all : resources/js/chickenpaint.js \
+all : min cat_all cat_min
 # 	resources/gfx/icons-dark-32.png resources/gfx/icons-dark-64.png \
 # 	resources/gfx/icons-light-32.png resources/gfx/icons-light-64.png
-
-# dist: all min chickenpaint.zip
+cat_all: dest/chickenpaint.js
+cat_min: dest/chickenpaint.min.js
+dist: all min chickenpaint.zip
 
 ifdef OSASCRIPT
 	osascript -e 'display notification "Build successful" with title "ChickenPaint build complete"'
@@ -74,7 +75,7 @@ chickenpaint.zip: resources/js/chickenpaint.js resources/js/chickenpaint.min.js 
 #  : resources/css/chickenpaint.scss resources/fonts/ChickenPaint-Symbols.scss node_modules/.bin/sass
 # 	node_modules/.bin/sass $< > $@
 # 	node_modules/.bin/postcss --replace $@
-
+ 
 resources/js/chickenpaint.min.js resources/js/chickenpaint.min.js.map : resources/js/chickenpaint.js
 	cd resources/js && ../../node_modules/.bin/uglifyjs --compress --mangle \
 		--source-map "content='chickenpaint.js.map',filename='chickenpaint.min.js.map',url='chickenpaint.min.js.map',root='./'" --output chickenpaint.min.js -- chickenpaint.js
@@ -151,3 +152,14 @@ clean :
 	rm -f resources/fonts/ChickenPaint-Symbols.{scss,ttf,woff,eot}
 	rm -f chickenpaint.zip
 	# rm -rf resources/gfx/icons-source/dark resources/gfx/icons-source/light
+dest/chickenpaint.js: header/header.txt node_modules/bootstrap/dist/js/bootstrap.bundle.js resources/js/chickenpaint.js
+	mkdir -p dest
+	cat header/header.txt > dest/chickenpaint.js
+	printf "\n" >> dest/chickenpaint.js
+	cat node_modules/bootstrap/dist/js/bootstrap.bundle.js >> dest/chickenpaint.js
+	printf "\n" >> dest/chickenpaint.js
+	cat resources/js/chickenpaint.js >> dest/chickenpaint.js	
+dest/chickenpaint.min.js: header/header.txt dest/chickenpaint.js
+	mkdir -p temp
+	google-closure-compiler --js dest/chickenpaint.js --js_output_file temp/chickenpaint.temp.min.js
+	cat header/header.txt temp/chickenpaint.temp.min.js > dest/chickenpaint.min.js

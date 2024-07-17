@@ -29,8 +29,10 @@
   },
   "type": "module",
   "dependencies": {
+    "bootstrap": "^5.3.3",
     "core-js": "^3.20.3",
     "file-saver": "^2.0.5",
+    "google-closure-compiler": "^20240317.0.0",
     "jquery": "^3.7.0",
     "mkdirp": "^1.0.4",
     "pako": "^1.0.11",
