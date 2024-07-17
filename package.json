@@ -4,7 +4,7 @@
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
-    "url": "https://github.com/thenickdude/chickenpaint.git"
+    "url": "https://github.com/satopian/ChickenPaint_Be.git"
   },
   "version": "0.4.1",
   "devDependencies": {
