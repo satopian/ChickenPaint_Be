@@ -70,12 +70,13 @@ https://github.com/satopian/Petit_Note/assets/44894014/a79c6e5d-1a9d-4520-8a83-f
 ![2024_01_16_レイヤーマスクのショートカットキーを追加](https://github.com/satopian/Petit_Note/assets/44894014/80361d7d-acf8-4256-98fa-27f7bf09d2e9)
 
 
-### レイヤーパレットに｢下のレイヤーと結合｣アイコンを追加
+### レイヤーパレットにアイコンを追加
+![ChickenPaintのレイヤーパレットに複製iconを追加](https://github.com/user-attachments/assets/75543a04-3e51-4960-9c97-571cf8e007a0)
+
+#### 下のレイヤーと結合アイコンを追加
 - ｢下のレイヤーと結合｣をペンによる操作で簡単に実現できるようにするため、レイヤーパレットに｢下のレイヤーと結合｣アイコンを追加しました。
 
-![image](https://github.com/satopian/ChickenPaint_Be/assets/44894014/019fbe39-9382-4639-95c6-bfbe8ed47af8)
-
-#### レイヤーパレットにグループ結合アイコンを追加しました。
+#### グループ結合アイコンを追加
 - グループ結合アイコンを追加しました。  
 通常の下のレイヤーと結合で結合するとクリッピングが解除されてしまいますが、レイヤーグループ内で下のレイヤーとクリッピングしていれば、グループ結合でレイヤーを結合しても、クリッピングが維持できます。   
 また、たくさんレイヤーがある時はグループ化して閉じればレイヤーパレットの場所を取らず便利です。  
@@ -83,8 +84,12 @@ https://github.com/satopian/Petit_Note/assets/44894014/a79c6e5d-1a9d-4520-8a83-f
 そして、レイヤーの右クリックメニュー機能を再実装できなかったので、実質上のメニューか、ショートカットキーでしか操作できなくなっていました。  
 そこで、レイヤーパレットに｢グループ結合｣アイコンを追加しました。 
 1タップで、グループフォルダ内のレイヤーを結合して1つにします。  
+グループフォルダを選択すると下のレイヤーと結合アイコンがグループ結合アイコンに入れ代わります。  
 
-![2024_01_14_レイヤーパレットにグループ結合アイコンを追加](https://github.com/satopian/Petit_Note/assets/44894014/db8d88a3-6bc8-4d3f-a612-1a2e000d9aaa)
+#### 複製アイコンを追加
+- 複製アイコンを追加しました。
+これまでは、ショートカットキーを使うか、上段のメニューから複製を選択するしかありませんでした。
+複製アイコンを1タップするだけでレイヤーやレイヤーグループが複製できるようになりました。
 
 #### レイヤーパレットのマスクアイコンの動作を変更
 - レイヤーパレットのマスクアイコンの動作を変更しました。
@@ -178,22 +183,6 @@ fetch("./", {
 `handleExit`という名前の関数が定義されていない時は、`handleExit`は実行されず、従来と同じ動作になります。  
 `handleExit`関数で何を行うのかは掲示板の作者が決定します。 
 
-### このバージョンのchickenpaint.jsにはBootstrapのコードが入っていません
-- Bootstrapのコードは従来のバージョンの｢ChickenPaint｣には入っていましたが、このBootstrap5対応版には入っていません。
-
-そのため、chickenpaint.jsを読み込む前に、Popperを含むBundle版のBootstrapを読み込む必要があります。
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-<script src="chickenpaint/js/chickenpaint.min.js"></script>
-<link rel="stylesheet" href="chickenpaint/css/chickenpaint.css">
-```
-Bootstrapを含んだ`chickenpaint.js`と`chickenpaint.min.js`が必要な場合は`dest/`ディレクトリのファイルを使います。 
-`bootstrap.bundle.min.js`と`chickenpaint.js`を結合したファイルは`dest/`ディレクトリにビルドされます。
-```
-npm i
-```
-このコマンドで、必要なパッケージがインストールされ、MAKEコマンドによるビルドが行われます。
 
 ### このバージョンにはオリジナルの｢ChickenPaint｣には存在しない固有の問題があるかもしれません  
 
