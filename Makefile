@@ -2,8 +2,8 @@
 
 ENGINE_SOURCE = js/engine/* js/util/*
 
-all :clean chickenpaint cat_all cat_min 
-chickenpaint:temp/chickenpaint.temp.js
+all :clean build_js cat_all cat_min 
+build_js:temp/chickenpaint.temp.js
 cat_all: resources/js/chickenpaint.js
 cat_min: resources/js/chickenpaint.min.js
 # dist: all min chickenpaint.zip
@@ -59,5 +59,5 @@ resources/js/chickenpaint.min.js: header/header.txt resources/js/chickenpaint.js
 	cat header/header.txt temp/chickenpaint.temp.min.js > resources/js/chickenpaint.min.js
 clean :
 	rm -rf temp/
-	rm -f resources/js/chickenpaint{.js,.js.map} resources/js/chickenpaint.min{.js,.js.map}
+	rm -rf resources/js/
 	rm -f test/blending_bench/blending_test.js test/blending_bench/blending.js test/integration_test/integration.js js/engine/CPBlend.js
