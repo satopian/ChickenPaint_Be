@@ -1310,7 +1310,7 @@ export default function CPLayersPalette(controller) {
                 },
                 {
                     title: "Merge group",
-                    icon: createFontAwesomeIcon("icon-compress-arrows-alt"),
+                    icon: createFontAwesomeIcon("icon-collapse_all_FILL"),
                     action: "CPGroupMerge",
                     require: ["layer-group"],
                 },
