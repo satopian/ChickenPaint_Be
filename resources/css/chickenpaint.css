@@ -2,11 +2,11 @@
 
   @font-face {
 	font-family: 'icomoon';
-	src:  url('../fonts/icomoon/fonts/icomoon.eot?kqca2a');
-	src:  url('../fonts/icomoon/fonts/icomoon.eot?kqca2a#iefix') format('embedded-opentype'),
-	  url('../fonts/icomoon/fonts/icomoon.ttf?kqca2a') format('truetype'),
-	  url('../fonts/icomoon/fonts/icomoon.woff?kqca2a') format('woff'),
-	  url('../fonts/icomoon/fonts/icomoon.svg?kqca2a#icomoon') format('svg');
+	src:  url('../fonts/icomoon/fonts/icomoon.eot?s28o2v');
+	src:  url('../fonts/icomoon/fonts/icomoon.eot?s28o2v#iefix') format('embedded-opentype'),
+	  url('../fonts/icomoon/fonts/icomoon.ttf?s28o2v') format('truetype'),
+	  url('../fonts/icomoon/fonts/icomoon.woff?s28o2v') format('woff'),
+	  url('../fonts/icomoon/fonts/icomoon.svg?s28o2v#icomoon') format('svg');
 	font-weight: normal;
 	font-style: normal;
 	font-display: block;
@@ -25,7 +25,7 @@
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
   }
-  
+
   .icon-collapse_all_FILL:before {
 	content: "\e900";
   }
@@ -116,7 +116,7 @@
   .icon-compress-arrows-alt:before {
 	content: "\f78c";
   }
-			
+
   .chickenpaint {
   /*
    * Importing these rules from bootstrap since our namespaced version of bootstrap won't be able to access
