@@ -91,13 +91,15 @@ export default function CPBoxBlurDialog(parent, controller) {
 		});
 
 		dialog[0].addEventListener('shown.bs.modal', (e) => {
-			blurAmountElem.trigger('focus');
+			blurAmountElem.focus();
+			// blurAmountElem.trigger('focus');
 		});
 
 		dialog[0].addEventListener("keydown", (e) => {
 
 			if (e.key === "Enter" && dialog.hasClass('show')) {
-				applyButton.trigger('click');
+				// applyButton.trigger('click');
+				applyButton.click();
 				e.preventDefault(); // デフォルトのフォーム送信を阻止
 			}
 		});

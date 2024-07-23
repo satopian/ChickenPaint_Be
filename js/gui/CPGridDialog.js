@@ -85,14 +85,16 @@ export default function CPGridDialog(parent, canvas) {
 			modal.hide(); // モーダルを手動で閉じる
 		});
 		dialog[0].addEventListener('shown.bs.modal', (e) => {
-			gridSizeElem.trigger('focus');
+			// gridSizeElem.trigger('focus');
+			gridSizeElem.focus();
 		});
 	
 		// Enter キーが押されたときの処理を追加
 		dialog[0].addEventListener('keydown', (e) => {
 			if (e.key === "Enter") {
 				e.preventDefault(); // デフォルトのフォーム送信を阻止
-				applyButton.trigger('click');
+				// applyButton.trigger('click');
+				applyButton.click();
 			}
 		});
 	
