@@ -83,15 +83,15 @@ export default function CPBoxBlurDialog(parent, controller) {
 				iterations = Math.min(Math.max(parseInt(blurIterationsElem.val(), 10), 1), 8);
 		
 			controller.getArtwork().boxBlur(blur, blur, iterations);
-			// modal.hide();
+			modal.hide();
 		});
 		
 		dialog[0].addEventListener('hidden.bs.modal', (e) => {
-			dialog.remove();
+			dialog[0].remove();
 		});
 
 		dialog[0].addEventListener('shown.bs.modal', (e) => {
-			blurAmountElem.focus();
+			blurAmountElem[0].focus();
 			// blurAmountElem.trigger('focus');
 		});
 
@@ -99,7 +99,7 @@ export default function CPBoxBlurDialog(parent, controller) {
 
 			if (e.key === "Enter" && dialog.hasClass('show')) {
 				// applyButton.trigger('click');
-				applyButton.click();
+				applyButton[0].click();
 				e.preventDefault(); // デフォルトのフォーム送信を阻止
 			}
 		});

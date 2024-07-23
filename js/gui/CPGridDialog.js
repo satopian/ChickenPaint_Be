@@ -74,7 +74,7 @@ export default function CPGridDialog(parent, canvas) {
 	
 		// Destroy the modal upon close
 		dialog[0].addEventListener('hidden.bs.modal', (e) => {
-			dialog.remove();
+			dialog[0].remove();
 		});
 
 		applyButton[0].addEventListener('click', (e) => {
@@ -86,7 +86,7 @@ export default function CPGridDialog(parent, canvas) {
 		});
 		dialog[0].addEventListener('shown.bs.modal', (e) => {
 			// gridSizeElem.trigger('focus');
-			gridSizeElem.focus();
+			gridSizeElem[0].focus();
 		});
 	
 		// Enter キーが押されたときの処理を追加
@@ -94,7 +94,7 @@ export default function CPGridDialog(parent, canvas) {
 			if (e.key === "Enter") {
 				e.preventDefault(); // デフォルトのフォーム送信を阻止
 				// applyButton.trigger('click');
-				applyButton.click();
+				applyButton[0].click();
 			}
 		});
 	
