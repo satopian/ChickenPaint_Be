@@ -886,7 +886,7 @@ export default function CPArtwork(_width, _height) {
     this.addDefaultLayer = function() {
 		//起動時に透明なレイヤーを1枚追加
         let layer = new CPImageLayer(that.width, that.height, this.getDefaultLayerName(false));
-        layer.image.clearAll();
+        layer.image.clearAll(EMPTY_LAYER_COLOR);
         this.addLayerObject(this.getLayersRoot(), layer);
 		//アクティブレイヤーにセット
 		this.setActiveLayer(layer, false);
