@@ -1670,6 +1670,22 @@ body.chickenpaint-full-screen {
   height: 24px;
 }
 
+.chickenpaint .form-group {
+	margin-bottom: 1rem;
+}
+.chickenpaint .btn-block {
+	display: block;
+	width: 100%;
+}
+.chickenpaint .btn-block + .btn-block {
+	margin-top: 0.5rem;
+}
+.chickenpaint input[type=submit].btn-block,
+.chickenpaint input[type=reset].btn-block,
+.chickenpaint input[type=button].btn-block {
+  width: 100%;
+}
+
 /*!
  * Bootstrap  v5.3.0 (https://getbootstrap.com/)
  * Copyright 2011-2023 The Bootstrap Authors
