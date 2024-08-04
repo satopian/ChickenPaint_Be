@@ -74,6 +74,7 @@ export default function CPToolPalette(cpController) {
                 className: "chickenpaint-tool-blur",
                 command: "CPBlur",
                 toolTip: "Blur",
+                shortcut: "u",
                 mode: ChickenPaint.M_DRAW,
                 tool: ChickenPaint.T_BLUR
             },
