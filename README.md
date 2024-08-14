@@ -49,6 +49,7 @@ https://github.com/satopian/Petit_Note/assets/44894014/a79c6e5d-1a9d-4520-8a83-f
 - Wで水彩
 - Aでエアブラシ  
 - Sで薄消しゴム
+- Uでぼかしツール
 - Dで指先ツール  
 - Cで混色ツール
 - SHIFT+CTRL+Eで全レイヤー結合
