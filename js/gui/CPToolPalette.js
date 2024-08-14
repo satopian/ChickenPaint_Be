@@ -26,7 +26,7 @@ import key from "../../lib/keymaster.js";
 import CPPalette from './CPPalette.js';
 import ChickenPaint from '../ChickenPaint.js';
 
-import {_} from "../languages/lang";
+import {_} from "../languages/lang.js";
 
 export default function CPToolPalette(cpController) {
     CPPalette.call(this, cpController, "tool", "Tools");

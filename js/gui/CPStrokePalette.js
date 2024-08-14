@@ -24,7 +24,7 @@ import $ from "jquery";
 
 import CPPalette from './CPPalette.js';
 import CPBrushInfo from '../engine/CPBrushInfo.js';
-import {_} from "../languages/lang";
+import {_} from "../languages/lang.js";
 
 export default function CPStrokePalette(cpController) {
     CPPalette.call(this, cpController, "stroke", "Stroke");

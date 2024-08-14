@@ -36,7 +36,7 @@ import {isCanvasInterpolationSupported} from "../util/CPPolyfill.js";
 import $ from "jquery";
 import key from "../../lib/keymaster.js";
 
-import {_} from "../languages/lang";
+import {_} from "../languages/lang.js";
 
 function sliderCheckboxGroup(checkbox, slider) {
     let

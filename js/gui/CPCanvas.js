@@ -29,7 +29,7 @@ import CPRect from "../util/CPRect.js";
 import CPTransform from "../util/CPTransform.js";
 import CPWacomTablet from "../util/CPWacomTablet.js";
 import CPBezier from "../util/CPBezier.js";
-import {throttle} from "../util/throttle-debounce";
+import {throttle} from "../util/throttle-debounce.js";
 import CPPolygon from "../util/CPPolygon.js";
 import {setCanvasInterpolation} from "../util/CPPolyfill.js";
 import CPVector from "../util/CPVector.js";

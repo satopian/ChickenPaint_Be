@@ -22,7 +22,7 @@
 
 import $ from "jquery";
 import EventEmitter from "wolfy87-eventemitter";
-import {_} from "../languages/lang";
+import {_} from "../languages/lang.js";
 
 /**
  * A simple slider control.

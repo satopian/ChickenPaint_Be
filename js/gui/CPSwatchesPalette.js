@@ -28,7 +28,7 @@ import CPPalette from './CPPalette.js';
 
 import CPColor from '../util/CPColor.js';
 import AdobeColorTable from '../util/AdobeColorTable.js';
-import {_} from "../languages/lang";
+import {_} from "../languages/lang.js";
 
 function padLeft(string, padding, len) {
     while (string.length < len) {

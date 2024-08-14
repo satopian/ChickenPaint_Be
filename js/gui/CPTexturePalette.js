@@ -29,7 +29,7 @@ import CPLookUpTable from '../engine/CPLookUpTable.js';
 import CPPalette from './CPPalette.js';
 import CPSlider from './CPSlider.js';
 
-import {_} from "../languages/lang";
+import {_} from "../languages/lang.js";
 
 /**
  *
