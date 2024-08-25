@@ -1455,6 +1455,8 @@ export default function ChickenPaint(options) {
         }
     }
 }
+//Parcelでビルドする時はChickenPaintをGlobalオブジェクトに設定
+// window.ChickenPaint = ChickenPaint;
 
 ChickenPaint.prototype = Object.create(EventEmitter.prototype);
 ChickenPaint.prototype.constructor = ChickenPaint;
