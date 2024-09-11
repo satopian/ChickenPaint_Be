@@ -22,7 +22,8 @@ noteにも、概要をまとめましたのでご一読いただければ幸い�
 [npm audit reports moderate XSS vulnerability with bootstrap 4.6.2 · Issue #40685 · twbs/bootstrap](https://github.com/twbs/bootstrap/issues/40685)  
 
 Bootstrap4はサポートが終了しているため、セキュリティパッチが提供される事はありません。  
-セキュリティ対策の観点からも、Bootstrap5対応版の「ChickenPaint Be｣の開発は必要な事だったといえます。
+2024年現在のサポートされているBootstrapのバージョンは、Bootstrap5です。  
+Bootstrap5対応版の「ChickenPaint Be｣の開発はセキュリティ対策の観点からも必要な事だったといえます。  
 
 ## 変更点
 
