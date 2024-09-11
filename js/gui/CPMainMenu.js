@@ -425,13 +425,13 @@ const
 export default function CPMainMenu(controller, mainGUI) {
     let
 	bar = $(
-		'<nav class="navbar navbar-expand-md navbar-light bg-light">'
+		'<nav class="navbar navbar-expand-md bg-light">'
 			+ '<div class="navbar-upper"><a class="navbar-brand" href="#">ChickenPaint Be</a>'
 			+ '<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#chickenpaint-main-menu-content" aria-controls="chickenpaint-main-menu-content" aria-expanded="false" aria-label="Toggle main menu">'
 				+ '<span class="navbar-toggler-icon"></span>'
 			+ '</button></div>'
 			+ '<div class="collapse navbar-collapse" id="chickenpaint-main-menu-content">'
-				+ '<div class="navbar-nav mr-auto">'
+				+ '<div class="navbar-nav">'
 				+ '</div>'
 			+ '</div>'
 			+ '<div class="widget-nav" id="chickenpaint-palette-toggler-content"></div>'

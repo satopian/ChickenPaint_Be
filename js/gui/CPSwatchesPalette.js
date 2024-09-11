@@ -306,7 +306,7 @@ export default function CPSwatchesPalette(controller) {
         let
             btnSettingsContainer = document.createElement("div");
         
-        btnSettingsContainer.className = "btn-group dropright";
+        btnSettingsContainer.className = "btn-group";
         btnSettingsContainer.appendChild(btnSettings);
         btnSettingsContainer.appendChild(settingsMenu);
 
