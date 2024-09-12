@@ -20,7 +20,7 @@ noteにも、概要をまとめましたのでご一読いただければ幸い�
 ### Bootstrap4にXSSの脆弱性  
 
 2024年7月、bootstrap 4.0.0 - 4.6.2 にXSSの脆弱性がある事が明らかになりました。  
-Bootstrap4はサポートが終了しているため、セキュリティパッチは提供される事はありません。  
+Bootstrap4はサポートが終了しているため、セキュリティパッチが提供される事はありません。  
 つまり、Bootstrap5に移行する必要があるという事です。  
 
 [npm audit reports moderate XSS vulnerability with bootstrap 4.6.2 · Issue #40685 · twbs/bootstrap](https://github.com/twbs/bootstrap/issues/40685)  
