@@ -17,6 +17,8 @@ noteにも、概要をまとめましたのでご一読いただければ幸い�
 
 [ChickenPaintを改良したChickenPaint Beの新機能｜さとぴあ](https://note.com/satopian/n/ne3958c47464d)
 
+### Bootstrap4にXSSの脆弱性  
+
 2024年7月、bootstrap 4.0.0 - 4.6.2 にXSSの脆弱性がある事が明らかになりました。  
 Bootstrap4はサポートが終了しているため、セキュリティパッチは提供される事はありません。  
 つまり、Bootstrap5に移行する必要があるという事です。  
@@ -24,7 +26,7 @@ Bootstrap4はサポートが終了しているため、セキュリティパッ�
 [npm audit reports moderate XSS vulnerability with bootstrap 4.6.2 · Issue #40685 · twbs/bootstrap](https://github.com/twbs/bootstrap/issues/40685)  
 
 ｢ChickenPaint Be｣は、Bootstrap5に移行しました。    
-Bootstrap5は2024年現在の現行サポートバージョンであるため、あらたな問題が発見されてたとしても、問題が修正される事を期待できます。    
+Bootstrap5は現行サポートバージョンであるため、あらたな問題が発見されてたとしても、問題が修正される事を期待できます。    
 
 ## 変更点
 
