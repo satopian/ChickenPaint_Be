@@ -1211,7 +1211,7 @@ export default function CPLayersPalette(controller) {
 
         dropdownParent.id = "chickenpaint-layer-pop";
 
-        widgetContainer.className = "chickenpaint-layers-widget well";
+        widgetContainer.className = "chickenpaint-layers-widget";
         widgetContainer.addEventListener("contextmenu", e => e.preventDefault(), true /* Capture phase, prevent context menu on all children */);
 
 		//ドロップダウンメニュー関連項目のコメントアウト
