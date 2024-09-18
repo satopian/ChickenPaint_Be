@@ -23,7 +23,7 @@
     "multipipe": "^2.0.3",
     "postcss": "^8.4.31",
     "postcss-cli": "^9.1.0",
-    "serve": "^14.1.2"
+    "serve": "^14.2.3"
   },
   "type": "module",
   "dependencies": {
