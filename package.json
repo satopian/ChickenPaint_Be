@@ -34,6 +34,7 @@
     "jquery": "^3.7.0",
     "mkdirp": "^1.0.4",
     "pako": "^1.0.11",
+    "path-to-regexp": "^8.2.0",
     "pepjs": "=0.4.3",
     "random-js": "^2.1.0",
     "uuid": "^9.0.1",
