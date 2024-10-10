@@ -178,7 +178,7 @@ Copyright jQuery Foundation and other contributors, https://jquery.org/
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR 
     OTHER DEALINGS IN THE SOFTWARE.
 
-Includes Font Awesome by Dave Gandy - <a href="https://fontawesome.io" target="_blank" rel="noopener">https://fontawesome.io</a>
+Includes Font Awesome by Fonticons, Inc. - <a href="https://fontawesome.com/" target="_blank" rel="noopener">https://fontawesome.com/</a>
 Includes Material Design icons by Google - <a href="https://fonts.google.com/" target="_blank" rel="noopener">https://fonts.google.com/</a>
                     </pre>
                 </div>
