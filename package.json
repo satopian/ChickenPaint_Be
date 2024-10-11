@@ -1,13 +1,12 @@
 {
   "name": "chickenpaint",
-  "main": "dist/ChickenPaint.js",
+  "main": "ChickenPaint.js",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "targets": {
     "default": {
       "outputFormat": "global",
-      "context": "browser",
-      "distDir": "resources/js"
+      "context": "browser"
     }
   },
   "repository": {
@@ -52,7 +51,7 @@
     "./js/util/Canvas.js": "./js/browser/util/Canvas.js"
   },
   "scripts": {
-    "build": "parcel build ChickenPaint.js",
+    "build": "parcel build js/ChickenPaint.js",
     "start": "serve",
     "test": "babel-node node_modules/.bin/_mocha -- test/*.js",
     "prepare": "make all min"
