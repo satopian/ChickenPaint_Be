@@ -1,7 +1,15 @@
 {
   "name": "chickenpaint",
-  "main": "js/ChickenPaint.js",
+  "main": "dist/ChickenPaint.js",
+  "type": "module",
   "license": "GPL-3.0-or-later",
+  "targets": {
+    "default": {
+      "outputFormat": "global",
+      "context": "browser",
+      "distDir": "resources/js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/satopian/ChickenPaint_Be.git"
@@ -21,11 +29,11 @@
     "exorcist": "^2.0.0",
     "mocha": "^9.1.4",
     "multipipe": "^2.0.3",
+    "parcel": "^2.12.0",
     "postcss": "^8.4.31",
     "postcss-cli": "^9.1.0",
     "serve": "^14.2.3"
   },
-  "type": "module",
   "dependencies": {
     "bootstrap": "^5.3.3",
     "core-js": "^3.20.3",
@@ -44,6 +52,7 @@
     "./js/util/Canvas.js": "./js/browser/util/Canvas.js"
   },
   "scripts": {
+    "build": "parcel build ChickenPaint.js",
     "start": "serve",
     "test": "babel-node node_modules/.bin/_mocha -- test/*.js",
     "prepare": "make all min"
