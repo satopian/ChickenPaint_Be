@@ -42,7 +42,8 @@ import "core-js/stable/string/ends-with.js";
 
 import $ from "jquery";
 
-// import "bootstrap";
+// import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
+// window.bootstrap = bootstrap;
 
 import "../lib/raf.js";
 
