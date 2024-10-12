@@ -60,7 +60,7 @@ function CPColorShow(controller) {
     }
     
     function paint() {
-        element.style.backgroundColor = '#' + padLeft(Number(color).toString(16), "0", 6);
+        element.style.backgroundColor = "#" + padLeft(Number(color).toString(16), "0", 6);
     }
     
     function mouseClick(e) {

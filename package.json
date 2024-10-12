@@ -1,6 +1,5 @@
 {
   "name": "chickenpaint",
-  "main": "ChickenPaint.js",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "targets": {
@@ -23,7 +22,6 @@
     "autoprefixer": "^10.4.2",
     "babel-plugin-add-module-exports": "^1.0.4",
     "babelify": "^10.0.0",
-    "browserify": "^17.0.0",
     "canvas": "^2.7.0",
     "exorcist": "^2.0.0",
     "mocha": "^9.1.4",
@@ -34,6 +32,7 @@
     "serve": "^14.2.3"
   },
   "dependencies": {
+    "@swc/helpers": "^0.5.13",
     "bootstrap": "^5.3.3",
     "core-js": "^3.20.3",
     "file-saver": "^2.0.5",
@@ -51,7 +50,7 @@
     "./js/util/Canvas.js": "./js/browser/util/Canvas.js"
   },
   "scripts": {
-    "parcel": "parcel build js/ChickenPaint.js",
+    "dev": "parcel js/ChickenPaint.js",
     "start": "serve",
     "test": "babel-node node_modules/.bin/_mocha -- test/*.js",
     "prepare": "make all min"

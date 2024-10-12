@@ -42,8 +42,7 @@ import "core-js/stable/string/ends-with.js";
 
 import $ from "jquery";
 
-// import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
-// window.bootstrap = bootstrap;
+import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import "../lib/raf.js";
 
@@ -1456,8 +1455,6 @@ export default function ChickenPaint(options) {
         }
     }
 }
-//Parcelでビルドする時はChickenPaintをGlobalオブジェクトに設定
-// window.ChickenPaint = ChickenPaint;
 
 ChickenPaint.prototype = Object.create(EventEmitter.prototype);
 ChickenPaint.prototype.constructor = ChickenPaint;
@@ -1511,3 +1508,7 @@ ChickenPaint.T_MAX = 11;
 
 ChickenPaint.COLOR_MODE_RGB = 0;
 ChickenPaint.COLOR_MODE_GREYSCALE = 1;
+
+//ChickenPaintとbootstrapをGlobalに設定
+window.ChickenPaint = ChickenPaint;
+window.bootstrap = bootstrap;

@@ -72,7 +72,7 @@ export default function CPSwatchesPalette(controller) {
         
         this.setColor = function(color) {
             swatchElem.setAttribute("data-color", color);
-            swatchElem.style.backgroundColor = '#' + padLeft("" + Number(color).toString(16), "0", 6);
+            swatchElem.style.backgroundColor = "#" + padLeft("" + Number(color).toString(16), "0", 6);
         };
 
         this.setColor(color);

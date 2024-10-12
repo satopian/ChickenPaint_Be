@@ -46,7 +46,7 @@ export default function CPColorSwatch(initialColor, initialAlpha, containerEleme
     }
 
     function paint() {
-        element.style.backgroundColor = '#' + padLeft(Number(color.getRgb()).toString(16), "0", 6);
+        element.style.backgroundColor = "#" + padLeft(Number(color.getRgb()).toString(16), "0", 6);
     }
 
     this.getElement = function() {

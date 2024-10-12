@@ -116,8 +116,8 @@ Includes these MIT-licensed libraries:
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
     OTHER DEALINGS IN THE SOFTWARE.
 
-Includes the <a href="https://www.jquery.com/" target="_blank" rel="noopener">jQuery library</a> 
-Copyright <a href="https://jquery.org/" target="_blank" rel="noopener">jQuery Foundation and other contributors</a>
+Includes the <a href="https://jquery.com/" target="_blank" rel="noopener">jQuery library</a> 
+Copyright <a href="https://jquery.com/license/" target="_blank" rel="noopener">OpenJS Foundation and other contributors</a>
     
     This software consists of voluntary contributions made by many
     individuals. For exact contribution history, see the revision 
@@ -148,7 +148,7 @@ Copyright <a href="https://jquery.org/" target="_blank" rel="noopener">jQuery Fo
     OTHER DEALINGS IN THE SOFTWARE.
 
 Includes the <a href="https://github.com/jquery/PEP/" target="_blank" rel="noopener">jQuery PEP library</a>
-Copyright jQuery Foundation and other contributors, https://jquery.org/
+Copyright OpenJS Foundation and other contributors, <a href="https://jquery.com/license/" target="_blank" rel="noopener">https://jquery.com/license/</a>
     
     This software consists of voluntary contributions made by many
     individuals. For exact contribution history, see the revision 
