@@ -51,7 +51,7 @@
     "./js/util/Canvas.js": "./js/browser/util/Canvas.js"
   },
   "scripts": {
-    "build": "parcel build js/ChickenPaint.js",
+    "parcel": "parcel build js/ChickenPaint.js",
     "start": "serve",
     "test": "babel-node node_modules/.bin/_mocha -- test/*.js",
     "prepare": "make all min"

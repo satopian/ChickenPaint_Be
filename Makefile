@@ -4,6 +4,7 @@ ENGINE_SOURCE = js/engine/* js/util/*
 
 all :clean build_js cat_all cat_min 
 build_js:temp/chickenpaint.temp.js
+parcel:temp/ChickenPaint.js
 cat_all: resources/js/chickenpaint.js
 cat_min: resources/js/chickenpaint.min.js
 # dist: all min chickenpaint.zip
@@ -17,6 +18,9 @@ endif
 temp/chickenpaint.temp.js : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenPaint.js js/engine/CPBlend.js lib/*
 	mkdir -p temp/
 	node_modules/.bin/browserify --standalone ChickenPaint --debug --entry js/ChickenPaint.js --transform babelify | node_modules/.bin/exorcist $@.map > $@
+temp/ChickenPaint.js : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenPaint.js js/engine/CPBlend.js lib/*
+	mkdir -p temp/
+	node_modules/.bin/parcel build js/ChickenPaint.js --dist-dir ./temp
 
 test: thumbnail-test integration-test blending-test
 
