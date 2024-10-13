@@ -2,11 +2,10 @@
 
 ENGINE_SOURCE = js/engine/* js/util/*
 
-all :clean build cat_all cat_min 
+all :clean build cat_min 
 build:temp/ChickenPaint.js
 dev:dist/ChickenPaint.js
-cat_all: resources/js/chickenpaint.js
-cat_min: resources/js/chickenpaint.min.js
+cat_min:resources/js/chickenpaint.min.js
 
 ifdef OSASCRIPT
 	osascript -e 'display notification "Build successful" with title "ChickenPaint build complete"'
@@ -18,7 +17,6 @@ temp/ChickenPaint.js : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenP
 
 dist/ChickenPaint.js : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenPaint.js js/engine/CPBlend.js lib/*
 	rm -rf .parcel-cache/
-	rm -rf dist/
 	mkdir -p dist/
 	node_modules/.bin/parcel js/ChickenPaint.js
 
@@ -38,15 +36,13 @@ js/engine/CPBlend2.js :
 js/engine/CPBlend.js : codegenerator/BlendGenerator.js
 	node codegenerator/BlendGenerator.js > js/engine/CPBlend.js
 
-resources/js/chickenpaint.js: header/header.txt temp/ChickenPaint.js
+resources/js/chickenpaint.min.js: header/header.txt temp/ChickenPaint.js
 	mkdir -p resources/js/
-	cat header/header.txt > resources/js/chickenpaint.js
-	printf "\n" >> resources/js/chickenpaint.js
-	cat temp/ChickenPaint.js >> resources/js/chickenpaint.js
-resources/js/chickenpaint.min.js: header/header.txt resources/js/chickenpaint.js
-	mkdir -p temp
-	google-closure-compiler --js resources/js/chickenpaint.js --js_output_file temp/chickenpaint.min.js
+	google-closure-compiler --js temp/ChickenPaint.js --js_output_file temp/chickenpaint.min.js
 	cat header/header.txt temp/chickenpaint.min.js > resources/js/chickenpaint.min.js
+	cp resources/js/chickenpaint.min.js resources/js/chickenpaint.js
+	rm -rf temp/
+
 clean :
 	rm -rf .parcel-cache
 	rm -rf temp/

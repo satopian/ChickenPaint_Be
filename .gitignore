@@ -1,4 +1,4 @@
-dist/
+dist/*.js
 temp/
 .parcel-cache/
 /node_modules/

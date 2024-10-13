@@ -31,8 +31,6 @@
 /*
     jQuery JavaScript Library
     (c) OpenJS Foundation and other contributors | https://jquery.com/license/
-    PEP v0.4.3 | https://github.com/jquery/PEP
-    (c) OpenJS Foundation and other contributors | https://jquery.com/license/
     EventEmitter v5.2.9 - git.io/ee
     Unlicense - http://unlicense.org/
     Oliver Caldwell - https://oli.me.uk/

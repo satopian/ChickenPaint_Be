@@ -76,7 +76,8 @@ import CPUserPreferences from "./gui/CPUserPreferences.js";
 if (window.PointerEvent) {
     window.hasNativePointerEvents = true;
 }
-require("pepjs"); // Needs to use require() instead of import so we can run code before it
+//古いブラウザのためのPointer Events Polyfill を除去
+// require("pepjs"); // Needs to use require() instead of import so we can run code before it
 function checkBrowserSupport() {
     let
         supportsAPIs = isCanvasSupported() && "Uint8Array" in window;
