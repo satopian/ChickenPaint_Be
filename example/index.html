@@ -9,9 +9,12 @@
 <script src="../resources/js/chickenpaint.js"></script>
 <link rel="stylesheet" href="../resources/css/chickenpaint.css">
 <style>
-	body {
-		-webkit-user-select: none; /* For iOS Safari: Prevent long-press from popping up a selection dialog on body text */
-	}
+:not(input),div#chickenpaint-parent :not(input){
+-moz-user-select: none;
+-webkit-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
 </style>
 
 </head>
