@@ -29,16 +29,17 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// Polyfillのimportをコメントアウト
 // core-js Polyfills for the features we use
-import "core-js/stable/symbol/index.js";
-import "core-js/stable/promise/index.js";
-import "core-js/stable/map/index.js";
-import "core-js/stable/set/index.js";
-import "core-js/stable/typed-array/slice.js";
-import "core-js/stable/typed-array/fill.js";
-import "core-js/stable/array/iterator.js";
-import "core-js/stable/array/fill.js";
-import "core-js/stable/string/ends-with.js";
+// import "core-js/stable/symbol/index.js";
+// import "core-js/stable/promise/index.js";
+// import "core-js/stable/map/index.js";
+// import "core-js/stable/set/index.js";
+// import "core-js/stable/typed-array/slice.js";
+// import "core-js/stable/typed-array/fill.js";
+// import "core-js/stable/array/iterator.js";
+// import "core-js/stable/array/fill.js";
+// import "core-js/stable/string/ends-with.js";
 
 import $ from "jquery";
 

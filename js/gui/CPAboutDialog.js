@@ -167,9 +167,8 @@ Copyright <a href="https://github.com/twbs/bootstrap/blob/main/LICENSE" target="
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-
-
-    Includes Font Awesome by Fonticons, Inc. - <a href="https://fontawesome.com/" target="_blank" rel="noopener">https://fontawesome.com/</a>
+    
+Includes Font Awesome by Fonticons, Inc. - <a href="https://fontawesome.com/" target="_blank" rel="noopener">https://fontawesome.com/</a>
 Includes Material Design icons by Google - <a href="https://fonts.google.com/" target="_blank" rel="noopener">https://fonts.google.com/</a>
                     </pre>
                 </div>
