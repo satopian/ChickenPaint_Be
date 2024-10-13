@@ -1,4 +1,6 @@
 dist/*.js
+dist/*.map
+example/*.js
 temp/
 .parcel-cache/
 /node_modules/
