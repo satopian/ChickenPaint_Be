@@ -213,19 +213,20 @@ IE11は完全にサポートが終了しているため、これらのポリフ�
 ## ビルド
 
 `npm i`でパッケージをインストールすると`make all`も実行され、`resources/js/`に本番環境で使用するための`chickenpaint.js`と`chickenpaint.min.js'`がビルドされます。  
-`example/index.html`でChickenPaintをローカルで起動できます。  
+`example/index.html`を開くとChickenPaintが起動します。  
 
+### 掲示板などで利用する本番環境用のビルドずみファイル
 掲示板で使用する時に必要になるのは、`resources/`ディレクトリ内のファイルだけです。  
 
+`resources/`ディレクトリのminifyされた`chickenpaint.js`と`chickenpaint.min.js`をご利用ください。  
+ビルドずみファイルを含む必要なファイル一式はリポジトリの`resources/`ディレクトリにあります。  
 parcelでビルドされるファイルは、すべてminifyされており、`chickenpaint.js`と`chickenpaint.min.js`は同じものです。
 
-### 非圧縮ファイルを使って動作確認をしたい時は
+### テスト用の非圧縮ファイルを使った動作確認
 `make dev`でビルドすると開発用の`dist/ChickenPaint.js`がビルドされます。  
 `dist/index.html`で開発用の圧縮されていないビルドずみのファイルを使ったChickenPaintが起動します。    
 `dist/ChickenPaint.js`はテスト用のビルドであり配布には適していません。  
 この方法でビルドしたファイルにはライブラリの著作権表記などがヘッダに入っていないため、配布に適していません。  
 そのため、このリポジトリにこのファイルは入っていません。  
-各自でビルドしてご利用ください。
-掲示板などで使用する場合は、`resource/`ディレクトリのminifyされた`chickenpaint.js`と`chickenpaint.min.js`をご利用ください。  
-こちらは、ビルドずみファイルを含む必要なファイル一式がリポジトリの`resource/`ディレクトリにあります。  
+各自でビルドしてご利用ください。  
 
