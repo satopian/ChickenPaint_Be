@@ -203,6 +203,13 @@ fetch("./", {
 IE11は完全にサポートが終了しているため、これらのポリフィルは必要なくなりました。
 これらのポリフィルを整理した結果、ファイルサイズは、779KBから594KBになり、約23.75%の削減になりました。
 
+### このバージョンにはオリジナルの｢ChickenPaint｣には存在しない固有の問題があるかもしれません  
+
+- もしも動作に問題がある場合は、このリポジトリのIssueを開いてください。
+- GitHubにアカウントが無い場合は、[サポート掲示板](https://paintbbs.sakura.ne.jp/cgi/neosample/support/)をご利用ください。
+- かなりの箇所に手を加えているため、オリジナルの｢ChickenPaint｣には無い固有の問題が存在している可能性があります。
+- オリジナル版の｢ChickenPaint｣で発生していない問題をオリジナルの｢ChickenPaint｣のリポジトリに問い合わせないようお願いします。
+
 ## ビルド
 
 `npm i`でパッケージをインストールすると`make all`も実行され、`resources/js/`に本番環境で使用するための`chickenpaint.js`と`chickenpaint.min.js'`がビルドされます。  
@@ -220,9 +227,3 @@ parcelでビルドされるファイルは、すべてminifyされており、`c
 そのため、リポジトリにこのファイルは入っていません。  
 掲示板などで使用する場合は、`resource/`ディレクトリのminifyされた`chickenpaint.js`と`chickenpaint.min.js`をご利用ください。
 
-### このバージョンにはオリジナルの｢ChickenPaint｣には存在しない固有の問題があるかもしれません  
-
-- もしも動作に問題がある場合は、このリポジトリのIssueを開いてください。
-- GitHubにアカウントが無い場合は、[サポート掲示板](https://paintbbs.sakura.ne.jp/cgi/neosample/support/)をご利用ください。
-- かなりの箇所に手を加えているため、オリジナルの｢ChickenPaint｣には無い固有の問題が存在している可能性があります。
-- オリジナル版の｢ChickenPaint｣で発生していない問題をオリジナルの｢ChickenPaint｣のリポジトリに問い合わせないようお願いします。
