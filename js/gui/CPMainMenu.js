@@ -262,13 +262,13 @@ const
                     name: "Zoom in",
                     action: "CPZoomIn",
                     mnemonic: "I",
-                    shortcut: "ctrl+=",
+                    shortcut: "=",
                 },
                 {
                     name: "Zoom out",
                     action: "CPZoomOut",
                     mnemonic: "O",
-                    shortcut: "ctrl+-",
+                    shortcut: "-",
                 },
                 {
                     name: "Zoom 100%",
@@ -471,8 +471,7 @@ export default function CPMainMenu(controller, mainGUI) {
         shortcut = shortcut.replace(/(,.+)$/, "");
         
         // Although the keycode for zoom in is "=", we'll present it to the user as "+"
-        shortcut = shortcut.replace("CTRL+=", "CTRL++");
-        shortcut = shortcut.replace("⌘+=", "⌘++");
+        shortcut = shortcut.replace("=", "+");
         
         if (macPlatform) {
             shortcut = shortcut.replace(/([^+])\+/g, "$1");
