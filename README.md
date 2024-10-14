@@ -195,7 +195,13 @@ fetch("./", {
 `chickenpaint.min.js`から参照可能なスコープの中で`const handleExit`を宣言します。  
 `handleExit`という名前の関数が定義されていない時は、`handleExit`は実行されず、従来と同じ動作になります。  
 `handleExit`関数で何を行うのかは掲示板の作者が決定します。 
-
+ 
+### ファイルサイズを劇的に削減
+- ビルドツールをparcelに変更しました。
+それだけで、100kb以上のファイルサイズの削減を実現できました。
+さらに、Pointer Events のポリフィルのためのPEP、Promise対応のためのcore-jsを削除しました。
+IE11は完全にサポートが終了しているため、これらのポリフィルは必要なくなりました。
+これらのポリフィルを整理した結果、ファイルサイズは、779KBから594KBになり、約23.75%の削減になりました。
 
 ### このバージョンにはオリジナルの｢ChickenPaint｣には存在しない固有の問題があるかもしれません  
 
@@ -203,64 +209,24 @@ fetch("./", {
 - GitHubにアカウントが無い場合は、[サポート掲示板](https://paintbbs.sakura.ne.jp/cgi/neosample/support/)をご利用ください。
 - かなりの箇所に手を加えているため、オリジナルの｢ChickenPaint｣には無い固有の問題が存在している可能性があります。
 - オリジナル版の｢ChickenPaint｣で発生していない問題をオリジナルの｢ChickenPaint｣のリポジトリに問い合わせないようお願いします。
- 
 
-## Building
+## ビルド
 
-In the root of ChickenPaint, run `npm install` to install required dependencies. 
-Then run `make all` to build ChickenPaint.
+`npm i`でパッケージをインストールすると`make all`も実行され、`resources/js/`に本番環境で使用するための`chickenpaint.js`と`chickenpaint.min.js'`がビルドされます。  
+`example/index.html`を開くとChickenPaintが起動します。  
 
+### 掲示板などで利用する本番環境用のビルドずみファイル
+掲示板で使用する時に必要になるのは、`resources/`ディレクトリ内のファイルだけです。  
 
-Prevent zooming on mobile devices by adding this to your head:
+`resources/`ディレクトリのminifyされた`chickenpaint.js`と`chickenpaint.min.js`をご利用ください。  
+ビルドずみファイルを含む必要なファイル一式はリポジトリの`resources/`ディレクトリにあります。  
+parcelでビルドされるファイルは、すべてminifyされており、`chickenpaint.js`と`chickenpaint.min.js`は同じものです。
 
-```html
-<meta name="viewport" content="width=device-width,user-scalable=no">
-```
+### テスト用の非圧縮ファイルのビルド
+`make dev`でビルドすると開発用の`dist/ChickenPaint.js`がビルドされます。  
+`dist/index.html`を開くと開発用にビルドされた非圧縮ファイルでChickenPaintが起動します。    
+`dist/ChickenPaint.js`はテスト用のビルドファイルであり配布には適していません。  
+この方法でビルドしたファイルにはライブラリの著作権表記などがヘッダに入っていないため、配布に適していません。  
+そのため、このリポジトリにこのファイルは入っていません。  
+各自でビルドしてご利用ください。  
 
-For iOS Safari support, you also need to add this to the head to block the long-press text
-selection popup from appearing on your body elements (when not in ChickenPaint full-screen mode):
-
-```html
-<style>
-body {
-	-webkit-user-select: none; /* For iOS Safari: Prevent long-press from popping up a selection dialog on body text */
-}
-</style>
-```
-
-Add an element to serve as the container for ChickenPaint:
-
-```html
-<div id="chickenpaint-parent"></div>
-```
-
-Then construct ChickenPaint and tell it which DOM element to add to:
-
-```js
-new ChickenPaint({
-    uiElem: document.getElementById("chickenpaint-parent"),
-    saveUrl: "save.php",
-    postUrl: "complete.php",
-    exitUrl: "index.php",
-    resourcesRoot: "chickenpaint/"
-});
-```
-
-The possible options, including additional options for loading saved .chi or .png files for editing, are described
-in the typedef comment for the ChickenPaintOptions object in `/js/ChickenPaint.js`.
-
-See `/example/index.html` for a complete example of a page that hosts ChickenPaint.
-
-Your `saveUrl` will receive the uploaded .chi layer file (if the drawing had multiple layers), flat PNG image (always)
-and .aco color palette (if the user edited it), which would arrive in PHP as `$_FILES["picture"]`, `$_FILES["chibifile"]`
-and `$_FILES["swatches"]`. For an example of an upload script, see `/example/save.php`.
-
-ChickenPaint's saving workflow has been customised for use on Chicken Smoothie by setting `allowMultipleSends` to `true`
-in the options in the constructor. On CS, the user can save their drawing, and then either continue editing the drawing, 
-publish their completed drawing to the forum, or exit their drawing session and come back and finish it later. The 
-ability to create a new drawing and then save it multiple times before publishing it to the forum effectively requires 
-that the saveUrl contains a unique session ID in it. This way each `POST` to the saveUrl can be associated with the same
-drawing session.
-
-By default, `allowMultipleSends` is disabled, and the user will only have the option to post their drawing immediately.
-This allows a simpler image upload script.
