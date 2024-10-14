@@ -387,13 +387,14 @@ export default function CPCanvas(controller) {
     CPDrawingMode.prototype.getBrushPreviewOval = function() {
         var
             brushSize = controller.getBrushSize() * zoom;
+            const halfBrushSize = brushSize / 2;
 
-        return new CPRect(
-            mouseX - brushSize / 2,
-            mouseY - brushSize / 2,
-            mouseX + brushSize / 2,
-            mouseY + brushSize / 2
-        );
+            return new CPRect(
+                mouseX - halfBrushSize,
+                mouseY - halfBrushSize,
+                mouseX + halfBrushSize,
+                mouseY + halfBrushSize
+            );
     };
 
     /**
@@ -436,7 +437,7 @@ export default function CPCanvas(controller) {
     };
 
     CPDrawingMode.prototype.mouseMove = function(e, pressure) {
-        this.queueBrushPreview();
+            this.queueBrushPreview();
     };
 
     CPDrawingMode.prototype.enter = function() {
