@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,user-scalable=no">
 
-<title>ChickenPaint Dev</title>
-<!-- "make dev"コマンドで開発用の"ChickenPaint.js"をbuild -->
-<script src="./ChickenPaint.js"></script>
-<link rel="stylesheet" href="../resources/css/chickenpaint.css">
+<title>ChickenPaint testbed</title>
+
+<script type="module" src="js/ChickenPaint.js"></script>
+<link rel="stylesheet" href="resources/css/chickenpaint.css">
 <style>
 :not(input),div#chickenpaint-parent :not(input){
 -moz-user-select: none;
@@ -19,7 +19,7 @@ user-select: none;
 
 </head>
 <body>
-    <h1>ChickenPaint Dev</h1>
+    <h1>ChickenPaint testbed</h1>
     <div id="chickenpaint-parent"></div>
 
 <script>
@@ -36,11 +36,11 @@ document.addEventListener("DOMContentLoaded", () => {
     uiElem: document.getElementById("chickenpaint-parent"),
     //loadImageUrl: "./uploaded.png",
     //loadChibiFileUrl: "./uploaded.chi",
-    saveUrl: "save.php",
-    postUrl: "posting.php",
-    exitUrl: "forum.php",
+    // saveUrl: "save.php",
+    // postUrl: "posting.php",
+    // exitUrl: "",
     allowDownload: true,
-    resourcesRoot: "../resources/",
+    resourcesRoot: "resources/",
     disableBootstrapAPI: true,
     fullScreenMode: "auto"
     });

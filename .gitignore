@@ -1,5 +1,4 @@
-dist/*.js
-dist/*.map
+dist/
 example/*.js
 temp/
 .parcel-cache/

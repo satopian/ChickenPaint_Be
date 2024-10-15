@@ -13,12 +13,13 @@ endif
 
 temp/ChickenPaint.js : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenPaint.js js/engine/CPBlend.js lib/*
 	mkdir -p temp/
-	node_modules/.bin/parcel build js/ChickenPaint.js --no-source-maps --dist-dir ./temp
+	node_modules/.bin/parcel build js/ChickenPaint.js --no-source-maps --no-cache --dist-dir ./temp
 
 dist/ChickenPaint.js : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenPaint.js js/engine/CPBlend.js lib/*
+	rm -rf dist/
 	rm -rf .parcel-cache/
 	mkdir -p dist/
-	node_modules/.bin/parcel js/ChickenPaint.js
+	node_modules/.bin/parcel index.html  --no-cache
 
 test: thumbnail-test integration-test blending-test
 
