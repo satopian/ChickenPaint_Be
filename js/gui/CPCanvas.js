@@ -512,16 +512,16 @@ export default function CPCanvas(controller) {
     };
 
     CPFreehandMode.prototype.mouseDrag = function(e, pressure) {
-		if((typeof navigator.maxTouchPoints !== "number") || navigator.maxTouchPoints < 3){//タッチデバイスでは無い時に
-			CPDrawingMode.prototype.mouseMove.call(this, e, pressure);//円カーソルをmouseDrag時に表示
-		}
+        if((typeof navigator.maxTouchPoints !== "number") || navigator.maxTouchPoints < 3){//タッチデバイスでは無い時に
+            CPDrawingMode.prototype.mouseMove.call(this, e, pressure);//円カーソルをmouseDrag時に表示
+        }
         if (this.capture) {
             var
                 pf = coordToDocument({x: mouseX, y: mouseY}),
                 smoothing = Math.min(0.999, Math.pow(controller.getBrushInfo().smoothing, 0.3));
-
-            this.smoothMouse.x = (1.0 - smoothing) * pf.x + smoothing * this.smoothMouse.x;
-            this.smoothMouse.y = (1.0 - smoothing) * pf.y + smoothing * this.smoothMouse.y;
+            const smoothingFactor = 1.0 - smoothing;
+            this.smoothMouse.x = smoothingFactor * pf.x + smoothing * this.smoothMouse.x;
+            this.smoothMouse.y = smoothingFactor * pf.y + smoothing * this.smoothMouse.y;
 
             artwork.continueStroke(this.smoothMouse.x, this.smoothMouse.y, pressure);
 
