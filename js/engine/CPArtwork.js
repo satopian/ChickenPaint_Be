@@ -352,8 +352,8 @@ export default function CPArtwork(_width, _height) {
 
         if (!noVisibleEffect) {
             blendTree.layerPropertyChanged(layer, propertyName);
-
-            callListenersUpdateRegion(that.getBounds());
+            const bounds=that.getBounds();
+            callListenersUpdateRegion(bounds);
         }
     }
 
