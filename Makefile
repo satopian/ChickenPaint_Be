@@ -4,7 +4,7 @@ ENGINE_SOURCE = js/engine/* js/util/*
 
 all :clean build cat_min 
 build:temp/ChickenPaint.js
-dev:dist/index.html
+dev: dev_clear dist/index.html
 cat_min:resources/js/chickenpaint.min.js
 
 ifdef OSASCRIPT
@@ -16,10 +16,11 @@ temp/ChickenPaint.js : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenP
 	node_modules/.bin/parcel build js/ChickenPaint.js --no-source-maps --no-cache --dist-dir ./temp
 
 dist/index.html : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenPaint.js js/engine/CPBlend.js lib/*
-	rm -rf dist/
-	rm -rf .parcel-cache/
 	mkdir -p dist/
 	node_modules/.bin/parcel index.html  --no-cache
+dev_clear :
+	rm -rf dist/
+	rm -rf .parcel-cache/
 
 test: thumbnail-test integration-test blending-test
 
