@@ -22,6 +22,7 @@
 
 import EventEmitter from "wolfy87-eventemitter";
 import $ from "jquery";
+import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import {_} from "../languages/lang.js";
 
 export default function CPConfirmTransformDialog(parent, controller) {

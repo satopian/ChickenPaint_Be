@@ -21,6 +21,7 @@
 */
 
 import $ from "jquery";
+import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import CPPalette from "./CPPalette.js";
 import CPBlend from "../engine/CPBlend.js";

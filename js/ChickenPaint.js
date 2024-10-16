@@ -29,21 +29,7 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Polyfillのimportをコメントアウト
-// core-js Polyfills for the features we use
-// import "core-js/stable/symbol/index.js";
-// import "core-js/stable/promise/index.js";
-// import "core-js/stable/map/index.js";
-// import "core-js/stable/set/index.js";
-// import "core-js/stable/typed-array/slice.js";
-// import "core-js/stable/typed-array/fill.js";
-// import "core-js/stable/array/iterator.js";
-// import "core-js/stable/array/fill.js";
-// import "core-js/stable/string/ends-with.js";
-
 import $ from "jquery";
-
-import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import "../lib/raf.js";
 
@@ -1511,6 +1497,5 @@ ChickenPaint.T_MAX = 11;
 ChickenPaint.COLOR_MODE_RGB = 0;
 ChickenPaint.COLOR_MODE_GREYSCALE = 1;
 
-//ChickenPaintとbootstrapをGlobalに設定
+//ChickenPaintをGlobalに設定
 window.ChickenPaint = ChickenPaint;
-window.bootstrap = bootstrap;
