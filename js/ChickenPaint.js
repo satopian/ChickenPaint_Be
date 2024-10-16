@@ -31,8 +31,6 @@
 
 import $ from "jquery";
 
-import "../lib/raf.js";
-
 import CPBrushInfo from "./engine/CPBrushInfo.js";
 import CPArtwork from "./engine/CPArtwork.js";
 import CPResourceLoader from "./engine/CPResourceLoader.js";
