@@ -14,7 +14,6 @@
   },
   "version": "0.4.1",
   "devDependencies": {
-    "@babel/core": "^7.25.8",
     "autoprefixer": "^10.4.2",
     "canvas": "^2.7.0",
     "multipipe": "^2.0.3",

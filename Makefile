@@ -4,8 +4,8 @@ ENGINE_SOURCE = js/engine/* js/util/*
 
 all :clean build cat_min 
 build:temp/ChickenPaint.js
-dev: dev_clear dist/index.html
 cat_min:resources/js/chickenpaint.min.js
+dev: clean_dist dist/index.html
 
 ifdef OSASCRIPT
 	osascript -e 'display notification "Build successful" with title "ChickenPaint build complete"'
@@ -18,7 +18,7 @@ temp/ChickenPaint.js : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenP
 dist/index.html : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenPaint.js js/engine/CPBlend.js lib/*
 	mkdir -p dist/
 	node_modules/.bin/parcel index.html  --no-cache
-dev_clear :
+clean_dist :
 	rm -rf dist/
 	rm -rf .parcel-cache/
 
