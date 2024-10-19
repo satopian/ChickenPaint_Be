@@ -15,7 +15,7 @@
   "version": "0.4.1",
   "devDependencies": {
     "autoprefixer": "^10.4.2",
-    "canvas": "^2.7.0",
+    "canvas": "^2.11.2",
     "multipipe": "^2.0.3",
     "parcel": "^2.12.0"
   },
