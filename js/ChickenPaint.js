@@ -1169,7 +1169,7 @@ export default function ChickenPaint(options) {
                 //投稿完了のメッセージが一瞬しか表示されないので遅延させる
                 setTimeout(() => {
                     that.actionPerformed({action: "CPPost"});
-                }, 1000);
+                }, 800);
             }
         });
 
