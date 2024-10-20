@@ -903,7 +903,7 @@ export default function ChickenPaint(options) {
                     window.location = options.postUrl;
                 },
                 isSupported: function() {
-                    return !!options.postUrl;
+                    return !!(options.postUrl||(typeof handleExit === 'function'));
                 },
                 modifies: {document: true}
             },
