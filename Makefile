@@ -40,7 +40,7 @@ js/engine/CPBlend.js : codegenerator/BlendGenerator.js
 
 resources/js/chickenpaint.min.js: header/header.txt temp/ChickenPaint.js
 	mkdir -p resources/js/
-	google-closure-compiler --js temp/ChickenPaint.js --js_output_file temp/chickenpaint.min.js
+	./node_modules/.bin/google-closure-compiler --js temp/ChickenPaint.js --js_output_file temp/chickenpaint.min.js
 	cat header/header.txt temp/chickenpaint.min.js > resources/js/chickenpaint.min.js
 	cp resources/js/chickenpaint.min.js resources/js/chickenpaint.js
 	rm -rf temp/
