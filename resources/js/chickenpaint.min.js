@@ -626,7 +626,7 @@ h=>{b[0].focus()});d[0].addEventListener("keydown",h=>{"Enter"===h.key&&(h.preve
                     </div>
                     <div class="modal-content" data-stage="success-already-posted" style="display:none">
                         <div class="modal-header">
-                            <h5 class="modal-title">Drawing saved!</h5>
+                            <h5 class="modal-title">${ma("Drawing saved!")}</h5>
                             <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close">
                             </button>
                         </div>
@@ -640,7 +640,7 @@ h=>{b[0].focus()});d[0].addEventListener("keydown",h=>{"Enter"===h.key&&(h.preve
                     </div>
                     <div class="modal-content" data-stage="success-redirect" style="display:none">
                         <div class="modal-header">
-                            <h5 class="modal-title">Drawing saved!</h5>
+                            <h5 class="modal-title">${ma("Drawing saved!")}</h5>
                             <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close">
                             </button>
                         </div>
