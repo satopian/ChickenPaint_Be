@@ -95,83 +95,83 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
 
         that = this;
     
-		resourceSaver.on("savingProgress", function(progress, message) {
-			progress *= 100;
-	
-			progressMessageElem.text(message);
-	
-			$(progressElem)
-				.attr("aria-valuenow", progress)
-				.css("width", progress + "%");
-		});
-	
-		resourceSaver.on("savingComplete", function() {
-			$(".modal-content[data-stage='saving']", dialog).hide();
-	
-			if (controller.isActionSupported("CPContinue")) {
-				if (controller.isActionSupported("CPExit")) {
-					$(".modal-content[data-stage='success-not-previously-posted']", dialog).show();
-				} else {
-					$(".modal-content[data-stage='success-already-posted']", dialog).show();
-				}
-			} else {
-				$(".modal-content[data-stage='success-redirect']", dialog).show();
-			}
-		});
-	
-		resourceSaver.on("savingFailure", function(serverMessage) {
-			progressElem.addClass("progress-bar-danger");
-	
-			let
-				errorMessage = _("Sorry, your drawing could not be saved, please try again later.");
-	
-			if (serverMessage) {
-				serverMessage = serverMessage.replace(/^CHIBIERROR\s*/, "");
-	
-				if (serverMessage.length > 0) {
-					errorMessage += `<br><br>${_("The error returned from the server was")}:`;
-	
-					progressError
-						.text(serverMessage)
-						.show();
-				}
-	
-				progressMessageElem.html(errorMessage);
-			}
-		});
-	
-		$(".chickenpaint-post-drawing", dialog).on('click',function() {
-			controller.actionPerformed({action: "CPPost"});
-		});
-	
-		$(".chickenpaint-exit", dialog)
-			.toggle(controller.isActionSupported("CPExit"))
-			.on('click',function() {
-				alert("When you want to come back and finish your drawing, just click the 'new drawing' button again and "
-					+ "you can choose to continue this drawing.");
-				controller.actionPerformed({action: "CPExit"});
-			});
-	
-		$(".chickenpaint-send-cancel", dialog).on('click', function () {
-			resourceSaver.cancel();
-			// dialog.modal('hide');
-		});
-	
-		// Destroy the modal upon close
-		dialog[0].addEventListener('hidden.bs.modal', (e) => {
-		dialog.remove();
-		})
-	
-		dialog.appendTo(parent);
-	
-		// Bootstrap 5のModalを初期化
-		let modal = new bootstrap.Modal(dialog[0]);
-	
-		this.show = function() {
-			modal.show();
-			that.emitEvent("shown");
-	};
-	}
-	
-	CPSendDialog.prototype = Object.create(EventEmitter.prototype);
-	CPSendDialog.prototype.constructor = CPSendDialog;
+        resourceSaver.on("savingProgress", function(progress, message) {
+            progress *= 100;
+
+            progressMessageElem.text(message);
+
+            $(progressElem)
+                .attr("aria-valuenow", progress)
+                .css("width", progress + "%");
+        });
+
+        resourceSaver.on("savingComplete", function() {
+            $(".modal-content[data-stage='saving']", dialog).hide();
+
+            if (controller.isActionSupported("CPContinue")) {
+                if (controller.isActionSupported("CPExit")) {
+                    $(".modal-content[data-stage='success-not-previously-posted']", dialog).show();
+                } else {
+                    $(".modal-content[data-stage='success-already-posted']", dialog).show();
+                }
+            } else {
+                $(".modal-content[data-stage='success-redirect']", dialog).show();
+            }
+        });
+
+        resourceSaver.on("savingFailure", function(serverMessage) {
+            progressElem.addClass("progress-bar-danger");
+
+            let
+                errorMessage = _("Sorry, your drawing could not be saved, please try again later.");
+
+            if (serverMessage) {
+                serverMessage = serverMessage.replace(/^CHIBIERROR\s*/, "");
+
+                if (serverMessage.length > 0) {
+                    errorMessage += `<br><br>${_("The error returned from the server was")}:`;
+
+                    progressError
+                        .text(serverMessage)
+                        .show();
+                }
+
+                progressMessageElem.html(errorMessage);
+            }
+        });
+
+        $(".chickenpaint-post-drawing", dialog).on('click',function() {
+            controller.actionPerformed({action: "CPPost"});
+        });
+
+        $(".chickenpaint-exit", dialog)
+            .toggle(controller.isActionSupported("CPExit"))
+            .on('click',function() {
+                alert("When you want to come back and finish your drawing, just click the 'new drawing' button again and "
+                    + "you can choose to continue this drawing.");
+                controller.actionPerformed({action: "CPExit"});
+            });
+
+        $(".chickenpaint-send-cancel", dialog).on('click', function () {
+            resourceSaver.cancel();
+            // dialog.modal('hide');
+        });
+
+        // Destroy the modal upon close
+        dialog[0].addEventListener('hidden.bs.modal', (e) => {
+        dialog.remove();
+        })
+
+        dialog.appendTo(parent);
+
+        // Bootstrap 5のModalを初期化
+        let modal = new bootstrap.Modal(dialog[0]);
+
+        this.show = function() {
+            modal.show();
+            that.emitEvent("shown");
+    };
+    }
+
+    CPSendDialog.prototype = Object.create(EventEmitter.prototype);
+    CPSendDialog.prototype.constructor = CPSendDialog;
