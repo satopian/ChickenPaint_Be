@@ -36,6 +36,6 @@
   "scripts": {
     "dev": "parcel index.html --no-cache",
     "test": "babel-node node_modules/.bin/_mocha -- test/*.js",
-    "prepare": "make all min"
+    "prepare": "make all"
   }
 }
