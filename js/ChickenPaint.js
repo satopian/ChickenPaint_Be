@@ -411,12 +411,13 @@ export default function ChickenPaint(options) {
                 },
                 modifies: {gui: true}
             },
-            CPToolbarStyle: {
-                action: function() {
-                    that.setToolbarStyle(preferences.toolbarStyle === "new" ? "old" : "new");
-                },
-                modifies: {gui: true}
-            },
+            // 古いアイコンは使わない。
+            // CPToolbarStyle: {
+            //     action: function() {
+            //         that.setToolbarStyle(preferences.toolbarStyle === "new" ? "old" : "new");
+            //     },
+            //     modifies: {gui: true}
+            // },
 
             // History actions
 
