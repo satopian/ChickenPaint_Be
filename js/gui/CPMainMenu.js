@@ -671,12 +671,12 @@ export default function CPMainMenu(controller, mainGUI) {
 
 	// 古いアイコンは使わない。
 	let 
-        fullScreenToggle = $(".dropdown-item[data-action=CPFullScreen]", bar),
-        toolbarStyleToggle = $(".dropdown-item[data-action=CPToolbarStyle]", bar);
+        fullScreenToggle = $(".dropdown-item[data-action=CPFullScreen]", bar);
+        // toolbarStyleToggle = $(".dropdown-item[data-action=CPToolbarStyle]", bar);
     
     controller.on("fullScreen", isFullscreen => fullScreenToggle.toggleClass("selected", isFullscreen));
     fullScreenToggle.toggleClass("selected", controller.isFullScreen());
 
-    controller.on("toolbarStyleChange", newStyle => toolbarStyleToggle.toggleClass("selected", newStyle === "old"));
-    toolbarStyleToggle.toggleClass("selected", controller.getToolbarStyle() === "old");
+    // controller.on("toolbarStyleChange", newStyle => toolbarStyleToggle.toggleClass("selected", newStyle === "old"));
+    // toolbarStyleToggle.toggleClass("selected", controller.getToolbarStyle() === "old");
 }
