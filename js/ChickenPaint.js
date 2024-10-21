@@ -1166,10 +1166,7 @@ export default function ChickenPaint(options) {
             
             // If we're not allowed to keep editing, we can only go straight to viewing the new post
             if (!that.isActionSupported("CPContinue") && that.isActionSupported("CPPost")) {
-                //投稿完了のメッセージが一瞬しか表示されないので遅延させる
-                setTimeout(() => {
-                    that.actionPerformed({action: "CPPost"});
-                }, 800);
+                that.actionPerformed({action: "CPPost"});
             }
         });
 
