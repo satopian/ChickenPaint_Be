@@ -37,12 +37,11 @@ export default function CPAboutDialog(parent) {
                         <div class="modal-body">
                         <a class="chickenpaint-on-github" target="_blank" href="https://github.com/satopian/ChickenPaint_Be" rel="noopener"><span class="icon-github"></span> ChickenPaint Be on GitHub</a>
                         <p>
-                        Customized from <a href="https://github.com/thenickdude/chickenpaint" target="_blank" rel="noopener">ChickenPaint</a>.<br>
-                        by satopian.<br>
-                        <a href="https://www.gnu.org/licenses/" target="_blank" rel="noopener">GNU General Public License</a><br>
+                        ChickenPaint Be is a customized version of <a href="https://github.com/thenickdude/chickenpaint" target="_blank" rel="noopener">ChickenPaint</a> by satopian.
                         </p>
                         <p>
-                        Built on:${(new Date()).toISOString().split('.')[0]}
+                        Built on:${(new Date()).toISOString().split('.')[0]}<br>
+                        <a href="https://www.gnu.org/licenses/" target="_blank" rel="noopener">GNU General Public License</a><br>
                         </p>
                         <a class="chickenpaint-on-github" target="_blank" href="https://github.com/thenickdude/chickenpaint" rel="noopener"><span class="icon-github"></span> ChickenPaint on GitHub</a>
                             
