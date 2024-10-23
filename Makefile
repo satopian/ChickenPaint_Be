@@ -13,11 +13,11 @@ endif
 
 temp/ChickenPaint.js : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenPaint.js js/engine/CPBlend.js lib/*
 	mkdir -p temp/
-	node_modules/.bin/parcel build js/ChickenPaint.js --no-source-maps --no-cache --dist-dir ./temp
+	@BUILD_TIME=$$(date -u +"%Y-%m-%dT%H:%M:%S") node_modules/.bin/parcel build js/ChickenPaint.js --no-source-maps --no-cache --dist-dir ./temp
 
 dist/index.html : js/engine/* js/gui/* js/util/* js/languages/* js/ChickenPaint.js js/engine/CPBlend.js lib/*
 	mkdir -p dist/
-	node_modules/.bin/parcel index.html  --no-cache
+	@BUILD_TIME=$$(date -u +"%Y-%m-%dT%H:%M:%S") node_modules/.bin/parcel index.html  --no-cache
 clean_dist :
 	rm -rf dist/
 	rm -rf .parcel-cache/

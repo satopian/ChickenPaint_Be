@@ -34,7 +34,7 @@
     "./js/util/Canvas.js": "./js/browser/util/Canvas.js"
   },
   "scripts": {
-    "dev": "parcel index.html --no-cache",
+    "dev": "BUILD_TIME=$(date -u +\"%Y-%m-%dT%H:%M:%S\") parcel index.html --no-cache",
     "test": "babel-node node_modules/.bin/_mocha -- test/*.js",
     "prepare": "make all"
   }
