@@ -490,7 +490,7 @@ export default function CPTexturePalette(controller) {
     
     addTextures(makeProceduralTextures());
     
-    loadTextures(controller.getResourcesRoot() + "gfx/textures32.png", 32, 32, 3, function(loadedTextures) {
+    loadTextures(controller.getResourcesRoot() + "gfx/textures32.png?20241024", 32, 32, 3, function(loadedTextures) {
         addTextures(loadedTextures);
     });
 }
