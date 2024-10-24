@@ -115,6 +115,7 @@ function createDrawingTools() {
         spacing: 0.05,
         pressureSize: false,
         pressureAlpha: false,
+        texture: 0,//消しゴムはテクスチャの影響を受けない。
         tip: CPBrushInfo.TIP_ROUND_AA,
         brushMode: CPBrushInfo.BRUSH_MODE_ERASE,
         paintMode: CPBrushInfo.PAINT_MODE_OPACITY
@@ -144,6 +145,7 @@ function createDrawingTools() {
         spacing: 0.05,
         pressureSize: false,
         pressureAlpha: true,
+        texture: 0,//消しゴムはテクスチャの影響を受けない。
         tip: CPBrushInfo.TIP_ROUND_AIRBRUSH,
         brushMode: CPBrushInfo.BRUSH_MODE_ERASE,
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
