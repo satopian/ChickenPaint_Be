@@ -267,7 +267,7 @@ export default function CPTexturePalette(controller) {
      * 
      * @returns {CPGreyBmp} - A grayscale bitmap filled with random noise and adjusted brightness/contrast
      */
-    function makeNoiseTexture(size, brightnessFactor = 0.65, contrastFactor = 0.7) {
+    function makeNoiseTexture(size, brightnessFactor = 0.65, contrastFactor = 0.65) {
         let texture = new CPGreyBmp(size, size, 8);
 
         for (let i = 0; i < size * size; i++) {
