@@ -175,7 +175,8 @@ export default function CPTexturePalette(controller) {
         result.push(makeCheckerBoardTexture(4));
         result.push(makeCheckerBoardTexture(8));
         result.push(makeCheckerBoardTexture(16));
-        
+        result.push(makeNoiseTexture(128));
+
         return result;
     }
 
@@ -254,6 +255,35 @@ export default function CPTexturePalette(controller) {
             }
         }
         
+        return texture;
+    }
+
+    /**
+     * Make a texture consisting of random noise with adjusted brightness and contrast
+     * 
+     * @param {int} size - The width and height of the square texture (e.g., 32 for a 32x32 texture)
+     * @param {float} brightnessFactor - A multiplier for brightness (0.0 to 1.0)
+     * @param {float} contrastFactor - A multiplier for contrast (0.0 to 1.0)
+     * 
+     * @returns {CPGreyBmp} - A grayscale bitmap filled with random noise and adjusted brightness/contrast
+     */
+    function makeNoiseTexture(size, brightnessFactor = 0.65, contrastFactor = 0.7) {
+        let texture = new CPGreyBmp(size, size, 8);
+
+        for (let i = 0; i < size * size; i++) {
+            // ランダムなノイズ（0から255まで）
+            let noiseValue = Math.floor(Math.random() * 256);
+
+            // 輝度を調整
+            let adjustedBrightness = noiseValue * brightnessFactor;
+
+            // コントラストを調整
+            let adjustedContrast = ((adjustedBrightness - 128) * contrastFactor) + 128;
+
+            // テクスチャデータに反映
+            texture.data[i] = Math.max(0, Math.min(255, Math.floor(adjustedContrast)));
+        }
+
         return texture;
     }
 
@@ -490,7 +520,7 @@ export default function CPTexturePalette(controller) {
     
     addTextures(makeProceduralTextures());
     
-    loadTextures(controller.getResourcesRoot() + "gfx/textures32.png?20241024", 32, 32, 3, function(loadedTextures) {
+    loadTextures(controller.getResourcesRoot() + "gfx/textures32.png?20241024.1", 32, 32, 2, function(loadedTextures) {
         addTextures(loadedTextures);
     });
 }
