@@ -175,7 +175,7 @@ export default function CPTexturePalette(controller) {
         result.push(makeCheckerBoardTexture(4));
         result.push(makeCheckerBoardTexture(8));
         result.push(makeCheckerBoardTexture(16));
-        result.push(makeNoiseTexture(128));
+        result.push(makeNoiseTexture(256));
 
         return result;
     }
@@ -267,7 +267,11 @@ export default function CPTexturePalette(controller) {
      * 
      * @returns {CPGreyBmp} - A grayscale bitmap filled with random noise and adjusted brightness/contrast
      */
-    function makeNoiseTexture(size, brightnessFactor = 0.65, contrastFactor = 0.65) {
+    function makeNoiseTexture(size) {
+
+        const brightnessFactor = 0.65;//輝度
+        const contrastFactor = 0.65;//コントラスト
+
         let texture = new CPGreyBmp(size, size, 8);
 
         for (let i = 0; i < size * size; i++) {
