@@ -269,8 +269,8 @@ export default function CPTexturePalette(controller) {
      */
     function makeNoiseTexture(size) {
 
-        const brightnessFactor = 0.68;
-        const contrastFactor = 0.65;
+        const brightnessFactor = 0.65;
+        const contrastFactor = 0.6;
 
         let texture = new CPGreyBmp(size, size, 8);
 
