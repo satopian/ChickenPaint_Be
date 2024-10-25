@@ -145,7 +145,7 @@ function createDrawingTools() {
         spacing: 0.05,
         pressureSize: false,
         pressureAlpha: true,
-        texture: 0,//消しゴムはテクスチャの影響を受けない。
+        texture: 1,//薄消しゴムはテクスチャが出る。
         tip: CPBrushInfo.TIP_ROUND_AIRBRUSH,
         brushMode: CPBrushInfo.BRUSH_MODE_ERASE,
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
