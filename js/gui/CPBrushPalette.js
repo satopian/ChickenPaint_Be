@@ -378,7 +378,7 @@ CPBrushPalette.CPBrushPreview = function(controller) {
         canvasContext.stroke();
     }
     
-    function handleMouseDrag(e) {
+    function handlePointerDrag(e) {
         let
             offset = $(canvas).offset(),
             
@@ -395,28 +395,28 @@ CPBrushPalette.CPBrushPreview = function(controller) {
         controller.setBrushSize(size);
     }
     
-    function handleMouseUp(e) {
+    function handlePointerUp(e) {
         if (mouseCaptured) {
             mouseCaptured = false;
-            window.removeEventListener('mouseup', handleMouseUp);
-            window.removeEventListener('mousemove', handleMouseDrag);
+            document.removeEventListener('pointerup', handlePointerUp, { passive: false, capture: true });
+            document.removeEventListener('pointermove', handlePointerDrag, { passive: false, capture: true });
         }
     }
     
-    this.getElement = function() {
-        return canvas;
-    };
-    
-    canvas.addEventListener('mousedown', function(e) {
+    canvas.addEventListener('pointerdown', function(e) {
         if (!mouseCaptured) {
             mouseCaptured = true;
             
-            window.addEventListener('mouseup', handleMouseUp);
-            window.addEventListener('mousemove', handleMouseDrag);
+            document.addEventListener('pointerup', handlePointerUp, { passive: false, capture: true });
+            document.addEventListener('pointermove', handlePointerDrag, { passive: false, capture: true });
             
-            handleMouseDrag(e);
+            handlePointerDrag(e);
         }
     });
+
+    this.getElement = function() {
+        return canvas;
+    };
     
     controller.on("toolChange", function(tool, toolInfo) {
         if (toolInfo.size != size) {
