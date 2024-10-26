@@ -322,13 +322,6 @@ const
                     shortcut: "tab",
                     title: _("Hides or shows all palettes")
                 },
-				// 古いアイコンは使わない。
-                // {
-                //     name: "Use old icons",
-                //     action: "CPToolbarStyle",
-                //     checkbox: true,
-                //     checked: false
-                // },
                 {
                     name: "-"
                 },
@@ -542,15 +535,6 @@ export default function CPMainMenu(controller, mainGUI) {
 			
 						updateMenuStates(topLevelMenuElem);
 			
-						/* Instead of Bootstrap's extremely expensive data API, we'll only listen for dismiss clicks on the
-						 * document *while the menu is open!*
-						 */
-						//メニューが表示されなくなってしまうのでコメントアウト
-						// $(document).one("click", function () {
-						// 	if (dropdownMenu.hasClass("show")) {
-						// 		dropdown.hide(); // Bootstrap 5: ドロップダウンを非表示にする
-						// 	}
-						// });
 					});
 			
 					dropdownMenu.append(topLevelMenuEntry.children.map(entry => {
@@ -653,9 +637,6 @@ export default function CPMainMenu(controller, mainGUI) {
 			
 			// Since we don't use the data-api
 			$(".navbar-toggler", bar).on('click', e => {//ハンバーガーメニューをクリックした時
-				//元のコードをbootstrap5形式に対応させようとするとエラーが出る
-				//コメントアウトしても動作に支障は出ていない
-				// $('.collapse', bar).collapse('toggle');
 				e.preventDefault();
 			});
 						
@@ -677,6 +658,4 @@ export default function CPMainMenu(controller, mainGUI) {
     controller.on("fullScreen", isFullscreen => fullScreenToggle.toggleClass("selected", isFullscreen));
     fullScreenToggle.toggleClass("selected", controller.isFullScreen());
 
-    // controller.on("toolbarStyleChange", newStyle => toolbarStyleToggle.toggleClass("selected", newStyle === "old"));
-    // toolbarStyleToggle.toggleClass("selected", controller.getToolbarStyle() === "old");
 }

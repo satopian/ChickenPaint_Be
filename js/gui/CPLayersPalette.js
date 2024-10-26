@@ -254,15 +254,6 @@ export default function CPLayersPalette(controller) {
 
             longPressTimer = null;
 
-			// function onDismissDropdown(e) {
-			// 	// Firefox wrongly fires click events for the right mouse button!
-			// 	if (!("button" in e) || e.button === BUTTON_PRIMARY) {
-			// 		clearDropDown();
-	
-			// 		$(this).off("click", onDismissDropdown);
-			// 	}
-			// }
-	
 	    /**
          * Get the element that represents the layer with the given display index.
          *
@@ -1053,163 +1044,6 @@ export default function CPLayersPalette(controller) {
             return layerElem;
         };
 
-		// function clearDropDown() {
-			
-		// 	if ($(dropdownParent).hasClass("show")) {
-		// 		var collapseInstance = new bootstrap.Collapse(dropdownParent);
-		// 		collapseInstance.hide();
-		// 		$(dropdownParent)
-		// 			.collapse("hide")
-		// 			.off("click");
-		// 	}
-		// }
-
-		//ドロップダウンメニュー関連項目のコメントアウト
-
-		// function createLayerDropdownMenu() {
-
-        //     const
-        //         menu = document.createElement("div"),
-
-        //         actions = [
-        //             {
-        //                 title: "Rename...",
-        //                 action: "CPRenameLayer"
-        //             },
-        //             {
-        //                 require: ["image-layer"],
-        //                 title: "Delete layer",
-        //                 action: "CPRemoveLayer"
-        //             },
-        //             {
-        //                 require: ["layer-group"],
-        //                 title: "Delete group",
-        //                 action: "CPRemoveLayer"
-        //             },
-        //             {
-        //                 require: ["image-layer", "no-clipping-mask"],
-        //                 title: "Clip to the layer below",
-        //                 action: "CPCreateClippingMask"
-        //             },
-        //             {
-        //                 require: ["image-layer", "clipping-mask"],
-        //                 title: "Unclip from the layer below",
-        //                 action: "CPReleaseClippingMask"
-        //             },
-        //             {
-        //                 require: ["no-mask"],
-        //                 title: "Add mask",
-        //                 action: "CPAddLayerMask"
-        //             },
-        //             {
-        //                 require: ["mask"],
-        //                 title: "Delete mask",
-        //                 action: "CPRemoveLayerMask"
-        //             },
-        //             {
-        //                 require: ["mask"],
-        //                 title: "Apply mask",
-        //                 action: "CPApplyLayerMask"
-        //             },
-        //             {
-        //                 require: ["layer-group"],
-        //                 title: "Merge group",
-        //                 action: "CPGroupMerge"
-        //             },
-        //             {
-        //                 require: ["mask-enabled"],
-        //                 title: "Disable mask",
-        //                 action: "CPSetMaskVisible",
-        //                 actionData: {
-        //                     visible: "false"
-        //                 }
-        //             },
-        //             {
-        //                 require: ["mask-disabled"],
-        //                 title: "Enable mask",
-        //                 action: "CPSetMaskVisible",
-        //                 actionData: {
-        //                     visible: "true"
-        //                 }
-        //            }
-        //         ];
-
-        //     menu.className = "dropdown-menu";
-
-        //     for (let action of actions) {
-        //         let
-        //             menuItemElem = document.createElement("a");
-
-        //         menuItemElem.className = "dropdown-item";
-
-        //         if (action.require) {
-        //             menuItemElem.className = menuItemElem.className + " " + action.require.map(requirement => "chickenpaint-action-require-" + requirement).join(" ");
-        //         }
-        //         menuItemElem.href = "#";
-        //         menuItemElem.innerHTML = _(action.title);
-        //         menuItemElem.setAttribute("data-action", action.action);
-
-        //         if (action.actionData) {
-        //             for (let key in action.actionData) {
-        //                 if (action.actionData.hasOwnProperty(key)) {
-        //                     menuItemElem.setAttribute("data-action-" + key, action.actionData[key]);
-        //                 }
-        //             }
-        //         }
-
-        //         menu.appendChild(menuItemElem);
-        //     }
-
-        //     return menu;
-        // }
-
-        // function onDropdownActionClick(e) {
-        //     let
-        //         action = e.target.getAttribute("data-action");
-
-        //     if (!action) {
-        //         return;
-        //     }
-
-        //     e.preventDefault(); // Don't jump to anchor
-
-        //     /* Bootstrap will call this for us anyway when the click propagates out to the root
-        //      * of the document. However in the meantime we could have rebuilt the layer DOM nodes
-        //      * from scratch, breaking Bootstrap's un-pop code.
-        //      *
-        //      * So clear it up front now.
-        //      */
-        //     clearDropDown();
-
-        //     controller.actionPerformed({
-        //         action: "CPSetActiveLayer",
-        //         layer: dropdownLayer,
-        //         mask: artwork.isEditingMask()
-        //     });
-
-        //     let
-        //         actionData = {
-        //             action: action,
-        //             layer: dropdownLayer
-        //         },
-        //         attributes = e.target.attributes;
-
-        //     for (let i = 0; i < attributes.length; i++) {
-        //         let
-        //             matches = attributes[i].name.match(/^data-action-(.+)/);
-
-        //         if (matches) {
-        //             actionData[matches[1]] = JSON.parse(attributes[i].value);
-        //         }
-        //     }
-
-        //     if (action === "CPRenameLayer") {
-        //         showRenameBoxForLayer(getDisplayIndexFromLayer(dropdownLayer));
-        //     } else {
-        //         controller.actionPerformed(actionData);
-        //     }
-        // }
-
         dropdownParent.id = "chickenpaint-layer-pop";
 
         widgetContainer.className = "chickenpaint-layers-widget";
@@ -1229,30 +1063,6 @@ export default function CPLayersPalette(controller) {
         }
 
         widgetContainer.appendChild(layerContainer);
-
-		//ドロップダウンメニュー関連項目のコメントアウト
-        // widgetContainer.appendChild(dropdownLayerMenu);
-        // $(dropdownParent)
-        //     .on("show.bs.dropdown", function(e) {
-        //         let
-        //             layerElem = $(e.relatedTarget)[0],
-        //             $dropdownElem = $(dropdownParent).find(".dropdown-menu"),
-
-        //             layerPos = layerElem.getBoundingClientRect(),
-        //             positionRootPos = dropdownParent.getBoundingClientRect();
-
-        //         // Convert the offset to palette-relative coordinates (since that's its offset parent)
-        //         $dropdownElem.css({
-        //             left: (dropdownMousePos.x - $dropdownElem.outerWidth(true) - positionRootPos.left + 1) + "px",
-        //             top: ((layerPos.top - $dropdownElem.outerHeight(true) / 2) - positionRootPos.top) + "px"
-        //         });
-
-        //         /* Instead of Bootstrap's extremely expensive data API, we'll only listen for dismiss clicks on the
-        //          * document *while the menu is open!*
-        //          */
-        //         $(document).on("click", onDismissDropdown);
-        //     });
-    
 	}
 
     function updateAvailableBlendModes() {
@@ -1646,10 +1456,6 @@ export default function CPLayersPalette(controller) {
 		controller.actionPerformed({action: "CPSetLayerBlendMode", blendMode: parseInt(blendCombo.value, 10)});
 		blendCombo.blur();
 	});
-	// blendCombo.onfocus = ()=>{//フォーカスを検出したら
-	// 	document.activeElement.blur();//フォーカスを外す
-	// 	// console.log(document.activeElement);
-	// }; 
 
     body.appendChild(blendCombo);
     
