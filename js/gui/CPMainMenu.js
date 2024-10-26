@@ -286,7 +286,7 @@ const
                     mnemonic: "L",
                     title: _("Linear interpolation is used to give a smoothed looked to the picture when zoomed in"),
                     checkbox: true,
-					checked: true //初期状態でズームのアンチエイリアスをOnに
+                    checked: true //初期状態でズームのアンチエイリアスをOnに
                 },
                 {
                     name: "-"
@@ -417,26 +417,28 @@ const
  */
 export default function CPMainMenu(controller, mainGUI) {
     let
-	bar = $(
-		'<nav class="navbar navbar-expand-md bg-light">'
-			+ '<div class="navbar-upper"><a class="navbar-brand" href="#">ChickenPaint Be</a>'
-			+ '<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#chickenpaint-main-menu-content" aria-controls="chickenpaint-main-menu-content" aria-expanded="false" aria-label="Toggle main menu">'
-				+ '<span class="navbar-toggler-icon"></span>'
-			+ '</button></div>'
-			+ '<div class="collapse navbar-collapse" id="chickenpaint-main-menu-content">'
-				+ '<div class="navbar-nav">'
-				+ '</div>'
-			+ '</div>'
-			+ '<div class="widget-nav" id="chickenpaint-palette-toggler-content"></div>'
-		+ '</nav>'
-	);
-	// macPlatform = /^Mac/i.test(navigator.platform),
-	
-	const macPlatform = navigator.userAgent.toLowerCase().includes('mac os');
+    bar = $(
+        '<nav class="navbar navbar-expand-md bg-light">'
+            + '<div class="navbar-upper"><a class="navbar-brand" href="#">ChickenPaint Be</a>'
+            + '<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#chickenpaint-main-menu-content" aria-controls="chickenpaint-main-menu-content" aria-expanded="false" aria-label="Toggle main menu">'
+                + '<span class="navbar-toggler-icon"></span>'
+            + '</button></div>'
+            + '<div class="collapse navbar-collapse" id="chickenpaint-main-menu-content">'
+                + '<div class="navbar-nav">'
+                + '</div>'
+            + '</div>'
+            + '<div class="widget-nav" id="chickenpaint-palette-toggler-content"></div>'
+        + '</nav>'
+    );
 
+    const macPlatform = navigator.userAgent.toLowerCase().includes('mac os');
+
+    bar[0].addEventListener('touchmove',(e)=>{
+        e.preventDefault(); // デフォルトの動作をキャンセル
+    });
 
     function menuItemClicked(target) {
-			let
+            let
             action = target.data('action'),
             checkbox = target.data('checkbox'),
             selected;
@@ -445,16 +447,16 @@ export default function CPMainMenu(controller, mainGUI) {
             if (checkbox) {
                 target.toggleClass("selected");
                 selected = target.hasClass("selected");
-			} else {
-				selected = false;
-			}
+            } else {
+                selected = false;
+            }
 
-			controller.actionPerformed({
+            controller.actionPerformed({
                 action: action,
                 checkbox: checkbox,
                 selected: selected
             });
-		}
+        }
     }
     
     function presentShortcutText(shortcut) {
@@ -487,7 +489,7 @@ export default function CPMainMenu(controller, mainGUI) {
                 .toggleClass("hidden", !actionAllowed && thisElem.data("hideIfNotAvailable") === true);
         });
 
-		// Hide dividers if all of the menu options in the section they delineate were hidden
+        // Hide dividers if all of the menu options in the section they delineate were hidden
         $(".dropdown-divider", menuElem).removeClass("hidden");
 
         let
@@ -514,132 +516,131 @@ export default function CPMainMenu(controller, mainGUI) {
             lastDivider.addClass("hidden");
         }
     }
-		
-	function fillMenu(menuElem, entries) {
-		menuElem.append(entries.map(topLevelMenuEntry => {
-		let topLevelMenuElem = $(
-						'<div class="nav-item dropdown">'
-						+ '<a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + _(topLevelMenuEntry.name) + '</a>'
-						+ '<ul class="dropdown-menu">'
-						+ '</ul>'
-						+ '</div>'
-					);
-			
-					let dropdownToggle = $(".dropdown-toggle", topLevelMenuElem);
-					let dropdownMenu = $(".dropdown-menu", topLevelMenuElem);
-			
-					//data-bs-toggle="dropdown"を指定ずみのため、初期化不要
-					// Bootstrap 5: ドロップダウンを初期化
-					// var dropdown = new bootstrap.Dropdown(dropdownToggle[0]);
-					dropdownToggle[0].addEventListener('show.bs.dropdown', (e) => {
-			
-						updateMenuStates(topLevelMenuElem);
-			
-					});
-			
-					dropdownMenu.append(topLevelMenuEntry.children.map(entry => {
-						if (entry.action && !controller.isActionSupported(entry.action)) {
-							return;
-						}
-			
-						if (entry.action == "CPSend" && !controller.isActionSupported("CPContinue")) {
-							// User won't be able to come back after saving, so make it sound more final
-							entry.name = _("Post Oekaki");
-							entry.shortcut = "ctrl+p";
-						}
-			
-						let entryElem;
-			
-						if (entry.name == '-') {
-							entryElem = $('<hr class="dropdown-divider"></hr>');
-						} else {
-							entryElem = $(
-								'<a class="dropdown-item" href="#" data-action="' + entry.action + '"><span>' + _(entry.name) + '</span></a>'
-							);
-			
-							if (entry.checkbox) {
-								$(entryElem)
-									.data("checkbox", true)
-									.toggleClass("selected", !!entry.checked);
-							}
-							if (entry.hideIfNotAvailable) {
-								entryElem.data("hideIfNotAvailable", true);
-							}
-						}
-			
-						if (entry.title) {
-							entryElem.attr('title', _(entry.title));
-						}
-			
-						if (entry.shortcut) {
-							let menuLink = entryElem;
-							let shortcutDesc = document.createElement("small");
-			
-							// Rewrite the shortcuts to Mac-style
-							if (macPlatform) {
-								entry.shortcut = entry.shortcut.replace(/SHIFT/im, "⇧");
-								entry.shortcut = entry.shortcut.replace(/ALT/im, "⌥");
-								entry.shortcut = entry.shortcut.replace(/CTRL/im, "⌘");
-							}
-			
-							shortcutDesc.className = "chickenpaint-shortcut";
-							shortcutDesc.textContent = presentShortcutText(entry.shortcut);
-			
-							menuLink.append(shortcutDesc);
-			
-							key(entry.shortcut, function (e) {
-								menuItemClicked(menuLink);
-			
-								e.preventDefault();
-								e.stopPropagation();
-			
-								return false;
-							});
-						}
-						// entryElemをliタグで囲う
-						entryElem = $('<li>').append(entryElem);
-						return entryElem;
-					}));
-			
-					return topLevelMenuElem;
-				}));
-			}
-			function fillWidgetTray(menuElem, entries) {
-				menuElem.append(entries.filter(item => !!item.mnemonic && controller.isActionSupported(item.action)).map(entry => {
-					let
-						widgetMenuElem = $(
-							`<button class="widget-toggler selected" type="button" data-action="${entry.action}" data-checkbox="true" data-selected="${!entry.checked}">`
-								+ '<span>'
-									+ entry.mnemonic
-								+'</span>'
-							+ '</button>'
-						);
-					widgetMenuElem.on('click',e => {
-					
-						menuItemClicked(widgetMenuElem);
-						e.preventDefault();
-					})
-					return widgetMenuElem;
-				}));
-			}
+        
+    function fillMenu(menuElem, entries) {
+        menuElem.append(entries.map(topLevelMenuEntry => {
+        let topLevelMenuElem = $(
+                '<div class="nav-item dropdown">'
+                + '<a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + _(topLevelMenuEntry.name) + '</a>'
+                + '<ul class="dropdown-menu">'
+                + '</ul>'
+                + '</div>'
+            );
+    
+            let dropdownToggle = $(".dropdown-toggle", topLevelMenuElem);
+            let dropdownMenu = $(".dropdown-menu", topLevelMenuElem);
+    
+            //data-bs-toggle="dropdown"を指定ずみのため、初期化不要
+            dropdownToggle[0].addEventListener('show.bs.dropdown', (e) => {
+    
+                updateMenuStates(topLevelMenuElem);
+    
+            });
+    
+            dropdownMenu.append(topLevelMenuEntry.children.map(entry => {
+                if (entry.action && !controller.isActionSupported(entry.action)) {
+                    return;
+                }
+    
+                if (entry.action == "CPSend" && !controller.isActionSupported("CPContinue")) {
+                    // User won't be able to come back after saving, so make it sound more final
+                    entry.name = _("Post Oekaki");
+                    entry.shortcut = "ctrl+p";
+                }
+    
+                let entryElem;
+    
+                if (entry.name == '-') {
+                    entryElem = $('<hr class="dropdown-divider"></hr>');
+                } else {
+                    entryElem = $(
+                        '<a class="dropdown-item" href="#" data-action="' + entry.action + '"><span>' + _(entry.name) + '</span></a>'
+                    );
+    
+                    if (entry.checkbox) {
+                        $(entryElem)
+                            .data("checkbox", true)
+                            .toggleClass("selected", !!entry.checked);
+                    }
+                    if (entry.hideIfNotAvailable) {
+                        entryElem.data("hideIfNotAvailable", true);
+                    }
+                }
+    
+                if (entry.title) {
+                    entryElem.attr('title', _(entry.title));
+                }
+    
+                if (entry.shortcut) {
+                    let menuLink = entryElem;
+                    let shortcutDesc = document.createElement("small");
+    
+                    // Rewrite the shortcuts to Mac-style
+                    if (macPlatform) {
+                        entry.shortcut = entry.shortcut.replace(/SHIFT/im, "⇧");
+                        entry.shortcut = entry.shortcut.replace(/ALT/im, "⌥");
+                        entry.shortcut = entry.shortcut.replace(/CTRL/im, "⌘");
+                    }
+    
+                    shortcutDesc.className = "chickenpaint-shortcut";
+                    shortcutDesc.textContent = presentShortcutText(entry.shortcut);
+    
+                    menuLink.append(shortcutDesc);
+    
+                    key(entry.shortcut, function (e) {
+                        menuItemClicked(menuLink);
+    
+                        e.preventDefault();
+                        e.stopPropagation();
+    
+                        return false;
+                    });
+                }
+                // entryElemをliタグで囲う
+                entryElem = $('<li>').append(entryElem);
+                return entryElem;
+            }));
+    
+            return topLevelMenuElem;
+        }));
+    }
 
-			this.getElement = function() {
-				return bar[0];
-			};
-			
-			fillMenu($(".navbar-nav", bar), MENU_ENTRIES);
-			fillWidgetTray($(".widget-nav", bar), MENU_ENTRIES[5].children);
-			
-			$(bar).on('click', 'a:not(.dropdown-toggle)', function(e) {
-				menuItemClicked($(this));
-				e.preventDefault();
-			});
-			
-			// Since we don't use the data-api
-			$(".navbar-toggler", bar).on('click', e => {//ハンバーガーメニューをクリックした時
-				e.preventDefault();
-			});
-						
+    function fillWidgetTray(menuElem, entries) {
+        menuElem.append(entries.filter(item => !!item.mnemonic && controller.isActionSupported(item.action)).map(entry => {
+            let
+                widgetMenuElem = $(
+                    `<button class="widget-toggler selected" type="button" data-action="${entry.action}" data-checkbox="true" data-selected="${!entry.checked}">`
+                        + '<span>'
+                            + entry.mnemonic
+                        +'</span>'
+                    + '</button>'
+                );
+            widgetMenuElem.on('click',e => {
+            
+                menuItemClicked(widgetMenuElem);
+                e.preventDefault();
+            })
+            return widgetMenuElem;
+        }));
+    }
+
+    this.getElement = function() {
+        return bar[0];
+    };
+    
+    fillMenu($(".navbar-nav", bar), MENU_ENTRIES);
+    fillWidgetTray($(".widget-nav", bar), MENU_ENTRIES[5].children);
+    
+    $(bar).on('click', 'a:not(.dropdown-toggle)', function(e) {
+        menuItemClicked($(this));
+        e.preventDefault();
+    });
+    
+    // Since we don't use the data-api
+    $(".navbar-toggler", bar).on('click', e => {//ハンバーガーメニューをクリックした時
+        e.preventDefault();
+    });
+                        
     function onPaletteVisChange(paletteName, show) {
         // Toggle the tickbox of the corresponding menu entry to match the new palette visibility
         let
@@ -650,8 +651,8 @@ export default function CPMainMenu(controller, mainGUI) {
 
     mainGUI.getPaletteManager().on("paletteVisChange", onPaletteVisChange);
 
-	// 古いアイコンは使わない。
-	let 
+    // 古いアイコンは使わない。
+    let 
         fullScreenToggle = $(".dropdown-item[data-action=CPFullScreen]", bar);
         // toolbarStyleToggle = $(".dropdown-item[data-action=CPToolbarStyle]", bar);
     
