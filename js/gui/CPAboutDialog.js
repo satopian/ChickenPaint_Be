@@ -80,9 +80,6 @@ Includes these MIT-licensed libraries:
     Includes the <a target="_blank" href="https://github.com/madrobby/keymaster" rel="noopener">keymaster.js</a> keyboard library
     Copyright (c) 2011-2013 Thomas Fuchs
 
-    Includes the <a target="_blank" href="https://github.com/stefanpenner/es6-promise" rel="noopener">es6-promise</a> library
-    Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors
-
     Includes the <a target="_blank" href="https://benalman.com/projects/jquery-throttle-debounce-plugin/" rel="noopener">jQuery throttle-debounce</a> library
     Copyright (c) 2010 "Cowboy" Ben Alman
 
