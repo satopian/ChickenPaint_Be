@@ -435,7 +435,7 @@ export default function CPMainMenu(controller, mainGUI) {
 
     bar[0].addEventListener('touchmove',(e)=>{
         e.preventDefault(); // デフォルトの動作をキャンセル
-    });
+    }, { passive: false });
 
     function menuItemClicked(target) {
             let
