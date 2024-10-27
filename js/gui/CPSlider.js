@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import EventEmitter from "wolfy87-eventemitter";
 import {_} from "../languages/lang.js";
 
@@ -139,55 +138,54 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode, defaul
     }
 
     function mouseSelect(e) {
-        let
-            width = $(canvas).width(),
-            left = $(canvas).offset().left,
 
+        let width = canvas.clientWidth; // jQueryの $(canvas).width() に相当
+        let left = canvas.getBoundingClientRect().left + window.scrollX; // jQueryの $(canvas).offset().left に相当
             proportion = (e.pageX - left) / width;
-			
+
         if (expMode) {
             // Give the user finer control over the low values
             proportion = Math.pow(Math.max(proportion, 0.0), EXP_MODE_FACTOR);
         }
 
         that.setValue(proportion * valueRange + minValue);
-	}
+    }
         
     function pointerDragged(e) {
-		switch (dragMode) {
+        switch (dragMode) {
             case DRAG_MODE_NORMAL:
                 return mouseSelect(e);
             case DRAG_MODE_PRECISE:
 
-			let title=that.title();
-			//ブラシサイズと不透明度以外は細やかなスライダーの動作をしない
-			if(!(title.includes(_("Brush size"))||title.includes(_("Opacity")))){
-				return mouseSelect(e);
-			}
-			let diff = (e.pageX - dragPreciseX) / PRECISE_DRAG_SCALE;
-			if (diff !== 0) {
+            let title=that.title();
+            //ブラシサイズと不透明度以外は細やかなスライダーの動作をしない
+            if(!(title.includes(_("Brush size"))||title.includes(_("Opacity")))){
+                return mouseSelect(e);
+            }
+            let diff = (e.pageX - dragPreciseX) / PRECISE_DRAG_SCALE;
+            if (diff !== 0) {
 
-				let unrounded = that.value + diff;
-				let rounded = Math.floor(unrounded);
+                let unrounded = that.value + diff;
+                let rounded = Math.floor(unrounded);
 
-				that.setValue(rounded);
-			
-				/* Tweak the "old mouseX" position such that the fractional part of the value we were unable to set
-					* will be accumulated
-					*/
-				dragPreciseX = e.pageX - (unrounded - rounded) * PRECISE_DRAG_SCALE;
-			}
-		break;
+                that.setValue(rounded);
+            
+                /* Tweak the "old mouseX" position such that the fractional part of the value we were unable to set
+                    * will be accumulated
+                    */
+                dragPreciseX = e.pageX - (unrounded - rounded) * PRECISE_DRAG_SCALE;
+            }
+        break;
         }
     }
 
-	canvas.addEventListener("pointerup", (e)=>{
+    canvas.addEventListener("pointerup", (e)=>{
 
-		if (dragMode === DRAG_MODE_IDLE) {
-			canvas.releasePointerCapture(e.pointerId);
-			return canvas.removeEventListener("pointermove", pointerDragged);
-		}
-		if (dragMode !== DRAG_MODE_IDLE) {
+        if (dragMode === DRAG_MODE_IDLE) {
+            canvas.releasePointerCapture(e.pointerId);
+            return canvas.removeEventListener("pointermove", pointerDragged);
+        }
+        if (dragMode !== DRAG_MODE_IDLE) {
             switch (dragMode) {
                 case DRAG_MODE_NORMAL:
                     if (e.button === 0 && !e.shiftKey) {
@@ -203,8 +201,8 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode, defaul
                     return;
             }
         }
-		canvas.releasePointerCapture(e.pointerId);
-		return canvas.removeEventListener("pointermove", pointerDragged);
+        canvas.releasePointerCapture(e.pointerId);
+        return canvas.removeEventListener("pointermove", pointerDragged);
     });
     
     this.setValue = function(_value) {
@@ -234,8 +232,8 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode, defaul
     };
     
     this.resize = function() {
-        canvas.width = $(canvas).width() || defaultWidth;
-        canvas.height = $(canvas).height() || 20;
+        canvas.width = canvas.clientWidth || defaultWidth;
+        canvas.height = canvas.clientHeight || 20;
         
         if (window.devicePixelRatio > 1) {
             // Assume our width is set to 100% or similar, so we only need to the fix the height
@@ -253,15 +251,15 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode, defaul
     canvas.addEventListener("pointerdown", function(e) {
         if (dragMode === DRAG_MODE_IDLE) {
 
-			if(e.button === 2 ||(e.button === 0 && e.shiftKey)){
-				dragMode = DRAG_MODE_PRECISE;
-				dragPreciseX = e.pageX;
-			}else{
-				dragMode = DRAG_MODE_NORMAL;
-				mouseSelect(e);
-			}
+            if(e.button === 2 ||(e.button === 0 && e.shiftKey)){
+                dragMode = DRAG_MODE_PRECISE;
+                dragPreciseX = e.pageX;
+            }else{
+                dragMode = DRAG_MODE_NORMAL;
+                mouseSelect(e);
+            }
 
-			canvas.setPointerCapture(e.pointerId);
+            canvas.setPointerCapture(e.pointerId);
             canvas.addEventListener("pointermove", pointerDragged);
         }
     });

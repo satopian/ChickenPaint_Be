@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import EventEmitter from "wolfy87-eventemitter";
 
