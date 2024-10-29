@@ -4,7 +4,7 @@ ENGINE_SOURCE = js/engine/* js/util/*
 
 all :clean build cat_min 
 build:temp/ChickenPaint.js
-cat_min:resources/js/chickenpaint.min.js
+cat_min:chickenpaint/js/chickenpaint.min.js
 dev: clean_dist dist/index.html
 
 ifdef OSASCRIPT
@@ -38,15 +38,15 @@ js/engine/CPBlend2.js :
 js/engine/CPBlend.js : codegenerator/BlendGenerator.js
 	node codegenerator/BlendGenerator.js > js/engine/CPBlend.js
 
-resources/js/chickenpaint.min.js: header/header.txt temp/ChickenPaint.js
-	mkdir -p resources/js/
+chickenpaint/js/chickenpaint.min.js: header/header.txt temp/ChickenPaint.js
+	mkdir -p chickenpaint/js/
 	./node_modules/.bin/google-closure-compiler --js temp/ChickenPaint.js --js_output_file temp/chickenpaint.min.js
-	cat header/header.txt temp/chickenpaint.min.js > resources/js/chickenpaint.min.js
-	cp resources/js/chickenpaint.min.js resources/js/chickenpaint.js
+	cat header/header.txt temp/chickenpaint.min.js > chickenpaint/js/chickenpaint.min.js
+	cp chickenpaint/js/chickenpaint.min.js chickenpaint/js/chickenpaint.js
 	rm -rf temp/
 
 clean :
 	rm -rf .parcel-cache
 	rm -rf temp/
-	rm -rf resources/js/
+	rm -rf chickenpaint/js/
 	rm -f test/blending_bench/blending_test.js test/blending_bench/blending.js test/integration_test/integration.js js/engine/CPBlend.js
