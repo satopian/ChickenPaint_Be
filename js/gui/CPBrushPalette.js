@@ -117,6 +117,11 @@ export default function CPBrushPalette(controller) {
 
         body = this.getBodyElement();
 
+    //touchmoveイベントのデフォルトの動作をキャンセル
+    body.addEventListener('touchmove', (e) => {
+        e.preventDefault(); // デフォルトの動作をキャンセル
+    }, { passive: false });
+
     body.appendChild(brushPanel.getElement());
     body.appendChild(gradientPanel.getElement());
     body.appendChild(transformPanel.getElement());

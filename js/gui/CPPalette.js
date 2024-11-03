@@ -76,11 +76,6 @@ export default function CPPalette(cpController, className, title, options) {
         
         that = this;
     
-    //touchmoveイベントのデフォルトの動作をキャンセル
-    containerElement.addEventListener('touchmove', (event) => {
-        event.preventDefault(); // デフォルトの動作をキャンセル
-    }, { passive: false });
-
     this.getElement = function() {
         return containerElement;
     };
