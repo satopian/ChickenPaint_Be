@@ -1345,6 +1345,7 @@
 .chickenpaint .chickenpaint-saving-error-message {
   display: none;
   white-space: pre-wrap;
+  font-size: 1em;
 }
 
 .chickenpaint-aftersave-actions {
