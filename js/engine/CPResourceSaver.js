@@ -49,38 +49,86 @@ export default function CPResourceSaver(options) {
         that.emitEvent("savingFailure", [serverMessage]);
     }
     
-	function postDrawing(formData) {
-		// リクエストのオプションを設定
-		var requestOptions = {
-		  method: 'POST',
-		  mode: 'same-origin',
-		  headers: {
-			  'X-Requested-With': 'chickenpaint'
-			  ,
-		  },
-		  body: formData,
-		}; 
-		reportProgress(0.5);
-		// リクエストを送信
-		fetch(options.url, requestOptions).then(response => {
-		  if (!response.ok) {
-			throw new Error("Network response was not ok (".concat(response.status, ")"));
-		  }
-	
-		  return response.text();
-		}).then(responseText => {
-		  if (/^CHIBIOK/.test(responseText)) {
-			reportProgress(1.0);
-			that.emitEvent("savingComplete");
-		  } else {
-			reportFatal(responseText);
-		  }
-		}).catch(error => {
-		  reportFatal(error.message);
-		});
-	  }
-		
-	// 	function postDrawing(formData) {
+    async function postDrawing(formData) {
+
+      // FormDataサイズを取得してチェック
+      try {
+        const size = await getFormDataSize(formData);
+        console.log("Total size of FormData:", (size / 1024 / 1024).toFixed(3), "MB");
+        console.log("post_max_size:",options.post_max_size, "MB");
+
+        if (options && options.post_max_size && size && !isNaN(size) && (size > (options.post_max_size * 1024 * 1024))) {
+            reportFatal(_("File size is too big."));
+            return; // サイズ超過の場合は中断
+        } else {
+            console.log(_("The total size of FormData is within the acceptable range."));
+        }
+      } catch (error) {
+        console.error("Error details:", error);
+        reportFatal("An error occurred in the getFormDataSize function.");
+        return;
+      }
+    
+      var requestOptions = {
+        method: 'POST',
+        mode: 'same-origin',
+        headers: {
+          'X-Requested-With': 'chickenpaint'
+          ,
+        },
+        body: formData,
+      }; 
+      reportProgress(0.5);
+      // リクエストを送信
+      fetch(options.url, requestOptions).then(response => {
+        if (!response.ok) {
+        throw new Error("Network response was not ok (".concat(response.status, ")"));
+        }
+    
+        return response.text();
+      }).then(responseText => {
+        if (/^CHIBIOK/.test(responseText)) {
+        reportProgress(1.0);
+        that.emitEvent("savingComplete");
+        } else {
+        reportFatal(responseText);
+        }
+      }).catch(error => {
+        reportFatal(error.message);
+      });
+      }
+
+    /**
+   * Calculates the total size of a FormData object in bytes.
+   * This function iterates over each entry in the FormData object,
+   * converting string values to Blobs to measure their size consistently.
+   * Blob entries are used directly. All entries are then combined into a single Blob,
+   * whose size is returned as the total FormData size.
+   * 
+   * Note: This function is asynchronous to ensure compatibility across
+   * all environments where Blob size calculation might be non-blocking.
+   * 
+   * @param {FormData} formData - The FormData object containing data to be measured.
+   * @returns {Promise<number>} The total size of the FormData data in bytes.
+   */
+    async function getFormDataSize(formData) {
+
+      if(!options.post_max_size){
+        return;
+      }
+      
+      const entries = Array.from(formData.entries());
+      const blobs = entries.map(([key, value]) => {
+        if (typeof value === "string") {
+            return new Blob([`${key}=${value}`]);
+        } else {
+            return value;
+        }
+      });
+      const totalBlob = new Blob(blobs);
+      return totalBlob.size;
+    }
+    // 	function postDrawing(formData) {
     //     var
     //         xhr = new XMLHttpRequest();
     

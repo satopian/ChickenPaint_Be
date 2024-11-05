@@ -262,5 +262,10 @@
 
   "Sorry, your drawing could not be saved, please try again later.": "お絵かきが保存できませんでした。再度投稿してみてください。",
 
-  "The error returned from the server was": "サーバから返って来たエラー"
+  "The error returned from the server was": "サーバから返って来たエラー",
+
+  "File size is too big.":"ファイルサイズが大きすぎます。",
+
+  "The total size of FormData is within the acceptable range.":"FormData の合計サイズは許容範囲内です。"
+
 }

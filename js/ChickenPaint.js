@@ -1160,7 +1160,8 @@ export default function ChickenPaint(options) {
                 artwork: that.getArtwork(),
                 rotation: canvas.getRotation90(),
                 swatches: mainGUI.getSwatches(),
-                url: options.saveUrl
+                url: options.saveUrl,
+                post_max_size:options.post_max_size
             }),
             sendDialog = new CPSendDialog(that, uiElem, saver);
 
