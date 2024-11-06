@@ -262,7 +262,7 @@
 
   "Sorry, your drawing could not be saved, please try again later.": "お絵かきが保存できませんでした。再度投稿してみてください。",
 
-  "The error returned from the server was": "サーバから返って来たエラー",
+  "The error returned from the server was": "サーバーから返って来たエラー",
 
   "The file size exceeds the maximum allowed by the server.":"ファイルサイズがサーバーで許容されている最大サイズを超えています。",
 
