@@ -268,5 +268,6 @@
 
   "The total size of FormData is within the acceptable range.":"FormData の合計サイズは許容範囲内です。",
 
+  "Allowed size":"投稿可能サイズ",
   "Current size":"現在のサイズ"
 }
