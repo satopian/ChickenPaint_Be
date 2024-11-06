@@ -264,10 +264,10 @@
 
   "The error returned from the server was": "サーバーから返って来たエラー",
 
-  "The file size exceeds the maximum allowed by the server.":"ファイルサイズがサーバーで許容されている最大サイズを超えています。",
+  "The file size exceeds the server limit.":"ファイルサイズがサーバーの制限を超えています。",
 
-  "The total size of FormData is within the acceptable range.":"FormData の合計サイズは許容範囲内です。",
+  "The total size of FormData is within the acceptable range.":"FormDataの合計サイズは制限範囲内です。",
 
-  "Allowed size":"投稿可能サイズ",
+  "Limit size":"上限サイズ",
   "Current size":"現在のサイズ"
 }

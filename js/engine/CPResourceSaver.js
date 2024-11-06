@@ -55,12 +55,12 @@ export default function CPResourceSaver(options) {
       try {
         const size = await getFormDataSize(formData);
         const total_size = `${(size/ 1024 / 1024).toFixed(3)}MB`;
-        const allowed_size = `${options.post_max_size}MB`;
+        const limit_size = `${options.post_max_size}MB`;
         console.log("Total size of FormData:", total_size);
-        console.log("post_max_size:",allowed_size);
+        console.log("post_max_size:",limit_size);
 
         if (options && options.post_max_size && size && !isNaN(size) && (size > (options.post_max_size * 1024 * 1024))) {
-            reportFatal(`${_("The file size exceeds the maximum allowed by the server.")}\n${_("Allowed size")}:${allowed_size}\n${_("Current size")}:${total_size}`);
+            reportFatal(`${_("The file size exceeds the server limit.")}\n${_("Limit size")}:${limit_size}\n${_("Current size")}:${total_size}`);
             return; // サイズ超過の場合は中断
         } else {
             console.log(_("The total size of FormData is within the acceptable range."));
