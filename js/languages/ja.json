@@ -264,7 +264,7 @@
 
   "The error returned from the server was": "サーバーから返って来たエラー",
 
-  "The file size exceeds the server limit.":"ファイルサイズがサーバーの制限を超えています。",
+  "The file size exceeds the server limit.":"ファイルサイズがサーバーの上限を超えています。",
 
   "The total size of FormData is within the acceptable range.":"FormDataの合計サイズは制限範囲内です。",
 
