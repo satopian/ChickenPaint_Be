@@ -58,7 +58,7 @@ export default function CPResourceSaver(options) {
         console.log("post_max_size:",options.post_max_size, "MB");
 
         if (options && options.post_max_size && size && !isNaN(size) && (size > (options.post_max_size * 1024 * 1024))) {
-            reportFatal(_("File size is too big."));
+            reportFatal(_("The file size exceeds the maximum allowed by the server."));
             return; // サイズ超過の場合は中断
         } else {
             console.log(_("The total size of FormData is within the acceptable range."));
