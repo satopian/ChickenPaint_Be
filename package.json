@@ -16,7 +16,7 @@
   "devDependencies": {
     "canvas": "^3.0.0-rc2",
     "multipipe": "^2.0.3",
-    "parcel": "^2.12.0"
+    "parcel": "^2.13.2"
   },
   "dependencies": {
     "bootstrap": "^5.3.3",
