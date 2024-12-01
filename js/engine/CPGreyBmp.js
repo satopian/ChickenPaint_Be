@@ -706,6 +706,7 @@ CPGreyBmp.prototype.invert = function(rect) {
 CPGreyBmp.prototype.brightnessToOpacity = function(rect) {
     rect = this.getBounds().clipTo(rect);
     const threshold = 253;
+    const opacityThresholdFactor = 0.8;
 
         const yStride = (this.width - rect.getWidth()) * CPGreyBmp.BYTES_PER_PIXEL;
         let pixIndex = this.offsetOfPixel(rect.left, rect.top);
@@ -724,9 +725,9 @@ CPGreyBmp.prototype.brightnessToOpacity = function(rect) {
             let newAlpha;
             if (brightness > threshold) {
                 newAlpha = 0; // 完全に透明
-            } else if (brightness > (threshold * 0.8)) {
+            } else if (brightness > (threshold * opacityThresholdFactor)) {
                 // 中間の透明度を計算 (輝度が高いほど透明に近づく)
-                newAlpha = Math.round((1 - (brightness - threshold * 0.8) / (threshold - threshold * 0.8)) * 255);
+                newAlpha = Math.round((1 - (brightness - threshold * opacityThresholdFactor) / (threshold - threshold * opacityThresholdFactor)) * 255);
             } else {
                 newAlpha = 255; // 完全に不透明
             }
