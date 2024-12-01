@@ -1478,6 +1478,22 @@ export default function CPArtwork(_width, _height) {
 	        invalidateLayerPaint(curLayer, r);
         }
     };
+
+    this.brightnessToOpacity = function() {
+        let
+            r = this.getSelectionAutoSelect(),
+            target = getActiveImage();
+
+        if (target) {
+	        prepareForLayerPaintUndo();
+	        paintUndoArea = r.clone();
+	
+	        target.brightnessToOpacity(r);
+	
+	        addUndo(new CPUndoPaint());
+	        invalidateLayerPaint(curLayer, r);
+        }
+    };
 	
 	/**
      *
