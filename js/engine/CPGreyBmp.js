@@ -705,17 +705,24 @@ CPGreyBmp.prototype.invert = function(rect) {
  */
 CPGreyBmp.prototype.brightnessToOpacity = function(rect) {
     rect = this.getBounds().clipTo(rect);
-
+    const threshold = 250;
     var
         yStride = (this.width - rect.getWidth()) * CPGreyBmp.BYTES_PER_PIXEL,
-
         pixIndex = this.offsetOfPixel(rect.left, rect.top);
 
     for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
         for (var x = rect.left; x < rect.right; x++, pixIndex += CPGreyBmp.BYTES_PER_PIXEL) {
-            this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] = ((this.data[pixIndex + CPGreyBmp.RED_BYTE_OFFSET] +
-                this.data[pixIndex + CPGreyBmp.GREEN_BYTE_OFFSET] +
-                this.data[pixIndex + CPGreyBmp.BLUE_BYTE_OFFSET]) / 3) ^ 0xFF;
+            // 輝度の計算
+            var brightness = (this.data[pixIndex + CPGreyBmp.RED_BYTE_OFFSET] +
+                              this.data[pixIndex + CPGreyBmp.GREEN_BYTE_OFFSET] +
+                              this.data[pixIndex + CPGreyBmp.BLUE_BYTE_OFFSET]) / 3;
+
+            // しきい値を基に透明度を設定
+            if (brightness > threshold) {
+                this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] = 0; // 完全に透明
+            } else {
+                this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] = 255; // 完全に不透明
+            }
         }
     }
 };
