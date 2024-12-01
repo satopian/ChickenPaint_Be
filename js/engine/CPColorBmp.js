@@ -1328,22 +1328,21 @@ CPColorBmp.prototype.brightnessToOpacity = function(rect) {
     rect = this.getBounds().clipTo(rect);
     const threshold = 253;
 
-    var
-        yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL,
-        pixIndex = this.offsetOfPixel(rect.left, rect.top);
+        const yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL;
+        let pixIndex = this.offsetOfPixel(rect.left, rect.top);
 
     for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
         for (var x = rect.left; x < rect.right; x++, pixIndex += CPColorBmp.BYTES_PER_PIXEL) {
             // 輝度の計算
-            var brightness = (this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] +
+            const brightness = (this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] +
                               this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] +
                               this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET]) / 3;
 
             // 元のアルファ値を取得
-            var originalAlpha = this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
+            const originalAlpha = this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
 
             // しきい値を基に透明度を設定
-            var newAlpha;
+            let newAlpha;
             if (brightness > threshold) {
                 newAlpha = 0; // 完全に透明
             } else if (brightness > (threshold * 0.8)) {
