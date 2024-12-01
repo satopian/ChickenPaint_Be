@@ -1322,6 +1322,26 @@ CPColorBmp.prototype.invert = function(rect) {
 };
 
 /**
+ * @param {CPRect} rect
+ */
+CPColorBmp.prototype.brightnessToOpacity = function(rect) {
+    rect = this.getBounds().clipTo(rect);
+
+    var
+        yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL,
+
+        pixIndex = this.offsetOfPixel(rect.left, rect.top);
+
+    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+        for (var x = rect.left; x < rect.right; x++, pixIndex += CPColorBmp.BYTES_PER_PIXEL) {
+            this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = ((this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] +
+                this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] +
+                this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET]) / 3) ^ 0xFF;
+        }
+    }
+};
+
+/**
  * Get a rectangle that encloses any non-transparent pixels in the bitmap within the given initialBounds (or an empty
  * rect if the pixels inside the given bounds are 100% transparent).
  *

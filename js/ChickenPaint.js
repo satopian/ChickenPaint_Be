@@ -666,6 +666,13 @@ export default function ChickenPaint(options) {
                 modifies: {document: true},
                 requiresDrawable: true
             },
+            CPBrightnessToOpacity: {
+                action: function () {
+                    that.artwork.brightnessToOpacity();
+                },
+                modifies: {document: true},
+                requiresDrawable: true
+            },
 
             CPCut: {
                 action: function () {

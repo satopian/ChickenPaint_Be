@@ -223,6 +223,15 @@ const
                     name: "-"
                 },
                 {
+                    name: "Convert brightness to opacity",
+                    action: "CPBrightnessToOpacity",
+                    mnemonic: "B",
+                    title: _("Convert brightness to opacity")
+                },
+                {
+                    name: "-"
+                },
+                {
                     name: "Box blur...",
                     action: "CPFXBoxBlur",
                     mnemonic: "B",

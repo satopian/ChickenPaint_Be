@@ -36,6 +36,7 @@
     "Flip horizontal": "左右反転",
     "Flip vertical": "上下反転",
     "Invert": "ネガポジ反転",
+    "Convert brightness to opacity": "輝度を透明度に変換",
     "Box blur...": "ぼかし",
     "Box blur": "ぼかし",
     "Blur amount (pixels)": "ぼかし量(ピクセル単位)",
