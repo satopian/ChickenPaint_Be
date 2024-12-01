@@ -1326,7 +1326,7 @@ CPColorBmp.prototype.invert = function(rect) {
  */
 CPColorBmp.prototype.brightnessToOpacity = function(rect) {
     rect = this.getBounds().clipTo(rect);
-    threshold=250;
+    const threshold=253;
 
     var
         yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL,
@@ -1342,6 +1342,9 @@ CPColorBmp.prototype.brightnessToOpacity = function(rect) {
             // しきい値を基に透明度を設定
             if (brightness > threshold) {
                 this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = 0; // 完全に透明
+            } else if(brightness >(threshold*0.8)){
+                // 中間の透明度を計算 (輝度が高いほど透明に近づく)
+                this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = Math.round((1 - (brightness - threshold * 0.8) / (threshold - threshold * 0.8)) * 255);
             } else {
                 this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = 255; // 完全に不透明
             }
