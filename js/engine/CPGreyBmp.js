@@ -706,6 +706,7 @@ CPGreyBmp.prototype.invert = function(rect) {
 CPGreyBmp.prototype.brightnessToOpacity = function(rect) {
     rect = this.getBounds().clipTo(rect);
     const threshold = 253;
+
     var
         yStride = (this.width - rect.getWidth()) * CPGreyBmp.BYTES_PER_PIXEL,
         pixIndex = this.offsetOfPixel(rect.left, rect.top);
@@ -717,15 +718,22 @@ CPGreyBmp.prototype.brightnessToOpacity = function(rect) {
                               this.data[pixIndex + CPGreyBmp.GREEN_BYTE_OFFSET] +
                               this.data[pixIndex + CPGreyBmp.BLUE_BYTE_OFFSET]) / 3;
 
+            // 元のアルファ値を取得
+            var originalAlpha = this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] / 255;
+
             // しきい値を基に透明度を設定
+            var newAlpha;
             if (brightness > threshold) {
-                this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] = 0; // 完全に透明
-            } else if(brightness >(threshold*0.8)){
+                newAlpha = 0; // 完全に透明
+            } else if (brightness > (threshold * 0.8)) {
                 // 中間の透明度を計算 (輝度が高いほど透明に近づく)
-                this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] = Math.round((1 - (brightness - threshold * 0.8) / (threshold - threshold * 0.8)) * 255);
+                newAlpha = Math.round((1 - (brightness - threshold * 0.8) / (threshold - threshold * 0.8)) * 255);
             } else {
-                this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] = 255; // 完全に不透明
+                newAlpha = 255; // 完全に不透明
             }
+
+            // 元のアルファ値を考慮して透明度を更新
+            this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] = Math.round(newAlpha * originalAlpha);
         }
     }
 };
