@@ -706,7 +706,6 @@ CPGreyBmp.prototype.invert = function(rect) {
 CPGreyBmp.prototype.brightnessToOpacity = function(rect) {
     rect = this.getBounds().clipTo(rect);
     const threshold = 250;
-    const opacityThresholdFactor = 0.35;
 
     const yStride = (this.width - rect.getWidth()) * CPGreyBmp.BYTES_PER_PIXEL;
     let pixIndex = this.offsetOfPixel(rect.left, rect.top);
@@ -725,22 +724,19 @@ CPGreyBmp.prototype.brightnessToOpacity = function(rect) {
             let newAlpha;
             if (brightness > threshold) {
                 newAlpha = 0; // 完全に透明
-            } else if (brightness > (threshold * opacityThresholdFactor)) {
-                // 中間の透明度を計算 (輝度が高いほど透明に近づく)
-                newAlpha = Math.round((1 - (brightness - threshold * opacityThresholdFactor) / (threshold - threshold * opacityThresholdFactor)) * 255);
             } else {
-                newAlpha = 255; // 完全に不透明
-            }
+                // 中間の透明度を計算 (輝度が高いほど透明に近づく)
+                newAlpha = Math.round((1 - (brightness) / (threshold)) * 255);
+            } 
 
             // 元のアルファ値を考慮して透明度を更新
             this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] = Math.round(newAlpha * originalAlpha);
 
-            // 不透明な線画の明度を低下させる
-            if (newAlpha > 5) { // 不透明な部分のみ操作
-                const darkenFactor = 0.5; // 明度を低下させる係数（0 < 値 < 1）
-                this.data[pixIndex + CPGreyBmp.RED_BYTE_OFFSET] = Math.round(this.data[pixIndex + CPGreyBmp.RED_BYTE_OFFSET] * darkenFactor);
-                this.data[pixIndex + CPGreyBmp.GREEN_BYTE_OFFSET] = Math.round(this.data[pixIndex + CPGreyBmp.GREEN_BYTE_OFFSET] * darkenFactor);
-                this.data[pixIndex + CPGreyBmp.BLUE_BYTE_OFFSET] = Math.round(this.data[pixIndex + CPGreyBmp.BLUE_BYTE_OFFSET] * darkenFactor);
+            // 不透明な線画の明度を0に
+            if (newAlpha > 0) { // 不透明な部分の明度を0に
+                this.data[pixIndex + CPGreyBmp.RED_BYTE_OFFSET] = 0;
+                this.data[pixIndex + CPGreyBmp.GREEN_BYTE_OFFSET] = 0;
+                this.data[pixIndex + CPGreyBmp.BLUE_BYTE_OFFSET] = 0;
             }
         }
     }
