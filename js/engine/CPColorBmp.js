@@ -1326,14 +1326,14 @@ CPColorBmp.prototype.invert = function(rect) {
  */
 CPColorBmp.prototype.brightnessToOpacity = function(rect) {
     rect = this.getBounds().clipTo(rect);
-    const threshold = 253;
-    const opacityThresholdFactor = 0.8;
+    const threshold = 250;
+    const opacityThresholdFactor = 0.35;
 
-        const yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL;
-        let pixIndex = this.offsetOfPixel(rect.left, rect.top);
+    const yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL;
+    let pixIndex = this.offsetOfPixel(rect.left, rect.top);
 
-    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
-        for (var x = rect.left; x < rect.right; x++, pixIndex += CPColorBmp.BYTES_PER_PIXEL) {
+    for (let y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+        for (let x = rect.left; x < rect.right; x++, pixIndex += CPColorBmp.BYTES_PER_PIXEL) {
             // 輝度の計算
             const brightness = (this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] +
                               this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] +
@@ -1352,8 +1352,17 @@ CPColorBmp.prototype.brightnessToOpacity = function(rect) {
             } else {
                 newAlpha = 255; // 完全に不透明
             }
+
             // 元のアルファ値を考慮して透明度を更新
             this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = Math.round(newAlpha * originalAlpha);
+
+            // 不透明な線画の明度を低下させる
+            if (newAlpha > 5) { // 不透明な部分のみ操作
+                const darkenFactor = 0.5; // 明度を低下させる係数（0 < 値 < 1）
+                this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] = Math.round(this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] * darkenFactor);
+                this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] = Math.round(this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] * darkenFactor);
+                this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET] = Math.round(this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET] * darkenFactor);
+            }
         }
     }
 };
