@@ -1346,9 +1346,10 @@ CPColorBmp.prototype.brightnessToOpacity = function(rect) {
             if (brightness > threshold) {
                 newAlpha = 0; // 完全に透明
             } else {
-                // 中間の透明度を計算 (輝度が高いほど透明に近づく)
-                newAlpha = Math.round((1 - (brightness) / (threshold)) * 255);
+                // 線形にマッピングして中間の透明度を計算 (輝度が高いほど透明に近づく)
+                newAlpha = Math.round((1 - brightness / threshold) * 255);
             } 
+
             // 元のアルファ値を考慮して透明度を更新
             this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = Math.round(newAlpha * originalAlpha);
 
