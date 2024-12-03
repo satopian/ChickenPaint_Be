@@ -84,7 +84,7 @@ export default function CPResourceSaver(options) {
       // リクエストを送信
       fetch(options.url, requestOptions).then(response => {
         if (!response.ok) {
-        throw new Error(`${_("Network response was not ok")} (Code:${response.status})`);
+        throw new Error(`${_("Network response was not ok")} (Code : ${response.status})`);
         }
     
         return response.text();
