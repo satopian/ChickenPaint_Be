@@ -123,7 +123,7 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
             progressElem.addClass("progress-bar-danger");
 
             let
-                errorMessage = _("Sorry, your drawing could not be saved, please try again later.");
+                errorMessage = _("Sorry, your drawing could not be saved,\nPlease check the error message.");
 
             if (serverMessage) {
                 serverMessage = serverMessage.replace(/^CHIBIERROR\s*/, "");

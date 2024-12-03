@@ -1151,7 +1151,7 @@ export default function ChickenPaint(options) {
         });
         
         saver.on("savingFailure", function() {
-            alert(_("Sorry, your drawing could not be saved, please try again later."));
+            alert(_("Sorry, your drawing could not be saved,\nPlease check the error message."));
         });
         
         saver.save();
@@ -1182,7 +1182,7 @@ export default function ChickenPaint(options) {
         });
 
         saver.on("savingFailure", function() {
-            alert(_("Sorry, your drawing could not be saved, please try again later."));
+            alert(_("Sorry, your drawing could not be saved,\nPlease check the error message."));
         });
 
         // Allow the dialog to show before we begin serialization

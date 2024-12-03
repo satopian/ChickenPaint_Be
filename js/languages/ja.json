@@ -251,17 +251,17 @@
   "Preparing your drawing to be saved, please wait...": "お絵かきを保存する準備をしています。しばらくお待ちください…",
   "Drawing saved!": "お絵かきを保存しました！",
 
-  "Your drawing has been saved, would you like to post it to the forum now?": "お絵かきが保存されました。フォーラムへ投稿しますか？",
+  "Your drawing has been saved, would you like to post it to the forum now?": "画像の保存に成功しました。フォーラムへ投稿しますか？",
   "Yes, post it now": "はい、投稿します",
   "No, keep drawing": "まだ描きます",
   "No, quit and I'll finish it later": "アプリを終了して続きを後で描く",
 
-  "Your drawing has been saved, would you like to view it on the forum now?": "お絵かきが保存されました。フォーラムへ投稿しますか？",
+  "Your drawing has been saved, would you like to view it on the forum now?": "画像の保存に成功しました。フォーラムへ投稿しますか？",
   "Yes, view the post": "はい、投稿します。",
 
-  "Your drawing has been saved, redirecting you to view your new post now...": "お絵かきが保存されました。投稿先に移動します。",
+  "Your drawing has been saved, redirecting you to view your new post now...": "画像の保存に成功しました。投稿先に移動します。",
 
-  "Sorry, your drawing could not be saved, please try again later.": "お絵かきが保存できませんでした。再度投稿してみてください。",
+  "Sorry, your drawing could not be saved,\nPlease check the error message.": "画像の保存に失敗しました。\nエラーメッセージをご確認ください。",
 
   "The error returned from the server was": "サーバーから返って来たエラー",
 
@@ -270,5 +270,7 @@
   "The total size of FormData is within the acceptable range.":"FormDataの合計サイズは制限範囲内です。",
 
   "Limit size":"上限サイズ",
-  "Current size":"現在のサイズ"
+  "Current size":"現在のサイズ",
+
+  "Network response was not ok":"ネットワークエラー。"
 }
