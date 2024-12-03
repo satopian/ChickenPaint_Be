@@ -158,6 +158,13 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 また、各パレットとメインメニューのtouchmoveEventのデフォルトの動作をキャンセルし、誤動作が発生しないようにしました。    
 ペンが画面から離れているにもかかわらず、ドラッグしている対象が動いたままになる問題を解決しました。   
 
+### ｢輝度を透明度に変換｣機能を追加
+- 白いキャンバスの線画を透明な背景の線画に変換する｢輝度を透明度に変換｣機能を実装しました。   
+  
+[Feature request/proposal: converting brightness to opacity · Issue #4 · satopian/ChickenPaint_Be](https://github.com/satopian/ChickenPaint_Be/issues/4)
+
+[@SuzuSuzu-HaruHaru](https://github.com/SuzuSuzu-HaruHaru)さんが作成した原型をもとに不透明度の計算方法を調整し、一般的なペイントソフトと比較しても遜色のない機能として実装しました。  
+
 ### モバイル端末に最適化されたUI
 #### スマホ･タブレットの縦横の向きが変った時は自動的にパレットの配置を初期化
 - スマホの縦横の画面の切り換えの時に使いにくいパレットの位置になってしまう事がありました。  
