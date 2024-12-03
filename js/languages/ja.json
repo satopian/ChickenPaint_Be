@@ -261,7 +261,8 @@
 
   "Your drawing has been saved, redirecting you to view your new post now...": "画像の保存に成功しました。投稿先に移動します。",
 
-  "Sorry, your drawing could not be saved, Please see the error message.": "エラーメッセージをご確認ください。",
+  "Sorry, your drawing could not be saved, Please see the error message.": "画像を保存できませんでした。エラーメッセージをご確認ください。",
+  "Sorry, your drawing could not be saved, please try again later.": "画像を保存できませんでした。時間を置いて再度投稿してみてください。",
 
   "The error returned from the server was": "サーバーから返って来たエラー",
 
