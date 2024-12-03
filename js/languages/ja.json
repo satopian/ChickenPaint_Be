@@ -1,7 +1,7 @@
 {
   "File": "ファイル",
     "Save to my computer": "PCに保存",
-    "Post Oekaki": "お絵かきを投稿",
+    "Post Oekaki": "画像を投稿",
 
   "Edit": "編集",
     "Undo": "取り消し",
@@ -204,8 +204,8 @@
 
   "Sorry, you can't remove the last remaining layer in the drawing.": "最後の1つなので削除できません。",
  
-  "Are you sure you want to send your drawing to the server and finish drawing now?": "お絵かきをサーバーに送信します。終了してもよろしいですか？",
-  "Your drawing has unsaved changes! Are you sure to want to navigate away?": "お絵かきに未保存の変更があります。終了してもよろしいですか？",
+  "Are you sure you want to send your drawing to the server and finish drawing now?": "画像をサーバーに送信します。終了してもよろしいですか？",
+  "Your drawing has unsaved changes! Are you sure to want to navigate away?": "画像に未保存の変更があります。終了してもよろしいですか？",
 
 
 "Many of the menu options and painting tools have keyboard shortcuts which are written next to them or appear when you hover.":
@@ -247,9 +247,9 @@
 
   "Save Oekaki": "保存",
   
-  "Saving drawing...": "お絵かきを保存中…",
-  "Preparing your drawing to be saved, please wait...": "お絵かきを保存する準備をしています。しばらくお待ちください…",
-  "Drawing saved!": "お絵かきを保存しました！",
+  "Saving drawing...": "画像を保存中…",
+  "Preparing your drawing to be saved, please wait...": "画像を保存する準備をしています。しばらくお待ちください…",
+  "Drawing saved!": "画像を保存しました！",
 
   "Your drawing has been saved, would you like to post it to the forum now?": "画像の保存に成功しました。フォーラムへ投稿しますか？",
   "Yes, post it now": "はい、投稿します",
