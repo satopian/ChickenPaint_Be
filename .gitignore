@@ -4,6 +4,7 @@ temp/
 .parcel-cache/
 /node_modules/
 /js/engine/CPBlend2.js
+/js/engine/CPBlend.js
 /test/blending/bench/blending.js
 /test/blending/compare/blending.js
 /test/integration_test/integration.js
