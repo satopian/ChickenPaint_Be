@@ -11,8 +11,4 @@ temp/
 /.idea
 /coverage
 /test/compare_against_reference/test-images
-/resources/js/chickenpaint.js.map
-/resources/js/chickenpaint.min.js.map
-/resources/gfx/icons-source/dark/
-/resources/gfx/icons-source/light/
 *.afphoto~lock~
