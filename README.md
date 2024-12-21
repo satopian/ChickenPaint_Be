@@ -222,7 +222,7 @@ fetch("./", {
 });
 }
 ```
-`chickenpaint.min.js`から参照可能なスコープの中で`const handleExit`を宣言します。  
+`chickenpaint.min.js`から参照可能なスコープの中で`const handleExit`を定義します。  
 `handleExit`という名前の関数が定義されていない時は、`handleExit`は実行されず、従来と同じ動作になります。  
 `handleExit`関数で何を行うのかは掲示板の作者が決定します。 
  
