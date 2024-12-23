@@ -159,7 +159,7 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 ペンが画面から離れているにもかかわらず、ドラッグしている対象が動いたままになる問題を解決しました。   
 
 ### ｢輝度を透明度に変換｣機能を追加
-- 白いキャンバスの線画を透明な背景の線画に変換する｢輝度を透明度に変換｣機能を実装しました。   
+- 白いキャンバス上の線画を透明な背景の線画に変換する｢輝度を透明度に変換｣機能を実装しました。   
   
 [Feature request/proposal: converting brightness to opacity · Issue #4 · satopian/ChickenPaint_Be](https://github.com/satopian/ChickenPaint_Be/issues/4)
 
