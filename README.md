@@ -27,6 +27,9 @@ Bootstrap4はサポートが終了しているため、セキュリティパッ�
 
 ｢ChickenPaint Be｣は、Bootstrap5に移行しました。    
 Bootstrap5は現行サポートバージョンであるため、あらたな問題が発見されてたとしても、問題が修正される事を期待できます。    
+## デモ
+
+[https://paintbbs.sakura.ne.jp/localPaintBBS/chickenpaint/](https://paintbbs.sakura.ne.jp/localPaintBBS/chickenpaint/)
 
 ## 変更点
 
