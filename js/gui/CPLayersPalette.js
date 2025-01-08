@@ -261,21 +261,18 @@ export default function CPLayersPalette(controller) {
          * @returns {HTMLElement}
          */
         function getElemFromDisplayIndex(displayIndex) {
-            let
-                elems = $(".chickenpaint-layer", layerContainer);
+            let elems = document.querySelectorAll(".chickenpaint-layer", layerContainer);
 
-            return elems.get(elems.length - 1 - displayIndex);
+            return elems[elems.length - 1 - displayIndex];
+
         }
 
         function getDisplayIndexFromElem(elem) {
-            let
-                layer = $(elem).closest(".chickenpaint-layer");
-
-            if (layer.length) {
-                let
-                    elems = $(".chickenpaint-layer", layerContainer);
-
-                return elems.length - 1 - elems.index(layer);
+            let layer = elem.closest(".chickenpaint-layer");
+        
+            if (layer) {
+                let elems = Array.from(layerContainer.querySelectorAll(".chickenpaint-layer"));
+                return elems.length - 1 - elems.indexOf(layer);
             } else {
                 return -1;
             }
@@ -454,13 +451,19 @@ export default function CPLayersPalette(controller) {
                 }
 
                 if (hideBetweenMarker) {
-                    $(drag.dropBetweenMarkerElem).remove();
+                    if (drag.dropBetweenMarkerElem) {
+                        drag.dropBetweenMarkerElem.remove();
+                    }
                 }
 
                 drag.frameElem.style.top = (drag.dragY - positionRootBounds.top - parseInt(drag.frameElem.style.height, 10) / 2) + "px";
             } else {
-                $(drag.dropBetweenMarkerElem).remove();
-                $(drag.frameElem).remove();
+                if (drag.dropBetweenMarkerElem) {
+                    drag.dropBetweenMarkerElem.remove();
+                }
+                if (drag.frameElem) {
+                    drag.frameElem.remove();
+                }
             }
         }
 
@@ -670,9 +673,8 @@ export default function CPLayersPalette(controller) {
         }
 
         function onPointerDown(e) {
-            let
-                layerElem = $(e.target).closest(".chickenpaint-layer")[0],
-                displayIndex = getDisplayIndexFromElem(layerElem);
+            let layerElem = e.target.closest(".chickenpaint-layer");
+            let displayIndex = getDisplayIndexFromElem(layerElem);
 
             if (displayIndex != -1) {
                 let
