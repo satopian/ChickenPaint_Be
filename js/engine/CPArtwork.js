@@ -2276,31 +2276,32 @@ export default function CPArtwork(_width, _height) {
         };
 
         this.redo = function() {
-            mergedLayer.copyFrom(underLayer);
+            // 上下のレイヤーを含むレイヤーグループを一時的に作成
+            const tempGroup = new CPLayerGroup();
+            tempGroup.layers = [underLayer, topLayer];
+            tempGroup.parent = null; // No parent for this temporary group
+            tempGroup.name = "Temporary Group";
     
-            if (topLayer.getEffectiveAlpha() > 0) {
-                // Ensure base layer has alpha 100, and apply its mask, ready for blending
-                if (mergedLayer.mask) {
-                    CPBlend.multiplyAlphaByMask(mergedLayer.image, mergedLayer.alpha, mergedLayer.mask);
-                    mergedLayer.mask = null;
-                } else {
-                    CPBlend.multiplyAlphaBy(mergedLayer.image, mergedLayer.alpha);
-                }
-                mergedLayer.alpha = 100;
-    
-                CPBlend.fuseImageOntoImage(mergedLayer.image, true, topLayer.image, topLayer.alpha, topLayer.blendMode, topLayer.getBounds(), topLayer.mask);
-            }
+            // ブレンドツリーを作成してビルド
+            let blendTree = new CPBlendTree(tempGroup, that.width, that.height, false);
+            blendTree.buildTree();
             
-            let
-                underIndex = group.indexOf(underLayer);
-
-            // Remove both of the layers to be merged
+            let blended = blendTree.blendTree();
+    
+            // 合成結果を mergedLayer のプロパティに設定する
+            mergedLayer.name = underLayer.name;//下のレイヤーの名前が残る
+            mergedLayer.image = blended.image;
+            mergedLayer.alpha = 100;
+            mergedLayer.blendMode = CPBlend.LM_NORMAL; // Default blend mode after merging
+            mergedLayer.mask = null; // Clear any mask after merging
+    
+            let underIndex = group.indexOf(underLayer);
+            // 上下のレイヤーを結合されたレイヤーに置き換える
             group.removeLayerAtIndex(underIndex);
             group.removeLayerAtIndex(underIndex);
-
-            // And put our new one in its place
+            // 下のレイヤーの位置に結合したレイヤーを挿入する
             group.insertLayer(underIndex, mergedLayer);
-
+    
             artworkStructureChanged();
             that.setActiveLayer(mergedLayer, false);
         };
