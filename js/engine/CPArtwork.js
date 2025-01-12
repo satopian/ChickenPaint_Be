@@ -2292,9 +2292,9 @@ export default function CPArtwork(_width, _height) {
             mergedLayer.name = underLayer.name;//下のレイヤーの名前が残る
             mergedLayer.image = blended.image;
             mergedLayer.alpha = 100;
-            mergedLayer.blendMode = CPBlend.LM_NORMAL; // Default blend mode after merging
+            mergedLayer.blendMode = underLayer.blendMode; // 下のレイヤーの合成方法を使用            
             mergedLayer.mask = null; // Clear any mask after merging
-    
+
             let underIndex = group.indexOf(underLayer);
             // 上下のレイヤーを結合されたレイヤーに置き換える
             group.removeLayerAtIndex(underIndex);
