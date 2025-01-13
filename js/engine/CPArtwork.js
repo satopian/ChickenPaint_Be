@@ -2276,36 +2276,53 @@ export default function CPArtwork(_width, _height) {
         };
 
         this.redo = function() {
-            // 上下のレイヤーを含むレイヤーグループを一時的に作成
-            const tempGroup = new CPLayerGroup();
-            tempGroup.layers = [underLayer, topLayer];
-            tempGroup.parent = null; // No parent for this temporary group
-            tempGroup.name = "Temporary Group";
-    
-            // ブレンドツリーを作成してビルド
-            let blendTree = new CPBlendTree(tempGroup, that.width, that.height, false);
-            blendTree.buildTree();
+            if (underLayer.clip) {
+                // `underLayer` を `mergedLayer` にコピー
+                mergedLayer.copyFrom(underLayer);
+                if (topLayer.getEffectiveAlpha() > 0) {
+                    // Ensure base layer has alpha 100, and apply its mask, ready for blending
+                    if (mergedLayer.mask) {
+                        CPBlend.multiplyAlphaByMask(mergedLayer.image, mergedLayer.alpha, mergedLayer.mask);
+                    } else {
+                        CPBlend.multiplyAlphaBy(mergedLayer.image, mergedLayer.alpha);
+                    }
             
-            let blended = blendTree.blendTree();
-    
-            // 合成結果を mergedLayer のプロパティに設定する
-            mergedLayer.name = underLayer.name;//下のレイヤーの名前が残る
-            mergedLayer.image = blended.image;
+                    CPBlend.fuseImageOntoImage(mergedLayer.image, true, topLayer.image, topLayer.alpha, topLayer.blendMode, topLayer.getBounds(), topLayer.mask);
+                }
+            
+            } else {
+                // 上下のレイヤーを含むレイヤーグループを一時的に作成
+                const tempGroup = new CPLayerGroup();
+                tempGroup.layers = [underLayer, topLayer];
+                tempGroup.parent = null; // No parent for this temporary group
+                tempGroup.name = "Temporary Group";
+        
+                // ブレンドツリーを作成してビルド
+                let blendTree = new CPBlendTree(tempGroup, that.width, that.height, false);
+                blendTree.buildTree();
+        
+                let blended = blendTree.blendTree();
+                // `mergedLayer` の合成結果を設定
+                mergedLayer.image = blended.image;
+            }
+        
+            // 合成結果を `mergedLayer` のプロパティに設定する
+            mergedLayer.name = underLayer.name; // 下のレイヤーの名前が残る
             mergedLayer.alpha = 100;
-            mergedLayer.blendMode = underLayer.blendMode; // 下のレイヤーの合成方法を使用            
-            mergedLayer.mask = null; // Clear any mask after merging
-
+            mergedLayer.blendMode = underLayer.blendMode; // 下のレイヤーの合成方法を使用
+            mergedLayer.mask = null; // マスクをクリア
+        
             let underIndex = group.indexOf(underLayer);
             // 上下のレイヤーを結合されたレイヤーに置き換える
             group.removeLayerAtIndex(underIndex);
             group.removeLayerAtIndex(underIndex);
             // 下のレイヤーの位置に結合したレイヤーを挿入する
             group.insertLayer(underIndex, mergedLayer);
-    
+        
             artworkStructureChanged();
             that.setActiveLayer(mergedLayer, false);
         };
-
+        
         this.getMemoryUsed = function(undone, param) {
             return undone ? 0 : topLayer.getMemoryUsed() + mergedLayer.getMemoryUsed();
         };
