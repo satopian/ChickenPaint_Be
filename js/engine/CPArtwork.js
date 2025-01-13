@@ -2276,7 +2276,8 @@ export default function CPArtwork(_width, _height) {
         };
 
         this.redo = function() {
-            if (underLayer.clip) {
+            // 上のレイヤーがクリッピングされていない時と、下のレイヤーがクリッピングされている時には、クリッピング処理は必要ない。
+            if (underLayer.clip || !topLayer.clip) {
                 // `underLayer` を `mergedLayer` にコピー
                 mergedLayer.copyFrom(underLayer);
                 if (topLayer.getEffectiveAlpha() > 0) {
@@ -2291,6 +2292,7 @@ export default function CPArtwork(_width, _height) {
                 }
             
             } else {
+                // 下のレイヤーと結合する時にクリッピング処理が必要
                 // 上下のレイヤーを含むレイヤーグループを一時的に作成
                 const tempGroup = new CPLayerGroup();
                 tempGroup.layers = [underLayer, topLayer];
