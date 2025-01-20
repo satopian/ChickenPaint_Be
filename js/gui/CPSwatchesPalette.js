@@ -141,8 +141,7 @@ export default function CPSwatchesPalette(controller) {
         let colors = new Array(swatches.length);
 
         for (let i = 0; i < swatches.length; i++) {
-            colors[i] = parseInt(swatches.get(i).getAttribute("data-color"), 10);
-        }
+            colors[i] = parseInt(swatches[i].getAttribute("data-color"), 10);        }
 
         return colors;
     };
