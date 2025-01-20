@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import FileSaver from "file-saver";
@@ -89,7 +88,7 @@ export default function CPSwatchesPalette(controller) {
         
         mnuRemove.addEventListener("click", function(e) {
             e.preventDefault();
-            $(wrapper).remove();
+            wrapper.remove();
 
             modified = true;
         });
@@ -138,9 +137,8 @@ export default function CPSwatchesPalette(controller) {
      * Returns an array of colors in RGB 32-bit integer format
      */
     this.getSwatches = function() {
-        let
-            swatches = $(".chickenpaint-color-swatch", swatchPanel),
-            colors = new Array(swatches.length);
+        let swatches = swatchPanel.querySelectorAll(".chickenpaint-color-swatch");
+        let colors = new Array(swatches.length);
 
         for (let i = 0; i < swatches.length; i++) {
             colors[i] = parseInt(swatches.get(i).getAttribute("data-color"), 10);
@@ -237,7 +235,7 @@ export default function CPSwatchesPalette(controller) {
 				return;//<a data-color=で始まらない場合もreturn
 				}
             e.preventDefault();
-			var dropdown = new bootstrap.Dropdown($(swatch)); // Bootstrap 5: ドロップダウンを初期化
+			var dropdown = new bootstrap.Dropdown(swatch); // Bootstrap 5: ドロップダウンを初期化
 			dropdown.toggle();
 
 			// ドロップダウンメニュー内のクリックを検出して、メニューを閉じる

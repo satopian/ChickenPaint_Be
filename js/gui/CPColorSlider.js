@@ -20,8 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
-
 import CPColor from "../util/CPColor.js";
 import CPColorBmp from "../engine/CPColorBmp.js";
 import {setContrastingDrawStyle} from "./CPGUIUtils.js";
@@ -124,7 +122,8 @@ export default class CPColorSlider {
 
     _mousePickColor(e) {
         let
-            y = e.pageY - $(this._canvas).offset().top,
+            rect = this._canvas.getBoundingClientRect(),
+            y = e.pageY - rect.top,
 
             _hue = ~~(y * 360 / HEIGHT);
 

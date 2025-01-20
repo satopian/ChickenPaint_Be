@@ -33,7 +33,6 @@ import CPColorBmp from "../engine/CPColorBmp.js";
 import CPColor from "../util/CPColor.js";
 import {isCanvasInterpolationSupported} from "../util/CPPolyfill.js";
 
-import $ from "jquery";
 import key from "../../lib/keymaster.js";
 
 import {_} from "../languages/lang.js";
@@ -384,15 +383,11 @@ CPBrushPalette.CPBrushPreview = function(controller) {
     }
     
     function handlePointerDrag(e) {
-        let
-            offset = $(canvas).offset(),
-            
-            pt = {x: e.pageX - offset.left, y: e.pageY - offset.top},
-        
-            x = pt.x - $(canvas).width() / 2,
-            y = pt.y - $(canvas).height() / 2,
-
-            newSize = Math.round(Math.sqrt(x * x + y * y) * 2);
+        let rect = canvas.getBoundingClientRect();
+        let pt = {x: e.clientX - rect.left, y: e.clientY - rect.top};        
+        let x = pt.x - canvas.clientWidth / 2;
+        let y = pt.y - canvas.clientHeight / 2;
+        newSize = Math.round(Math.sqrt(x * x + y * y) * 2);
         
         size = Math.max(1, Math.min(200, newSize));
 
