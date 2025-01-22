@@ -31,6 +31,10 @@ Bootstrap5は現行サポートバージョンであるため、あらたな問�
 
 [https://paintbbs.sakura.ne.jp/localPaintBBS/chickenpaint/](https://paintbbs.sakura.ne.jp/localPaintBBS/chickenpaint/)
 
+## ChickenPaint Beを使ったお絵かき掲示板PHPスクリプト
+
+[お絵かき掲示板PHPスクリプトPetit Note](https://github.com/satopian/Petit_Note)
+
 ## 変更点
 
 #### ChickenPaintのダイヤログ、ポップオーバーの日本語未翻訳箇所を翻訳して実装しました
