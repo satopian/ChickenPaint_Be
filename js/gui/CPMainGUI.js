@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import CPCanvas from "./CPCanvas.js";
@@ -175,13 +174,9 @@ export default function CPMainGUI(controller, uiElem) {
 
 	controller.on("fullScreen", fullscreen => this.setFullScreenMode(fullscreen));
     
-    controller.on("toolbarStyleChange", newStyle => {
-       $(uiElem).toggleClass("chickenpaint-toolbar-style-old", newStyle === "old"); 
+    controller.on("unsavedChanges", (unsaved) => {
+        uiElem.classList.toggle("chickenpaint-unsaved", unsaved);
     });
-    
-    controller.on("unsavedChanges", unsaved => {
-        $(uiElem).toggleClass("chickenpaint-unsaved", unsaved);
-    })
     
     setTimeout(this.resize.bind(this), 0);
 }

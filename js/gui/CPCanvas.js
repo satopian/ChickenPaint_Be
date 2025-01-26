@@ -22,7 +22,6 @@
 import {_} from "../languages/lang.js";
 
 import EventEmitter from "wolfy87-eventemitter";
-import $ from "jquery";
 import key from "../../lib/keymaster.js";
 
 import CPRect from "../util/CPRect.js";
@@ -1628,11 +1627,10 @@ export default function CPCanvas(controller) {
 
         this.mouseDrag = function(e) {
             if (this.capture) {
-                var
-                    p = {x: mouseX, y: mouseY},
+                    const p = {x: mouseX, y: mouseY};
 
-                    displayCenter = {x: $(canvas).width() / 2, y: $(canvas).height() / 2},
-                    canvasCenter = {x: canvas.width / 2, y: canvas.height / 2},
+                    const displayCenter = {x: canvas.clientWidth / 2, y: canvas.clientHeight / 2};
+                    const canvasCenter = {x: canvas.width / 2, y: canvas.height / 2};
 
                     deltaAngle = Math.atan2(p.y - displayCenter.y, p.x - displayCenter.x) - Math.atan2(firstClick.y - displayCenter.y, firstClick.x - displayCenter.x),
 
@@ -1808,8 +1806,9 @@ export default function CPCanvas(controller) {
        var
            visibleRect = getRefreshArea(new CPRect(0, 0, artworkCanvas.width, artworkCanvas.height));
 
-       updateScrollBar(horzScroll, visibleRect.left, visibleRect.getWidth(), $(canvas).width(), that.getOffset().x);
-       updateScrollBar(vertScroll, visibleRect.top, visibleRect.getHeight(), $(canvas).height(), that.getOffset().y);
+       updateScrollBar(horzScroll, visibleRect.left, visibleRect.getWidth(), canvas.clientWidth, that.getOffset().x);
+       updateScrollBar(vertScroll, visibleRect.top, visibleRect.getHeight(), canvas.clientHeight, that.getOffset().y);
+
     }
 
     function updateTransform() {
@@ -2050,9 +2049,9 @@ export default function CPCanvas(controller) {
     
     // More advanced zoom methods
     function zoomOnCenter(zoom) {
-        var 
-		width = $(canvas).width(),
-		height = $(canvas).height();
+        
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
 		// 拡大を1.41、縮小を0.7092にした関係で、zoomが浮動小数点になるため、1倍2倍に近い時は値をまるめる
 		const roundedZoom = parseFloat(zoom);
 
@@ -2490,11 +2489,11 @@ export default function CPCanvas(controller) {
      */
     this.resize = function(height, skipCenter) {
         // Leave room for the bottom scrollbar
-        height -= $(canvasContainerBottom).outerHeight();
+        height -= canvasContainerBottom.offsetHeight;
 
-        $(canvas).css('height', height + "px");
-
-        canvas.width = $(canvas).width();
+        canvas.style.height = height + "px";
+        
+        canvas.width = canvas.clientWidth;
         canvas.height = height;
 
         canvasClientRect = null;
@@ -2653,8 +2652,8 @@ export default function CPCanvas(controller) {
      * background https://bugs.chromium.org/p/chromium/issues/detail?id=588434
      */
     document.addEventListener("visibilitychange", function() {
-        var
-            oldHeight = canvas.height + $(canvasContainerBottom).outerHeight();
+        
+        const oldHeight = canvas.height + canvasContainerBottom.offsetHeight;
 
         canvas.width = 1;
         canvas.height = 1;
