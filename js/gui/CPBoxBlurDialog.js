@@ -88,12 +88,12 @@ export default function CPBoxBlurDialog(parent, controller) {
 		});
 		
 		dialog[0].addEventListener('hidden.bs.modal', (e) => {
+			blurAmountElem[0].blur(); // フォーカスを外す
 			dialog[0].remove();
 		});
 
 		dialog[0].addEventListener('shown.bs.modal', (e) => {
 			blurAmountElem[0].focus();
-			// blurAmountElem.trigger('focus');
 		});
 
 		dialog[0].addEventListener("keydown", (e) => {

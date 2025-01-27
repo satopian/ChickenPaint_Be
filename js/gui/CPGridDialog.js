@@ -39,7 +39,7 @@ export default function CPGridDialog(parent, canvas) {
                             <form>
                                 <div class="form-group">
                                     <label>${_("Grid size")}</label>
-                                    <input type="number" class="form-control chickenpaint-grid-size" value="" autofocus>
+                                    <input type="number" class="form-control chickenpaint-grid-size" value="">
                                 </div>
                             </form>
                         </div>
@@ -83,6 +83,7 @@ export default function CPGridDialog(parent, canvas) {
 			var gridSize = parseInt(gridSizeElem.val(), 10);
 			canvas.setGridSize(gridSize);
 			var modal = bootstrap.Modal.getInstance(dialog[0]); // インスタンスを取得
+			gridSizeElem[0].blur(); // フォーカスを外す
 			modal.hide(); // モーダルを手動で閉じる
 		});
 		dialog[0].addEventListener('shown.bs.modal', (e) => {
