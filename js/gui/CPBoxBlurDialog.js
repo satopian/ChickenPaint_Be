@@ -21,13 +21,11 @@
 */
 
 import $ from "jquery";
-import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import {_} from "../languages/lang.js";
+import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { _ } from "../languages/lang.js";
 
 export default function CPBoxBlurDialog(parent, controller) {
-    let
-        dialog = 
-            $(`<div class="modal fade" tabindex="-1" role="dialog">
+    let dialog = $(`<div class="modal fade" tabindex="-1" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -42,68 +40,73 @@ export default function CPBoxBlurDialog(parent, controller) {
                                     <input type="number" class="form-control chickenpaint-blur-amount" value="3" min="1">
                                 </div>
                                 <div class="form-group">
-                                    <label>${_("Iterations (1-8, larger gives smoother blur)")}</label>
+                                    <label>${_(
+                                        "Iterations (1-8, larger gives smoother blur)"
+                                    )}</label>
                                     <input type="number" class="form-control chickenpaint-blur-iterations" value="1" min="1" max="8">
                                 </div>
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_("Cancel")}</button>
-                            <button type="button" class="btn btn-primary chickenpaint-apply-box-blur" data-bs-dismiss="modal">${_("Ok")}</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_(
+                                "Cancel"
+                            )}</button>
+                            <button type="button" class="btn btn-primary chickenpaint-apply-box-blur" data-bs-dismiss="modal">${_(
+                                "Ok"
+                            )}</button>
                         </div>
                     </div>
                 </div>
             </div>
         `),
-        
-		blurAmountElem = $(".chickenpaint-blur-amount", dialog),
-		blurIterationsElem = $(".chickenpaint-blur-iterations", dialog),
-		applyButton = $(".chickenpaint-apply-box-blur", dialog);
-		
-		// Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
-		var modal = new bootstrap.Modal(dialog[0]);
-		this.show = function() {
-			
-			// ハンバガーメニューとモーダルの二重表示防止
-			// chickenpaint-main-menu-contentのIDを持つcollapse要素を閉じる
-			const collapseElement = document.getElementById('chickenpaint-main-menu-content');
-			if (collapseElement && collapseElement.classList.contains('show')) {
-				const bsCollapse = new bootstrap.Collapse(collapseElement, {
-					toggle: false // すでに閉じている場合のエラーを防ぐ
-				});
-				bsCollapse.hide();
-			}
-			//モーダルを表示
-			modal.show();
-		};
-		
-		applyButton[0].addEventListener('click', (e) => {
+        blurAmountElem = $(".chickenpaint-blur-amount", dialog),
+        blurIterationsElem = $(".chickenpaint-blur-iterations", dialog),
+        applyButton = $(".chickenpaint-apply-box-blur", dialog);
 
-			let
-				blur = Math.max(parseInt(blurAmountElem.val(), 10), 1),
-				iterations = Math.min(Math.max(parseInt(blurIterationsElem.val(), 10), 1), 8);
-		
-			controller.getArtwork().boxBlur(blur, blur, iterations);
-			modal.hide();
-		});
-		
-		dialog[0].addEventListener('hidden.bs.modal', (e) => {
-			blurAmountElem[0].blur(); // フォーカスを外す
-            blurIterationsElem[0].blur(); // フォーカスを外す
-			dialog[0].remove();
-		});
+    // Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
+    var modal = new bootstrap.Modal(dialog[0]);
+    this.show = function () {
+        // ハンバガーメニューとモーダルの二重表示防止
+        // chickenpaint-main-menu-contentのIDを持つcollapse要素を閉じる
+        const collapseElement = document.getElementById(
+            "chickenpaint-main-menu-content"
+        );
+        if (collapseElement && collapseElement.classList.contains("show")) {
+            const bsCollapse = new bootstrap.Collapse(collapseElement, {
+                toggle: false, // すでに閉じている場合のエラーを防ぐ
+            });
+            bsCollapse.hide();
+        }
+        //モーダルを表示
+        modal.show();
+    };
 
-		dialog[0].addEventListener('shown.bs.modal', (e) => {
-			blurAmountElem[0].focus();
-		});
+    applyButton[0].addEventListener("click", (e) => {
+        let blur = Math.max(parseInt(blurAmountElem.val(), 10), 1),
+            iterations = Math.min(
+                Math.max(parseInt(blurIterationsElem.val(), 10), 1),
+                8
+            );
 
-		dialog[0].addEventListener("keydown", (e) => {
+        controller.getArtwork().boxBlur(blur, blur, iterations);
+        modal.hide();
+    });
 
-			if (e.key === "Enter" && dialog.hasClass('show')) {
-				// applyButton.trigger('click');
-				applyButton[0].click();
-				e.preventDefault(); // デフォルトのフォーム送信を阻止
-			}
-		});
-		parent.appendChild(dialog[0]);
-	}
+    dialog[0].addEventListener("hidden.bs.modal", (e) => {
+        document.activeElement.blur();// フォーカスを外す
+        dialog[0].remove();
+    });
+
+    dialog[0].addEventListener("shown.bs.modal", (e) => {
+        blurAmountElem[0].focus();
+    });
+
+    dialog[0].addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && dialog.hasClass("show")) {
+            // applyButton.trigger('click');
+            applyButton[0].click();
+            e.preventDefault(); // デフォルトのフォーム送信を阻止
+        }
+    });
+    parent.appendChild(dialog[0]);
+}
