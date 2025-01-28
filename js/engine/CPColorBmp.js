@@ -776,17 +776,23 @@ CPColorBmp.prototype.boxBlur = function(rect, radiusX, radiusY) {
         src = new Uint8Array(rectLength * CPColorBmp.BYTES_PER_PIXEL),
         dst = new Uint8Array(rectLength * CPColorBmp.BYTES_PER_PIXEL);
 
+    // 横方向のぼかし
     for (let y = rect.top; y < rect.bottom; y++) {
         var
             pixOffset = this.offsetOfPixel(rect.left, y);
         
+        // ピクセルデータをコピー
         for (let x = 0; x < rectWidthBytes; x++) {
             src[x] = this.data[pixOffset++];
         }
         
+        // 透明部分を考慮してアルファを掛ける
         multiplyAlpha(src, rectWidth);
+        
+        // ぼかし処理
         boxBlurLine(src, dst, rectWidth, radiusX);
         
+        // 結果を元のデータにコピー
         pixOffset = this.offsetOfPixel(rect.left, y);
         
         for (let x = 0; x < rectWidthBytes; x++) {
@@ -794,10 +800,14 @@ CPColorBmp.prototype.boxBlur = function(rect, radiusX, radiusY) {
         }
     }
     
+    // 縦方向のぼかし
     for (let x = rect.left; x < rect.right; x++) {
         this.copyPixelColumnToArray(x, rect.top, rectHeight, src);
         
+        // 縦方向のぼかし処理
         boxBlurLine(src, dst, rectHeight, radiusY);
+        
+        // 透明部分を分離して再設定
         separateAlpha(dst, rectHeight);
         
         this.copyArrayToPixelColumn(x, rect.top, rectHeight, dst);
