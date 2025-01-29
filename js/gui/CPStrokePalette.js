@@ -20,8 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
-
 import CPPalette from './CPPalette.js';
 import CPBrushInfo from '../engine/CPBrushInfo.js';
 import {_} from "../languages/lang.js";
@@ -79,28 +77,38 @@ export default function CPStrokePalette(cpController) {
             listElem.appendChild(buttonElem);
         }
 
-        $(listElem)
-            .on("click", "li", function(e) {
-                let
-                    button = buttons[parseInt(this.getAttribute("data-buttonIndex"), 10)];
-                
-                $("li", listElem).removeClass("selected");
-                $(this).addClass("selected");
-                
-                cpController.actionPerformed({action: button.command});
-                // that.userIsDoneWithUs();
-				//ボタンクリック時にパレットを折りたたむ機能を削除
+            listElem.addEventListener("click", function(e) {
+                // クリックされた要素が <li> 内の何らかの要素の場合、親の <li> を取得
+                const liElem = e.target.closest("li");
+    
+                // 親が <li> であれば処理を行う
+                if (liElem) {
+                    let buttonIndex = parseInt(liElem.getAttribute("data-buttonIndex"), 10);
+                    let button = buttons[buttonIndex];
+                    // アクションを実行
+                    cpController.actionPerformed({ action: button.command });
+                }
             });
-
+                
         body.appendChild(listElem);
     }
     
     buildButtons();
     
     cpController.on("toolChange", function(tool, toolInfo) {
-        $(".chickenpaint-tool-freehand", body).toggleClass("selected", toolInfo.strokeMode == CPBrushInfo.STROKE_MODE_FREEHAND);
-        $(".chickenpaint-tool-line", body).toggleClass("selected", toolInfo.strokeMode == CPBrushInfo.STROKE_MODE_LINE);
-        $(".chickenpaint-tool-bezier", body).toggleClass("selected", toolInfo.strokeMode == CPBrushInfo.STROKE_MODE_BEZIER);
+        const freehandElem = document.querySelector(".chickenpaint-tool-freehand");
+        const lineElem = document.querySelector(".chickenpaint-tool-line");
+        const bezierElem = document.querySelector(".chickenpaint-tool-bezier");
+        
+        if (freehandElem) {
+            freehandElem.classList.toggle("selected", toolInfo.strokeMode == CPBrushInfo.STROKE_MODE_FREEHAND);
+        }
+        if (lineElem) {
+            lineElem.classList.toggle("selected", toolInfo.strokeMode == CPBrushInfo.STROKE_MODE_LINE);
+        }
+        if (bezierElem) {
+            bezierElem.classList.toggle("selected", toolInfo.strokeMode == CPBrushInfo.STROKE_MODE_BEZIER);
+        }
     });
 }
 

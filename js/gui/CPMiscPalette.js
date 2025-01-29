@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import CPPalette from './CPPalette.js';
 import {_} from "../languages/lang.js";
 
@@ -96,20 +95,20 @@ export default function CPMiscPalette(cpController) {
             listElem.appendChild(buttonElem);
         }
         
-        $(listElem)
-            .on("mousedown", "li", function(e) {
-                $(this).addClass("selected");
-            })
-            .on("mouseup", "li", function(e) {
-                $(this).removeClass("selected");
-            })
-            .on("click", "li", function(e) {
-                let
-                    button = buttons[parseInt(this.getAttribute("data-buttonIndex"), 10)];
+        listElem.addEventListener("click", function(e) {
+            // クリックされた要素が <li> 内の何らかの要素の場合、親の <li> を取得
+            const liElem = e.target.closest("li");
+        
+            // 親が <li> であれば処理を行う
+            if (liElem) {
+                let buttonIndex = parseInt(liElem.getAttribute("data-buttonIndex"), 10);
+                let button = buttons[buttonIndex];
+        
+                // アクションを実行
+                cpController.actionPerformed({ action: button.command });
+            }
+        });
                 
-                cpController.actionPerformed({action: button.command});
-            });
-
         body.appendChild(listElem);
     }
     
