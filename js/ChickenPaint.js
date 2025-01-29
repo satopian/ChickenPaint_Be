@@ -301,8 +301,6 @@ function createDrawingTools() {
  *                                              force - Enter full screen mode at startup and do not provide option to leave
  *                                              disable - Don't allow full screen mode at all
  *
- * @property {boolean} [disableBootstrapAPI] - Disable Bootstrap's data API on the root of the document. This speeds up
- *                                           things considerably.
  *
  * @property {string} resourcesRoot - URL to the directory that contains the gfx/css etc directories (relative to the
  *                                    page that ChickenPaint is loaded on)
@@ -1324,22 +1322,11 @@ export default function ChickenPaint(options) {
     };
     
     function installUnsavedWarning() {
-        if (isEventSupported("onbeforeunload")) {
-            window.addEventListener("beforeunload", function(e) {
-                if (that.artwork.getHasUnsavedChanges()) {
-                    let confirmMessage = "Your drawing has unsaved changes!";
-					e.preventDefault();
-                    return confirmMessage;
-                }
-            });
-        } else {
-            // Fall back to just catching links
-            $("a").on('click',function(e) {
-                if (this.getAttribute("href") != "#" && that.artwork.getHasUnsavedChanges()) {
-                    return confirm("Your drawing has unsaved changes! Are you sure to want to navigate away?");
-                }
-            });
-        }
+        window.addEventListener("beforeunload", function(e) {
+            if (that.artwork.getHasUnsavedChanges()) {
+                e.preventDefault();
+            }
+        });
     }
     
     function startMainGUI(swatches, initialRotation90) {
@@ -1402,10 +1389,6 @@ export default function ChickenPaint(options) {
 
     options.resourcesRoot = options.resourcesRoot || "chickenpaint/";
 
-    if (options.disableBootstrapAPI) {
-        $(document).off('.data-api');
-    }
-    
     this.setSmallScreenMode(isSmallScreen());
     
     switch (options.fullScreenMode) {
