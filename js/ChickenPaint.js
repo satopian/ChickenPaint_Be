@@ -29,8 +29,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
-
 import CPBrushInfo from "./engine/CPBrushInfo.js";
 import CPArtwork from "./engine/CPArtwork.js";
 import CPResourceLoader from "./engine/CPResourceLoader.js";
@@ -1280,7 +1278,7 @@ export default function ChickenPaint(options) {
         if (smallScreenMode !== small) {
             smallScreenMode = small;
 
-            $(uiElem).toggleClass("chickenpaint-small-screen", smallScreenMode);
+            uiElem.classList.toggle("chickenpaint-small-screen", smallScreenMode);
             that.emitEvent("smallScreen", [smallScreenMode]);
         }
     };
@@ -1293,13 +1291,18 @@ export default function ChickenPaint(options) {
         if (isFullScreen !== newVal) {
             isFullScreen = newVal;
 
-            $("body").toggleClass("chickenpaint-full-screen", isFullScreen);
-            $(uiElem).toggleClass("chickenpaint-full-screen", isFullScreen);
-
-            if (isFullScreen && $("head meta[name=viewport]").length === 0) {
+            document.body.classList.toggle("chickenpaint-full-screen", isFullScreen);
+            uiElem.classList.toggle("chickenpaint-full-screen", isFullScreen);
+            
+            const viewportMetaTags = document.querySelectorAll('head meta[name="viewport"]');
+            const count = viewportMetaTags.length;
+            if (isFullScreen && count === 0) {
                 // Reset page zoom to zero if the host page didn't already set a viewport
-                $("head").append('<meta name="viewport" content="width=device-width,user-scalable=no">');
-                
+                const metaTag = document.createElement("meta");
+                metaTag.name = "viewport";
+                metaTag.content = "width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,,user-scalable=no";
+                document.head.appendChild(metaTag);
+                                
                 // Give the browser time to adjust the viewport before we adapt to the new size
                 setTimeout(() => that.emitEvent("fullScreen", [isFullScreen]), 200);
             } else {
