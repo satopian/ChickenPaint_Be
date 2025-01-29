@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import key from "../../lib/keymaster.js";
 
 import CPPalette from './CPPalette.js';
@@ -230,44 +229,71 @@ export default function CPToolPalette(cpController) {
             })(i);
         }
         
-        $(listElem)
-            .on("click", "li", buttonClicked)
-            .on("dblclick", "li", function(e) {
-                let
-                    button = buttons[parseInt(this.getAttribute("data-buttonIndex"), 10)];
+        listElem.addEventListener("click", function(e) {
+            const liElem = e.target.closest("li"); // クリックされた要素が li の場合、それを取得
+        
+            if (liElem) {
+                buttonClicked.call(liElem, e); // クリックされた li 要素を引数に渡す
+            }
+        });
+        listElem.addEventListener("dblclick", function(e) {
+            const liElem = e.target.closest("li");
+        
+            if (liElem) {
+                let buttonIndex = parseInt(liElem.getAttribute("data-buttonIndex"), 10);
+                let button = buttons[buttonIndex];
                 
+                // クリックされた時に処理を実行
                 if (button.commandDoubleClick) {
-                    cpController.actionPerformed({action: button.commandDoubleClick});
+                cpController.actionPerformed({ action: button.commandDoubleClick });
                 }
-            });
-
+            }
+        });
+        
         body.appendChild(listElem);
     }
 
     cpController.on("modeChange", function(newMode) {
-        let
-            body = that.getBodyElement();
-
-        $("li", body).removeClass("selected");
+        let body = that.getBodyElement();
         
+        // 'selected' クラスを全ての <li> から削除
+        const liElems = body.querySelectorAll("li");
+        liElems.forEach(function(liElem) {
+            liElem.classList.remove("selected");
+        });
+        
+        // モードに応じて 'selected' クラスを追加
         if (newMode == ChickenPaint.M_DRAW) {
-            $("li[data-tool=" + cpController.getCurTool() + "]", body).addClass("selected");
+            const toolElem = body.querySelector(`li[data-tool="${cpController.getCurTool()}"]`);
+            if (toolElem) {
+                toolElem.classList.add("selected");
+            }
         } else {
-            $("li[data-mode=" + newMode + "]", body).addClass("selected");
-        }
-    });
-
-    cpController.on("toolChange", function(newTool) {
-        let
-            body = that.getBodyElement();
-
-        if (cpController.getCurMode() == ChickenPaint.M_DRAW) {
-            $("li", body).removeClass("selected");
-
-            $("li[data-tool=" + newTool + "]", body).addClass("selected");
+            const modeElem = body.querySelector(`li[data-mode="${newMode}"]`);
+            if (modeElem) {
+                modeElem.classList.add("selected");
+            }
         }
     });
     
+    cpController.on("toolChange", function(newTool) {
+        let body = that.getBodyElement();
+    
+        if (cpController.getCurMode() == ChickenPaint.M_DRAW) {
+            // 'selected' クラスを全ての <li> から削除
+            const liElems = body.querySelectorAll("li");
+            liElems.forEach(function(liElem) {
+                liElem.classList.remove("selected");
+            });
+    
+            // 新しいツールに対応する <li> に 'selected' クラスを追加
+            const toolElem = body.querySelector(`li[data-tool="${newTool}"]`);
+            if (toolElem) {
+                toolElem.classList.add("selected");
+            }
+        }
+    });
+        
     buildButtons();
 }
 
