@@ -96,10 +96,11 @@ export default function CPPaletteManager(cpController) {
     };
 
     this.togglePalettes = function () {
-        if (hiddenFrames.length == 0) {
-            let palettes = parentElem.querySelectorAll(
-                "> .chickenpaint-palette"
-            );
+        if (hiddenFrames.length === 0) {
+
+            let palettes = parentElem.children; // 直接の子要素すべてを取得
+            palettes = Array.from(palettes).filter(el => el.matches(".chickenpaint-palette"));
+
             palettes.forEach(function (palette) {
                 that.showPaletteByName(
                     palette.getAttribute("data-paletteName"),
