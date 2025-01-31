@@ -105,17 +105,19 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                 .css("width", progress + "%");
         });
 
-        resourceSaver.on("savingComplete", function() {
-            $(".modal-content[data-stage='saving']", dialog).hide();
-
+        resourceSaver.on("savingComplete", function () {
+            let dialogElement = dialog[0];
+        
+            dialogElement.querySelector(".modal-content[data-stage='saving']").style.display = "none";
+        
             if (controller.isActionSupported("CPContinue")) {
                 if (controller.isActionSupported("CPExit")) {
-                    $(".modal-content[data-stage='success-not-previously-posted']", dialog).show();
+                    dialogElement.querySelector(".modal-content[data-stage='success-not-previously-posted']").style.display = "block";
                 } else {
-                    $(".modal-content[data-stage='success-already-posted']", dialog).show();
+                    dialogElement.querySelector(".modal-content[data-stage='success-already-posted']").style.display = "block";
                 }
             } else {
-                $(".modal-content[data-stage='success-redirect']", dialog).show();
+                dialogElement.querySelector(".modal-content[data-stage='success-redirect']").style.display = "block";
             }
         });
 
@@ -140,23 +142,24 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
             }
         });
 
-        $(".chickenpaint-post-drawing", dialog).on('click',function() {
-            controller.actionPerformed({action: "CPPost"});
+        dialog[0].querySelector(".chickenpaint-post-drawing").addEventListener("click", function() {
+            controller.actionPerformed({ action: "CPPost" });
         });
-
-        $(".chickenpaint-exit", dialog)
-            .toggle(controller.isActionSupported("CPExit"))
-            .on('click',function() {
+        let exitButton = dialog[0].querySelector(".chickenpaint-exit");
+        if (exitButton) {
+            exitButton.style.display = controller.isActionSupported("CPExit") ? "" : "none";
+            exitButton.addEventListener("click", function() {
                 alert("When you want to come back and finish your drawing, just click the 'new drawing' button again and "
                     + "you can choose to continue this drawing.");
-                controller.actionPerformed({action: "CPExit"});
+                controller.actionPerformed({ action: "CPExit" });
             });
+        }
 
-        $(".chickenpaint-send-cancel", dialog).on('click', function () {
+        dialog[0].querySelector(".chickenpaint-send-cancel").addEventListener("click", function () {
             resourceSaver.cancel();
-            // dialog.modal('hide');
+            // dialog[0].classList.remove('show'); // Bootstrapの.modal('hide') 相当
         });
-
+        
         // Destroy the modal upon close
         dialog[0].addEventListener('hidden.bs.modal', (e) => {
         dialog.remove();

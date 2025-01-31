@@ -139,8 +139,8 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode, defaul
 
     function mouseSelect(e) {
 
-        let width = canvas.clientWidth; // jQueryの $(canvas).width() に相当
-        let left = canvas.getBoundingClientRect().left + window.scrollX; // jQueryの $(canvas).offset().left に相当
+        let width = canvas.clientWidth; 
+        let left = canvas.getBoundingClientRect().left + window.scrollX; 
             proportion = (e.pageX - left) / width;
 
         if (expMode) {
