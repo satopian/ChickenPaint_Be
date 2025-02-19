@@ -560,7 +560,7 @@ export default function CPMainMenu(controller, mainGUI) {
                 let entryElem;
     
                 if (entry.name == '-') {
-                    entryElem = $('<hr class="dropdown-divider"></hr>');
+                    entryElem = $('<hr class="dropdown-divider">');
                 } else {
                     entryElem = $(
                         '<a class="dropdown-item" href="#" data-action="' + entry.action + '"><span>' + _(entry.name) + '</span></a>'
@@ -645,10 +645,6 @@ export default function CPMainMenu(controller, mainGUI) {
         e.preventDefault();
     });
     
-    // Since we don't use the data-api
-    $(".navbar-toggler", bar).on('click', e => {//ハンバーガーメニューをクリックした時
-        e.preventDefault();
-    });
                         
     function onPaletteVisChange(paletteName, show) {
         // Toggle the tickbox of the corresponding menu entry to match the new palette visibility
@@ -663,7 +659,6 @@ export default function CPMainMenu(controller, mainGUI) {
     // 古いアイコンは使わない。
     let 
         fullScreenToggle = $(".dropdown-item[data-action=CPFullScreen]", bar);
-        // toolbarStyleToggle = $(".dropdown-item[data-action=CPToolbarStyle]", bar);
     
     controller.on("fullScreen", isFullscreen => fullScreenToggle.toggleClass("selected", isFullscreen));
     fullScreenToggle.toggleClass("selected", controller.isFullScreen());

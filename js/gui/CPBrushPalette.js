@@ -398,8 +398,8 @@ CPBrushPalette.CPBrushPreview = function(controller) {
     function handlePointerUp(e) {
         if (mouseCaptured) {
             mouseCaptured = false;
-            document.removeEventListener('pointerup', handlePointerUp);
-            document.removeEventListener('pointermove', handlePointerDrag);
+            document.removeEventListener('pointerup', handlePointerUp, { passive: true, capture: false });
+            document.removeEventListener('pointermove', handlePointerDrag, { passive: true, capture: false });
         }
     }
     
@@ -407,8 +407,8 @@ CPBrushPalette.CPBrushPreview = function(controller) {
         if (!mouseCaptured) {
             mouseCaptured = true;
             
-            document.addEventListener('pointerup', handlePointerUp);
-            document.addEventListener('pointermove', handlePointerDrag);
+            document.addEventListener('pointerup', handlePointerUp, { passive: true, capture: false });
+            document.addEventListener('pointermove', handlePointerDrag, { passive: true, capture: false });
             
             handlePointerDrag(e);
         }
