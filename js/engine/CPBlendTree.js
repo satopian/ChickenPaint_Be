@@ -30,8 +30,8 @@ import CPRect from "../util/CPRect.js";
 
 /**
  *
- * @param {int} width
- * @param {int} height
+ * @param {number} width
+ * @param {number} height
  * @param {(CPLayer|CPLayerGroup)} layer
  * @constructor
  */
@@ -107,8 +107,8 @@ CPBlendNode.prototype.addChildren = function(children) {
  * scheme to blend all the layers together.
  *
  * @param {CPLayerGroup} drawingRootGroup - The root of the layer stack.
- * @param {int} width - Dimension of layers and final merge result.
- * @param {int} height
+ * @param {number} width - Dimension of layers and final merge result.
+ * @param {number} height
  * @param {boolean} requireSimpleFusion - Set to true if the result must have alpha 100 and no mask.
  *
  * @constructor
@@ -415,7 +415,7 @@ export default function CPBlendTree(drawingRootGroup, width, height, requireSimp
 	 *
 	 * @param {CPColorBmp} dest
 	 * @param {CPColorBmp} source
-	 * @param {int} sourceAlpha
+	 * @param {number} sourceAlpha
 	 * @param {CPRect} rect
 	 * @param {?CPGreyBmp} mask
 	 */

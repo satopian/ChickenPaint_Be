@@ -168,8 +168,8 @@ CPColorBmp.prototype.setRectXOR = function(buffer, rect) {
  * Copy the rectangle at srcRect from bmp onto this image at (dstX, dstY).
  *
  * @param {CPColorBmp} bmp
- * @param {int} dstX
- * @param {int} dstY
+ * @param {number} dstX
+ * @param {number} dstY
  * @param {CPRect} srcRect
  */ 
 CPColorBmp.prototype.copyBitmapRect = function(bmp, dstX, dstY, srcRect) {
@@ -625,7 +625,7 @@ CPColorBmp.prototype.floodFill = function(x, y, color) {
  * Premultiply the RGB channels in the given R,G,B,A channel buffer with the alpha channel.
  * 
  * @param {Uint8Array} buffer - buffer R,G,B,A channel array
- * @param {int} len - Number of pixels in buffer to modify
+ * @param {number} len - Number of pixels in buffer to modify
  */
 function multiplyAlpha(buffer, len) {
     var
@@ -674,8 +674,8 @@ function separateAlpha(buffer, len) {
  *
  * @param {Uint8Array} src
  * @param {Uint8Array} dst
- * @param {int} len
- * @param {int} radius - Number of pixels that will be averaged either side of a target pixel.
+ * @param {number} len
+ * @param {number} radius - Number of pixels that will be averaged either side of a target pixel.
  */
 function boxBlurLine(src, dst, len, radius) {
     var
@@ -721,9 +721,9 @@ function boxBlurLine(src, dst, len, radius) {
 /**
  * Copy a column of pixels in the bitmap to the given R,G,B,A buffer.
  * 
- * @param {int} x X-coordinate of column
- * @param {int} y Y-coordinate of top of column to copy
- * @param {int} len Number of pixels to copy
+ * @param {number} x X-coordinate of column
+ * @param {number} y Y-coordinate of top of column to copy
+ * @param {number} len Number of pixels to copy
  * @param {Uint8Array} buffer R,G,B,A array
  */
 CPColorBmp.prototype.copyPixelColumnToArray = function(x, y, len, buffer) {
@@ -744,9 +744,9 @@ CPColorBmp.prototype.copyPixelColumnToArray = function(x, y, len, buffer) {
 /**
  * Copy the pixels from the given R,G,B,A buffer to a column of pixels in the bitmap.
  * 
- * @param {int} x X-coordinate of column
- * @param {int} y Y-coordinate of top of column to copy
- * @param {int} len Number of pixels to copy
+ * @param {number} x X-coordinate of column
+ * @param {number} y Y-coordinate of top of column to copy
+ * @param {number} len Number of pixels to copy
  * @param {Uint8Array} buffer R,G,B,A array to copy from
  */
 CPColorBmp.prototype.copyArrayToPixelColumn = function(x, y, len, buffer) {
@@ -860,7 +860,7 @@ CPColorBmp.prototype.clearAll = function(color) {
 /**
  *
  * @param {CPRect} rect
- * @param {int} color
+ * @param {number} color
  */
 CPColorBmp.prototype.clearRect = function(rect, color) {
     rect = this.getBounds().clipTo(rect);
@@ -1259,10 +1259,10 @@ CPColorBmp.prototype.gradientAlpha = function(rect, fromX, fromY, toX, toY, grad
  *
  * @param {CPRect} rect
  * @param {Object[]} gradientPoints Array with gradient colors (ARGB integers)
- * @param {int} fromX
- * @param {int} fromY
- * @param {int} toX
- * @param {int} toY
+ * @param {number} fromX
+ * @param {number} fromY
+ * @param {number} toX
+ * @param {number} toY
  * @param {boolean} replace - True if the contents of the destination should be ignored (opaque blend)
  */
 CPColorBmp.prototype.gradient = function(rect, fromX, fromY, toX, toY, gradientPoints, replace) {
@@ -1469,7 +1469,7 @@ CPColorBmp.prototype.getNonTransparentBounds = function(initialBounds) {
  * Returns a new canvas with a rotated version of the given canvas.
  *
  * @param {HTMLCanvasElement} canvas
- * @param {int} rotation - [0..3], selects a multiple of 90 degrees of clockwise rotation to be applied.
+ * @param {number} rotation - [0..3], selects a multiple of 90 degrees of clockwise rotation to be applied.
  */
 export function getRotatedCanvas(canvas, rotation) {
     rotation = rotation % 4;

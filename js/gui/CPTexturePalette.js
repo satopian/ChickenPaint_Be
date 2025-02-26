@@ -260,7 +260,7 @@ export default function CPTexturePalette(controller) {
     /**
      * Make a texture consisting of random noise with adjusted brightness and contrast
      * 
-     * @param {int} size - The width and height of the square texture (e.g., 32 for a 32x32 texture)
+     * @param {number} size - The width and height of the square texture (e.g., 32 for a 32x32 texture)
      * @param {float} brightnessFactor - A multiplier for brightness (0.0 to 1.0)
      * @param {float} contrastFactor - A multiplier for contrast (0.0 to 1.0)
      * 
@@ -467,8 +467,8 @@ export default function CPTexturePalette(controller) {
 	/**
      *
      * @param {CPGreyBmp} texture
-     * @param {int} width
-     * @param {int} height
+     * @param {number} width
+     * @param {number} height
      * @constructor
      */
     function CPTextureSwatch(texture, width, height) {

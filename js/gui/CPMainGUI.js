@@ -70,7 +70,7 @@ export default function CPMainGUI(controller, uiElem) {
 
     /**
      *
-     * @param {int} rotation - in 90 degree increments
+     * @param {number} rotation - in 90 degree increments
      */
     this.setRotation90 = function(rotation) {
         canvas.setRotation(rotation * Math.PI / 2);

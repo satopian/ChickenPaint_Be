@@ -27,8 +27,8 @@ import CPRect from "../util/CPRect.js";
 /**
  * Note layer image data is not cleared to any specific values upon creation, use layer.image.clearAll().
  *
- * @param {int} width - Width of the bitmap, or zero to start the bitmap out empty (if you're planning to call copyFrom())
- * @param {int} height
+ * @param {number} width - Width of the bitmap, or zero to start the bitmap out empty (if you're planning to call copyFrom())
+ * @param {number} height
  * @param {String} name
  *
  * @constructor

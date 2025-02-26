@@ -62,8 +62,8 @@ CPBlend.blendFunctionNameForParameters = function(fusionHasTransparency, imageAl
  * @param {CPColorBmp} fusion - Image to fuse on top of
  * @param {boolean} fusionHasTransparency - True if the fusion layer has alpha < 100, or any transparent pixels.
  * @param {CPColorBmp} image - Image that should be drawn on top of the fusion
- * @param {int} imageAlpha - Alpha [0...100] to apply to the image
- * @param {int} imageBlendMode - Blending mode (CPBlend.LM_*) to apply to the image
+ * @param {number} imageAlpha - Alpha [0...100] to apply to the image
+ * @param {number} imageBlendMode - Blending mode (CPBlend.LM_*) to apply to the image
  * @param {CPRect} rect - The rectangle of pixels that should be fused.
  * @param {?CPGreyBmp} mask - An optional mask to apply to the image
  */
@@ -94,7 +94,7 @@ CPBlend.normalFuseImageOntoImageAtPosition = function(fusion, image, destX, dest
  * Multiplies the given alpha into the alpha of the individual pixels of the image.
  *
  * @param {CPColorBmp} image
- * @param {int} alpha - [0...100] alpha to apply
+ * @param {number} alpha - [0...100] alpha to apply
  */
 CPBlend.multiplyAlphaBy = function (image, alpha) {
 	if (alpha < 100) {
@@ -133,7 +133,7 @@ CPBlend.multiplyAlphaByMask = function(image, alpha, mask) {
  *
  * @param {CPColorBmp} dest
  * @param {CPColorBmp} image
- * @param {int} alpha - [0...100] alpha to apply
+ * @param {number} alpha - [0...100] alpha to apply
  * @param {CPRect} rect
  */
 CPBlend.copyAndMultiplyAlphaBy = function (dest, image, alpha, rect) {

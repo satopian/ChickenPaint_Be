@@ -26,7 +26,7 @@ import CPRect from "../util/CPRect.js";
 /**
  *
  * @param {string} name
- * @param {int} blendMode
+ * @param {number} blendMode
  * @constructor
  */
 export default function CPLayerGroup(name, blendMode) {

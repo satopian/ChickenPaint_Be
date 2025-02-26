@@ -2484,7 +2484,7 @@ export default function CPCanvas(controller) {
     /**
      * Resize the canvas area to the given height (in pixels)
      *
-     * @param {int} height New canvas area height in CSS pixels
+     * @param {number} height New canvas area height in CSS pixels
      * @param {boolean} skipCenter True if the canvas should not be re-centered
      */
     this.resize = function(height, skipCenter) {

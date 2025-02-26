@@ -114,8 +114,8 @@ const
 class ChibiLayerDecoder {
     /**
      * @param {ChibiChunkHeader} chunkHeader - The header for the layer chunk to decode
-     * @param {int} width - The width of the document
-     * @param {int} height - The height of the document
+     * @param {number} width - The width of the document
+     * @param {number} height - The height of the document
      */
     constructor(chunkHeader, width, height) {
         this.chunkHeader = chunkHeader;
@@ -518,8 +518,8 @@ class CPMaskDecoder {
 /**
  * Make a 32-bit Chibi file-version value for storing in the file header.
  *
- * @param {int} major
- * @param {int} minor
+ * @param {number} major
+ * @param {number} minor
  * @returns {int}
  */
 function makeChibiVersion(major, minor) {
@@ -572,7 +572,7 @@ function writeChunkHeader(stream, tag, chunkSize) {
  * points to the body of the chunk (with the chunk header already written).
  *
  * @param {string} chunkTag
- * @param {int} chunkBodySize
+ * @param {number} chunkBodySize
  * @returns {ArrayDataStream}
  */
 function allocateChunkStream(chunkTag, chunkBodySize) {
@@ -587,8 +587,8 @@ function allocateChunkStream(chunkTag, chunkBodySize) {
 
 /**
  * @param {CPArtwork} artwork
- * @param {int} version
- * @param {int} numLayers
+ * @param {number} version
+ * @param {number} numLayers
  *
  * @returns Uint8Array
  */

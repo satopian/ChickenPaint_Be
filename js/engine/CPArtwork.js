@@ -94,8 +94,8 @@ function memoryUsedByCanvas(canvas) {
  * Note that an artwork with no layers is invalid, so you must call a routine like addBackgroundLayer(), addLayer(), or
  * addLayerObject() before calling any other routines.
  *
- * @param {int} _width
- * @param {int} _height
+ * @param {number} _width
+ * @param {number} _height
  * @constructor
  */
 export default function CPArtwork(_width, _height) {
@@ -569,7 +569,7 @@ export default function CPArtwork(_width, _height) {
      *
      * @param {CPLayerGroup} parent
      * @param {CPLayerGroup} group
-     * @param {int} numChildren - Number of layers from the parent group to wrap
+     * @param {number} numChildren - Number of layers from the parent group to wrap
      */
     this.addLayerGroupObject = function(parent, group, numChildren) {
         let
@@ -654,7 +654,7 @@ export default function CPArtwork(_width, _height) {
      * 
      * @param {(CPImageLayer|CPLayerGroup)} layer
      * @param {CPLayerGroup} toGroup
-     * @param {int} toIndex
+     * @param {number} toIndex
      */
     this.relocateLayer = function(layer, toGroup, toIndex) {
         if (layer && toGroup && layer != toGroup && !toGroup.hasAncestor(layer)) {
@@ -1283,8 +1283,8 @@ export default function CPArtwork(_width, _height) {
 	/**
      * Sample the color at the given coordinates.
      *
-     * @param {int} x
-     * @param {int} y
+     * @param {number} x
+     * @param {number} y
      * @returns {int}
      */
     this.colorPicker = function(x, y) {
@@ -1309,8 +1309,8 @@ export default function CPArtwork(_width, _height) {
 	/**
      * Flood fill the current layer using the current color at the given coordinates.
      *
-	 * @param {int} x
-	 * @param {int} y
+	 * @param {number} x
+	 * @param {number} y
 	 */
 	this.floodFill = function(x, y) {
         let
@@ -1350,7 +1350,7 @@ export default function CPArtwork(_width, _height) {
 	/**
      * Replace the pixels in the selection rectangle with the specified color.
      *
-     * @param {int} color - ARGB color to fill with
+     * @param {number} color - ARGB color to fill with
      */
     this.fill = function(color) {
         let
@@ -1497,9 +1497,9 @@ export default function CPArtwork(_width, _height) {
 	
 	/**
      *
-	 * @param {int} radiusX
-	 * @param {int} radiusY
-	 * @param {int} iterations
+	 * @param {number} radiusX
+	 * @param {number} radiusY
+	 * @param {number} iterations
 	 */
 	this.boxBlur = function(radiusX, radiusY, iterations) {
         let
@@ -1546,8 +1546,8 @@ export default function CPArtwork(_width, _height) {
     /**
      * Move the currently selected layer by the given offset.
      *
-     * @param {int} offsetX
-     * @param {int} offsetY
+     * @param {number} offsetX
+     * @param {number} offsetY
      * @param {boolean} copy - Make a copy of the selection instead of moving it.
      */
     this.move = function(offsetX, offsetY, copy) {
@@ -1743,7 +1743,7 @@ export default function CPArtwork(_width, _height) {
     };
 	
 	/**
-     * @param {int} color - RGB color
+     * @param {number} color - RGB color
      */
     this.setForegroundColor = function(color) {
         curColor = color;
@@ -2031,7 +2031,7 @@ export default function CPArtwork(_width, _height) {
      * Upon creation, adds a layer at the given index in the given layer group.
      *
      * @param {CPLayerGroup} parentGroup
-     * @param {int} newLayerIndex
+     * @param {number} newLayerIndex
      * @param {CPLayer} newLayer
      *
      * @constructor
@@ -2380,7 +2380,7 @@ export default function CPArtwork(_width, _height) {
      *
      * @param {CPLayer} layer
      * @param {CPLayerGroup} toGroup - The group that the layer will be a child of after moving
-     * @param {int} toIndex - The index of the layer inside the destination group that the layer will be below after the
+     * @param {number} toIndex - The index of the layer inside the destination group that the layer will be below after the
      *                        move.
      * @constructor
      */
@@ -3169,8 +3169,8 @@ export default function CPArtwork(_width, _height) {
      * Upon creation, moves the currently selected region of the current layer by the given offset
      *
      * @param {?CPRect} srcRect - Rectangle that will be moved, or an empty rectangle to move whole layer.
-     * @param {int} offsetX
-     * @param {int} offsetY
+     * @param {number} offsetX
+     * @param {number} offsetY
      * @param {boolean} copy - True if we should copy to the destination instead of move.
      * @constructor
      */
@@ -3273,8 +3273,8 @@ export default function CPArtwork(_width, _height) {
         /**
          * Move further by the given offset on top of the current offset.
          *
-         * @param {int} offsetX
-         * @param {int} offsetY
+         * @param {number} offsetX
+         * @param {number} offsetY
          */
         amend(offsetX, offsetY) {
             if (!this.hasFullUndo) {

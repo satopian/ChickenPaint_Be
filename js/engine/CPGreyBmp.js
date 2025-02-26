@@ -28,9 +28,9 @@ import {getRotatedCanvas} from "./CPColorBmp.js";
 /**
  * Create a new greyscale bitmap with the given parameters. The bitmap will be filled with black upon creation.
  *
- * @param {int} width
- * @param {int} height
- * @param {int} bitDepth - Bits per channel
+ * @param {number} width
+ * @param {number} height
+ * @param {number} bitDepth - Bits per channel
  *
  * @constructor
  * @extends CPBitmap
@@ -104,7 +104,7 @@ CPGreyBmp.prototype.clearAll = function(value) {
  * Fill the given rectangle with the given value
  *
  * @param {CPRect} rect
- * @param {int} value
+ * @param {number} value
  */
 CPGreyBmp.prototype.clearRect = function(rect, value) {
     rect = this.getBounds().clipTo(rect);
@@ -150,9 +150,9 @@ CPGreyBmp.prototype.copyScaledNearestNeighbor = function(that) {
 
 /**
  * Flood fill the given color starting from the given point
- * @param {int} x
- * @param {int} y
- * @param {int} color
+ * @param {number} x
+ * @param {number} y
+ * @param {number} color
  */
 CPGreyBmp.prototype.floodFill = function(x, y, color) {
     if (!this.isInside(x, y)) {
@@ -344,10 +344,10 @@ CPGreyBmp.prototype.getAsCanvas = function(imageRotation) {
 /**
  * Get the image data within the given rectangle as an opaque RGBA ImageData object.
  *
- * @param {int} x
- * @param {int} y
- * @param {int} width
- * @param {int} height
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
  *
  * @returns {ImageData}
  */
@@ -376,8 +376,8 @@ CPGreyBmp.prototype.getImageData = function(x, y, width, height) {
  * Replace the pixels at the given coordinates with the red channel from the given image data.
  *
  * @param {ImageData} imageData
- * @param {int} x
- * @param {int} y
+ * @param {number} x
+ * @param {number} y
  */
 CPGreyBmp.prototype.pasteImageData = function(imageData, x, y) {
     let
@@ -470,8 +470,8 @@ CPGreyBmp.prototype.setRectXOR = function(buffer, rect) {
  * Copy the rectangle at srcRect from bmp onto this image at (dstX, dstY).
  *
  * @param {CPGreyBmp} bmp
- * @param {int} dstX
- * @param {int} dstY
+ * @param {number} dstX
+ * @param {number} dstY
  * @param {CPRect} srcRect
  */
 CPGreyBmp.prototype.copyBitmapRect = function(bmp, dstX, dstY, srcRect) {
@@ -549,8 +549,8 @@ CPGreyBmp.prototype.copyRegionVFlip = function(rect, source) {
  *
  * @param {Uint8Array} src
  * @param {Uint8Array} dst
- * @param {int} len
- * @param {int} radius - Number of pixels that will be averaged either side of a target pixel.
+ * @param {number} len
+ * @param {number} radius - Number of pixels that will be averaged either side of a target pixel.
  */
 function boxBlurLine(src, dst, len, radius) {
     var
@@ -583,9 +583,9 @@ function boxBlurLine(src, dst, len, radius) {
 /**
  * Copy a column of pixels in the bitmap to the given R,G,B,A buffer.
  *
- * @param {int} x X-coordinate of column
- * @param {int} y Y-coordinate of top of column to copy
- * @param {int} len Number of pixels to copy
+ * @param {number} x X-coordinate of column
+ * @param {number} y Y-coordinate of top of column to copy
+ * @param {number} len Number of pixels to copy
  * @param {TypedArray} buffer Pixel array
  */
 CPGreyBmp.prototype.copyPixelColumnToArray = function(x, y, len, buffer) {
@@ -605,9 +605,9 @@ CPGreyBmp.prototype.copyPixelColumnToArray = function(x, y, len, buffer) {
 /**
  * Copy the pixels from the buffer to a column of pixels in the bitmap.
  *
- * @param {int} x X-coordinate of column
- * @param {int} y Y-coordinate of top of column to copy
- * @param {int} len Number of pixels to copy
+ * @param {number} x X-coordinate of column
+ * @param {number} y Y-coordinate of top of column to copy
+ * @param {number} len Number of pixels to copy
  * @param {TypedArray} buffer Pixel array to copy from
  */
 CPGreyBmp.prototype.copyArrayToPixelColumn = function(x, y, len, buffer) {
@@ -745,7 +745,7 @@ CPGreyBmp.prototype.brightnessToOpacity = function(rect) {
  * This can be used to find a rectangle which encloses the non-white pixels of a mask.
  *
  * @param {CPRect} initialBounds - The rect to search within (pass getBounds() to search the whole bitmap)
- * @param {int} value
+ * @param {number} value
  *
  * @returns {CPRect}
  */
@@ -1068,10 +1068,10 @@ CPGreyBmp.prototype.gradientAlpha = function(rect, fromX, fromY, toX, toY, gradi
  *
  * @param {CPRect} rect
  * @param {Object[]} gradientPoints Array with gradient colors (ARGB integers)
- * @param {int} fromX
- * @param {int} fromY
- * @param {int} toX
- * @param {int} toY
+ * @param {number} fromX
+ * @param {number} fromY
+ * @param {number} toX
+ * @param {number} toY
  * @param {boolean} replace - True if the contents of the destination should be ignored (opaque blend)
  */
 CPGreyBmp.prototype.gradient = function(rect, fromX, fromY, toX, toY, gradientPoints, replace) {

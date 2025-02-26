@@ -605,7 +605,7 @@ export default function CPLayersPalette(controller) {
         /**
          * Create a DOM element for the given layer
          *
-         * @param {int} index
+         * @param {number} index
          * @param {CPLayer} layer
          */
         function buildLayer(index, layer) {
@@ -1095,7 +1095,7 @@ export default function CPLayersPalette(controller) {
 
         /**
          *
-         * @param {int} rotation - 90 degree increments
+         * @param {number} rotation - 90 degree increments
          */
         this.setRotation90 = function (rotation) {
             if (imageRotation != rotation) {
@@ -1188,7 +1188,7 @@ export default function CPLayersPalette(controller) {
          * Scroll the layer widget until the layer with the given index is fully visible, and return
          * the element for that layer.
          *
-         * @param {int} displayIndex
+         * @param {number} displayIndex
          */
         this.revealLayer = function (displayIndex) {
             let layerElem = getElemFromDisplayIndex(displayIndex),
@@ -1601,7 +1601,7 @@ export default function CPLayersPalette(controller) {
     /**
      * Set the rotation of the image thumbnails with respect to the underlying image data.
      *
-     * @param {int} newRotation - 90 degree increments
+     * @param {number} newRotation - 90 degree increments
      */
     this.setRotation90 = function (newRotation) {
         layerWidget.setRotation90(newRotation);
