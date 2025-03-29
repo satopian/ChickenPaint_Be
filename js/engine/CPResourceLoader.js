@@ -1,4 +1,4 @@
-import {load as chiLoad} from "../../js/engine/CPChibiFile.js";
+import {load as chiLoad} from "./CPChibiFile.js";
 import CPArtwork from "./CPArtwork.js";
 import CPColorBmp from "./CPColorBmp.js";
 import CPImageLayer from "./CPImageLayer.js";

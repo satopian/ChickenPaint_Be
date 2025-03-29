@@ -141,7 +141,7 @@ export default function CPSlider(minValue, maxValue, centerMode, expMode, defaul
 
         let width = canvas.clientWidth; 
         let left = canvas.getBoundingClientRect().left + window.scrollX; 
-            proportion = (e.pageX - left) / width;
+        let proportion = (e.pageX - left) / width;
 
         if (expMode) {
             // Give the user finer control over the low values

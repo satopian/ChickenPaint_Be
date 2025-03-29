@@ -1,4 +1,4 @@
-import { save as chiSave } from "../../js/engine/CPChibiFile.js";
+import { save as chiSave } from "./CPChibiFile.js";
 import AdobeColorTable from "../util/AdobeColorTable.js";
 import EventEmitter from "wolfy87-eventemitter";
 import FileSaver from "file-saver";

@@ -383,13 +383,13 @@ CPBrushPalette.CPBrushPreview = function(controller) {
     }
     
     function handlePointerDrag(e) {
-        let rect = canvas.getBoundingClientRect();
-        let pt = {x: e.clientX - rect.left, y: e.clientY - rect.top};        
-        let x = pt.x - canvas.clientWidth / 2;
-        let y = pt.y - canvas.clientHeight / 2;
-        newSize = Math.round(Math.sqrt(x * x + y * y) * 2);
+        const rect = canvas.getBoundingClientRect();
+        const  pt = {x: e.clientX - rect.left, y: e.clientY - rect.top};        
+        const x = pt.x - canvas.clientWidth / 2;
+        const y = pt.y - canvas.clientHeight / 2;
+        const newSize = Math.round(Math.sqrt(x * x + y * y) * 2);
         
-        size = Math.max(1, Math.min(200, newSize));
+        let size = Math.max(1, Math.min(200, newSize));
 
         paint();
         controller.setBrushSize(size);
