@@ -273,6 +273,6 @@
   "Limit size":"上限サイズ",
   "Current size":"現在のサイズ",
 
-  "Network response was not ok":"通信エラー",
-  "HTTP Status Code":"HTTP ステータスコード"
+ "Network response was not OK":"通信エラー",
+  "HTTP status code":"HTTPステータスコード"
 }
