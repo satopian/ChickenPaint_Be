@@ -82,7 +82,7 @@ function arrayEquals(a, b) {
 
 /**
  * @param {HTMLCanvasElement} canvas
- * @returns {int}
+ * @returns {number}
  */
 function memoryUsedByCanvas(canvas) {
     return canvas ? canvas.width * canvas.height * 4 : 0;
@@ -262,7 +262,7 @@ export default function CPArtwork(_width, _height) {
         thumbnailRebuildTimer = null,
 	
 	    /**
-         * @type {int}
+         * @type {number}
          */
         curColor = 0x000000, // Black
         transformInterpolation = "smooth";
@@ -1285,7 +1285,7 @@ export default function CPArtwork(_width, _height) {
      *
      * @param {number} x
      * @param {number} y
-     * @returns {int}
+     * @returns {number}
      */
     this.colorPicker = function(x, y) {
         if (maskEditingMode && curLayer.mask) {

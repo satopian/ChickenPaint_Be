@@ -1632,9 +1632,9 @@ export default function CPCanvas(controller) {
                     const displayCenter = {x: canvas.clientWidth / 2, y: canvas.clientHeight / 2};
                     const canvasCenter = {x: canvas.width / 2, y: canvas.height / 2};
 
-                    deltaAngle = Math.atan2(p.y - displayCenter.y, p.x - displayCenter.x) - Math.atan2(firstClick.y - displayCenter.y, firstClick.x - displayCenter.x),
+                    let deltaAngle = Math.atan2(p.y - displayCenter.y, p.x - displayCenter.x) - Math.atan2(firstClick.y - displayCenter.y, firstClick.x - displayCenter.x);
 
-                    rotTrans = new CPTransform();
+                    let rotTrans = new CPTransform();
 
                 rotTrans.rotateAroundPoint(deltaAngle, canvasCenter.x, canvasCenter.y);
 

@@ -73,7 +73,7 @@ export default function CPBezier() {
      * @param {Number[]} x
      * @param {Number[]} y
      *
-     * @param {int} elements Count of elements to fill x and y arrays
+     * @param {number} elements Count of elements to fill x and y arrays
      */
     this.compute = (x, y, elements) => {
         init(1.0 / elements);

@@ -146,7 +146,7 @@ export default function CPLayersPalette(controller) {
     /**
      *
      * @param {CPLayer} layer
-     * @returns {int}
+     * @returns {number}
      */
     function getDisplayIndexFromLayer(layer) {
         return linearizedLayers.indexOf(layer);
@@ -178,7 +178,7 @@ export default function CPLayersPalette(controller) {
         let drag = {
                 /**
                  *
-                 * @type {int}
+                 * @type {number}
                  */
                 state: DRAG_STATE_IDLE,
 
@@ -223,7 +223,7 @@ export default function CPLayersPalette(controller) {
             // dropdownMousePos = {x: 0, y: 0},
 
             /**
-             * @type {int} Rotation of image in 90 degree units
+             * @type {number} Rotation of image in 90 degree units
              */
             imageRotation = 0,
             /**
@@ -246,10 +246,7 @@ export default function CPLayersPalette(controller) {
          * @returns {HTMLElement}
          */
         function getElemFromDisplayIndex(displayIndex) {
-            let elems = document.querySelectorAll(
-                ".chickenpaint-layer",
-                layerContainer
-            );
+            let elems = layerContainer.querySelectorAll(".chickenpaint-layer");
 
             return elems[elems.length - 1 - displayIndex];
         }
@@ -270,7 +267,7 @@ export default function CPLayersPalette(controller) {
         /**
          * @typedef {Object} CPDropTarget
          *
-         * @property {int} displayIndex - The index of the layer to insert near
+         * @property {number} displayIndex - The index of the layer to insert near
          * @property {CPLayer} layer - The layer to insert near
          * @property {string} direction - "under", "over" or "inside", the direction to insert relative to the target
          */

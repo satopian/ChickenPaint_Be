@@ -119,7 +119,7 @@ CPLayerGroup.prototype.getExpanded = function() {
  * Get the index of the given layer in this group, or -1 if the layer is not in the group.
  * 
  * @param {CPLayer} layer
- * @returns {int}
+ * @returns {number}
  */
 CPLayerGroup.prototype.indexOf = function(layer) {
 	return this.layers.indexOf(layer);

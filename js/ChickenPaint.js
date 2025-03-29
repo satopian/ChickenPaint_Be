@@ -271,9 +271,9 @@ function createDrawingTools() {
  *
  * @property {Function} [onLoaded] - Callback to call when artwork loading completes
  *
- * @property {int} [canvasWidth]  - Width in pixels to use when creating blank canvases (defaults to 800)
- * @property {int} [canvasHeight] - Height in pixels to use when creating blank canvases (defaults to 600)
- * @property {int} [rotation]     - Integer from [0..3], number of 90 degree right rotations that should be applied to
+ * @property {number} [canvasWidth]  - Width in pixels to use when creating blank canvases (defaults to 800)
+ * @property {number} [canvasHeight] - Height in pixels to use when creating blank canvases (defaults to 600)
+ * @property {number} [rotation]     - Integer from [0..3], number of 90 degree right rotations that should be applied to
  *                                the canvas after loading
  *
  * @property {string} [saveUrl]   - URL to POST the drawing to to save it
@@ -760,7 +760,7 @@ export default function ChickenPaint(options) {
             },
             CPRemoveLayerMask: {
                 action: function() {
-                    that.artwork.removeLayerMask(false);
+                    that.artwork.removeLayerMask();
                 },
                 modifies: {document: true},
                 allowed: "isRemoveLayerMaskAllowed"

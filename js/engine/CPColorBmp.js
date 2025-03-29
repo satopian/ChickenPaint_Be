@@ -28,13 +28,13 @@ import {createImageData} from "../util/Canvas.js";
 /**
  * A 32bpp bitmap class (one byte per channel in RGBA order)
  *
- * @param {(ImageData|int)} width - The width of the bitmap, or the ImageData object to use by reference
- * @param {?int} height - The height of the bitmap
+ * @param {(ImageData|number)} width - The width of the bitmap, or the ImageData object to use by reference
+ * @param {?number} height - The height of the bitmap
  *
  * @constructor
  *
- * @property {int} width
- * @property {int} height
+ * @property {number} width
+ * @property {number} height
  * @property {CanvasPixelArray} data - The bitmap data array (one byte per channel in RGBA order). We'd prefer this to
  *                                     be Uint8ClampedArray, but IE 10 doesn't support it
  * @property {ImageData} imageData
@@ -92,7 +92,7 @@ CPColorBmp.prototype.cloneRect = function(rect) {
 /**
  * Pixel access with friendly clipping.
  *
- * @returns {int} 32-bit integer in ARGB format
+ * @returns {number} 32-bit integer in ARGB format
  */
 CPColorBmp.prototype.getPixel = function(x, y) {
     x = Math.max(0, Math.min(this.width - 1, x));

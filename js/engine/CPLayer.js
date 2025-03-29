@@ -54,7 +54,7 @@ export default function CPLayer(name) {
 	/**
      * The opacity of this layer (0 = transparent, 100 = opaque)
      *
-     * @type {int}
+     * @type {number}
      */
     this.alpha = 100;
 
@@ -68,7 +68,7 @@ export default function CPLayer(name) {
 	/**
      * One of the CMBlend.LM_* constants.
      *
-     * @type {int}
+     * @type {number}
      */
     this.blendMode = CPBlend.LM_NORMAL;
 	

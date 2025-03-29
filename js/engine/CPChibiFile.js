@@ -520,7 +520,7 @@ class CPMaskDecoder {
  *
  * @param {number} major
  * @param {number} minor
- * @returns {int}
+ * @returns {number}
  */
 function makeChibiVersion(major, minor) {
     return (major << 16) | minor;
@@ -546,7 +546,7 @@ function chibiVersionToString(version) {
  * the corresponding version number header.
  *
  * @param {CPArtwork} artwork
- * @returns {int}
+ * @returns {number}
  */
 function minimumVersionForArtwork(artwork) {
     for (let layer of artwork.getLayersRoot().getLinearizedLayerList(false)) {
@@ -854,7 +854,7 @@ export function load(source, options) {
 		/**
 		 * Number of bytes we should skip in the stream before resuming decoding.
 		 *
-		 * @type {int}
+		 * @type {number}
 		 */
 		skipCount = 0,
 		

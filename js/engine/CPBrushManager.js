@@ -254,11 +254,11 @@ function buildBrushSoft(brush, brushInfo) {
  * @typedef {Object} CPBrushDab
  *
  * @property {Uint8Array} brush - The brush image mask
- * @property {int} width - The size of the brush image (note, it need not occupy the entire brush array).
- * @property {int} height
- * @property {int} x - Pixel in the document where the brush will be applied
- * @property {int} y
- * @property {int} alpha
+ * @property {number} width - The size of the brush image (note, it need not occupy the entire brush array).
+ * @property {number} height
+ * @property {number} x - Pixel in the document where the brush will be applied
+ * @property {number} y
+ * @property {number} alpha
  */
 
 /**
@@ -396,7 +396,7 @@ export default function CPBrushManager() {
 	/**
      *
      * @param {CPBrushDab} dab
-     * @param {float} textureAmount
+     * @param {number} textureAmount
      */
     function applyTexture(dab, textureAmount) {
         let

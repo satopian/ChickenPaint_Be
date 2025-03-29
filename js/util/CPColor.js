@@ -22,7 +22,7 @@
 
 /**
  *
- * @param {int} rgb
+ * @param {number} rgb
  * @param {Object} hsv
  */
 function convertRgbToHsv(rgb, hsv) {
@@ -117,7 +117,7 @@ function convertHsvToRgb(hsv) {
 
 /**
  *
- * @param {int} rgb - Initial color
+ * @param {number} rgb - Initial color
  * @constructor
  */
 export default function CPColor(rgb) {
