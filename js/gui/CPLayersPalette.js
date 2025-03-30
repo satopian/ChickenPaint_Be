@@ -29,9 +29,7 @@ import CPSlider from "./CPSlider.js";
 import CPLayerGroup from "../engine/CPLayerGroup.js";
 import CPLayer from "../engine/CPLayer.js";
 import CPImageLayer from "../engine/CPImageLayer.js";
-
 import { _ } from "../languages/lang.js";
-
 function absorbTouch(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -83,7 +81,8 @@ function wrapBootstrapCheckbox(checkbox, title) {
     return div;
 }
 
-function computeLayerPredicates(layer) {
+function computeLayerPredicates(layer,isEditingMask) {
+
     return {
         "image-layer": layer instanceof CPImageLayer,
         "layer-group": layer instanceof CPLayerGroup,
@@ -98,6 +97,9 @@ function computeLayerPredicates(layer) {
 
         "mask-enabled": layer && layer.mask !== null && layer.maskVisible,
         "mask-disabled": layer && layer.mask !== null && !layer.maskVisible,
+        "isNotEditingMask": layer && !isEditingMask,
+        "isEditingMask": layer && layer.mask !== null && isEditingMask,
+        
     };
 }
 
@@ -1342,9 +1344,16 @@ export default function CPLayersPalette(controller) {
                     action: "CPLayerDuplicate",
                 },
                 {
+                    title: "Delete layer mask",
+                    icon: createFontAwesomeIcon("icon-trash"),
+                    action: "CPRemoveLayerMask",
+                    require: "isEditingMask",
+                },
+                {
                     title: "Delete layer",
                     icon: createFontAwesomeIcon("icon-trash"),
                     action: "CPRemoveLayer",
+                    require: "isNotEditingMask",
                 },
             ],
             layerButtonsList = document.createElement("ul");
@@ -1373,16 +1382,20 @@ export default function CPLayersPalette(controller) {
     }
 
     function updateActiveLayerActionButtons() {
-        let activeLayer = artwork.getActiveLayer(),
-            facts = computeLayerPredicates(activeLayer);
 
+        let activeLayer = artwork.getActiveLayer();
+        let isEditingMask = artwork.isEditingMask();
+        let facts = computeLayerPredicates(activeLayer,isEditingMask);
         for (let requirement of [
             "mask",
             "no-mask",
+            "isEditingMask",
+            "isNotEditingMask",
             "clipping-mask",
             "no-clipping-mask-or-is-group",
             "image-layer",
             "layer-group",
+
         ]) {
             let elements = layerActionButtons.getElementsByClassName(
                 "chickenpaint-action-require-" + requirement
