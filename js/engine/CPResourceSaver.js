@@ -118,7 +118,7 @@ export default function CPResourceSaver(options) {
                             httpErrorMessag = "Internal Server Error";
                             break;
                         case 502:
-                            httpErrorMessag = "Bad gateway";
+                            httpErrorMessag = "Bad Gateway";
                             break;
                         case 503:
                             httpErrorMessag = "Service Unavailable";
