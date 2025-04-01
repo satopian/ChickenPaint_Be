@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import EventEmitter from "wolfy87-eventemitter";
 
 /**
@@ -47,8 +46,8 @@ export default function CPScrollbar(vertical) {
     
     function updateBar() {
         let
-            longDimension = vertical ? $(bar).height() : $(bar).width();
-                    
+            longDimension = vertical ? bar.clientHeight : bar.clientWidth;
+
             /* As the size of the document approaches the size of the container, handle size grows to fill the 
              * whole track:
              */
@@ -91,9 +90,10 @@ export default function CPScrollbar(vertical) {
     function onBarClick(e) {
         if (this == bar) {
             let
-                clickPos = vertical ? e.pageY - $(bar).offset().top : e.pageX - $(bar).offset().left,
-                barPos = parseInt(handle.style[vertical ? "top" : "left"], 10);
-            
+            const rect = bar.getBoundingClientRect();
+            clickPos = vertical ? e.pageY - rect.top - window.scrollY : e.pageX - rect.left - window.scrollX;
+            let barPos = parseInt(handle.style[vertical ? "top" : "left"], 10);
+    
             if (clickPos < barPos) {
                 offset -= blockIncrement;
             } else {
@@ -108,12 +108,12 @@ export default function CPScrollbar(vertical) {
     function onHandlePress(e) {
         e.stopPropagation();
 
-        dragLastOffset = vertical ? e.pageY - $(bar).offset().top : e.pageX - $(bar).offset().left;
-
+        const rect = bar.getBoundingClientRect();
+        dragLastOffset = vertical ? e.pageY - rect.top - window.scrollY : e.pageX - rect.left - window.scrollX;
         handle.setPointerCapture(e.pointerId);
 
-        $(handle).addClass("dragging");
-        dragging = true;
+        handle.classList.add("dragging");
+                dragging = true;
     }
     
     function onHandleClick(e) {
@@ -125,9 +125,11 @@ export default function CPScrollbar(vertical) {
             valueIsAdjusting = true;
 
             let
-                longDimension = vertical ? $(bar).height() : $(bar).width(),
-                mouseOffset = vertical ? e.pageY - $(bar).offset().top : e.pageX - $(bar).offset().left;
+            const longDimension = vertical ? bar.clientHeight : bar.clientWidth;
 
+            const rect = bar.getBoundingClientRect();
+            const mouseOffset = vertical ? e.pageY - rect.top - window.scrollY : e.pageX - rect.left - window.scrollX;
+            
             offset = offset + (mouseOffset - dragLastOffset) * (max - min) / (longDimension - handleSize);
 
             offset = Math.min(Math.max(offset, min), max);
@@ -150,9 +152,9 @@ export default function CPScrollbar(vertical) {
             } catch (e) {
             }
 
-            $(handle).removeClass("dragging");
+            handle.classList.remove("dragging");
             dragging = false;
-        }
+                    }
     }
     
     bar.className = "chickenpaint-scrollbar "  + (vertical ? "chickenpaint-scrollbar-vertical" : "chickenpaint-scrollbar-horizontal");

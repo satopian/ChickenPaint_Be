@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import EventEmitter from "wolfy87-eventemitter";
 import {_} from "../languages/lang.js";
 
@@ -85,11 +84,11 @@ export default function CPPalette(cpController, className, title, options) {
     };
     
     this.getWidth = function() {
-        return $(containerElement).outerWidth();
+        return containerElement.offsetWidth;
     };
     
     this.getHeight = function() {
-        return $(containerElement).outerHeight();
+        return containerElement.offsetHeight;
     };
     
     this.getX = function() {
@@ -126,28 +125,37 @@ export default function CPPalette(cpController, className, title, options) {
      * @param {boolean} [collapse] True to collapse, false to uncollapse, omit to toggle state
      */
     this.toggleCollapse = function(collapse) {
-        let 
-            $containerElement = $(containerElement);
         
-        if (collapse === undefined) {
-            collapse = !$containerElement.hasClass("collapsed");
-        } else {
-            if ($containerElement.hasClass("collapsed") == collapse) {
-                return;
+        let  containerElement = document.createElement("div");
+
+            if (collapse === undefined) {
+                collapse = !containerElement.classList.contains("collapsed");
+            } else {
+                if (containerElement.classList.contains("collapsed") === collapse) {
+                    return;
+                }
             }
-        }
+                    
+    // $containerElement はすでに DOM 要素なのでそのままでOK
+    const chickenpaint = containerElement.closest(".chickenpaint");
+    const chickenpaintCanvas = chickenpaint.querySelector(".chickenpaint-canvas");
+    const windowHeight = chickenpaintCanvas.offsetHeight;
+
+    const oldHeight = this.getHeight();
+    const oldBottom = this.getY() + oldHeight;
         
-        let
-            windowHeight = $containerElement.parents(".chickenpaint").find(".chickenpaint-canvas").height(),
-            oldHeight = this.getHeight(),
-            oldBottom = this.getY() + oldHeight;
+    containerElement.classList.toggle("collapsed", collapse);
         
-        $containerElement.toggleClass("collapsed", collapse);
-        
-        $(collapseIcon)
-            .toggleClass("icon-angle-down", !collapse)
-            .toggleClass("icon-angle-up", collapse);
-        
+    collapseIcon = document.createElement("i");
+
+    if (collapse) {
+        collapseIcon.classList.add("icon-angle-up");
+        collapseIcon.classList.remove("icon-angle-down");
+    } else {
+        collapseIcon.classList.add("icon-angle-down");
+        collapseIcon.classList.remove("icon-angle-up");
+    }
+            
         if (collapse) {
             // Move the header down to the old base position
             if (options.collapseDownwards) {
@@ -206,8 +214,8 @@ export default function CPPalette(cpController, className, title, options) {
                     x: parseInt(containerElement.style.left, 10) || 0,
                     y: parseInt(containerElement.style.top, 10) || 0,
                 };
-                dragOffset = {x: e.pageX - $(containerElement).position().left, y: e.pageY - $(containerElement).position().top};
-                
+                dragOffset = {x: e.pageX - containerElement.offsetLeft, y: e.pageY - containerElement.offsetTop};
+                                
                 if (cpController.getSmallScreenMode()) {
                     // Wait for the cursor to move a certain amount before we classify this as a drag
                     dragAction = "dragStart";
@@ -249,8 +257,9 @@ export default function CPPalette(cpController, className, title, options) {
     
     function vertHandlePointerMove(e) {
         if (dragAction == "vertResize") {
-            that.setHeight(e.pageY - $(containerElement).offset().top);
-        }
+            const rect = containerElement.getBoundingClientRect();
+            that.setHeight(e.pageY - rect.top);
+                    }
     }
 
     function vertHandlePointerUp(e) {
@@ -277,8 +286,9 @@ export default function CPPalette(cpController, className, title, options) {
     
     function horzHandlePointerMove(e) {
         if (dragAction == "horzResize") {
-            that.setWidth(e.pageX - $(containerElement).offset().left);
-        }
+            const rect = containerElement.getBoundingClientRect();
+            that.setWidth(e.pageX - rect.left);
+                    }
     }
     
     function horzHandlePointerUp(e) {
