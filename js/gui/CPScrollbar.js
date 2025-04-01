@@ -89,9 +89,9 @@ export default function CPScrollbar(vertical) {
     
     function onBarClick(e) {
         if (this == bar) {
-            let
-            const rect = bar.getBoundingClientRect();
-            clickPos = vertical ? e.pageY - rect.top - window.scrollY : e.pageX - rect.left - window.scrollX;
+            let clickPos = vertical 
+            ? e.pageY - bar.offsetTop - window.scrollY 
+            : e.pageX - bar.offsetLeft - window.scrollX;
             let barPos = parseInt(handle.style[vertical ? "top" : "left"], 10);
     
             if (clickPos < barPos) {
@@ -108,8 +108,9 @@ export default function CPScrollbar(vertical) {
     function onHandlePress(e) {
         e.stopPropagation();
 
-        const rect = bar.getBoundingClientRect();
-        dragLastOffset = vertical ? e.pageY - rect.top - window.scrollY : e.pageX - rect.left - window.scrollX;
+        dragLastOffset = vertical 
+        ? e.pageY - bar.offsetTop - window.scrollY 
+        : e.pageX - bar.offsetLeft - window.scrollX;
         handle.setPointerCapture(e.pointerId);
 
         handle.classList.add("dragging");
@@ -123,13 +124,13 @@ export default function CPScrollbar(vertical) {
     function onHandleDrag(e) {
         if (dragging) {
             valueIsAdjusting = true;
-
-            let
+            
             const longDimension = vertical ? bar.clientHeight : bar.clientWidth;
 
-            const rect = bar.getBoundingClientRect();
-            const mouseOffset = vertical ? e.pageY - rect.top - window.scrollY : e.pageX - rect.left - window.scrollX;
-            
+            const mouseOffset = vertical 
+            ? e.pageY - bar.offsetTop - window.scrollY 
+            : e.pageX - bar.offsetLeft - window.scrollX;
+                    
             offset = offset + (mouseOffset - dragLastOffset) * (max - min) / (longDimension - handleSize);
 
             offset = Math.min(Math.max(offset, min), max);

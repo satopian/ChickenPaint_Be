@@ -20,21 +20,20 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
+import $ from "jquery";
 import EventEmitter from "wolfy87-eventemitter";
-import {_} from "../languages/lang.js";
+import { _ } from "../languages/lang.js";
 
-const
-    DRAG_START_THRESHOLD = 5;
+const DRAG_START_THRESHOLD = 5;
 
 function distanceGreaterThan(a, b, threshold) {
-    let 
-        dist = (a.x - b.x) * (a.x - b.x) + (a.y - b.y)  * (a.y - b.y);
-    
+    let dist = (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+
     return dist > threshold * threshold;
 }
 
 /**
- * 
+ *
  * @param {ChickenPaint} cpController
  * @param {String} className
  * @param {String} title
@@ -42,170 +41,178 @@ function distanceGreaterThan(a, b, threshold) {
  * @param {boolean} options.resizeVert
  * @param {boolean} options.resizeHorz
  * @param {boolean} options.collapseDownwards
- * 
+ *
  * @constructor
  */
 export default function CPPalette(cpController, className, title, options) {
     // Use a shorter version of the title if needed and one is available
-    if (cpController.getSmallScreenMode() && _(title + " (shorter)") !== title + " (shorter)") {
+    if (
+        cpController.getSmallScreenMode() &&
+        _(title + " (shorter)") !== title + " (shorter)"
+    ) {
         this.title = _(title + " (shorter)");
     } else {
         this.title = _(title);
     }
-    
+
     options = options || {};
-    
+
     this.name = className;
     this.resizeVert = options.resizeVert || false;
     this.resizeHorz = options.resizeHorz || false;
-    
-    let
-        containerElement = document.createElement("div"),
+
+    let containerElement = document.createElement("div"),
         headElement = document.createElement("div"),
         collapseIcon = document.createElement("i"),
         closeButton = document.createElement("button"),
         bodyElement = document.createElement("div"),
-        
         vertHandle = null,
         horzHandle = null,
-        
         dragStartPos,
         dragAction,
         dragOffset,
-        
         that = this;
-    
-    this.getElement = function() {
+
+    this.getElement = function () {
         return containerElement;
     };
-    
-    this.getBodyElement = function() {
+
+    this.getBodyElement = function () {
         return bodyElement;
     };
-    
-    this.getWidth = function() {
+
+    this.getWidth = function () {
         return containerElement.offsetWidth;
     };
-    
-    this.getHeight = function() {
+
+    this.getHeight = function () {
         return containerElement.offsetHeight;
     };
-    
-    this.getX = function() {
+
+    this.getX = function () {
         return parseInt(containerElement.style.left, 10) || 0;
     };
-    
-    this.getY = function() {
+
+    this.getY = function () {
         return parseInt(containerElement.style.top, 10) || 0;
     };
-    
-    this.setLocation = function(x, y) {
+
+    this.setLocation = function (x, y) {
         containerElement.style.left = x + "px";
         containerElement.style.top = y + "px";
     };
-    
-    this.setWidth = function(width) {
+
+    this.setWidth = function (width) {
         containerElement.style.width = width + "px";
     };
 
-    this.setHeight = function(height) {
+    this.setHeight = function (height) {
         containerElement.style.height = height + "px";
     };
-    
-    this.setSize = function(width, height) {
+
+    this.setSize = function (width, height) {
         this.setWidth(width);
         this.setHeight(height);
     };
-    
-    this.setCollapseDownwards = function(collapseDownwards) {
+
+    this.setCollapseDownwards = function (collapseDownwards) {
         options.collapseDownwards = collapseDownwards;
     };
 
     /**
      * @param {boolean} [collapse] True to collapse, false to uncollapse, omit to toggle state
      */
-    this.toggleCollapse = function(collapse) {
-        
-        let  containerElement = document.createElement("div");
+    this.toggleCollapse = function (collapse) {
+        let $containerElement = $(containerElement);
 
-            if (collapse === undefined) {
-                collapse = !containerElement.classList.contains("collapsed");
-            } else {
-                if (containerElement.classList.contains("collapsed") === collapse) {
-                    return;
-                }
+        if (collapse === undefined) {
+            collapse = !$containerElement.hasClass("collapsed");
+        } else {
+            if ($containerElement.hasClass("collapsed") == collapse) {
+                return;
             }
-                    
-    // $containerElement はすでに DOM 要素なのでそのままでOK
-    const chickenpaint = containerElement.closest(".chickenpaint");
-    const chickenpaintCanvas = chickenpaint.querySelector(".chickenpaint-canvas");
-    const windowHeight = chickenpaintCanvas.offsetHeight;
+        }
 
-    const oldHeight = this.getHeight();
-    const oldBottom = this.getY() + oldHeight;
-        
-    containerElement.classList.toggle("collapsed", collapse);
-        
-    collapseIcon = document.createElement("i");
+        let windowHeight = $containerElement
+                .parents(".chickenpaint")
+                .find(".chickenpaint-canvas")
+                .height(),
+            oldHeight = this.getHeight(),
+            oldBottom = this.getY() + oldHeight;
 
-    if (collapse) {
-        collapseIcon.classList.add("icon-angle-up");
-        collapseIcon.classList.remove("icon-angle-down");
-    } else {
-        collapseIcon.classList.add("icon-angle-down");
-        collapseIcon.classList.remove("icon-angle-up");
-    }
-            
+        $containerElement.toggleClass("collapsed", collapse);
+
+        $(collapseIcon)
+            .toggleClass("icon-angle-down", !collapse)
+            .toggleClass("icon-angle-up", collapse);
+
         if (collapse) {
             // Move the header down to the old base position
             if (options.collapseDownwards) {
-                this.setLocation(this.getX(), Math.min(oldBottom, windowHeight) - this.getHeight());
+                this.setLocation(
+                    this.getX(),
+                    Math.min(oldBottom, windowHeight) - this.getHeight()
+                );
             }
         } else {
-            let 
-                thisHeight = this.getHeight();
+            let thisHeight = this.getHeight();
 
             if (options.collapseDownwards) {
-                this.setLocation(this.getX(), Math.max(oldBottom - thisHeight, 0));
+                this.setLocation(
+                    this.getX(),
+                    Math.max(oldBottom - thisHeight, 0)
+                );
             } else {
                 // Keep palettes inside the window when uncollapsing
                 if (this.getY() + thisHeight > windowHeight) {
-                    this.setLocation(this.getX(), Math.max(windowHeight - thisHeight, 0));
+                    this.setLocation(
+                        this.getX(),
+                        Math.max(windowHeight - thisHeight, 0)
+                    );
                 }
             }
         }
     };
-    
-    this.userIsDoneWithUs = function() {
+
+    this.userIsDoneWithUs = function () {
         if (cpController.getSmallScreenMode()) {
             this.toggleCollapse(true);
-        }  
+        }
     };
 
     function paletteHeaderPointerMove(e) {
-        if ((dragAction === "dragStart" || dragAction === "dragging") && e.buttons !== 0) {
-            let
-                newX = e.pageX - dragOffset.x,
-                newY = e.pageY - dragOffset.y
-            
+        if (
+            (dragAction === "dragStart" || dragAction === "dragging") &&
+            e.buttons !== 0
+        ) {
+            let newX = e.pageX - dragOffset.x,
+                newY = e.pageY - dragOffset.y;
+
             if (dragAction == "dragStart") {
-                if (distanceGreaterThan({x: newX, y: newY}, dragStartPos, DRAG_START_THRESHOLD)) {
+                if (
+                    distanceGreaterThan(
+                        { x: newX, y: newY },
+                        dragStartPos,
+                        DRAG_START_THRESHOLD
+                    )
+                ) {
                     // Recognise this as a drag rather than a clink
                     dragAction = "dragging";
                 }
             }
-            
+
             if (dragAction == "dragging") {
-                that.setLocation(newX, newY);    
-            }            
+                that.setLocation(newX, newY);
+            }
         }
     }
-    
+
     function paletteHeaderPointerDown(e) {
-        if (e.button == 0) {/* Left */
+        if (e.button == 0) {
+            /* Left */
             e.stopPropagation();
             e.preventDefault(); // Avoid generating further legacy mouse events
-            
+
             if (e.target.nodeName == "BUTTON") {
                 // Close button was clicked
                 that.emitEvent("paletteVisChange", [that, false]);
@@ -214,15 +221,17 @@ export default function CPPalette(cpController, className, title, options) {
                     x: parseInt(containerElement.style.left, 10) || 0,
                     y: parseInt(containerElement.style.top, 10) || 0,
                 };
-                dragOffset = {x: e.pageX - containerElement.offsetLeft, y: e.pageY - containerElement.offsetTop};
-                                
+                dragOffset = {
+                    x: e.pageX - containerElement.offsetLeft,
+                    y: e.pageY - containerElement.offsetTop,
+                };
                 if (cpController.getSmallScreenMode()) {
                     // Wait for the cursor to move a certain amount before we classify this as a drag
                     dragAction = "dragStart";
                 } else {
                     dragAction = "dragging";
                 }
-                
+
                 e.target.setPointerCapture(e.pointerId);
             }
         }
@@ -234,7 +243,7 @@ export default function CPPalette(cpController, className, title, options) {
                 // We clicked the header. Cancel the drag and toggle the palette instead
                 e.stopPropagation();
                 e.preventDefault();
-                
+
                 /* Don't move the dialog immediately, because otherwise a click event will be
                  * dispatched on the element which ends up under the cursor afterwards.
                  */
@@ -254,84 +263,82 @@ export default function CPPalette(cpController, className, title, options) {
             }
         }
     }
-    
+
     function vertHandlePointerMove(e) {
         if (dragAction == "vertResize") {
-            const rect = containerElement.getBoundingClientRect();
-            that.setHeight(e.pageY - rect.top);
-                    }
+            that.setHeight(e.pageY - containerElement.offsetTop);
+        }
     }
 
     function vertHandlePointerUp(e) {
         vertHandle.releasePointerCapture(e.pointerId);
         dragAction = false;
     }
-    
+
     function vertHandlePointerDown(e) {
         dragAction = "vertResize";
         vertHandle.setPointerCapture(e.pointerId);
     }
-    
+
     function addVertResizeHandle() {
         vertHandle = document.createElement("div");
-        
+
         vertHandle.className = "chickenpaint-resize-handle-vert";
-        
+
         vertHandle.addEventListener("pointerdown", vertHandlePointerDown);
         vertHandle.addEventListener("pointermove", vertHandlePointerMove);
         vertHandle.addEventListener("pointerup", vertHandlePointerUp);
-        
+
         containerElement.appendChild(vertHandle);
     }
-    
+
     function horzHandlePointerMove(e) {
         if (dragAction == "horzResize") {
-            const rect = containerElement.getBoundingClientRect();
-            that.setWidth(e.pageX - rect.left);
-                    }
+            that.setWidth(e.pageX - containerElement.offsetLeft);
+        }
     }
-    
+
     function horzHandlePointerUp(e) {
         horzHandle.releasePointerCapture(e.pointerId);
         dragAction = false;
     }
-    
+
     function horzHandlePointerDown(e) {
         dragAction = "horzResize";
         horzHandle.setPointerCapture(e.pointerId);
     }
-    
+
     function addHorzResizeHandle() {
         horzHandle = document.createElement("div");
-        
+
         horzHandle.className = "chickenpaint-resize-handle-horz";
-        
+
         horzHandle.addEventListener("pointerdown", horzHandlePointerDown);
         horzHandle.addEventListener("pointermove", horzHandlePointerMove);
         horzHandle.addEventListener("pointerup", horzHandlePointerUp);
-        
+
         containerElement.appendChild(horzHandle);
     }
 
     collapseIcon.className = "collapse-icon fas icon-angle-down";
-    
+
     closeButton.type = "button";
     closeButton.className = "btn btn-close";
     closeButton.textContent = "";
-	closeButton.tabIndex = -1;
-    
-    containerElement.className = "chickenpaint-palette chickenpaint-palette-" + className;
-    
+    closeButton.tabIndex = -1;
+
+    containerElement.className =
+        "chickenpaint-palette chickenpaint-palette-" + className;
+
     headElement.className = "chickenpaint-palette-head";
     headElement.setAttribute("touch-action", "none");
 
-    let
-        titleContainer = document.createElement("div"),
+    let titleContainer = document.createElement("div"),
         titleElem = document.createElement("h5");
 
-    titleContainer.className = 'modal-header';
+    titleContainer.className = "modal-header";
 
-    titleElem.className = 'modal-title';
+    titleElem.className = "modal-title";
     titleElem.appendChild(document.createTextNode(this.title));
     titleElem.appendChild(collapseIcon);
 
@@ -348,11 +355,11 @@ export default function CPPalette(cpController, className, title, options) {
     if (this.resizeVert) {
         addVertResizeHandle();
     }
-    
+
     if (this.resizeHorz) {
         addHorzResizeHandle();
     }
-    
+
     headElement.addEventListener("pointerdown", paletteHeaderPointerDown);
     headElement.addEventListener("pointermove", paletteHeaderPointerMove);
     headElement.addEventListener("pointerup", paletteHeaderPointerUp);
