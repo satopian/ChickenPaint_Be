@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import EventEmitter from "wolfy87-eventemitter";
 import { _ } from "../languages/lang.js";
 
@@ -119,60 +118,57 @@ export default function CPPalette(cpController, className, title, options) {
         options.collapseDownwards = collapseDownwards;
     };
 
-    /**
-     * @param {boolean} [collapse] True to collapse, false to uncollapse, omit to toggle state
-     */
-    this.toggleCollapse = function (collapse) {
-        let $containerElement = $(containerElement);
-
-        if (collapse === undefined) {
-            collapse = !$containerElement.hasClass("collapsed");
-        } else {
-            if ($containerElement.hasClass("collapsed") == collapse) {
-                return;
-            }
+/**
+ * @param {boolean} [collapse] True to collapse, false to uncollapse, omit to toggle state
+ */
+this.toggleCollapse = function (collapse) {
+    if (collapse === undefined) {
+        collapse = !containerElement.classList.contains("collapsed");
+    } else {
+        if (containerElement.classList.contains("collapsed") === collapse) {
+            return;
         }
+    }
 
-        let windowHeight = $containerElement
-                .parents(".chickenpaint")
-                .find(".chickenpaint-canvas")
-                .height(),
-            oldHeight = this.getHeight(),
-            oldBottom = this.getY() + oldHeight;
+    let chickenpaintCanvas = containerElement.closest(".chickenpaint")?.querySelector(".chickenpaint-canvas"),
+        windowHeight = chickenpaintCanvas ? chickenpaintCanvas.clientHeight : window.innerHeight,
+        oldHeight = this.getHeight(),
+        oldBottom = this.getY() + oldHeight;
 
-        $containerElement.toggleClass("collapsed", collapse);
+    // collapseがtrueなら「collapsed」クラスが追加され、falseなら削除される
+    containerElement.classList.toggle("collapsed", collapse);
+    // angle-downアイコンの表示/非表示を切り替える
+    collapseIcon.classList.toggle("icon-angle-down", !collapse);
+    // angle-upアイコンの表示/非表示を切り替える
+    collapseIcon.classList.toggle("icon-angle-up", collapse);
 
-        $(collapseIcon)
-            .toggleClass("icon-angle-down", !collapse)
-            .toggleClass("icon-angle-up", collapse);
+    if (collapse) {
+        // Move the header down to the old base position
+        if (options.collapseDownwards) {
+            this.setLocation(
+                this.getX(),
+                Math.min(oldBottom, windowHeight) - this.getHeight()
+            );
+        }
+    } else {
+        let thisHeight = this.getHeight();
 
-        if (collapse) {
-            // Move the header down to the old base position
-            if (options.collapseDownwards) {
+        if (options.collapseDownwards) {
+            this.setLocation(
+                this.getX(),
+                Math.max(oldBottom - thisHeight, 0)
+            );
+        } else {
+            // Keep palettes inside the window when uncollapsing
+            if (this.getY() + thisHeight > windowHeight) {
                 this.setLocation(
                     this.getX(),
-                    Math.min(oldBottom, windowHeight) - this.getHeight()
+                    Math.max(windowHeight - thisHeight, 0)
                 );
-            }
-        } else {
-            let thisHeight = this.getHeight();
-
-            if (options.collapseDownwards) {
-                this.setLocation(
-                    this.getX(),
-                    Math.max(oldBottom - thisHeight, 0)
-                );
-            } else {
-                // Keep palettes inside the window when uncollapsing
-                if (this.getY() + thisHeight > windowHeight) {
-                    this.setLocation(
-                        this.getX(),
-                        Math.max(windowHeight - thisHeight, 0)
-                    );
-                }
             }
         }
-    };
+    }
+};
 
     this.userIsDoneWithUs = function () {
         if (cpController.getSmallScreenMode()) {
