@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 import CPPalette from "./CPPalette.js";
@@ -81,8 +80,7 @@ function wrapBootstrapCheckbox(checkbox, title) {
     return div;
 }
 
-function computeLayerPredicates(layer,isEditingMask) {
-
+function computeLayerPredicates(layer, isEditingMask) {
     return {
         "image-layer": layer instanceof CPImageLayer,
         "layer-group": layer instanceof CPLayerGroup,
@@ -97,9 +95,8 @@ function computeLayerPredicates(layer,isEditingMask) {
 
         "mask-enabled": layer && layer.mask !== null && layer.maskVisible,
         "mask-disabled": layer && layer.mask !== null && !layer.maskVisible,
-        "isNotEditingMask": layer && !isEditingMask,
-        "isEditingMask": layer && layer.mask !== null && isEditingMask,
-        
+        isNotEditingMask: layer && !isEditingMask,
+        isEditingMask: layer && layer.mask !== null && isEditingMask,
     };
 }
 
@@ -285,7 +282,9 @@ export default function CPLayersPalette(controller) {
          * @returns {?CPDropTarget}
          */
         function getDropTargetFromClientPos(clientX, clientY) {
-            let layerElems = $(".chickenpaint-layer", layerContainer),
+            let layerElems = layerContainer.querySelectorAll(
+                    ".chickenpaint-layer"
+                ),
                 target = {
                     layer: linearizedLayers[linearizedLayers.length - 1],
                     displayIndex: linearizedLayers.length - 1,
@@ -302,9 +301,7 @@ export default function CPLayersPalette(controller) {
                     rect = targetElem.getBoundingClientRect();
 
                 if (displayIndex === 0 && clientY > rect.bottom) {
-                    // Special support for positioning after the last element to help us escape the bottom of a group
                     let lastLayer = artwork.getLayersRoot().layers[0];
-
                     target = {
                         layer: lastLayer,
                         displayIndex: getDisplayIndexFromLayer(lastLayer),
@@ -314,7 +311,6 @@ export default function CPLayersPalette(controller) {
                 } else if (clientY >= rect.top) {
                     let targetLayer = getLayerFromDisplayIndex(displayIndex),
                         targetHeight = rect.bottom - rect.top;
-
                     target = { layer: targetLayer, displayIndex: displayIndex };
 
                     if (targetLayer instanceof CPLayerGroup) {
@@ -323,7 +319,6 @@ export default function CPLayersPalette(controller) {
                                 targetLayer.expanded &&
                                 targetLayer.layers.length > 0
                             ) {
-                                // Show the insert marker as above the top layer in the group
                                 target.layer =
                                     targetLayer.layers[
                                         targetLayer.layers.length - 1
@@ -338,7 +333,6 @@ export default function CPLayersPalette(controller) {
                                 targetLayer.expanded &&
                                 targetLayer.layers.length > 0
                             ) {
-                                // Show the insert marker as above the top layer in the group rather than on top of the group
                                 target.layer =
                                     targetLayer.layers[
                                         targetLayer.layers.length - 1
@@ -352,11 +346,10 @@ export default function CPLayersPalette(controller) {
                             target.direction = "over";
                         }
                     } else {
-                        if (clientY >= rect.top + targetHeight * 0.5) {
-                            target.direction = "under";
-                        } else {
-                            target.direction = "over";
-                        }
+                        target.direction =
+                            clientY >= rect.top + targetHeight * 0.5
+                                ? "under"
+                                : "over";
                     }
                     break;
                 }
@@ -367,18 +360,18 @@ export default function CPLayersPalette(controller) {
              * same position it was already in.
              */
             if (
-                target.layer.parent == drag.layer.parent &&
-                (target.direction == "over" || target.direction == "under")
+                target.layer.parent === drag.layer.parent &&
+                (target.direction === "over" || target.direction === "under")
             ) {
                 let parentGroup = target.layer.parent,
                     targetIndex = parentGroup.indexOf(target.layer);
 
                 if (
-                    (target.direction == "over" &&
-                        parentGroup.layers[targetIndex + 1] == drag.layer) ||
-                    (target.direction == "under" &&
-                        parentGroup.layers[targetIndex - 1] == drag.layer) ||
-                    target.layer == drag.layer
+                    (target.direction === "over" &&
+                        parentGroup.layers[targetIndex + 1] === drag.layer) ||
+                    (target.direction === "under" &&
+                        parentGroup.layers[targetIndex - 1] === drag.layer) ||
+                    target.layer === drag.layer
                 ) {
                     return null;
                 }
@@ -389,7 +382,8 @@ export default function CPLayersPalette(controller) {
              */
             if (
                 drag.layer instanceof CPLayerGroup &&
-                ((target.layer == drag.layer && target.direction == "inside") ||
+                ((target.layer === drag.layer &&
+                    target.direction === "inside") ||
                     target.layer.hasAncestor(drag.layer))
             ) {
                 return null;
@@ -421,18 +415,17 @@ export default function CPLayersPalette(controller) {
                                 drag.dropBetweenMarkerElem
                             );
 
-                            let layerRect,
-                                markerDepth =
+                            let markerDepth =
                                     drag.dropTarget.layer.getDepth() - 1,
                                 markerLeft,
                                 layerBottom;
 
                             // Position the marker in the correct position between the layers, and indent it to match the layer
-                            layerRect = targetElem.getBoundingClientRect();
+                            let layerRect = targetElem.getBoundingClientRect();
 
                             // Are we dropping below the layers in an expanded group? Extend the rect to enclose them
                             if (
-                                drag.dropTarget.direction == "under" &&
+                                drag.dropTarget.direction === "under" &&
                                 drag.dropTarget.layer instanceof CPLayerGroup &&
                                 drag.dropTarget.layer.expanded
                             ) {
@@ -476,29 +469,34 @@ export default function CPLayersPalette(controller) {
                                 markerLeft +
                                 "px";
                             drag.dropBetweenMarkerElem.style.top =
-                                (drag.dropTarget.direction == "over"
+                                (drag.dropTarget.direction === "over"
                                     ? layerRect.top - 1
                                     : layerBottom + 1) -
                                 positionRootBounds.top +
                                 "px";
 
-                            $(
-                                ".chickenpaint-layer-drop-target",
-                                layerContainer
-                            ).removeClass("chickenpaint-layer-drop-target");
+                            layerContainer
+                                .querySelectorAll(
+                                    ".chickenpaint-layer-drop-target"
+                                )
+                                .forEach((el) =>
+                                    el.classList.remove(
+                                        "chickenpaint-layer-drop-target"
+                                    )
+                                );
 
                             hideBetweenMarker = false;
                             break;
+
                         case "inside":
-                            let layerElems = $(
-                                ".chickenpaint-layer",
-                                layerContainer
+                            let layerElems = layerContainer.querySelectorAll(
+                                ".chickenpaint-layer"
                             );
 
-                            layerElems.each(function (index) {
-                                $(this).toggleClass(
+                            layerElems.forEach((elem, index) => {
+                                elem.classList.toggle(
                                     "chickenpaint-layer-drop-target",
-                                    layerElems.length - 1 - index ==
+                                    layerElems.length - 1 - index ===
                                         drag.dropTarget.displayIndex
                                 );
                             });
@@ -509,16 +507,17 @@ export default function CPLayersPalette(controller) {
                 }
 
                 if (hideIntoMarker) {
-                    $(
-                        ".chickenpaint-layer-drop-target",
-                        layerContainer
-                    ).removeClass("chickenpaint-layer-drop-target");
+                    layerContainer
+                        .querySelectorAll(".chickenpaint-layer-drop-target")
+                        .forEach((el) =>
+                            el.classList.remove(
+                                "chickenpaint-layer-drop-target"
+                            )
+                        );
                 }
 
                 if (hideBetweenMarker) {
-                    if (drag.dropBetweenMarkerElem) {
-                        drag.dropBetweenMarkerElem.remove();
-                    }
+                    drag.dropBetweenMarkerElem?.remove();
                 }
 
                 drag.frameElem.style.top =
@@ -527,12 +526,8 @@ export default function CPLayersPalette(controller) {
                     parseInt(drag.frameElem.style.height, 10) / 2 +
                     "px";
             } else {
-                if (drag.dropBetweenMarkerElem) {
-                    drag.dropBetweenMarkerElem.remove();
-                }
-                if (drag.frameElem) {
-                    drag.frameElem.remove();
-                }
+                drag.dropBetweenMarkerElem?.remove();
+                drag.frameElem?.remove();
             }
         }
 
@@ -743,9 +738,8 @@ export default function CPLayersPalette(controller) {
         function onDoubleClick(e) {
             if (
                 e.button === BUTTON_PRIMARY &&
-                $(e.target).closest(".chickenpaint-layer-description").length >
-                    0 &&
-                $(e.target).closest("input").length === 0
+                e.target.closest(".chickenpaint-layer-description") &&
+                !e.target.closest("input")
             ) {
                 /* Double clicking the layer description should start editing it, but ignore double clicks inside
                  * the rename textbox itself
@@ -772,12 +766,12 @@ export default function CPLayersPalette(controller) {
             let layerElem = e.target.closest(".chickenpaint-layer");
             let displayIndex = getDisplayIndexFromElem(layerElem);
 
-            if (displayIndex != -1) {
+            if (displayIndex !== -1) {
                 let layer = getLayerFromDisplayIndex(displayIndex);
 
                 if (
-                    e.button == BUTTON_PRIMARY &&
-                    $(e.target).closest(".chickenpaint-layer-eye").length
+                    e.button === BUTTON_PRIMARY &&
+                    e.target.closest(".chickenpaint-layer-eye")
                 ) {
                     controller.actionPerformed({
                         action: "CPSetLayerVisibility",
@@ -785,10 +779,9 @@ export default function CPLayersPalette(controller) {
                         visible: !layer.visible,
                     });
                 } else if (
-                    e.button == BUTTON_PRIMARY &&
+                    e.button === BUTTON_PRIMARY &&
                     layer instanceof CPLayerGroup &&
-                    $(e.target).closest("." + CLASSNAME_LAYER_GROUP_TOGGLE)
-                        .length
+                    e.target.closest("." + CLASSNAME_LAYER_GROUP_TOGGLE)
                 ) {
                     controller.actionPerformed({
                         action: "CPExpandLayerGroup",
@@ -796,18 +789,18 @@ export default function CPLayersPalette(controller) {
                         expand: !layer.expanded,
                     });
                 } else {
-                    let layerChanged = artwork.getActiveLayer() != layer;
+                    let layerChanged = artwork.getActiveLayer() !== layer;
 
                     dropdownOnMask =
-                        $(e.target).closest(
+                        e.target.closest(
                             "." + CLASSNAME_LAYER_MASK_THUMBNAIL
-                        ).length > 0 ||
+                        ) !== null ||
                         (layer instanceof CPLayerGroup &&
                             layer.mask !== null &&
                             layerChanged);
 
                     if (
-                        e.button == BUTTON_PRIMARY &&
+                        e.button === BUTTON_PRIMARY &&
                         e.shiftKey &&
                         !(e.ctrlKey || e.metaKey) &&
                         dropdownOnMask
@@ -820,7 +813,7 @@ export default function CPLayersPalette(controller) {
                     } else {
                         let selectMask, maskChanged;
 
-                        if (e.button != BUTTON_PRIMARY && !layerChanged) {
+                        if (e.button !== BUTTON_PRIMARY && !layerChanged) {
                             /*
                              * Right clicking within the currently selected layer does not result in the mask/image selection
                              * moving (but it does change the type of dropdown menu we receive)
@@ -830,7 +823,7 @@ export default function CPLayersPalette(controller) {
                             selectMask = dropdownOnMask;
                         }
 
-                        maskChanged = artwork.isEditingMask() != selectMask;
+                        maskChanged = artwork.isEditingMask() !== selectMask;
 
                         if (layerChanged || maskChanged) {
                             controller.actionPerformed({
@@ -860,7 +853,7 @@ export default function CPLayersPalette(controller) {
                             controller.actionPerformed({
                                 action: "CPRemoveLayerMask",
                             });
-                        } else if (e.button == BUTTON_PRIMARY) {
+                        } else if (e.button === BUTTON_PRIMARY) {
                             if (
                                 e.pointerType === "pen" ||
                                 e.pointerType === "touch"
@@ -885,7 +878,6 @@ export default function CPLayersPalette(controller) {
                             }
 
                             drag.dropTarget = null;
-
                             drag.layer = layer;
                             // We might have replaced the layer with a new element due to the CPSetActiveLayer, so fetch that again
                             drag.layerElem =
@@ -904,7 +896,7 @@ export default function CPLayersPalette(controller) {
                                 onPointerUp
                             );
                         } else if (
-                            e.button == BUTTON_SECONDARY &&
+                            e.button === BUTTON_SECONDARY &&
                             !layerChanged
                         ) {
                             e.preventDefault();
@@ -918,12 +910,12 @@ export default function CPLayersPalette(controller) {
         function onPointerUp(e) {
             switch (drag.state) {
                 case DRAG_STATE_DRAGGING:
-                    $(drag.layerElem).removeClass(
+                    drag.layerElem.classList.remove(
                         "chickenpaint-layer-dragging"
                     );
 
                     if (drag.dropTarget) {
-                        if (drag.dropTarget.direction == "inside") {
+                        if (drag.dropTarget.direction === "inside") {
                             controller.actionPerformed({
                                 action: "CPRelocateLayer",
                                 layer: drag.layer,
@@ -939,7 +931,7 @@ export default function CPLayersPalette(controller) {
                                     drag.dropTarget.layer.parent.indexOf(
                                         drag.dropTarget.layer
                                     ) +
-                                    (drag.dropTarget.direction == "over"
+                                    (drag.dropTarget.direction === "over"
                                         ? 1
                                         : 0),
                             });
@@ -973,16 +965,14 @@ export default function CPLayersPalette(controller) {
 
             drag.frameElem = document.createElement("div");
             drag.frameElem.className = "chickenpaint-layer-drag-frame";
-            drag.frameElem.style.width =
-                $(drag.layerElem).outerWidth(false) + "px";
-            drag.frameElem.style.height =
-                $(drag.layerElem).outerHeight(false) + "px";
+            drag.frameElem.style.width = drag.layerElem.offsetWidth + "px";
+            drag.frameElem.style.height = drag.layerElem.offsetHeight + "px";
 
             drag.dropBetweenMarkerElem = document.createElement("div");
             drag.dropBetweenMarkerElem.className =
                 "chickenpaint-layer-drop-between-mark";
 
-            drag.layerElem.className += " chickenpaint-layer-dragging";
+            drag.layerElem.classList.add("chickenpaint-layer-dragging");
 
             layerContainer.appendChild(drag.frameElem);
         }
@@ -1041,7 +1031,7 @@ export default function CPLayersPalette(controller) {
                 ),
                 layerFrag = document.createDocumentFragment();
 
-            $(layerContainer).empty();
+            layerContainer.innerHTML = ""; // jQuery の empty() を置き換え
 
             for (let i = layerElems.length - 1; i >= 0; i--) {
                 layerFrag.appendChild(layerElems[i]);
@@ -1059,15 +1049,19 @@ export default function CPLayersPalette(controller) {
          */
         this.layerChanged = function (layer) {
             let index = getDisplayIndexFromLayer(layer),
-                layerElem = $(getElemFromDisplayIndex(index));
+                layerElem = getElemFromDisplayIndex(index);
 
             if (
-                layerElem.length === 0 ||
+                !layerElem ||
                 (layer instanceof CPLayerGroup &&
                     (layer.expanded !=
-                        $(layerElem).hasClass(CLASSNAME_LAYER_GROUP_EXPANDED) ||
+                        layerElem.classList.contains(
+                            CLASSNAME_LAYER_GROUP_EXPANDED
+                        ) ||
                         layer.visible !=
-                            $(layerElem).hasClass(CLASSNAME_LAYER_VISIBLE)))
+                            layerElem.classList.contains(
+                                CLASSNAME_LAYER_VISIBLE
+                            )))
             ) {
                 // When these properties change, we might have to rebuild the group's children too, so just rebuild everything
                 this.buildLayers();
@@ -1078,18 +1072,21 @@ export default function CPLayersPalette(controller) {
 
         function rebuildThumbnailForLayer(layerElem, layer, maskThumb) {
             try {
-                if (maskThumb) {
-                    $(
-                        "." + CLASSNAME_LAYER_MASK_THUMBNAIL,
-                        layerElem
-                    ).replaceWith(createMaskThumb(layer));
-                } else {
-                    $(
-                        "." + CLASSNAME_LAYER_IMAGE_THUMBNAIL,
-                        layerElem
-                    ).replaceWith(createImageThumb(layer));
+                const thumbClass = maskThumb
+                    ? CLASSNAME_LAYER_MASK_THUMBNAIL
+                    : CLASSNAME_LAYER_IMAGE_THUMBNAIL;
+                const thumbElement = layerElem.querySelector("." + thumbClass);
+
+                if (thumbElement) {
+                    thumbElement.replaceWith(
+                        maskThumb
+                            ? createMaskThumb(layer)
+                            : createImageThumb(layer)
+                    );
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.log("Error rebuilding thumbnail: ", e);
+            }
         }
 
         /**
@@ -1097,14 +1094,14 @@ export default function CPLayersPalette(controller) {
          * @param {number} rotation - 90 degree increments
          */
         this.setRotation90 = function (rotation) {
-            if (imageRotation != rotation) {
+            if (imageRotation !== rotation) {
                 imageRotation = rotation;
 
                 for (let i = 0; i < linearizedLayers.length; i++) {
-                    let layer = linearizedLayers[i],
-                        layerElem = $(getElemFromDisplayIndex(i));
+                    let layer = linearizedLayers[i];
+                    let layerElem = getElemFromDisplayIndex(i);
 
-                    if (layerElem.length > 0) {
+                    if (layerElem) {
                         rebuildThumbnailForLayer(layerElem, layer, false);
 
                         if (layer.mask) {
@@ -1120,29 +1117,30 @@ export default function CPLayersPalette(controller) {
          *
          * @param {CPImageLayer} layer
          */
-        this.layerImageThumbChanged = function (layer) {
-            let index = getDisplayIndexFromLayer(layer),
-                layerElem = $(getElemFromDisplayIndex(index));
 
-            if (layerElem.length > 0) {
+        this.layerImageThumbChanged = function (layer) {
+            let index = getDisplayIndexFromLayer(layer);
+            let layerElem = getElemFromDisplayIndex(index);
+
+            if (layerElem) {
                 rebuildThumbnailForLayer(layerElem, layer, false);
             }
         };
 
-        /**
-         * The thumbnail of the given layer has been updated.
-         *
-         * @param {CPImageLayer} layer
-         */
         this.layerMaskThumbChanged = function (layer) {
-            let index = getDisplayIndexFromLayer(layer),
-                layerElem = $(getElemFromDisplayIndex(index));
+            let index = getDisplayIndexFromLayer(layer);
+            let layerElem = getElemFromDisplayIndex(index);
 
-            if (layerElem.length > 0) {
+            if (layerElem) {
                 if (layer.mask) {
                     rebuildThumbnailForLayer(layerElem, layer, true);
                 } else {
-                    $("." + CLASSNAME_LAYER_MASK_THUMBNAIL, layerElem).remove();
+                    let maskThumb = layerElem.querySelector(
+                        "." + CLASSNAME_LAYER_MASK_THUMBNAIL
+                    );
+                    if (maskThumb) {
+                        maskThumb.remove();
+                    }
                 }
             }
         };
@@ -1154,24 +1152,33 @@ export default function CPLayersPalette(controller) {
          * @param {boolean} maskSelected
          */
         this.activeLayerChanged = function (newLayer, maskSelected) {
-            $("." + CLASSNAME_LAYER_ACTIVE, layerContainer).removeClass(
-                CLASSNAME_LAYER_ACTIVE
+            let activeLayers = layerContainer.querySelectorAll(
+                "." + CLASSNAME_LAYER_ACTIVE
+            );
+            activeLayers.forEach((layer) => {
+                layer.classList.remove(CLASSNAME_LAYER_ACTIVE);
+            });
+
+            let layerElem = getElemFromDisplayIndex(
+                getDisplayIndexFromLayer(newLayer)
             );
 
-            let layerElem = $(
-                getElemFromDisplayIndex(getDisplayIndexFromLayer(newLayer))
+            layerElem.classList.add(CLASSNAME_LAYER_ACTIVE);
+
+            let imageThumb = layerElem.querySelector(
+                "." + CLASSNAME_LAYER_IMAGE_THUMBNAIL
+            );
+            let maskThumb = layerElem.querySelector(
+                "." + CLASSNAME_LAYER_MASK_THUMBNAIL
             );
 
-            layerElem.addClass(CLASSNAME_LAYER_ACTIVE);
+            if (imageThumb) {
+                imageThumb.classList.toggle("active", !maskSelected);
+            }
 
-            $("." + CLASSNAME_LAYER_IMAGE_THUMBNAIL, layerElem).toggleClass(
-                "active",
-                !maskSelected
-            );
-            $("." + CLASSNAME_LAYER_MASK_THUMBNAIL, layerElem).toggleClass(
-                "active",
-                maskSelected
-            );
+            if (maskThumb) {
+                maskThumb.classList.toggle("active", maskSelected);
+            }
         };
 
         this.resize = function () {
@@ -1382,10 +1389,9 @@ export default function CPLayersPalette(controller) {
     }
 
     function updateActiveLayerActionButtons() {
-
         let activeLayer = artwork.getActiveLayer();
         let isEditingMask = artwork.isEditingMask();
-        let facts = computeLayerPredicates(activeLayer,isEditingMask);
+        let facts = computeLayerPredicates(activeLayer, isEditingMask);
         for (let requirement of [
             "mask",
             "no-mask",
@@ -1395,7 +1401,6 @@ export default function CPLayersPalette(controller) {
             "no-clipping-mask-or-is-group",
             "image-layer",
             "layer-group",
-
         ]) {
             let elements = layerActionButtons.getElementsByClassName(
                 "chickenpaint-action-require-" + requirement
@@ -1506,19 +1511,23 @@ export default function CPLayersPalette(controller) {
             textBox = document.createElement("input"),
             that = this;
 
+        // 隠すメソッド
         this.hide = function () {
             layer = null;
 
-            let parentNameElem = $(textBox).parent();
+            let parentNameElem = textBox.parentNode;
 
+            // 親ノードが存在する時は、テキストボックスを削除して、レイヤー名を表示
             if (parentNameElem) {
-                $(textBox).remove();
-                parentNameElem.text(origName);
+                parentNameElem.removeChild(textBox);
+                parentNameElem.textContent = origName;
             }
         };
 
+        // 名前の変更とhide
         this.renameAndHide = function () {
-            if (layer && layer.name != textBox.value) {
+            if (layer && layer.name !== textBox.value) {
+                // 名前が変更されている時
                 controller.actionPerformed({
                     action: "CPSetLayerName",
                     layer: layer,
@@ -1528,13 +1537,15 @@ export default function CPLayersPalette(controller) {
             this.hide();
         };
 
+        // レイヤー名変更のテキストボックスを表示
         this.show = function (_layer, _layerElem) {
             layer = _layer;
             origName = layer.name;
 
+            // 元のレイヤー名をテキストボックスにセット
             textBox.value = origName;
 
-            var layerNameElem = _layerElem.querySelector(
+            let layerNameElem = _layerElem.querySelector(
                 ".chickenpaint-layer-name"
             );
             if (layerNameElem) {
@@ -1548,28 +1559,34 @@ export default function CPLayersPalette(controller) {
                         currentChild.nodeType === Node.TEXT_NODE
                     ) {
                         layerNameElem.removeChild(currentChild);
+                        // テキストボックスを親ノードに追加
                         layerNameElem.appendChild(textBox);
                     }
                 }
             }
+            // 入力ボックスを選択状態にする
             textBox.select();
         };
+
+        // テキストボックスの設定
         textBox.type = "text";
         textBox.className = "chickenpaint-layer-rename form-control input-sm";
 
+        // キーが押されたときにイベントを停止
         textBox.addEventListener("keydown", function (e) {
             // Prevent other keyhandlers (CPCanvas) from getting their grubby hands on the input
             e.stopPropagation();
         });
 
+        // エンターキーを押した時に名前変更と隠す処理を実行
         textBox.addEventListener("keydown", function (e) {
             if (e.key === "Enter") {
-                // Enter
                 that.renameAndHide();
             }
             e.stopPropagation();
         });
 
+        // エスケープキーを押した時にhide
         textBox.addEventListener("keyup", function (e) {
             if (e.key === "Escape") {
                 // Escape
@@ -1578,6 +1595,7 @@ export default function CPLayersPalette(controller) {
             e.stopPropagation();
         });
 
+        // 入力ボックスがフォーカスを失った時に名前変更処理を実行
         textBox.addEventListener("blur", function (e) {
             if (layer) {
                 that.renameAndHide();
@@ -1589,22 +1607,23 @@ export default function CPLayersPalette(controller) {
         parentSetWidth = this.setWidth,
         parentSetHeight = this.setHeight;
 
+    // サイズを変更するメソッド
     this.setSize = function (w, h) {
         parentSetSize.call(this, w, h);
-
         this.dismissNotification();
         alphaSlider.resize();
     };
 
+    // 幅を変更するメソッド
     this.setWidth = function (width) {
         parentSetWidth.call(this, width);
         alphaSlider.resize();
         layerWidget.resize();
     };
 
+    // 高さを変更するメソッド
     this.setHeight = function (height) {
         parentSetHeight.call(this, height);
-
         layerWidget.resize();
     };
 
@@ -1617,15 +1636,15 @@ export default function CPLayersPalette(controller) {
         layerWidget.setRotation90(newRotation);
     };
 
+    /**
+     * Dismiss any active notifications or popovers.
+     */
     this.dismissNotification = function () {
-        $(
-            ".chickenpaint-layer[aria-describedby],.chickenpaint-slider[aria-describedby]",
-            body
-        ).each((index, elem) => {
-            elem = $(elem);
-
-            const popoverInstance = bootstrap.Popover.getInstance(elem[0]);
-
+        const elements = document.querySelectorAll(
+            ".chickenpaint-layer[aria-describedby], .chickenpaint-slider[aria-describedby]"
+        );
+        elements.forEach((elem) => {
+            const popoverInstance = bootstrap.Popover.getInstance(elem);
             if (popoverInstance) {
                 popoverInstance.dispose();
             }
@@ -1637,6 +1656,13 @@ export default function CPLayersPalette(controller) {
         }
     };
 
+    /**
+     * Show a notification for a specific layer with a message.
+     *
+     * @param {CPLayer} layer - The layer for which the notification is shown
+     * @param {string} message - The message to display in the notification
+     * @param {string} where - The location for the notification (e.g., "opacity")
+     */
     this.showNotification = (layer, message, where) => {
         let notificationLayerIndex = getDisplayIndexFromLayer(layer),
             target;
@@ -1667,6 +1693,7 @@ export default function CPLayersPalette(controller) {
         }, Math.max(Math.round(message.length * NOTIFICATION_HIDE_DELAY_MS_PER_CHAR), NOTIFICATION_HIDE_DELAY_MIN));
     };
 
+    // 合成方法のセレクトメニュー
     blendCombo.className = "form-control form-control-sm";
     blendCombo.tabIndex = -1;
 
@@ -1681,6 +1708,7 @@ export default function CPLayersPalette(controller) {
 
     body.appendChild(blendCombo);
 
+    // 不透明度のスライダー
     alphaSlider.title = function (value) {
         return _("Opacity") + ": " + value + "%";
     };
@@ -1691,6 +1719,7 @@ export default function CPLayersPalette(controller) {
 
     body.appendChild(alphaSlider.getElement());
 
+    // SampleAllLayersのチェックボックスの設定を取得
     cbSampleAllLayers.id = "chickenpaint-chk-sample-all-layers";
     cbSampleAllLayers.type = "checkbox";
     cbSampleAllLayers.addEventListener("click", function (e) {
@@ -1702,6 +1731,7 @@ export default function CPLayersPalette(controller) {
         wrapBootstrapCheckbox(cbSampleAllLayers, _("Sample all layers"))
     );
 
+    // 透明度をロックのチェックボックスの設定を取得
     cbLockAlpha.id = "chickenpaint-chk-lock-alpha";
     cbLockAlpha.type = "checkbox";
     cbLockAlpha.addEventListener("click", function (e) {
@@ -1718,9 +1748,11 @@ export default function CPLayersPalette(controller) {
 
     body.appendChild(layerWidget.getElement());
 
+    // レイヤーアクションボタンを追加
     layerActionButtons = createLayerActionButtons();
     body.appendChild(layerActionButtons);
 
+    // イベントリスナー登録
     artwork.on("changeActiveLayer", onChangeActiveLayer);
     artwork.on("changeLayer", onChangeLayer);
     artwork.on("changeStructure", onChangeStructure);
@@ -1733,5 +1765,7 @@ export default function CPLayersPalette(controller) {
     onChangeStructure.call(artwork);
 }
 
+// CPLayersPaletteのプロトタイプをCPPaletteのプロトタイプから継承
 CPLayersPalette.prototype = Object.create(CPPalette.prototype);
+// コンストラクタをCPLayersPaletteに設定
 CPLayersPalette.prototype.constructor = CPLayersPalette;

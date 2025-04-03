@@ -20,86 +20,83 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
 export default function CPGridDialog(parent, canvas) {
-    var dialog = $(`<div class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">${_("Grid options")}</h5>
-                            <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close">
-                            </button>
+    // ダイアログ要素を作成
+    const dialog = document.createElement("div");
+    dialog.classList.add("modal", "fade");
+    dialog.setAttribute("tabindex", "-1");
+    dialog.setAttribute("role", "dialog");
+    dialog.innerHTML = `
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">${_("Grid options")}</h5>
+                    <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label>${_("Grid size")}</label>
+                            <input type="number" class="form-control chickenpaint-grid-size" value="" min="3">
                         </div>
-                        <div class="modal-body">
-                            <form>
-                                <div class="form-group">
-                                    <label>${_("Grid size")}</label>
-                                    <input type="number" class="form-control chickenpaint-grid-size" value="" min="3">
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_(
-                                "Cancel"
-                            )}</button>
-                            <button type="button" class="btn btn-primary chickenpaint-apply-grid-settings" data-bs-dismiss="modal">${_(
-                                "Ok"
-                            )}</button>
-                        </div>
-                    </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_("Cancel")}</button>
+                    <button type="button" class="btn btn-primary chickenpaint-apply-grid-settings" data-bs-dismiss="modal">${_("Ok")}</button>
                 </div>
             </div>
-        `),
-        gridSizeElem = $(".chickenpaint-grid-size", dialog),
-        applyButton = $(".chickenpaint-apply-grid-settings", dialog);
+        </div>
+    `;
 
-    // Bootstrap 5: Modal コンストラクタを使用して modal を初期化
-    var modal = new bootstrap.Modal(dialog[0]);
+    const gridSizeElem = dialog.querySelector(".chickenpaint-grid-size");
+    const applyButton = dialog.querySelector(".chickenpaint-apply-grid-settings");
+
+    // Bootstrap 5: Modalコンストラクタを使用してモーダルを初期化
+    const modal = new bootstrap.Modal(dialog);
+
     this.show = function () {
         // ハンバガーメニューとモーダルの二重表示防止
-        // chickenpaint-main-menu-contentのIDを持つcollapse要素を閉じる
-        const collapseElement = document.getElementById(
-            "chickenpaint-main-menu-content"
-        );
+        const collapseElement = document.getElementById("chickenpaint-main-menu-content");
         if (collapseElement && collapseElement.classList.contains("show")) {
-            const bsCollapse = new bootstrap.Collapse(collapseElement, {
-                toggle: false, // すでに閉じている場合のエラーを防ぐ
-            });
+            const bsCollapse = new bootstrap.Collapse(collapseElement, { toggle: false });
             bsCollapse.hide();
         }
-        //モーダルを表示
+        // モーダルを表示
         modal.show();
     };
 
-    gridSizeElem.val(canvas.getGridSize());
+    // グリッドサイズの初期値を設定
+    gridSizeElem.value = canvas.getGridSize();
 
-    // Destroy the modal upon close
-    dialog[0].addEventListener("hidden.bs.modal", (e) => {
-        dialog[0].remove();
+    // モーダルが閉じられた後にダイアログを削除
+    dialog.addEventListener("hidden.bs.modal", () => {
+        dialog.remove();
     });
 
-    applyButton[0].addEventListener("click", (e) => {
-        var gridSize = parseInt(gridSizeElem.val(), 10);
+    // 「OK」ボタンのクリックイベント
+    applyButton.addEventListener("click", () => {
+        const gridSize = parseInt(gridSizeElem.value, 10);
         canvas.setGridSize(gridSize);
-        var modal = bootstrap.Modal.getInstance(dialog[0]); // インスタンスを取得
-        document.activeElement.blur(); // フォーカスを外す
         modal.hide(); // モーダルを手動で閉じる
     });
-    dialog[0].addEventListener("shown.bs.modal", (e) => {
-        gridSizeElem[0].focus();
+
+    // モーダルが表示されたときに、グリッドサイズの入力フィールドにフォーカス
+    dialog.addEventListener("shown.bs.modal", () => {
+        gridSizeElem.focus();
     });
 
-    // Enter キーが押されたときの処理を追加
-    dialog[0].addEventListener("keydown", (e) => {
+    // Enterキーが押されたときの処理
+    dialog.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
-            e.preventDefault(); // デフォルトのフォーム送信を阻止
-            // applyButton.trigger('click');
-            applyButton[0].click();
+            e.preventDefault(); // フォーム送信を防ぐ
+            applyButton.click(); // OKボタンをクリックしたことにする
         }
     });
 
-    parent.appendChild(dialog[0]);
+    // 親要素にダイアログを追加
+    parent.appendChild(dialog);
 }
