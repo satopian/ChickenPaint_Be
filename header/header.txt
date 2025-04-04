@@ -29,9 +29,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 /*
-    jQuery JavaScript Library
-    (c) OpenJS Foundation and other contributors | https://jquery.com/license/
-
     Bootstrap (https://getbootstrap.com/)
     Copyright The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
     Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)

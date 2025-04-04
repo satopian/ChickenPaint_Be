@@ -69,7 +69,7 @@ export default function CPAboutDialog(parent) {
                         MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
                         <a target="_blank" href="https://www.gnu.org/licenses/" rel="noopener">GNU General Public License</a> for more details.
                     </p>
-                            <pre class="pre-scrollable chickenpaint-third-party-licenses">Toolbar icons designed by <a target="_blank" href="https://github.com/Anteira" rel="noopener">Miglena Lapavicheva (Anteira)</a>
+<pre class="pre-scrollable chickenpaint-third-party-licenses">Toolbar icons designed by <a target="_blank" href="https://github.com/Anteira" rel="noopener">Miglena Lapavicheva (Anteira)</a>
     These icons are dual-licensed under <a target="_blank" href="https://spdx.org/licenses/GPL-3.0-or-later.html" rel="noopener">GPL-3.0-or-later</a> and <a target="_blank" href="https://creativecommons.org/licenses/by/3.0/" rel="noopener">CC-BY-3.0</a>
 Includes these MIT-licensed libraries:
 Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js" rel="noopener">FileSaver.js library</a>
@@ -98,37 +98,6 @@ Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js" r
     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-    OTHER DEALINGS IN THE SOFTWARE.
-
-Includes the <a href="https://jquery.com/" target="_blank" rel="noopener">jQuery library</a> 
-Copyright <a href="https://jquery.com/license/" target="_blank" rel="noopener">OpenJS Foundation and other contributors</a>
-    
-    This software consists of voluntary contributions made by many
-    individuals. For exact contribution history, see the revision 
-    history available at https://github.com/jquery/jquery
-    
-    The following license applies to all parts of this software 
-    except as documented below:
-    
-    Permission is hereby granted, free of charge, to any person 
-    obtaining a copy of this software and associated documentation
-    files (the "Software"), to deal in the Software without
-    restriction, including without limitation the rights to use, 
-    copy, modify, merge, publish, distribute, sublicense, and/or
-    sell copies of the Software, and to permit persons to whom the
-    Software is furnished to do so, subject to the following
-    conditions:
-    
-    The above copyright notice and this permission notice shall be
-    included in all copies or substantial portions of the Software.
-    
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR

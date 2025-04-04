@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import $ from "jquery";
 import key from "../../lib/keymaster.js";
 import {_} from "../languages/lang.js";
 
@@ -500,6 +499,14 @@ export default function CPMainMenu(controller, mainGUI) {
       div.querySelector(".dropdown-toggle").addEventListener("show.bs.dropdown", () => updateMenuStates(div));
 
       topEntry.children.forEach(entry => {
+        if (entry.name === "-") {
+          // 区切り線の場合は直接処理
+          const entryElem = document.createElement("hr");
+          entryElem.className = "dropdown-divider";
+          dropdownMenu.appendChild(entryElem);
+          return;  // この後の処理は不要なので、次のエントリに進む
+      }
+  
         if (!entry.action || !controller.isActionSupported(entry.action)) return;
 
         if (entry.action === "CPSend" && !controller.isActionSupported("CPContinue")) {
@@ -508,11 +515,6 @@ export default function CPMainMenu(controller, mainGUI) {
         }
 
         let entryElem;
-
-        if (entry.name === "-") {
-          entryElem = document.createElement("hr");
-          entryElem.className = "dropdown-divider";
-        } else {
           entryElem = document.createElement("a");
           entryElem.className = "dropdown-item";
           entryElem.href = "#";
@@ -543,7 +545,6 @@ export default function CPMainMenu(controller, mainGUI) {
               e.stopPropagation();
               return false;
             });
-          }
         }
 
         const li = document.createElement("li");

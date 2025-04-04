@@ -23,7 +23,6 @@
     "bootstrap": "^5.3.3",
     "file-saver": "^2.0.5",
     "google-closure-compiler": "^20240317.0.0",
-    "jquery": "^3.7.1",
     "pako": "^1.0.11",
     "random-js": "^2.1.0",
     "uuid": "^9.0.1",
