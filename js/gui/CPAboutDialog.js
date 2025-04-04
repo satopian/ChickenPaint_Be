@@ -71,7 +71,8 @@ export default function CPAboutDialog(parent) {
                     </p>
 <pre class="pre-scrollable chickenpaint-third-party-licenses">Toolbar icons designed by <a target="_blank" href="https://github.com/Anteira" rel="noopener">Miglena Lapavicheva (Anteira)</a>
     These icons are dual-licensed under <a target="_blank" href="https://spdx.org/licenses/GPL-3.0-or-later.html" rel="noopener">GPL-3.0-or-later</a> and <a target="_blank" href="https://creativecommons.org/licenses/by/3.0/" rel="noopener">CC-BY-3.0</a>
-Includes these MIT-licensed libraries:
+
+    Includes these MIT-licensed libraries:
 
     Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js" rel="noopener">FileSaver.js library</a>
     FileSaver.js Copyright © 2015 <a target="_blank" href="https://eligrey.com/" rel="noopener">Eli Grey</a>
