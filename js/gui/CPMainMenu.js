@@ -596,8 +596,8 @@ export default function CPMainMenu(controller, mainGUI) {
   mainGUI.getPaletteManager().on("paletteVisChange", onPaletteVisChange);
 
   const fullScreenToggle = bar.querySelector(".dropdown-item[data-action=CPFullScreen]");
-  controller.on("fullScreen", isFS => fullScreenToggle.classList.toggle("selected", isFS));
-  fullScreenToggle.classList.toggle("selected", controller.isFullScreen());
+  controller.on("fullScreen", isFS => fullScreenToggle?.classList.toggle("selected", isFS));
+  fullScreenToggle?.classList.toggle("selected", controller.isFullScreen());
 
   this.getElement = () => bar;
 }
