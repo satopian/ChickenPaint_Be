@@ -72,7 +72,8 @@ export default function CPAboutDialog(parent) {
 <pre class="pre-scrollable chickenpaint-third-party-licenses">Toolbar icons designed by <a target="_blank" href="https://github.com/Anteira" rel="noopener">Miglena Lapavicheva (Anteira)</a>
     These icons are dual-licensed under <a target="_blank" href="https://spdx.org/licenses/GPL-3.0-or-later.html" rel="noopener">GPL-3.0-or-later</a> and <a target="_blank" href="https://creativecommons.org/licenses/by/3.0/" rel="noopener">CC-BY-3.0</a>
 Includes these MIT-licensed libraries:
-Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js" rel="noopener">FileSaver.js library</a>
+
+    Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js" rel="noopener">FileSaver.js library</a>
     FileSaver.js Copyright © 2015 <a target="_blank" href="https://eligrey.com/" rel="noopener">Eli Grey</a>
 
     Includes the <a target="_blank" href="https://github.com/nodeca/pako" rel="noopener">Pako zlib compression library</a>
@@ -82,7 +83,14 @@ Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js" r
     Copyright (c) 2011-2013 Thomas Fuchs
 
     Includes the <a target="_blank" href="https://benalman.com/projects/jquery-throttle-debounce-plugin/" rel="noopener">jQuery throttle-debounce</a> library
-    Copyright (c) 2010 "Cowboy" Ben Alman    Permission is hereby granted, free of charge, to any person
+    Copyright (c) 2010 "Cowboy" Ben Alman
+    
+    Includes the <a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap</a> 
+    Copyright (c) 2011-2025 <a href="https://github.com/twbs/bootstrap/blob/main/LICENSE" target="_blank" rel="noopener">The Bootstrap Authors</a>
+
+    MIT License
+
+    Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
     files (the "Software"), to deal in the Software without
     restriction, including without limitation the rights to use,
@@ -103,27 +111,6 @@ Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js" r
     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
     OTHER DEALINGS IN THE SOFTWARE.
 
-Includes the <a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap</a> 
-Copyright <a href="https://github.com/twbs/bootstrap/blob/main/LICENSE" target="_blank" rel="noopener">The Bootstrap Authors</a>
-    
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    THE SOFTWARE.
-    
 Includes Font Awesome by Fonticons, Inc. - <a href="https://fontawesome.com/" target="_blank" rel="noopener">https://fontawesome.com/</a>
 Includes Material Design icons by Google - <a href="https://fonts.google.com/" target="_blank" rel="noopener">https://fonts.google.com/</a>
                     </pre>
