@@ -582,14 +582,14 @@ export default function CPMainMenu(controller, mainGUI) {
     }
   });
 
-	function onPaletteVisChange(paletteName, show) {
-		const key = "CPPal" + paletteName.charAt(0).toUpperCase() + paletteName.slice(1);
-		const buttons = document.querySelectorAll(`button[data-action="${key}"]`);
-		buttons.forEach(btn => {
-			btn.classList.toggle("selected", show);
-		});
-	}
-	
+  function onPaletteVisChange(paletteName, show) {
+    const key = "CPPal" + paletteName.charAt(0).toUpperCase() + paletteName.slice(1);
+    const buttons = document.querySelectorAll(`[data-action="${key}"]`); // 'button' と 'a' の両方を対象にする
+    buttons.forEach(btn => {
+        btn.classList.toggle("selected", show);
+    });
+  }
+
   fillMenu(bar.querySelector(".navbar-nav"), MENU_ENTRIES);
   fillWidgetTray(bar.querySelector(".widget-nav"), MENU_ENTRIES[5].children);
 
