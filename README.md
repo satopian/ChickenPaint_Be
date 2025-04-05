@@ -10,6 +10,7 @@ IEのサポートが完全に終了したため、互換性のための古いJav
 しかし、Bootstrap4にも非推奨になったキーボードイベントのコードが残っていました。  
 Bootstrap4のコードを含む｢ChickenPaint｣のビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするとても無駄な作業が発生しました。  
 これらの問題を解決するためBootstrap5対応版を作りました。    
+そして、bootstrap4では必要だったjQueryからも脱却しました。
 改造したバージョンの｢ChickenPaint｣の名称は｢ChickenPaint Be｣です。  
 追加された機能と廃止された機能があり、またこの改造版に固有の問題が存在する可能性もあるため名称を変更しました。  
 
@@ -26,7 +27,8 @@ Bootstrap4はサポートが終了しているため、セキュリティパッ�
 [npm audit reports moderate XSS vulnerability with bootstrap 4.6.2 · Issue #40685 · twbs/bootstrap](https://github.com/twbs/bootstrap/issues/40685)  
 
 ｢ChickenPaint Be｣は、Bootstrap5に移行しました。    
-Bootstrap5は現行サポートバージョンであるため、あらたな問題が発見されてたとしても、問題が修正される事を期待できます。    
+Bootstrap5は現行サポートバージョンであるため、あらたな問題が発見されてたとしても、問題が修正される事を期待できます。
+
 ## デモ
 
 [https://paintbbs.sakura.ne.jp/localPaintBBS/chickenpaint/](https://paintbbs.sakura.ne.jp/localPaintBBS/chickenpaint/)
