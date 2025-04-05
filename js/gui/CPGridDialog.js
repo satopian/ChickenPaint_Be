@@ -34,7 +34,7 @@ export default function CPGridDialog(parent, canvas) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">${_("Grid options")}</h5>
-                    <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close"></button>
+                    <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form>

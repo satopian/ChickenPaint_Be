@@ -33,7 +33,7 @@ export default function CPAboutDialog(parent) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">About ChickenPaint Be</h5>
-                    <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="btn btn-close"></button>
+                    <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <a class="chickenpaint-on-github" target="_blank" href="https://github.com/satopian/ChickenPaint_Be" rel="noopener">

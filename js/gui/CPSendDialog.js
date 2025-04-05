@@ -47,6 +47,35 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
                     <button type="button" class="btn btn-light chickenpaint-send-cancel" data-bs-dismiss="modal">${_("Cancel")}</button>
                 </div>
             </div>
+            <div class="modal-content" data-stage="success-not-previously-posted" style="display:none">
+                <div class="modal-header">
+                    <h5 class="modal-title">${_("Drawing saved!")}</h5>
+                    <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>${_("Your drawing has been saved, would you like to post it to the forum now?")}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary chickenpaint-post-drawing" data-bs-dismiss="modal">${_("Yes, post it now")}</button>
+                    <button type="button" class="btn btn-light chickenpaint-continue-drawing" data-bs-dismiss="modal">${_("No, keep drawing")}</button>
+                    <button type="button" class="btn btn-light chickenpaint-exit" data-bs-dismiss="modal">${_("No, quit and I'll finish it later")}</button>
+                </div>
+            </div>
+            <div class="modal-content" data-stage="success-already-posted" style="display:none">
+                <div class="modal-header">
+                    <h5 class="modal-title">${_("Drawing saved!")}</h5>
+                    <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>${_("Your drawing has been saved, would you like to view it on the forum now?")}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary chickenpaint-post-drawing" data-bs-dismiss="modal">${_("Yes, view the post")}</button>
+                    <button type="button" class="btn btn-light chickenpaint-continue-drawing" data-bs-dismiss="modal">${_("No, keep drawing")}</button>
+                </div>
+            </div>
             <div class="modal-content" data-stage="success-redirect" style="display:none">
                 <div class="modal-header">
                     <h5 class="modal-title">${_("Drawing saved!")}</h5>
@@ -72,10 +101,24 @@ export default function CPSendDialog(controller, parent, resourceSaver) {
     });
 
     resourceSaver.on("savingComplete", function () {
+        // "saving" ステージを非表示にする
         dialog.querySelector(".modal-content[data-stage='saving']").style.display = "none";
-        dialog.querySelector(".modal-content[data-stage='success-redirect']").style.display = "block";
+    
+        // CPContinue と CPExit のサポートを確認して、適切なステージを表示する
+        if (controller.isActionSupported("CPContinue")) {
+            if (controller.isActionSupported("CPExit")) {
+                // "success-not-previously-posted" ステージを表示
+                dialog.querySelector(".modal-content[data-stage='success-not-previously-posted']").style.display = "block";
+            } else {
+                // "success-already-posted" ステージを表示
+                dialog.querySelector(".modal-content[data-stage='success-already-posted']").style.display = "block";
+            }
+        } else {
+            // "success-redirect" ステージを表示
+            dialog.querySelector(".modal-content[data-stage='success-redirect']").style.display = "block";
+        }
     });
-
+    
     resourceSaver.on("savingFailure", function(serverMessage) {
         progressElem.classList.add("progress-bar-danger");
         let errorMessage = _("Sorry, your drawing could not be saved, please try again later.");
