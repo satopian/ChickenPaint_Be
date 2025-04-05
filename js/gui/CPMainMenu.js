@@ -582,11 +582,28 @@ export default function CPMainMenu(controller, mainGUI) {
     }
   });
 
+
+  /**
+   * 指定されたパレットの表示状態に応じて、対応するトグルボタンやメニュー項目の
+   * "selected" クラスの付け外しを行う。
+   *
+   * @param {string} paletteName - パレット名（例: "Tool", "Color"など）
+   * @param {boolean} show - パレットが表示されている場合は true、非表示の場合は false
+   *
+   * ボタンは #chickenpaint-palette-toggler-content 内の[data-action=CPPalXxx]要素を対象とし、
+   * メニュー項目は bar 要素内の[data-action=CPPalXxx]要素を対象とする。
+   * これらをまとめて処理し、"selected" クラスを適切に切り替える。
+   */
   function onPaletteVisChange(paletteName, show) {
     const key = "CPPal" + paletteName.charAt(0).toUpperCase() + paletteName.slice(1);
-    const buttons = document.querySelectorAll(`[data-action="${key}"]`); // 'button' と 'a' の両方を対象にする
-    buttons.forEach(btn => {
-        btn.classList.toggle("selected", show);
+
+    const palette_toggler_content = document.getElementById("chickenpaint-palette-toggler-content");//'button'
+    
+    const buttons = palette_toggler_content?.querySelectorAll(`[data-action="${key}"]`) || [];
+    const menus = bar?.querySelectorAll(`[data-action="${key}"]`) || [];
+    // 両方を一つにまとめて処理
+    [...buttons, ...menus].forEach(element => {
+      element.classList.toggle("selected", show);
     });
   }
 
