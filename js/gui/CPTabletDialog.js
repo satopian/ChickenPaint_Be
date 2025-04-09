@@ -36,9 +36,6 @@ export default function CPTabletDialog(parent) {
                     <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="chickenpaint-tablet-there-are-two-options">
-                        There are two ways you could use your tablet's pen pressure support with ChickenPaint.
-                    </p>
                     <div class="chickenpaint-tablet-support chickenpaint-pointerevents-support">
                         <h5>
                             Built-in support for most tablets.
@@ -71,18 +68,10 @@ export default function CPTabletDialog(parent) {
         </div>
     `;
 
-    let wacomSupportElem = dialog.querySelector(".chickenpaint-wacom-support"),
-        peSupportElem = dialog.querySelector(
-            ".chickenpaint-pointerevents-support"
-        ),
-        bothOptionsElem = dialog.querySelector(
-            ".chickenpaint-tablet-there-are-two-options"
-        ),
-        peSupported = !!window.hasNativePointerEvents;
-
-    if (peSupported) {
-        bothOptionsElem.style.display = "none";
-    }
+    const peSupportElem = dialog.querySelector(
+        ".chickenpaint-pointerevents-support"
+    );
+    const peSupported = !!window.hasNativePointerEvents;
 
     peSupportElem.classList.toggle("supported", peSupported);
     peSupportElem.classList.toggle("not-supported", !peSupported);
