@@ -20,14 +20,14 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import CPWacomTablet from "../util/CPWacomTablet.js";
 
 export default function CPTabletDialog(parent) {
-    let dialog = document.createElement('div');
-    dialog.classList.add('modal', 'fade');
-    dialog.setAttribute('tabindex', '-1');
-    dialog.setAttribute('role', 'dialog');
+    let dialog = document.createElement("div");
+    dialog.classList.add("modal", "fade");
+    dialog.setAttribute("tabindex", "-1");
+    dialog.setAttribute("role", "dialog");
     dialog.innerHTML = `
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -39,38 +39,6 @@ export default function CPTabletDialog(parent) {
                     <p class="chickenpaint-tablet-there-are-two-options">
                         There are two ways you could use your tablet's pen pressure support with ChickenPaint.
                     </p>
-                    <div class="chickenpaint-tablet-support chickenpaint-wacom-support">
-                        <h5>Plugin for Wacom tablets</h5>
-                        <div class="chickenpaint-supported-browsers">
-                            <div class="chickenpaint-supported-browser">
-                                <span class="icon-firefox"></span>
-                                Firefox (32-bit only)
-                            </div>
-                            <div class="chickenpaint-supported-browser">
-                                <span class="icon-safari"></span>
-                                Safari
-                            </div>
-                            <div class="chickenpaint-supported-browser">
-                                <span class="icon-opera"></span>
-                                Opera
-                            </div>
-                        </div>
-                        <p class="chickenpaint-not-installed">
-                            The plugin for Wacom tablets doesn't seem to be installed in your browser yet.
-                        </p>
-                        <p class="chickenpaint-not-installed">
-                            Please make sure that you've installed the latest drivers for your tablet from the 
-                            <a href="http://www.wacom.com/en-us/support/product-support/drivers" target="_blank">Wacom drivers page</a>,
-                            then restart your browser.
-                        </p>
-                        <p class="chickenpaint-not-supported">
-                            Your browser doesn't support the Wacom tablet plugin, please 
-                            try one of the browsers listed above instead.
-                        </p>
-                        <p class="chickenpaint-supported alert alert-success">
-                            The Wacom tablet plugin is installed and working.
-                        </p>
-                    </div>
                     <div class="chickenpaint-tablet-support chickenpaint-pointerevents-support">
                         <h5>
                             Built-in support for most tablets.
@@ -102,34 +70,25 @@ export default function CPTabletDialog(parent) {
             </div>
         </div>
     `;
-  
+
     let wacomSupportElem = dialog.querySelector(".chickenpaint-wacom-support"),
-        peSupportElem = dialog.querySelector(".chickenpaint-pointerevents-support"),
-        bothOptionsElem = dialog.querySelector(".chickenpaint-tablet-there-are-two-options"),
-        wacomPresent = CPWacomTablet.getRef().isTabletPresent(),
+        peSupportElem = dialog.querySelector(
+            ".chickenpaint-pointerevents-support"
+        ),
+        bothOptionsElem = dialog.querySelector(
+            ".chickenpaint-tablet-there-are-two-options"
+        ),
         peSupported = !!window.hasNativePointerEvents;
 
-    if (wacomPresent) {
-        wacomSupportElem.classList.add("supported");
-        peSupportElem.style.display = 'none';
-        bothOptionsElem.style.display = 'none';
-    } else {
-        if (/Chrome/i.test(navigator.userAgent) && !/OPR/.test(navigator.userAgent)
-            || /iPad/.test(navigator.userAgent) || /iPhone/.test(navigator.userAgent)) {
-            wacomSupportElem.classList.add("not-supported");
-        }
-
-        if (peSupported) {
-            wacomSupportElem.style.display = 'none';
-            bothOptionsElem.style.display = 'none';
-        }
+    if (peSupported) {
+        bothOptionsElem.style.display = "none";
     }
 
     peSupportElem.classList.toggle("supported", peSupported);
     peSupportElem.classList.toggle("not-supported", !peSupported);
 
     // Destroy the modal upon close
-    dialog.addEventListener('hidden.bs.modal', (e) => {
+    dialog.addEventListener("hidden.bs.modal", (e) => {
         dialog.remove();
     });
 

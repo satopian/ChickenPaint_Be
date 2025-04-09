@@ -48,7 +48,6 @@ import CPSendDialog from "./gui/CPSendDialog.js";
 
 import {isCanvasInterpolationSupported, isEventSupported, isCanvasSupported, isFlexboxSupported} from "./util/CPPolyfill.js";
 import CPColor from "./util/CPColor.js";
-import CPWacomTablet from "./util/CPWacomTablet.js";
 import CPRect from "./util/CPRect.js";
 
 import EventEmitter from "wolfy87-eventemitter";
@@ -1362,8 +1361,6 @@ export default function ChickenPaint(options) {
         if (initialRotation90) {
             mainGUI.setRotation90(initialRotation90);
         }
-        
-        CPWacomTablet.getRef().detectTablet();
         
         installUnsavedWarning();
 

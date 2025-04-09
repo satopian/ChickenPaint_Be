@@ -26,7 +26,6 @@ import key from "../../lib/keymaster.js";
 
 import CPRect from "../util/CPRect.js";
 import CPTransform from "../util/CPTransform.js";
-import CPWacomTablet from "../util/CPWacomTablet.js";
 import CPBezier from "../util/CPBezier.js";
 import {throttle} from "../util/throttle-debounce.js";
 import CPPolygon from "../util/CPPolygon.js";
@@ -232,7 +231,7 @@ export default function CPCanvas(controller) {
         gridSize = 32,
         
         mouseX = 0, mouseY = 0,
-        mouseIn = false, mouseDown = [false, false, false] /* Track each button independently */, wacomPenDown = false,
+        mouseIn = false, mouseDown = [false, false, false] /* Track each button independently */,
 
         sawPen = false,
         sawTouchWithPressure = false,
@@ -281,9 +280,7 @@ export default function CPCanvas(controller) {
         curDrawMode,
         
         horzScroll = new CPScrollbar(false), 
-        vertScroll = new CPScrollbar(true),
-        
-        tablet = CPWacomTablet.getRef();
+        vertScroll = new CPScrollbar(true);
 
     Math.sign = Math.sign || function(x) {
         x = +x; // convert to a number
@@ -2105,10 +2102,6 @@ export default function CPCanvas(controller) {
      * @return {Number}
      */
     function getPointerPressure(e) {
-        // Use Wacom pressure in preference to pointer event pressure (if present)
-        if (wacomPenDown) {
-            return tablet.getPressure();
-        }
         
         // Safari fails to set pressure = 0.5 for mouse button down like it is supposed to
         if (e.pointerType === "mouse" && e.buttons !== 0 && e.pressure === 0) {
@@ -2266,7 +2259,6 @@ export default function CPCanvas(controller) {
         mouseDown[BUTTON_SECONDARY] = false;
         mouseDown[BUTTON_WHEEL] = false;
 
-        wacomPenDown = false;
         modeStack.mouseUp(e, e.button, 0.0);
         canvas.releasePointerCapture(e.pointerId);
     }
@@ -2285,8 +2277,6 @@ export default function CPCanvas(controller) {
         // Store these globally for the event handlers to refer to
         mouseX = e.clientX - canvasClientRect.left;
         mouseY = e.clientY - canvasClientRect.top;
-
-        wacomPenDown = tablet.isPen();
 
         mouseDown[BUTTON_PRIMARY] = false;
         mouseDown[BUTTON_SECONDARY] = false;
