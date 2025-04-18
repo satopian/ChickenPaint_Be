@@ -21,7 +21,6 @@
 */
 
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
-import CPWacomTablet from "../util/CPWacomTablet.js";
 
 export default function CPTabletDialog(parent) {
     let dialog = document.createElement("div");
