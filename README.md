@@ -1,4 +1,6 @@
 # ChickenPaint Be
+
+## サポートが終了したBootstrap4からBootstrap5へ移行
 ｢ChickenPaint｣は、Nicholas Sherlock氏が開発したペイントソフトです。  
 
 [thenickdude/chickenpaint: An HTML5 Port of the ChibiPaint multi-layer Oekaki painting tool](https://github.com/thenickdude/chickenpaint)  
@@ -9,7 +11,7 @@ IEのサポートが完全に終了したため、互換性のための古いJav
 その作業の過程で、キーボードインベントの処理の書き直しを行いました。  
 しかし、Bootstrap4にも非推奨になったキーボードイベントのコードが残っていました。  
 Bootstrap4のコードを含む｢ChickenPaint｣のビルドを行ったあと手作業で該当箇所を置換してGoogleのクロージャーコンパイラーでminifyするとても無駄な作業が発生しました。  
-これらの問題を解決するためBootstrap5対応版を作り、jQueryで書かれていたコードを、JavaScriptに置き換えました。    
+これらの問題を解決するためBootstrap5対応版を作りました。    
 改造したバージョンの｢ChickenPaint｣の名称は｢ChickenPaint Be｣です。  
 追加された機能と廃止された機能があり、またこの改造版に固有の問題が存在する可能性もあるため名称を変更しました。  
 
@@ -27,6 +29,12 @@ Bootstrap4はサポートが終了しているため、セキュリティパッ�
 
 ｢ChickenPaint Be｣は、Bootstrap5に移行しました。    
 Bootstrap5は現行サポートバージョンであるため、あらたな問題が発見されてたとしても、問題が修正される事を期待できます。
+
+### 脱jQuery
+- Bootstrap4はjQueryを必要としていましたが、Bootstrap5はJavaScriptのみで動作します。  
+もはや必須ではなくなったjQueryとJavaScriptが混在したコードになり保守しがたいものになっていました。  
+そのため、jQueryで記述されていた箇所をすべてJavaScriptに置き換えました。  
+ChickenPaint Beは仮にjQueryの開発が終了したとしても、影響を受けません。  
 
 ## デモ
 
