@@ -31,7 +31,7 @@ Bootstrap4はサポートが終了しているため、セキュリティパッ�
 Bootstrap5は現行サポートバージョンであるため、あらたな問題が発見されてたとしても、問題が修正される事を期待できます。
 
 ### 脱jQuery
-- Bootstrap4はjQueryを必要としていましたが、Bootstrap5はJavaScriptのみで動作します。  
+Bootstrap4はjQueryを必要としていましたが、Bootstrap5はJavaScriptのみで動作します。  
 もはや必須ではなくなったjQueryとJavaScriptが混在したコードになり保守しがたいものになっていました。  
 そのため、jQueryで記述されていた箇所をすべてJavaScriptに置き換えました。  
 ChickenPaint Beは仮にjQueryの開発が終了したとしても、影響を受けません。  
