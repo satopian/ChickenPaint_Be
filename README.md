@@ -32,9 +32,10 @@ Bootstrap5は現行サポートバージョンであるため、あらたな問�
 
 ### 脱jQuery
 Bootstrap4はjQueryを必要としていましたが、Bootstrap5はJavaScriptのみで動作します。  
-もはや必須ではなくなったjQueryとJavaScriptが混在したコードになり保守しがたいものになっていました。  
-そのため、jQueryで記述されていた箇所をすべてJavaScriptに置き換えました。  
-ChickenPaint Beは仮にjQueryの開発が終了したとしても、影響を受けません。  
+もはや必須ではなくなったjQueryで書かれた大量のコードをjQueryのまま保守するのではなくJavaScriptに書き換える事にしました。  
+jQueryのコードは大量に存在し、JavaScriptへの書き換えと動作確認に時間がかかりましたがJavaScriptへの書き換えに成功し脱jQueryを実現する事ができました。    
+ChickenPaint BeはjQueryの開発状況に左右されなくなりました。  
+仮にjQueryの開発が終了したとしても、影響を受けません。  
 
 ## デモ
 
