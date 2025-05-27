@@ -51,7 +51,7 @@ export default function CPTabletDialog(parent) {
                             </div>
                             <div class="chickenpaint-supported-browser">
                                 <span class="icon-firefox"></span>
-                                Firefox (<a href="https://github.com/satopian/ChickenPaint_Be/blob/main/help/Firefox%20pressure%20support.md" target="_blank" rel="noopener">help <i class="fa icon-external-link-alt"></i></a>)
+                                Firefox
                             </div>
                         </div>
                         <p class="chickenpaint-not-supported">
@@ -72,8 +72,8 @@ export default function CPTabletDialog(parent) {
     );
     const peSupported = !!window.hasNativePointerEvents;
 
-    peSupportElem.classList.toggle("supported", peSupported);
-    peSupportElem.classList.toggle("not-supported", !peSupported);
+    peSupportElem?.classList.toggle("supported", peSupported);
+    peSupportElem?.classList.toggle("not-supported", !peSupported);
 
     // Destroy the modal upon close
     dialog.addEventListener("hidden.bs.modal", (e) => {
