@@ -75,7 +75,7 @@ export default function CPAboutDialog(parent) {
 Includes these MIT-licensed libraries:
 
     Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js" rel="noopener">FileSaver.js library</a>
-    FileSaver.js Copyright (c) 2016 <a target="_blank" href="https://eligrey.com/" rel="noopener">Eli Grey</a>
+    Copyright (c) 2016 <a target="_blank" href="https://eligrey.com/" rel="noopener">Eli Grey</a>
 
     Includes the <a target="_blank" href="https://github.com/nodeca/pako" rel="noopener">Pako zlib compression library</a>
     Copyright (c) 2014-2017 by Vitaly Puzrin and Andrei Tuputcyn
