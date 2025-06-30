@@ -645,7 +645,12 @@ export default function CPArtwork(_width, _height) {
 
     this.mergeAllLayers = function() {
         if (this.isMergeAllLayersAllowed()) {
-            addUndo(new CPActionMergeAllLayers());
+            addUndo(new CPActionMergeAllLayers(true));
+        }
+    };
+    this._mergeAllLayers = function() {
+        if (this.isMergeAllLayersAllowed()) {
+            addUndo(new CPActionMergeAllLayers(true));
         }
     };
 
@@ -2335,31 +2340,33 @@ export default function CPArtwork(_width, _height) {
     CPActionMergeDownLayer.prototype = Object.create(CPUndo.prototype);
     CPActionMergeDownLayer.prototype.constructor = CPActionMergeDownLayer;
 
-    function CPActionMergeAllLayers() {
+    function CPActionMergeAllLayers(addFlattenedLayer= true) {
         let 
             oldActiveLayer = that.getActiveLayer(),
-            oldRootLayers = layersRoot.layers.slice(0), // Clone old layers array
+            oldRootLayers = layersRoot.layers.slice(0), // 元のレイヤー構造を保存
             flattenedLayer = new CPImageLayer(that.width, that.height, "");
 
         this.undo = function() {
             layersRoot.layers = oldRootLayers.slice(0);
-
             artworkStructureChanged();
             that.setActiveLayer(oldActiveLayer, false);
         };
 
         this.redo = function() {
-            let
-                oldFusion = that.fusionLayers();
-
-            flattenedLayer.copyImageFrom(oldFusion);
-
-            layersRoot.clearLayers();
-
+        let mergedImage = that.fusionLayers();
+        flattenedLayer.copyImageFrom(mergedImage);
             // Generate the name after the document is empty (so it can be "Layer 1")
             flattenedLayer.setName(that.getDefaultLayerName(false));
 
+        if (addFlattenedLayer) {
+            // 元のレイヤーは残して、flattenedLayer を上に追加
+            layersRoot.layers = oldRootLayers.slice(0); // 念のため復元
             layersRoot.addLayer(flattenedLayer);
+        } else {
+            // 元のレイヤーをすべて削除し、flattenedLayer だけにする
+            layersRoot.clearLayers();
+            layersRoot.addLayer(flattenedLayer);
+        }
 
             artworkStructureChanged();
             that.setActiveLayer(flattenedLayer, false);

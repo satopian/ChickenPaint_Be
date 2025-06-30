@@ -150,6 +150,11 @@ const
                     mnemonic: "A",
                 },
                 {
+                    name: "Add Merged Layer",
+                    action: "CPAddMergedLayer",
+                    shortcut: "shift+alt+e",
+                },
+                {
                     name: "-"
                 },
                 {

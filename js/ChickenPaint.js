@@ -585,6 +585,13 @@ export default function ChickenPaint(options) {
                 modifies: {document: true},
                 allowed: "isMergeAllLayersAllowed"
             },
+            CPAddMergedLayer: {
+                action: function () {
+                    that.artwork.mergeAllLayers(true);
+                },
+                modifies: {document: true},
+                allowed: "isMergeAllLayersAllowed"
+            },
             CPExpandLayerGroup: {
                 action: function (e) {
                     that.artwork.expandLayerGroup(e.group, e.expand);
