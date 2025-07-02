@@ -251,6 +251,9 @@ export default function CPLayersPalette(controller) {
         }
 
         function getDisplayIndexFromElem(elem) {
+            if(!elem){
+                return -1;
+            }
             let layer = elem.closest(".chickenpaint-layer");
 
             if (layer) {
