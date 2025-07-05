@@ -2202,16 +2202,8 @@ export default function CPCanvas(controller) {
             isDragging = e.buttons !== 0,
             pressure = isDragging ? getPointerPressure(e) : 0;
         
-		// Did any of our buttons change state?
+        // Did any of our buttons change state?
         if (((e.buttons & FLAG_PRIMARY) !== 0) != mouseDown[BUTTON_PRIMARY]) {
-            if (e.mozPressure === 0.5) {
-                /* We received a Mozilla "click" level of pressure (0.5) as a pointer-move
-                 * before we received the actual mouseDown event (which carries the correct pressure).
-                 *
-                 * Observed on Firefox 56 on macOS High Sierra
-                 */
-                return; // Ignore!
-            }
 
             mouseDown[BUTTON_PRIMARY] = !mouseDown[BUTTON_PRIMARY];
 
@@ -2481,6 +2473,11 @@ export default function CPCanvas(controller) {
         // Leave room for the bottom scrollbar
         height -= canvasContainerBottom.offsetHeight;
 
+        //canvas.hightでは少数点以下が切り捨てられるため
+        //canvas.style.heightに小数点が入るとcanvasの大きさが変わる
+        //事前Math.floorで整数化
+        height = Math.floor(height);
+
         canvas.style.height = height + "px";
         
         canvas.width = canvas.clientWidth;
@@ -2650,7 +2647,7 @@ export default function CPCanvas(controller) {
 
         that.resize(oldHeight, true);
     }, false);
-    
+
     window.addEventListener("scroll", function() {
         canvasClientRect = null;
     });
