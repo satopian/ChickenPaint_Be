@@ -171,7 +171,7 @@ export default function CPMainGUI(controller, uiElem) {
         }
         window.addEventListener("resize", () => {
             // .navbar-nav を表示する
-            WidgetNav.classList.remove("hidden");
+            WidgetNav?.classList.remove("hidden");
         });
     }
 
