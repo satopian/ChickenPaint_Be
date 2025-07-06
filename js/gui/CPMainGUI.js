@@ -83,7 +83,7 @@ export default function CPMainGUI(controller, uiElem) {
         }
     };
 
-    this.resize = function () {
+    this.resize = function (doConstrain = true) {
         let newHeight;
 
         let windowHeight = window.innerHeight,
@@ -99,7 +99,9 @@ export default function CPMainGUI(controller, uiElem) {
         }
 
         canvas.resize(newHeight, false);
-        that.constrainPalettes();
+        if( doConstrain ) {// パレットの再配置を行う
+            that.constrainPalettes();
+        }
     };
 
     menuBar = new CPMainMenu(controller, this);
@@ -191,7 +193,9 @@ export default function CPMainGUI(controller, uiElem) {
                 resizeScheduled = true;
                 requestAnimationFrame(() => {
                     resizeScheduled = false;
-                    that.resize();
+                    //doConstrain = false
+                    //キャンバスのリサイズは行うがパレットの再配置は行わない
+                    this.resize(false);
                 });
             }
         }
