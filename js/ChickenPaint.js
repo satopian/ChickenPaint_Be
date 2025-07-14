@@ -46,7 +46,7 @@ import CPTabletDialog from "./gui/CPTabletDialog.js";
 import CPGridDialog from "./gui/CPGridDialog.js";
 import CPSendDialog from "./gui/CPSendDialog.js";
 
-import {isCanvasInterpolationSupported, isEventSupported, isCanvasSupported, isFlexboxSupported} from "./util/CPPolyfill.js";
+import {isCanvasInterpolationSupported} from "./util/CPPolyfill.js";
 import CPColor from "./util/CPColor.js";
 import CPRect from "./util/CPRect.js";
 
@@ -57,28 +57,6 @@ import CPUserPreferences from "./gui/CPUserPreferences.js";
 /* Check for native pointer event support before PEP adds its polyfill */
 if (window.PointerEvent) {
     window.hasNativePointerEvents = true;
-}
-//古いブラウザのためのPointer Events Polyfill を除去
-// require("pepjs"); // Needs to use require() instead of import so we can run code before it
-function checkBrowserSupport() {
-    let
-        supportsAPIs = isCanvasSupported() && "Uint8Array" in window;
-
-    if (!supportsAPIs) {
-        throw new ChickenPaint.UnsupportedBrowserException();
-    }
-
-    // iOS 8.0.0 Safari can't upload files
-    let
-        isIOS8_0_0 = (navigator.userAgent.indexOf("iPad") != -1 || navigator.userAgent.indexOf("iPod") != -1 || navigator.userAgent.indexOf("iPhone") != -1)
-            && navigator.userAgent.indexOf(" OS 8_0 ") != -1,
-        isSafari = navigator.userAgent.indexOf("CriOS") == -1 && navigator.userAgent.indexOf("Safari") != -1;
-
-    if (isIOS8_0_0 && isSafari) {
-        throw new ChickenPaint.UnsupportedBrowserException("You are using Safari 8.0.0, which is unable to upload drawings. That bug was fixed in the iOS 8.0.2 update, or in Chrome for iOS.");
-    }
-
-    return true;
 }
 
 function isSmallScreen() {
@@ -1384,13 +1362,7 @@ export default function ChickenPaint(options) {
         return options.resourcesRoot;
     };
 
-    checkBrowserSupport();
-
     if (uiElem) {
-        if (!isFlexboxSupported()) {
-            uiElem.className += " no-flexbox";
-        }
-
         uiElem.className += " chickenpaint chickenpaint-lang-" + currentLanguage();
     }
 

@@ -54,29 +54,3 @@ export function setCanvasInterpolation(canvasContext, enabled) {
 		canvasContext[propName] = enabled;
 	}
 }
-
-export function isEventSupported(eventName) {
-	var
-		isSupported = eventName in window;
-
-	if (!isSupported) {
-		var
-			el = document.createElement('div');
-		el.setAttribute(eventName, 'return;');
-
-		isSupported = typeof el[eventName] == 'function';
-	}
-
-	return isSupported;
-}
-
-export function isCanvasSupported(){
-	var
-		elem = createCanvas(0, 0);
-	
-	return !!(elem.getContext && elem.getContext('2d'));
-}
-
-export function isFlexboxSupported() {
-	return (typeof document.body.style.flexBasis == "string" || typeof document.body.style.msFlexDirection == "string") && !/Presto/.test(navigator.userAgent);
-}
