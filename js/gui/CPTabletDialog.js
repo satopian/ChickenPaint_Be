@@ -70,7 +70,7 @@ export default function CPTabletDialog(parent) {
     const peSupportElem = dialog.querySelector(
         ".chickenpaint-pointerevents-support"
     );
-    const peSupported = !!window.hasNativePointerEvents;
+    const peSupported = !!window.PointerEvent;
 
     peSupportElem?.classList.toggle("supported", peSupported);
     peSupportElem?.classList.toggle("not-supported", !peSupported);

@@ -16,7 +16,7 @@ export function createCheckerboardPattern(canvasContext) {
 
     for (var j = 0; j < 64; j++) {
         for (var i = 0; i < 64; i++) {
-            if ((i & 0x8) != 0 ^ (j & 0x8) != 0) {
+            if (((i & 0x8) != 0) !== ((j & 0x8) != 0)) {
                 // White
                 data[pixelOffset++] = 0xff;
                 data[pixelOffset++] = 0xff;

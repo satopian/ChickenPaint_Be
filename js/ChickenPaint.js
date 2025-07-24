@@ -54,11 +54,6 @@ import EventEmitter from "wolfy87-eventemitter";
 import {currentLanguage, guessLanguage, setLanguage, _} from "./languages/lang.js";
 import CPUserPreferences from "./gui/CPUserPreferences.js";
 
-/* Check for native pointer event support before PEP adds its polyfill */
-if (window.PointerEvent) {
-    window.hasNativePointerEvents = true;
-}
-
 function isSmallScreen() {
     return Boolean(((typeof navigator.maxTouchPoints === "number") && navigator.maxTouchPoints > 2) && (window.screen.width <= 820 || window.screen.height <= 820));
 }
