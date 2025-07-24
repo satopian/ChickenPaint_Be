@@ -52,16 +52,17 @@ export default function CPConfirmTransformDialog(parent, controller) {
     `;
 
     // ボタン要素を取得
+    const that = this;
     const applyButton = dialog.querySelector(".chickenpaint-accept-transform");
     const rejectButton = dialog.querySelector(".chickenpaint-reject-transform");
 
     // イベントリスナーを追加
-    applyButton.addEventListener("click", function (e) {
+    applyButton?.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPTransformAccept" });
         that.emitEvent("accept");
     });
 
-    rejectButton.addEventListener("click", function (e) {
+    rejectButton?.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPTransformReject" });
         that.emitEvent("reject");
     });
