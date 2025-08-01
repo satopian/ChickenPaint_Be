@@ -235,6 +235,8 @@ export default function CPCanvas(controller) {
 
         sawPen = false,
         isPinching = false,
+        pinchCooldown = false,
+        allowDrawing = false,
 
         sawTouchWithPressure = false,
 
@@ -2177,45 +2179,51 @@ export default function CPCanvas(controller) {
 
 let pinchStartDistance = 0;
 let pinchStartZoom = 1;
-
+let activeTouches =0;
 function getDistance(touches) {
     const dx = touches[0].pageX - touches[1].pageX;
     const dy = touches[0].pageY - touches[1].pageY;
     return Math.sqrt(dx * dx + dy * dy);
 }
 function handleTouchStart(e) {
-    if (e.touches.length === 2) {
-         isPinching = true;
+    activeTouches = e.touches.length;
+    if (activeTouches === 1) {
+        setTimeout(() => {
+            if (e.touches.length === 1) {
+                allowDrawing = true;
+            }
+        }, 50);
+    }
+    if (activeTouches === 2) {
+        isPinching = true;
         pinchStartDistance = getDistance(e.touches);
         pinchStartZoom = that.getZoom();
         e.preventDefault();
     }
 }
-let pinchTimeout= null;
 function handleTouchEnd(e) {
-    // if (e.touches.length < 2) {
-    //     isPinching = false;
-    //     console.log('Pinch ended, isPinching=false');
-    // }
-
-    if (e.touches.length < 2) {
-        // すでにセットされたタイマーがあればクリア（多重セット防止）
-        if (pinchTimeout) {
-            clearTimeout(pinchTimeout);
-        }
-
-        pinchTimeout = setTimeout(() => {
-            // 100ms 待ってからピンチ終了判定
-            if (e.touches.length < 2) {
-                isPinching = false;
-                console.log('Pinch ended (delayed)');
-            }
-            pinchTimeout = null;  // 使い終わったらクリア
-        }, 500);
-    }}
-
+    if (e.touches.length === 0) {
+        isPinching = false;
+        // 描画許可に戻る
+         pinchCooldown = true;
+    setTimeout(() => {
+        pinchCooldown = false;
+    }, 200); // ← 👈 描画禁止猶予
+    }
+}
 function handleTouchMove(e) {
-    if (e.touches.length === 2) {
+    activeTouches = e.touches.length;
+    if (activeTouches === 1) {
+        setTimeout(() => {
+            if (e.touches.length === 1) {
+                allowDrawing = true;
+            }
+        }, 50);
+    }
+    if (activeTouches === 2) {
+        
+        allowDrawing = false;
+
         const newDistance = getDistance(e.touches);
         const zoomFactor = newDistance / pinchStartDistance;
 
@@ -2246,8 +2254,12 @@ function handleTouchMove(e) {
             canvasClientRect = canvas.getBoundingClientRect();
         }
         
-        if (isPinching || sawPen && e.pointerType === "touch") {
+        if (isPinching  || pinchCooldown || sawPen && e.pointerType === "touch") {
             // Palm rejection for devices that support pens
+            return;
+        }
+        if(e.pointerType === "touch" && !allowDrawing ||activeTouches > 1) {
+            //二本指以上の時は描画しない
             return;
         }
 
@@ -2321,10 +2333,14 @@ function handleTouchMove(e) {
 
     // Called when the first button on the pointer is depressed / pen touches the surface
     function handlePointerDown(e) {
-        if (isPinching || sawPen && e.pointerType === "touch") {
+        if (isPinching || pinchCooldown || sawPen && e.pointerType === "touch") {
             //ピンチズーム時は何もしない
             //ペン対応デバイスのタッチイベントは無視する
             // Palm rejection for devices that support pens
+            return;
+        }
+        if(e.pointerType === "touch" && !allowDrawing ||activeTouches > 1) {
+            //二本指以上の時は描画しない
             return;
         }
 
