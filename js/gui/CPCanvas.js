@@ -234,9 +234,7 @@ export default function CPCanvas(controller) {
         mouseIn = false, mouseDown = [false, false, false] /* Track each button independently */,
 
         sawPen = false,
-        isPinching = false,
-        pinchCooldown = false,
-        allowDrawing = false,
+        isPinchZoomAllowed = false,
 
         sawTouchWithPressure = false,
 
@@ -2187,43 +2185,21 @@ function getDistance(touches) {
 }
 function handleTouchStart(e) {
     activeTouches = e.touches.length;
-    if (activeTouches === 1) {
-        setTimeout(() => {
-            if (e.touches.length === 1) {
-                allowDrawing = true;
-            }
-        }, 500);
-    }
-    if (activeTouches === 2) {
-        isPinching = true;
+
+    if (isPinchZoomAllowed && activeTouches === 2) {
         pinchStartDistance = getDistance(e.touches);
         pinchStartZoom = that.getZoom();
         e.preventDefault();
     }
 }
 function handleTouchEnd(e) {
-    if (e.touches.length === 0) {
-        isPinching = false;
-        // 描画許可に戻る
-         pinchCooldown = true;
-    setTimeout(() => {
-        pinchCooldown = false;
-    }, 5000); // ← 👈 描画禁止猶予
-    }
+    activeTouches = e.touches.length;
 }
 function handleTouchMove(e) {
     activeTouches = e.touches.length;
-    if (activeTouches === 1) {
-        setTimeout(() => {
-            if (e.touches.length === 1) {
-                allowDrawing = true;
-            }
-        }, 50);
-    }
-    if (activeTouches === 2) {
-        
-        allowDrawing = false;
 
+    if (isPinchZoomAllowed && activeTouches === 2) {
+        
         const newDistance = getDistance(e.touches);
         const zoomFactor = newDistance / pinchStartDistance;
 
@@ -2233,7 +2209,7 @@ function handleTouchMove(e) {
 
         const canvasPoint = mouseCoordToCanvas({ x: midX, y: midY });
 
-        // すでにある zoomOnPoint を使う！
+        // すでにある zoomOnPoint を使う
         zoomOnPoint(
             pinchStartZoom * zoomFactor,
             canvasPoint.x,
@@ -2254,11 +2230,11 @@ function handleTouchMove(e) {
             canvasClientRect = canvas.getBoundingClientRect();
         }
         
-        if (isPinching  || pinchCooldown || sawPen && e.pointerType === "touch") {
+        if (sawPen && e.pointerType === "touch") {
             // Palm rejection for devices that support pens
             return;
         }
-        if(e.pointerType === "touch" && !allowDrawing ||activeTouches > 1) {
+        if(activeTouches > 1 && e.pointerType === "touch") {
             //二本指以上の時は描画しない
             return;
         }
@@ -2333,13 +2309,13 @@ function handleTouchMove(e) {
 
     // Called when the first button on the pointer is depressed / pen touches the surface
     function handlePointerDown(e) {
-        if (isPinching || pinchCooldown || sawPen && e.pointerType === "touch") {
+        if (sawPen && e.pointerType === "touch") {
             //ピンチズーム時は何もしない
             //ペン対応デバイスのタッチイベントは無視する
             // Palm rejection for devices that support pens
             return;
         }
-        if(e.pointerType === "touch" && !allowDrawing ||activeTouches > 1) {
+        if(activeTouches > 1 && e.pointerType === "touch") {
             //二本指以上の時は描画しない
             return;
         }
@@ -2636,7 +2612,7 @@ function handleTouchMove(e) {
                 newMode = transformMode;
                 break;
         }
-
+        isPinchZoomAllowed = (mode === ChickenPaint.M_PAN_CANVAS || mode === ChickenPaint.M_ROTATE_CANVAS);
         modeStack.setUserMode(newMode);
     });
 
