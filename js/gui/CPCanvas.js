@@ -349,7 +349,10 @@ export default function CPCanvas(controller) {
             modeStack.peek().mouseDown(e, button, pressure);
         } else if (
             button == BUTTON_WHEEL ||
-            (!e.altKey && spacePressed && button == BUTTON_PRIMARY)
+            (!e.altKey &&
+                !e.ctrlKey &&
+                spacePressed &&
+                button == BUTTON_PRIMARY)
         ) {
             modeStack.push(panMode, true);
             modeStack.peek().mouseDown(e, button, pressure);
@@ -360,7 +363,13 @@ export default function CPCanvas(controller) {
         if (e.key.toLowerCase() === "r" && e.key !== " ") {
             modeStack.push(rotateCanvasMode, true);
             modeStack.peek().keyDown(e);
-        } else if (e.key.toLowerCase() !== "r" && e.key === " " && !e.altKey) {
+            return true;
+        } else if (
+            e.key.toLowerCase() !== "r" &&
+            e.key === " " &&
+            !e.altKey &&
+            !e.ctrlKey
+        ) {
             // We can start the pan mode before the mouse button is even pressed, so that the "grabbable" cursor appears
             modeStack.push(panMode, true);
             modeStack.peek().keyDown(e);
@@ -2403,6 +2412,66 @@ export default function CPCanvas(controller) {
             e.preventDefault();
         }
     }
+
+    // ペンでズーム
+    let penZoomActive = false;
+    let penStartX = 0;
+    canvas.addEventListener("pointerdown", (e) => {
+        if (
+            !e.altKey &&
+            key.isPressed("space") &&
+            e.ctrlKey &&
+            e.pointerType === "pen"
+        ) {
+            penZoomActive = true;
+            penStartX = e.clientX;
+        }
+    });
+
+    canvas.addEventListener("pointermove", (e) => {
+        if (
+            !e.altKey &&
+            key.isPressed("space") &&
+            e.ctrlKey &&
+            penZoomActive &&
+            e.pointerType === "pen" &&
+            e.buttons === 1
+        ) {
+            const deltaX = e.clientX - penStartX;
+
+            if (Math.abs(deltaX) > 10) {
+                const factor = deltaX > 0 ? 1.15 : 1 / 1.15;
+
+                // ペンの現在位置をキャンバス座標に変換
+                const canvasPoint = mouseCoordToCanvas({
+                    x: e.pageX,
+                    y: e.pageY,
+                });
+
+                zoomOnPoint(
+                    that.getZoom() * factor,
+                    canvasPoint.x,
+                    canvasPoint.y
+                );
+
+                penStartX = e.clientX; // 連続ズーム対応
+            }
+
+            e.preventDefault();
+        }
+    });
+
+    canvas.addEventListener("pointerup", (e) => {
+        if (
+            !e.altKey &&
+            key.isPressed("space") &&
+            e.ctrlKey &&
+            e.pointerType === "pen"
+        ) {
+            penZoomActive = false;
+        }
+    });
+
     //ピンチズーム
     let pinchStartDistance = 0;
     let pinchStartZoom = 1;

@@ -238,7 +238,8 @@
 
 "Move the canvas around": "キャンバスを移動",
 "Rotate the canvas": "キャンバスの回転",
-
+"Zoom": "ズーム",
+"Zoom the canvas": "キャンバスの拡大縮小",
 "Sample the color under the cursor": "キャンバスの色をスポイト",
 "Layers palette": "レイヤーパレット",
 "Rename layer": "レイヤー名変更",
