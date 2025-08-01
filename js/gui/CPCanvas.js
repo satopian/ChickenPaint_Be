@@ -2541,10 +2541,6 @@ export default function CPCanvas(controller) {
             // Palm rejection for devices that support pens
             return;
         }
-        if (activeTouches > 1 && e.pointerType === "touch") {
-            //二本指以上の時は処理しない
-            return;
-        }
 
         canvas.setPointerCapture(e.pointerId);
 
