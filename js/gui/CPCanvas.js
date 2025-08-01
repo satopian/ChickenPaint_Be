@@ -2192,7 +2192,7 @@ function handleTouchStart(e) {
             if (e.touches.length === 1) {
                 allowDrawing = true;
             }
-        }, 50);
+        }, 500);
     }
     if (activeTouches === 2) {
         isPinching = true;
@@ -2208,7 +2208,7 @@ function handleTouchEnd(e) {
          pinchCooldown = true;
     setTimeout(() => {
         pinchCooldown = false;
-    }, 200); // ← 👈 描画禁止猶予
+    }, 5000); // ← 👈 描画禁止猶予
     }
 }
 function handleTouchMove(e) {
