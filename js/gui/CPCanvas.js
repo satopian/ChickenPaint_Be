@@ -234,6 +234,8 @@ export default function CPCanvas(controller) {
         mouseIn = false, mouseDown = [false, false, false] /* Track each button independently */,
 
         sawPen = false,
+        isPinching = false,
+
         sawTouchWithPressure = false,
 
         /* The area of the document that should have its layers fused and repainted to the screen
@@ -2173,6 +2175,68 @@ export default function CPCanvas(controller) {
         }
     }
 
+let pinchStartDistance = 0;
+let pinchStartZoom = 1;
+
+function getDistance(touches) {
+    const dx = touches[0].pageX - touches[1].pageX;
+    const dy = touches[0].pageY - touches[1].pageY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+function handleTouchStart(e) {
+    if (e.touches.length === 2) {
+         isPinching = true;
+        pinchStartDistance = getDistance(e.touches);
+        pinchStartZoom = that.getZoom();
+        e.preventDefault();
+    }
+}
+let pinchTimeout= null;
+function handleTouchEnd(e) {
+    // if (e.touches.length < 2) {
+    //     isPinching = false;
+    //     console.log('Pinch ended, isPinching=false');
+    // }
+
+    if (e.touches.length < 2) {
+        // すでにセットされたタイマーがあればクリア（多重セット防止）
+        if (pinchTimeout) {
+            clearTimeout(pinchTimeout);
+        }
+
+        pinchTimeout = setTimeout(() => {
+            // 100ms 待ってからピンチ終了判定
+            if (e.touches.length < 2) {
+                isPinching = false;
+                console.log('Pinch ended (delayed)');
+            }
+            pinchTimeout = null;  // 使い終わったらクリア
+        }, 500);
+    }}
+
+function handleTouchMove(e) {
+    if (e.touches.length === 2) {
+        const newDistance = getDistance(e.touches);
+        const zoomFactor = newDistance / pinchStartDistance;
+
+        // 2本の指の中点を取得（canvas space に変換）
+        const midX = (e.touches[0].pageX + e.touches[1].pageX) / 2;
+        const midY = (e.touches[0].pageY + e.touches[1].pageY) / 2;
+
+        const canvasPoint = mouseCoordToCanvas({ x: midX, y: midY });
+
+        // すでにある zoomOnPoint を使う！
+        zoomOnPoint(
+            pinchStartZoom * zoomFactor,
+            canvasPoint.x,
+            canvasPoint.y
+        );
+
+        e.preventDefault();
+    }
+}
+
+
     let
         canvasClientRect;
 
@@ -2182,7 +2246,7 @@ export default function CPCanvas(controller) {
             canvasClientRect = canvas.getBoundingClientRect();
         }
         
-        if (sawPen && e.pointerType === "touch") {
+        if (isPinching || sawPen && e.pointerType === "touch") {
             // Palm rejection for devices that support pens
             return;
         }
@@ -2257,7 +2321,9 @@ export default function CPCanvas(controller) {
 
     // Called when the first button on the pointer is depressed / pen touches the surface
     function handlePointerDown(e) {
-        if (sawPen && e.pointerType === "touch") {
+        if (isPinching || sawPen && e.pointerType === "touch") {
+            //ピンチズーム時は何もしない
+            //ペン対応デバイスのタッチイベントは無視する
             // Palm rejection for devices that support pens
             return;
         }
@@ -2629,6 +2695,9 @@ export default function CPCanvas(controller) {
     
     canvas.addEventListener("pointerdown", handlePointerDown);
     canvas.addEventListener("pointermove", handlePointerMove);
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
     canvas.addEventListener("pointerup", handlePointerUp);
     canvas.addEventListener("wheel", handleMouseWheel,{ passive: false });
     
