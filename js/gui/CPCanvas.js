@@ -200,7 +200,8 @@ export default function CPCanvas(controller) {
         CURSOR_NESW_RESIZE = "nesw-resize",
         CURSOR_NWSE_RESIZE = "nwse-resize",
         CURSOR_NS_RESIZE = "ns-resize",
-        CURSOR_EW_RESIZE = "ew-resize";
+        CURSOR_EW_RESIZE = "ew-resize",
+        CURSOR_ZOOM_IN = "zoom-in";
 
     let that = this,
         canvasContainer = document.createElement("div"),
@@ -360,26 +361,41 @@ export default function CPCanvas(controller) {
     };
 
     CPDefaultMode.prototype.keyDown = function (e) {
+        //回転
         if (e.key.toLowerCase() === "r" && e.key !== " ") {
             modeStack.push(rotateCanvasMode, true);
             modeStack.peek().keyDown(e);
             return true;
-        } else if (
-            e.key.toLowerCase() !== "r" &&
-            e.key === " " &&
-            !e.altKey &&
-            !e.ctrlKey
-        ) {
-            // We can start the pan mode before the mouse button is even pressed, so that the "grabbable" cursor appears
-            modeStack.push(panMode, true);
-            modeStack.peek().keyDown(e);
+        } else if (e.key.toLowerCase() !== "r" && e.key === " " && !e.altKey) {
+        //スペースが押下されている状態で
+            if (e.ctrlKey) {
+                setCursor(CURSOR_ZOOM_IN); // Ctrl + Space 同時押しならズームカーソル
+            } else {
+                //スペースキーのみの時は通常のパン
+                // We can start the pan mode before the mouse button is even pressed, so that the "grabbable" cursor appears
+                modeStack.push(panMode, true);
+                modeStack.peek().keyDown(e);
+            }
             return true;
         } else if (e.key.toLowerCase() === "control") {
             // ctrlが押されたらpanModeを終了（ズームと競合させない）
             if (modeStack.peek() === panMode) {
                 modeStack.pop(); // パン解除
             }
+            //CTRLキーに加えてスペースキーが押下されたらズームカーソルに変更
+            if (key.isPressed("space")) {
+                setCursor(CURSOR_ZOOM_IN); // ズームカーソルに変更
+            }
             return true;
+        }
+    };
+
+    CPDefaultMode.prototype.keyUp = function (e) {
+        if (e.key === " " && modeStack.peek() === panMode) {
+            modeStack.pop(); // パン解除
+        }
+        if (e.key === " " || e.key.toLowerCase === "control") {
+            setCursor(CURSOR_DEFAULT); // ズーム・パン解除時にカーソル戻す
         }
     };
 
