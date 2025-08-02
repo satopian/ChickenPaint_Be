@@ -2421,7 +2421,7 @@ export default function CPCanvas(controller) {
             !e.altKey &&
             key.isPressed("space") &&
             e.ctrlKey &&
-            e.pointerType === "pen"
+            e.pointerType !== "touch"
         ) {
             penZoomActive = true;
             penStartX = e.clientX;
@@ -2434,7 +2434,7 @@ export default function CPCanvas(controller) {
             key.isPressed("space") &&
             e.ctrlKey &&
             penZoomActive &&
-            e.pointerType === "pen" &&
+            e.pointerType !== "touch" &&
             e.buttons === 1
         ) {
             const deltaX = e.clientX - penStartX;
@@ -2466,7 +2466,7 @@ export default function CPCanvas(controller) {
             !e.altKey &&
             key.isPressed("space") &&
             e.ctrlKey &&
-            e.pointerType === "pen"
+            e.pointerType !== "touch"
         ) {
             penZoomActive = false;
         }
