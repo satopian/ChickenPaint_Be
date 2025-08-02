@@ -374,6 +374,12 @@ export default function CPCanvas(controller) {
             modeStack.push(panMode, true);
             modeStack.peek().keyDown(e);
             return true;
+        } else if (e.key.toLowerCase() === "control") {
+            // ctrlが押されたらpanModeを終了（ズームと競合させない）
+            if (modeStack.peek() === panMode) {
+                modeStack.pop(); // パン解除
+            }
+            return true;
         }
     };
 
