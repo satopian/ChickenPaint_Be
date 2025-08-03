@@ -62,8 +62,8 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 [ChickenPaint Beにピンチズームを実装 - YouTube](https://www.youtube.com/shorts/Vj1nf5S9JVA)  
 
 ### ペン(マウス)の左右ドラッグで拡大縮小するズーム
-- [CRTL+スペース+ドラッグ]でズームします。  
-ペンを右にドラッグすると拡大、左にドラッグすると縮小します。  
+- [CRTL+スペース]キーを押下するとズームモードに入りズームカーソルに変わります。
+そのズームモードに入った時に、ペンを右にドラッグすると拡大、左にドラッグすると縮小します。    
 これは、多くのPC用ペイントツールに実装されているUIです。  
   
 [ChickenPaint Beにペン左右ドラッグによる拡大縮小機能を実装 - YouTube](https://www.youtube.com/shorts/s8PsKRhqb-Y)  
