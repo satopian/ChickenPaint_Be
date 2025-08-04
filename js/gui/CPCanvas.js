@@ -1841,6 +1841,7 @@ export default function CPCanvas(controller) {
             e.preventDefault();
         }
     });
+
     function CPRotateCanvasMode() {
         var firstClick,
             initAngle = 0.0,
