@@ -28,7 +28,7 @@ Bootstrap4はサポートが終了しているため、セキュリティパッ�
 [npm audit reports moderate XSS vulnerability with bootstrap 4.6.2 · Issue #40685 · twbs/bootstrap](https://github.com/twbs/bootstrap/issues/40685)  
 
 ｢ChickenPaint Be｣は、Bootstrap5に移行しました。    
-Bootstrap5は現行サポートバージョンであるため、あらたな問題が発見されてたとしても、問題が修正される事を期待できます。
+Bootstrap5は現行サポートバージョンであるため、新しい問題が見つかっても修正されることが期待できます。
 
 ### 脱jQuery
 Bootstrap4はjQueryを必要としていましたが、Bootstrap5はJavaScriptのみで動作します。  
