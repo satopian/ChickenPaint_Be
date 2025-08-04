@@ -1237,38 +1237,6 @@ export default function CPCanvas(controller) {
     CPMoveToolMode.prototype.enter = function () {
         setCursor(CURSOR_MOVE);
     };
-
-    //キーボードで1pxずつ移動できるようにする
-    function getArrowKeyDelta(key) {
-        if (!key) return null;
-        switch (key.toLowerCase()) {
-            case "arrowup":
-                return { dx: 0, dy: -1 };
-            case "arrowdown":
-                return { dx: 0, dy: 1 };
-            case "arrowleft":
-                return { dx: -1, dy: 0 };
-            case "arrowright":
-                return { dx: 1, dy: 0 };
-            default:
-                return null;
-        }
-    }
-
-    //移動ツール選択時にキーボードで1pxずつ移動できるようにする
-    document.addEventListener("keydown", function (e) {
-        if (modeStack.peek() !== moveToolMode) return;
-
-        const delta = getArrowKeyDelta(e.key);
-        if (!delta) return;
-
-        const { dx, dy } = delta;
-
-        const copyMode = e.altKey;
-        artwork.move(dx, dy, copyMode);
-        e.preventDefault();
-    });
-
     function CPTransformMode() {
         const HANDLE_RADIUS = 3,
             DRAG_NONE = -1,
@@ -1836,19 +1804,43 @@ export default function CPCanvas(controller) {
 
     CPTransformMode.prototype = Object.create(CPMode.prototype);
     CPTransformMode.prototype.constructor = CPTransformMode;
-    //変形操作中のキーボードでの移動を有効にする
-    document.addEventListener("keydown", function (e) {
-        if (modeStack.peek() !== transformMode) return;
 
+    //キーボードで1pxずつ移動できるようにする
+    function getArrowKeyDelta(key) {
+        if (!key) return null;
+        switch (key.toLowerCase()) {
+            case "arrowup":
+                return { dx: 0, dy: -1 };
+            case "arrowdown":
+                return { dx: 0, dy: 1 };
+            case "arrowleft":
+                return { dx: -1, dy: 0 };
+            case "arrowright":
+                return { dx: 1, dy: 0 };
+            default:
+                return null;
+        }
+    }
+
+    // キーボードでの移動を有効にする
+    document.addEventListener("keydown", function (e) {
+        const topMode = modeStack.peek();
         const delta = getArrowKeyDelta(e.key);
         if (!delta) return;
 
         const { dx, dy } = delta;
 
-        transformMode.moveByKey(dx, dy);
-        e.preventDefault();
+        //変形操作中のキーボードでの移動を有効にする
+        if (topMode === transformMode) {
+            transformMode.moveByKey(dx, dy);
+            e.preventDefault();
+            //移動ツール選択時にキーボードで1pxずつ移動できるようにする
+        } else if (topMode === moveToolMode) {
+            const copyMode = e.altKey;
+            artwork.move(dx, dy, copyMode);
+            e.preventDefault();
+        }
     });
-
     function CPRotateCanvasMode() {
         var firstClick,
             initAngle = 0.0,
