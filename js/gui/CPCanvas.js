@@ -367,7 +367,7 @@ export default function CPCanvas(controller) {
             modeStack.peek().keyDown(e);
             return true;
         } else if (e.key.toLowerCase() !== "r" && e.key === " " && !e.altKey) {
-        //スペースが押下されている状態で
+            //スペースが押下されている状態で
             if (e.ctrlKey) {
                 setCursor(CURSOR_ZOOM_IN); // Ctrl + Space 同時押しならズームカーソル
             } else {
@@ -1238,6 +1238,37 @@ export default function CPCanvas(controller) {
         setCursor(CURSOR_MOVE);
     };
 
+    //キーボードで1pxずつ移動できるようにする
+    function getArrowKeyDelta(key) {
+        if (!key) return null;
+        switch (key.toLowerCase()) {
+            case "arrowup":
+                return { dx: 0, dy: -1 };
+            case "arrowdown":
+                return { dx: 0, dy: 1 };
+            case "arrowleft":
+                return { dx: -1, dy: 0 };
+            case "arrowright":
+                return { dx: 1, dy: 0 };
+            default:
+                return null;
+        }
+    }
+
+    //移動ツール選択時にキーボードで1pxずつ移動できるようにする
+    document.addEventListener("keydown", function (e) {
+        if (modeStack.peek() !== moveToolMode) return;
+
+        const delta = getArrowKeyDelta(e.key);
+        if (!delta) return;
+
+        const { dx, dy } = delta;
+
+        const copyMode = e.altKey;
+        artwork.move(dx, dy, copyMode);
+        e.preventDefault();
+    });
+
     function CPTransformMode() {
         const HANDLE_RADIUS = 3,
             DRAG_NONE = -1,
@@ -1789,10 +1820,34 @@ export default function CPCanvas(controller) {
             CPMode.prototype.leave.call(this);
             that.repaintAll();
         };
+        // キーボード用の移動関数
+        this.moveByKey = function (dx, dy) {
+            if (!affine) return;
+
+            let translateInstance = new CPTransform();
+            translateInstance.translate(dx, dy);
+            affine.preMultiply(translateInstance);
+            // 変形のハンドルを更新
+            cornerPoints = origCornerPoints.getTransformed(affine); // transformの更新を反映させる関数呼び出しなど
+            artwork.transformAffineAmend(affine);
+            this.repaintAll?.(); // repaintAll() があれば呼ぶ
+        };
     }
 
     CPTransformMode.prototype = Object.create(CPMode.prototype);
     CPTransformMode.prototype.constructor = CPTransformMode;
+    //変形操作中のキーボードでの移動を有効にする
+    document.addEventListener("keydown", function (e) {
+        if (modeStack.peek() !== transformMode) return;
+
+        const delta = getArrowKeyDelta(e.key);
+        if (!delta) return;
+
+        const { dx, dy } = delta;
+
+        transformMode.moveByKey(dx, dy);
+        e.preventDefault();
+    });
 
     function CPRotateCanvasMode() {
         var firstClick,
