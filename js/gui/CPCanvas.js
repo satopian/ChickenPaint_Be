@@ -352,6 +352,7 @@ export default function CPCanvas(controller) {
             button == BUTTON_WHEEL ||
             (!e.altKey &&
                 !e.ctrlKey &&
+                 !e.shiftKey &&
                 spacePressed &&
                 button == BUTTON_PRIMARY)
         ) {
@@ -368,16 +369,21 @@ export default function CPCanvas(controller) {
             return true;
         } else if (e.key.toLowerCase() !== "r" && e.key === " " && !e.altKey) {
             //スペースが押下されている状態で
-            if (e.ctrlKey) {
+            if (e.ctrlKey || e.shiftKey) {
                 setCursor(CURSOR_ZOOM_IN); // Ctrl + Space 同時押しならズームカーソル
-            } else {
+                e.preventDefault();
+         } else {
                 //スペースキーのみの時は通常のパン
                 // We can start the pan mode before the mouse button is even pressed, so that the "grabbable" cursor appears
                 modeStack.push(panMode, true);
                 modeStack.peek().keyDown(e);
+                e.preventDefault();
             }
             return true;
-        } else if (e.key.toLowerCase() === "control") {
+        } else if (
+            e.key.toLowerCase() === "control" ||
+            e.key.toLowerCase() === "shift"
+        ) {
             // ctrlが押されたらpanModeを終了（ズームと競合させない）
             if (modeStack.peek() === panMode) {
                 modeStack.pop(); // パン解除
@@ -391,7 +397,12 @@ export default function CPCanvas(controller) {
     };
 
     CPDefaultMode.prototype.keyUp = function (e) {
-        if (e.key === " " && modeStack.peek() === panMode) {
+        if (
+            e.key === " " &&
+             modeStack.peek() === panMode &&
+             !e.ctrlKey &&
+             !e.shiftKey
+        ) {
             modeStack.pop(); // パン解除
         }
         if (e.key === " " || e.key.toLowerCase === "control") {
@@ -2490,7 +2501,7 @@ export default function CPCanvas(controller) {
         if (
             !e.altKey &&
             key.isPressed("space") &&
-            e.ctrlKey &&
+            (e.ctrlKey || e.shiftKey) &&
             e.pointerType !== "touch"
         ) {
             penZoomActive = true;
@@ -2502,7 +2513,7 @@ export default function CPCanvas(controller) {
         if (
             !e.altKey &&
             key.isPressed("space") &&
-            e.ctrlKey &&
+            (e.ctrlKey || e.shiftKey) &&
             penZoomActive &&
             e.pointerType !== "touch" &&
             e.buttons === 1
@@ -2535,7 +2546,7 @@ export default function CPCanvas(controller) {
         if (
             !e.altKey &&
             key.isPressed("space") &&
-            e.ctrlKey &&
+            (e.ctrlKey || e.shiftKey) &&
             e.pointerType !== "touch"
         ) {
             penZoomActive = false;

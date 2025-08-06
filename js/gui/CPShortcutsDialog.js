@@ -97,7 +97,9 @@ export default function CPShortcutsDialog(parent) {
                             <ul class="chickenpaint-shortcuts-list list-unstyled">
                                 <li>
                                     <dl>
-                                        <dt><span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">${ctrlForZoom}</span> + <span class="chickenpaint-shortcut-key">Space</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span></dt>
+                                        <dt><span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">${ctrlForZoom}</span>  + <span class="chickenpaint-shortcut-key">Space</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span><dt>
+                                        <dt><span class="chickenpaint-shortcut-alternate">${_("or")}</span>
+                                        <span class="chickenpaint-shortcut-key">Shift</span>  + <span class="chickenpaint-shortcut-key">Space</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span></dt>
                                         <dd>${_("Zoom the canvas")}</dd>
                                     </dl>
                                 </li>
