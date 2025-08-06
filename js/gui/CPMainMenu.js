@@ -517,9 +517,29 @@ export default function CPMainMenu(controller, mainGUI) {
 
             const dropdownMenu = div.querySelector(".dropdown-menu");
 
+            // ドロップダウンメニューのフォーカスを外す
+            // 変形操作で↓キーを押下時にメニューが開くのを防止
+            function blurIfDropdownFocused() {
+                setTimeout(() => {
+                    const activeEl = document.activeElement;
+                    if (
+                        activeEl instanceof HTMLElement &&
+                        (activeEl.matches('[data-bs-toggle="dropdown"]') ||
+                            activeEl.matches(".dropdown-item") ||
+                            activeEl.closest(".dropdown-menu"))
+                    ) {
+                        activeEl.blur();
+                    }
+                }, 10);
+            }
             div.querySelector(".dropdown-toggle")?.addEventListener(
                 "show.bs.dropdown",
-                () => updateMenuStates(div)
+                () => {
+                    // ドロップダウンメニューのフォーカスを外す
+                    // 変形操作で↓キーを押下時にメニューが開くのを防止
+                    blurIfDropdownFocused();
+                    updateMenuStates(div);
+                }
             );
 
             div.querySelector(".dropdown-toggle")?.addEventListener(
@@ -527,19 +547,7 @@ export default function CPMainMenu(controller, mainGUI) {
                 () => {
                     // ドロップダウンメニューのフォーカスを外す
                     // 変形操作で↓キーを押下時にメニューが開くのを防止
-                    setTimeout(() => {
-                        const activeEl = document.activeElement;
-                        if (
-                            activeEl &&
-                            activeEl instanceof HTMLElement &&
-                            (activeEl.matches('[data-bs-toggle="dropdown"]') ||
-                                activeEl.matches(".dropdown-item") ||
-                                activeEl.closest(".dropdown-menu"))
-                        ) {
-                            // console.log("Blurring dropdown focus:", activeEl);
-                            activeEl.blur();
-                        }
-                    }, 10);
+                    blurIfDropdownFocused();
                 }
             );
 
