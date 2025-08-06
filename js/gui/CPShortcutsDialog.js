@@ -25,6 +25,7 @@ import {_} from "../languages/lang.js";
 
 const macPlatform = navigator.userAgent.toLowerCase().includes('mac os');
 const Ctrl = macPlatform ? "⌘" : "Ctrl";
+const ctrlForZoom = macPlatform ? '⌃' : "Ctrl";
 
 export default function CPShortcutsDialog(parent) {
     const dialog = document.createElement('div');
@@ -96,7 +97,7 @@ export default function CPShortcutsDialog(parent) {
                             <ul class="chickenpaint-shortcuts-list list-unstyled">
                                 <li>
                                     <dl>
-                                        <dt><span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">${Ctrl}</span> + <span class="chickenpaint-shortcut-key">Space</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span></dt>
+                                        <dt><span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">${ctrlForZoom}</span> + <span class="chickenpaint-shortcut-key">Space</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span></dt>
                                         <dd>${_("Zoom the canvas")}</dd>
                                     </dl>
                                 </li>
