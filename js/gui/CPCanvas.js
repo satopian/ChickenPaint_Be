@@ -2996,23 +2996,6 @@ export default function CPCanvas(controller) {
             mode === ChickenPaint.M_MOVE_TOOL ||
             mode === ChickenPaint.M_ROTATE_CANVAS ||
             mode === ChickenPaint.M_PAN_CANVAS;
-
-        //ドロップダウンメニューのフォーカスを外す
-        // 変形操作時に↓キー押下でメニューが開くのを防止
-        setTimeout(() => {
-            const activeEl = document.activeElement;
-            if (
-                activeEl &&
-                activeEl instanceof HTMLElement &&
-                (activeEl.matches('[data-bs-toggle="dropdown"]') ||
-                    activeEl.matches(".dropdown-item") ||
-                    activeEl.closest(".dropdown-menu"))
-            ) {
-                // console.log("Blurring dropdown focus:", activeEl);
-                activeEl.blur();
-            }
-        }, 10);
-
         modeStack.setUserMode(newMode);
     });
 
