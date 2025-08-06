@@ -352,7 +352,7 @@ export default function CPCanvas(controller) {
             button == BUTTON_WHEEL ||
             (!e.altKey &&
                 !e.ctrlKey &&
-                 !e.shiftKey &&
+                !e.shiftKey &&
                 spacePressed &&
                 button == BUTTON_PRIMARY)
         ) {
@@ -372,7 +372,7 @@ export default function CPCanvas(controller) {
             if (e.ctrlKey || e.shiftKey) {
                 setCursor(CURSOR_ZOOM_IN); // Ctrl + Space 同時押しならズームカーソル
                 e.preventDefault();
-         } else {
+            } else {
                 //スペースキーのみの時は通常のパン
                 // We can start the pan mode before the mouse button is even pressed, so that the "grabbable" cursor appears
                 modeStack.push(panMode, true);
@@ -399,14 +399,20 @@ export default function CPCanvas(controller) {
     CPDefaultMode.prototype.keyUp = function (e) {
         if (
             e.key === " " &&
-             modeStack.peek() === panMode &&
-             !e.ctrlKey &&
-             !e.shiftKey
+            modeStack.peek() === panMode &&
+            !e.ctrlKey &&
+            !e.shiftKey
         ) {
             modeStack.pop(); // パン解除
         }
-        if (e.key === " " || e.key.toLowerCase === "control") {
+
+        if (
+            e.key === " " ||
+            e.key.toLowerCase() === "control" ||
+            e.key.toLowerCase() === "shift"
+        ) {
             setCursor(CURSOR_DEFAULT); // ズーム・パン解除時にカーソル戻す
+            e.preventDefault(); // 既定動作キャンセル
         }
     };
 
