@@ -368,7 +368,8 @@ export default function CPCanvas(controller) {
             modeStack.peek().keyDown(e);
             return true;
         } else if (
-            e.key === " " && e.ctrlKey || e.key !== " " && e.key.toLowerCase() === "z"
+            (e.key === " " && e.ctrlKey) ||
+            (e.key !== " " && !e.ctrlKey && e.key.toLowerCase() === "z")
         ) {
             setCursor(CURSOR_ZOOM_IN); // Ctrl + Space 同時押しならズームカーソル
 
@@ -2513,7 +2514,8 @@ export default function CPCanvas(controller) {
     canvas.addEventListener("pointerdown", (e) => {
         if (
             !e.altKey &&
-            (key.isPressed("z") || (e.ctrlKey && key.isPressed("space"))) &&
+            ((!e.ctrlKey && key.isPressed("z")) ||
+                (e.ctrlKey && key.isPressed("space"))) &&
             e.pointerType !== "touch"
         ) {
             penZoomActive = true;
@@ -2524,7 +2526,8 @@ export default function CPCanvas(controller) {
     canvas.addEventListener("pointermove", (e) => {
         if (
             !e.altKey &&
-            (key.isPressed("z") || (e.ctrlKey && key.isPressed("space"))) &&
+            ((!e.ctrlKey && key.isPressed("z")) ||
+                (e.ctrlKey && key.isPressed("space"))) &&
             penZoomActive &&
             e.pointerType !== "touch" &&
             e.buttons === 1
