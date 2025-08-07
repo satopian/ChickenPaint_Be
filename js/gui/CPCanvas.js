@@ -352,7 +352,7 @@ export default function CPCanvas(controller) {
             button == BUTTON_WHEEL ||
             (!e.altKey &&
                 !e.ctrlKey &&
-                !e.shiftKey &&
+                !key.isPressed("z") &&
                 spacePressed &&
                 button == BUTTON_PRIMARY)
         ) {
@@ -367,22 +367,29 @@ export default function CPCanvas(controller) {
             modeStack.push(rotateCanvasMode, true);
             modeStack.peek().keyDown(e);
             return true;
-        } else if (e.key.toLowerCase() !== "r" && e.key === " " && !e.altKey) {
-            //スペースが押下されている状態で
-            if (e.ctrlKey || e.shiftKey) {
-                setCursor(CURSOR_ZOOM_IN); // Ctrl + Space 同時押しならズームカーソル
-                e.preventDefault();
-            } else {
-                //スペースキーのみの時は通常のパン
-                // We can start the pan mode before the mouse button is even pressed, so that the "grabbable" cursor appears
-                modeStack.push(panMode, true);
-                modeStack.peek().keyDown(e);
+        } else if (
+            e.key === " " && e.ctrlKey || e.key !== " " && e.key.toLowerCase() === "z"
+        ) {
+            setCursor(CURSOR_ZOOM_IN); // Ctrl + Space 同時押しならズームカーソル
+
+            if (modeStack.peek() === panMode) {
+                modeStack.pop(); // パン解除
                 e.preventDefault();
             }
             return true;
         } else if (
+            e.key === " " &&
+            (!e.ctrlKey || e.key.toLowerCase() !== "z")
+        ) {
+            //スペースキーのみの時は通常のパン
+            // We can start the pan mode before the mouse button is even pressed, so that the "grabbable" cursor appears
+            modeStack.push(panMode, true);
+            modeStack.peek().keyDown(e);
+            e.preventDefault();
+            return true;
+        } else if (
             e.key.toLowerCase() === "control" ||
-            e.key.toLowerCase() === "shift"
+            e.key.toLowerCase() === "z"
         ) {
             // ctrlが押されたらpanModeを終了（ズームと競合させない）
             if (modeStack.peek() === panMode) {
@@ -401,7 +408,7 @@ export default function CPCanvas(controller) {
             e.key === " " &&
             modeStack.peek() === panMode &&
             !e.ctrlKey &&
-            !e.shiftKey
+            e.key.toLowerCase() !== "z"
         ) {
             modeStack.pop(); // パン解除
         }
@@ -409,7 +416,7 @@ export default function CPCanvas(controller) {
         if (
             e.key === " " ||
             e.key.toLowerCase() === "control" ||
-            e.key.toLowerCase() === "shift"
+            e.key.toLowerCase() === "z"
         ) {
             setCursor(CURSOR_DEFAULT); // ズーム・パン解除時にカーソル戻す
             e.preventDefault(); // 既定動作キャンセル
@@ -2506,8 +2513,7 @@ export default function CPCanvas(controller) {
     canvas.addEventListener("pointerdown", (e) => {
         if (
             !e.altKey &&
-            key.isPressed("space") &&
-            (e.ctrlKey || e.shiftKey) &&
+            (key.isPressed("z") || (e.ctrlKey && key.isPressed("space"))) &&
             e.pointerType !== "touch"
         ) {
             penZoomActive = true;
@@ -2518,8 +2524,7 @@ export default function CPCanvas(controller) {
     canvas.addEventListener("pointermove", (e) => {
         if (
             !e.altKey &&
-            key.isPressed("space") &&
-            (e.ctrlKey || e.shiftKey) &&
+            (key.isPressed("z") || (e.ctrlKey && key.isPressed("space"))) &&
             penZoomActive &&
             e.pointerType !== "touch" &&
             e.buttons === 1
@@ -2549,16 +2554,10 @@ export default function CPCanvas(controller) {
     });
 
     canvas.addEventListener("pointerup", (e) => {
-        if (
-            !e.altKey &&
-            key.isPressed("space") &&
-            (e.ctrlKey || e.shiftKey) &&
-            e.pointerType !== "touch"
-        ) {
+        if (e.pointerType !== "touch") {
             penZoomActive = false;
         }
     });
-
     //ピンチズーム
     let pinchStartDistance = 0;
     let pinchStartZoom = 1;
@@ -2619,6 +2618,10 @@ export default function CPCanvas(controller) {
         }
         if (activeTouches > 1 && e.pointerType === "touch") {
             //二本指以上の時は処理しない
+            return;
+        }
+        if (key.isPressed("z")) {
+            // ズーム中は描画しない
             return;
         }
 
@@ -2695,6 +2698,10 @@ export default function CPCanvas(controller) {
         if (sawPen && !isTouchInputAllowed && e.pointerType === "touch") {
             //タッチインプットが許可されていないモードの時はペン対応デバイスのタッチイベントを無視する
             // Palm rejection for devices that support pens
+            return;
+        }
+        if (key.isPressed("z")) {
+            // ズーム中は描画しない
             return;
         }
 
