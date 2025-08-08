@@ -361,7 +361,7 @@ export default function CPCanvas(controller) {
         }
     };
 
-    let previousMode = null; // 以前のモードを記憶して、ズーム処理から抜けた時に復帰する
+    let previousMode = null; // 以前のモードを記憶して、あとで復帰させる
     CPDefaultMode.prototype.keyDown = function (e) {
         //回転
         if (e.key.toLowerCase() === "r" && e.key !== " ") {
@@ -375,12 +375,13 @@ export default function CPCanvas(controller) {
             setCursor(CURSOR_ZOOM_IN); // Ctrl + Space 同時押しならズームカーソル
 
             if (modeStack.peek() === panMode) {
+                previousMode = panMode; // 元のモードパンを覚える
                 modeStack.pop(); // パン解除
                 e.preventDefault();
             }
             //ズーム時は描画モードからいったん抜ける
             if (modeStack.peek() === curDrawMode) {
-                previousMode = curDrawMode; // 元の描画モードを覚える
+                previousMode = curDrawMode; // 元のモード描画を覚える
                 modeStack.pop(); // 一旦外す
             }
             e.preventDefault();
@@ -401,6 +402,7 @@ export default function CPCanvas(controller) {
         ) {
             // ctrlが押されたらpanModeを終了（ズームと競合させない）
             if (modeStack.peek() === panMode) {
+                previousMode = panMode; // 元のモードパンを覚える
                 modeStack.pop(); // パン解除
             }
             //CTRLキーに加えてスペースキーが押下されたらズームカーソルに変更
@@ -408,7 +410,7 @@ export default function CPCanvas(controller) {
                 setCursor(CURSOR_ZOOM_IN); // ズームカーソルに変更
                 //ズーム時は描画モードからいったん抜ける
                 if (modeStack.peek() === curDrawMode) {
-                    previousMode = curDrawMode; // 元の描画モードを覚える
+                    previousMode = curDrawMode; // 元のモード描画を覚える
                     modeStack.pop(); // 一旦外す
                 }
                 e.preventDefault();
@@ -423,11 +425,11 @@ export default function CPCanvas(controller) {
             e.key.toLowerCase() === "control" ||
             e.key.toLowerCase() === "z"
         ) {
+            setCursor(CURSOR_DEFAULT); // ズーム・パン解除時にカーソル戻す
             if (previousMode) {
-                modeStack.push(previousMode, true); // 元モード復帰
+                modeStack.setUserMode(previousMode); // 元モード復帰
                 previousMode = null;
             }
-            setCursor(CURSOR_DEFAULT); // ズーム・パン解除時にカーソル戻す
             e.preventDefault(); // 既定動作キャンセル
         }
     };
