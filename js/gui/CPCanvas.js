@@ -363,28 +363,27 @@ export default function CPCanvas(controller) {
 
     let previousMode = null; // 以前のモードを記憶して、あとで復帰させる
     CPDefaultMode.prototype.keyDown = function (e) {
-        //回転
-        if (e.key.toLowerCase() === "r" && e.key !== " ") {
-            modeStack.push(rotateCanvasMode, true);
-            modeStack.peek().keyDown(e);
-            return true;
-        } else if (
-            (e.key === " " && e.ctrlKey) ||
-            (e.key !== " " && !e.ctrlKey && e.key.toLowerCase() === "z")
+        if (
+            !e.altKey &&
+            ((!e.ctrlKey && key.isPressed("z")) ||
+                (e.ctrlKey && key.isPressed("space")))
         ) {
-            setCursor(CURSOR_ZOOM_IN); // Ctrl + Space 同時押しならズームカーソル
+            setCursor(CURSOR_ZOOM_IN);
+            console.log("Zooming in with Ctrl+Space or Ctrl+Z");
 
-            if (modeStack.peek() === panMode) {
-                previousMode = panMode; // 元のモードパンを覚える
-                modeStack.pop(); // パン解除
-                e.preventDefault();
-            }
-            //ズーム時は描画モードからいったん抜ける
             if (modeStack.peek() === curDrawMode) {
-                previousMode = curDrawMode; // 元のモード描画を覚える
-                modeStack.pop(); // 一旦外す
+                previousMode = curDrawMode;
+                modeStack.pop();
             }
             e.preventDefault();
+            return true;
+        } else if (
+            //回転
+            e.key.toLowerCase() === "r" &&
+            e.key !== " "
+        ) {
+            modeStack.push(rotateCanvasMode, true);
+            modeStack.peek().keyDown(e);
             return true;
         } else if (
             e.key === " " &&
@@ -396,27 +395,8 @@ export default function CPCanvas(controller) {
             modeStack.peek().keyDown(e);
             e.preventDefault();
             return true;
-        } else if (
-            e.key.toLowerCase() === "control" ||
-            e.key.toLowerCase() === "z"
-        ) {
-            // ctrlが押されたらpanModeを終了（ズームと競合させない）
-            if (modeStack.peek() === panMode) {
-                previousMode = panMode; // 元のモードパンを覚える
-                modeStack.pop(); // パン解除
-            }
-            //CTRLキーに加えてスペースキーが押下されたらズームカーソルに変更
-            if (key.isPressed("space")) {
-                setCursor(CURSOR_ZOOM_IN); // ズームカーソルに変更
-                //ズーム時は描画モードからいったん抜ける
-                if (modeStack.peek() === curDrawMode) {
-                    previousMode = curDrawMode; // 元のモード描画を覚える
-                    modeStack.pop(); // 一旦外す
-                }
-                e.preventDefault();
-            }
-            return true;
         }
+        return false;
     };
 
     CPDefaultMode.prototype.keyUp = function (e) {
@@ -425,7 +405,7 @@ export default function CPCanvas(controller) {
             e.key.toLowerCase() === "control" ||
             e.key.toLowerCase() === "z"
         ) {
-            setCursor(CURSOR_DEFAULT); // ズーム・パン解除時にカーソル戻す
+            setCursor(CURSOR_DEFAULT); // ズーム解除時にカーソルを戻す
             if (previousMode) {
                 modeStack.setUserMode(previousMode); // 元モード復帰
                 previousMode = null;
@@ -1263,14 +1243,16 @@ export default function CPCanvas(controller) {
     CPMoveToolMode.prototype.constructor = CPMoveToolMode;
 
     CPMoveToolMode.prototype.mouseMove = function (e) {
-        if (!key.isPressed("r")) {
+        if (!key.isPressed("r") || !key.isPressed("space")) {
             setCursor(CURSOR_MOVE);
-            return true;
         }
+        return true;
     };
 
     CPMoveToolMode.prototype.enter = function () {
-        setCursor(CURSOR_MOVE);
+        if (!key.isPressed("r") || !key.isPressed("space")) {
+            setCursor(CURSOR_MOVE);
+        }
     };
     function CPTransformMode() {
         const HANDLE_RADIUS = 3,
