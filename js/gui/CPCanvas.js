@@ -2623,7 +2623,7 @@ export default function CPCanvas(controller) {
             //二本指以上の時は処理しない
             return;
         }
-        if (key.isPressed("z")) {
+        if (key.isPressed("z") || (e.ctrlKey && key.isPressed("space"))) {
             // ズーム中は描画しない
             return;
         }
