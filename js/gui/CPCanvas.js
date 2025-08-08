@@ -998,7 +998,7 @@ export default function CPCanvas(controller) {
         var panningX, panningY, panningOffset, panningButton;
 
         this.keyDown = function (e) {
-            if (e.key === " ") {
+            if (!e.ctrlKey && e.key === " ") {
                 // If we're not already panning, then advertise that a left-click would pan
                 if (!this.capture) {
                     setCursor(CURSOR_PANNABLE);
@@ -1238,11 +1238,18 @@ export default function CPCanvas(controller) {
             }
         };
     }
+    this.keyUp = function (e) {
+        if (!key.isPressed("r") && !key.isPressed("space")) {
+            setCursor(CURSOR_MOVE);
+        }
+    };
 
     CPMoveToolMode.prototype = Object.create(CPMode.prototype);
     CPMoveToolMode.prototype.constructor = CPMoveToolMode;
 
     CPMoveToolMode.prototype.mouseMove = function (e) {
+        // 他のモードがトップなら何もしない
+        if (modeStack.peek() !== moveToolMode) return true;
         if (!key.isPressed("r") || !key.isPressed("space")) {
             setCursor(CURSOR_MOVE);
         }
