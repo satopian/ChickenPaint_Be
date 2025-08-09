@@ -1062,7 +1062,9 @@ export default function CPCanvas(controller) {
                 panningButton = -1;
                 this.capture = false;
 
-                if (this.transient && !key.isPressed("space")) {
+                if (key.isPressed("space")) {
+                    setCursor(CURSOR_PANNABLE);
+                } else if (this.transient && !key.isPressed("space")) {
                     setCursor(CURSOR_DEFAULT);
 
                     modeStack.pop();
