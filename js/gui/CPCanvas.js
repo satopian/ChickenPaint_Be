@@ -1062,6 +1062,9 @@ export default function CPCanvas(controller) {
                 panningButton = -1;
                 this.capture = false;
 
+                // 他モードに切り替わってたら何もしない
+                if (modeStack.peek() !== this) return true;
+
                 if (this.transient && !key.isPressed("space")) {
                     setCursor(CURSOR_DEFAULT);
                     modeStack.pop();
@@ -1252,7 +1255,7 @@ export default function CPCanvas(controller) {
 
     CPMoveToolMode.prototype.mouseMove = function (e) {
         // 他のモードがトップなら何もしない
-        if (modeStack.peek() !== moveToolMode) return true;
+        if (modeStack.peek() !== this) return true;
         if (!key.isPressed("r") || !key.isPressed("space")) {
             setCursor(CURSOR_MOVE);
         }
