@@ -1027,7 +1027,9 @@ export default function CPCanvas(controller) {
                 return true;
             } else if (
                 button == BUTTON_WHEEL ||
-                (key.isPressed("space") && button == BUTTON_PRIMARY) ||
+                (key.isPressed("space") &&
+                    !e.ctrlKey &&
+                    button == BUTTON_PRIMARY) ||
                 (!this.transient && button == BUTTON_PRIMARY)
             ) {
                 this.capture = true;
