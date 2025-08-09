@@ -369,7 +369,7 @@ export default function CPCanvas(controller) {
                 (e.ctrlKey && key.isPressed("space")))
         ) {
             setCursor(CURSOR_ZOOM_IN);
-            console.log("Zooming in with Ctrl+Space or Ctrl+Z");
+            // console.log("Zooming in with Ctrl+Space or Ctrl+Z");
 
             if (modeStack.peek() === curDrawMode) {
                 previousMode = curDrawMode;
