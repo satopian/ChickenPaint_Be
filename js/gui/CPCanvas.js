@@ -1244,11 +1244,6 @@ export default function CPCanvas(controller) {
             }
         };
     }
-    this.keyUp = function (e) {
-        if (!key.isPressed("r") && !key.isPressed("space")) {
-            setCursor(CURSOR_MOVE);
-        }
-    };
 
     CPMoveToolMode.prototype = Object.create(CPMode.prototype);
     CPMoveToolMode.prototype.constructor = CPMoveToolMode;
