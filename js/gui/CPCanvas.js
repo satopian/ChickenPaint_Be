@@ -1416,12 +1416,18 @@ export default function CPCanvas(controller) {
                     setResizeCursorForVector(vPerp);
                     break;
                 case DRAG_MOVE:
-                    setCursor(CURSOR_MOVE);
+                    //一時的なパン･回転時にペンの移動でカーソルがちらつくのを防ぐ
+                    if (!key.isPressed("r") && !key.isPressed("space")) {
+                        setCursor(CURSOR_MOVE);
+                    }
                     break;
                 case DRAG_ROTATE:
-                    setCursor(CURSOR_DEFAULT); // TODO add a custom rotation cursor
+                    if (!key.isPressed("r") && !key.isPressed("space")) {
+                        setCursor(CURSOR_DEFAULT); // TODO add a custom rotation cursor
+                    }
                     break;
                 default:
+                    // No drag action, so just use the default cursor
                     setCursor(CURSOR_DEFAULT);
             }
         }
