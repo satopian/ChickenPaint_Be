@@ -1898,6 +1898,21 @@ export default function CPCanvas(controller) {
                 initAngle = that.getRotation();
                 initTransform = transform.clone();
 
+                // cloneしたtransformに反転の変換を再現する
+                function flippedTransform(t) {
+                    const cx = artwork.width / 2;
+                    t.translate(cx, 0);
+                    t.scale(-1, 1);
+                    t.translate(-cx, 0);
+                }
+
+                initTransform = transform.clone();
+                // もし一時的に反転している状態ならば、
+                // cloneしたtransformに反転変換を適用して
+                // 反転状態を反映させる
+                if (isTempFlipped) {
+                    flippedTransform(initTransform);
+                }
                 dragged = false;
 
                 this.capture = true;
@@ -2155,6 +2170,9 @@ export default function CPCanvas(controller) {
         transform.translate(offsetX, offsetY);
         transform.scale(zoom, zoom);
         transform.rotate(canvasRotation);
+        if (isTempFlipped) {
+            viewFlip();
+        }
 
         updateScrollBars();
         that.repaintAll();
@@ -2513,6 +2531,35 @@ export default function CPCanvas(controller) {
             e.preventDefault();
         }
     }
+
+    let isTempFlipped = false;
+    function viewFlip() {
+        // console.log("viewFlip");
+        const cx = artwork.width / 2;
+        transform.translate(cx, 0);
+        transform.scale(-1, 1);
+        transform.translate(-cx, 0);
+        // console.log("transform.m", transform.m);
+        isTempFlipped = true;
+    }
+
+    let savedTransform = null;
+    document.addEventListener("keydown", (e) => {
+        if (e.key.toLowerCase() === "q" && !isTempFlipped) {
+            savedTransform = transform.clone(); // 現在のtransformを保存
+            viewFlip();
+            that.repaintAll();
+        }
+    });
+
+    document.addEventListener("keyup", (e) => {
+        if (e.key.toLowerCase() === "q" && isTempFlipped) {
+            transform = savedTransform.clone(); // 保存したtransformに戻す
+            savedTransform = null;
+            isTempFlipped = false;
+            that.repaintAll();
+        }
+    });
 
     // ペンでズーム
     let penZoomActive = false;
