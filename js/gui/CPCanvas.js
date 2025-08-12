@@ -2449,6 +2449,14 @@ export default function CPCanvas(controller) {
         rotTrans.rotateAroundPoint(-this.getRotation(), center.x, center.y);
         rotTrans.multiply(transform);
 
+        //表示が左右反転している時
+        if (isViewFlipped) {
+            const cx = artwork.width / 2;
+            rotTrans.translate(cx, 0);
+            rotTrans.scale(-1, 1);
+            rotTrans.translate(-cx, 0);
+        }
+
         this.setOffset(~~rotTrans.getTranslateX(), ~~rotTrans.getTranslateY());
         this.setRotation(0);
         that.emitEvent("canvasRotated90", [0]);
@@ -2534,13 +2542,14 @@ export default function CPCanvas(controller) {
         }
     }
 
-    //表示の左右反転
+    //表示の左右反転を制御
     let savedTransform = null;
     let isViewFlipped = false;
     this.toggleViewFlip = () => {
         if (!isViewFlipped) {
             savedTransform = transform.clone(); // 現在のtransformを保存
             viewFlip();
+            isViewFlipped = true;
         } else if (savedTransform) {
             transform = savedTransform.clone(); // 保存したtransformに戻す
             savedTransform = null;
@@ -2550,15 +2559,12 @@ export default function CPCanvas(controller) {
         //呼び出し元で反転状態の判定処理
         return isViewFlipped;
     };
-    // let isViewFlipped = false;
+    //表示の左右反転
     function viewFlip() {
-        // console.log("viewFlip");
         const cx = artwork.width / 2;
         transform.translate(cx, 0);
         transform.scale(-1, 1);
         transform.translate(-cx, 0);
-        // console.log("transform.m", transform.m);
-        isViewFlipped = true;
     }
 
     // ペンでズーム
