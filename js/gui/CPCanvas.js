@@ -2167,12 +2167,13 @@ export default function CPCanvas(controller) {
         );
     }
 
-    function updateTransform() {
+    function updateTransform({ resetViewFlip = false } = {}) {
+
         transform.setToIdentity();
         transform.translate(offsetX, offsetY);
         transform.scale(zoom, zoom);
         transform.rotate(canvasRotation);
-        if (isViewFlipped) {
+        if (isViewFlipped && !resetViewFlip) {
             viewFlip();
         }
 
@@ -2543,19 +2544,16 @@ export default function CPCanvas(controller) {
     }
 
     //表示の左右反転を制御
-    let savedTransform = null;
     let isViewFlipped = false;
     this.toggleViewFlip = () => {
         if (!isViewFlipped) {
-            savedTransform = transform.clone(); // 現在のtransformを保存
             viewFlip();
             isViewFlipped = true;
-        } else if (savedTransform) {
-            transform = savedTransform.clone(); // 保存したtransformに戻す
-            savedTransform = null;
+            that.repaintAll();
+        } else {
             isViewFlipped = false;
+            updateTransform({resetViewFlip : true});
         }
-        that.repaintAll();
         //呼び出し元で反転状態の判定処理
         return isViewFlipped;
     };
