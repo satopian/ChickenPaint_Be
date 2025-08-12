@@ -46,21 +46,29 @@ import CPTabletDialog from "./gui/CPTabletDialog.js";
 import CPGridDialog from "./gui/CPGridDialog.js";
 import CPSendDialog from "./gui/CPSendDialog.js";
 
-import {isCanvasInterpolationSupported} from "./util/CPPolyfill.js";
+import { isCanvasInterpolationSupported } from "./util/CPPolyfill.js";
 import CPColor from "./util/CPColor.js";
 import CPRect from "./util/CPRect.js";
 
 import EventEmitter from "wolfy87-eventemitter";
-import {currentLanguage, guessLanguage, setLanguage, _} from "./languages/lang.js";
+import {
+    currentLanguage,
+    guessLanguage,
+    setLanguage,
+    _,
+} from "./languages/lang.js";
 import CPUserPreferences from "./gui/CPUserPreferences.js";
 
 function isSmallScreen() {
-    return Boolean(((typeof navigator.maxTouchPoints === "number") && navigator.maxTouchPoints > 2) && (window.screen.width <= 820 || window.screen.height <= 820));
+    return Boolean(
+        typeof navigator.maxTouchPoints === "number" &&
+            navigator.maxTouchPoints > 2 &&
+            (window.screen.width <= 820 || window.screen.height <= 820)
+    );
 }
 
 function createDrawingTools() {
-    let
-        tools = new Array(ChickenPaint.T_MAX);
+    let tools = new Array(ChickenPaint.T_MAX);
 
     tools[ChickenPaint.T_PENCIL] = new CPBrushInfo({
         toolNb: ChickenPaint.T_PENCIL,
@@ -73,7 +81,7 @@ function createDrawingTools() {
         pressureAlpha: true,
         tip: CPBrushInfo.TIP_ROUND_AA,
         brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
-        paintMode: CPBrushInfo.PAINT_MODE_OPACITY
+        paintMode: CPBrushInfo.PAINT_MODE_OPACITY,
     });
 
     tools[ChickenPaint.T_ERASER] = new CPBrushInfo({
@@ -85,10 +93,10 @@ function createDrawingTools() {
         spacing: 0.05,
         pressureSize: false,
         pressureAlpha: false,
-        texture: 0,//消しゴムはテクスチャの影響を受けない。
+        texture: 0, //消しゴムはテクスチャの影響を受けない。
         tip: CPBrushInfo.TIP_ROUND_AA,
         brushMode: CPBrushInfo.BRUSH_MODE_ERASE,
-        paintMode: CPBrushInfo.PAINT_MODE_OPACITY
+        paintMode: CPBrushInfo.PAINT_MODE_OPACITY,
     });
 
     tools[ChickenPaint.T_PEN] = new CPBrushInfo({
@@ -103,7 +111,7 @@ function createDrawingTools() {
         tip: CPBrushInfo.TIP_ROUND_AA,
         brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
-        alphaScale: 1 / 2
+        alphaScale: 1 / 2,
     });
 
     tools[ChickenPaint.T_SOFTERASER] = new CPBrushInfo({
@@ -115,11 +123,11 @@ function createDrawingTools() {
         spacing: 0.05,
         pressureSize: false,
         pressureAlpha: true,
-        texture: 1,//薄消しゴムはテクスチャが出る。
+        texture: 1, //薄消しゴムはテクスチャが出る。
         tip: CPBrushInfo.TIP_ROUND_AIRBRUSH,
         brushMode: CPBrushInfo.BRUSH_MODE_ERASE,
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
-        alphaScale: 1 / 8
+        alphaScale: 1 / 8,
     });
 
     tools[ChickenPaint.T_AIRBRUSH] = new CPBrushInfo({
@@ -134,7 +142,7 @@ function createDrawingTools() {
         tip: CPBrushInfo.TIP_ROUND_AIRBRUSH,
         brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
-        alphaScale: 1 / 8
+        alphaScale: 1 / 8,
     });
 
     tools[ChickenPaint.T_DODGE] = new CPBrushInfo({
@@ -149,7 +157,7 @@ function createDrawingTools() {
         tip: CPBrushInfo.TIP_ROUND_AIRBRUSH,
         brushMode: CPBrushInfo.BRUSH_MODE_DODGE,
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
-        alphaScale: 1 / 8
+        alphaScale: 1 / 8,
     });
 
     tools[ChickenPaint.T_BURN] = new CPBrushInfo({
@@ -164,7 +172,7 @@ function createDrawingTools() {
         tip: CPBrushInfo.TIP_ROUND_AIRBRUSH,
         brushMode: CPBrushInfo.BRUSH_MODE_BURN,
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
-        alphaScale: 1 / 8
+        alphaScale: 1 / 8,
     });
 
     tools[ChickenPaint.T_WATER] = new CPBrushInfo({
@@ -181,7 +189,7 @@ function createDrawingTools() {
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
         alphaScale: 1 / 8,
         resat: 0.3,
-        bleed: 0.6
+        bleed: 0.6,
     });
 
     tools[ChickenPaint.T_BLUR] = new CPBrushInfo({
@@ -196,7 +204,7 @@ function createDrawingTools() {
         tip: CPBrushInfo.TIP_ROUND_PIXEL,
         brushMode: CPBrushInfo.BRUSH_MODE_BLUR,
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
-        alphaScale: 1 / 8
+        alphaScale: 1 / 8,
     });
 
     tools[ChickenPaint.T_SMUDGE] = new CPBrushInfo({
@@ -213,7 +221,7 @@ function createDrawingTools() {
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
         alphaScale: 1 / 8,
         resat: 0.0,
-        bleed: 1.0
+        bleed: 1.0,
     });
 
     tools[ChickenPaint.T_BLENDER] = new CPBrushInfo({
@@ -230,7 +238,7 @@ function createDrawingTools() {
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
         alphaScale: 1 / 8,
         resat: 0.0,
-        bleed: 0.07
+        bleed: 0.07,
     });
 
     return tools;
@@ -274,7 +282,7 @@ function createDrawingTools() {
  *
  * @property {string} resourcesRoot - URL to the directory that contains the gfx/css etc directories (relative to the
  *                                    page that ChickenPaint is loaded on)
- *                                    
+ *
  * @property {string} [language] - Provide an explicit ISO language code here (e.g. "ja_JP") to override the guessed browser language
  *                               Unsupported languages will fall back to English.
  *                               Currently only "en" and "ja" are available.
@@ -293,61 +301,56 @@ export default function ChickenPaint(options) {
     if (options.language) {
         setLanguage(options.language);
     }
-    
-	const uiElem = options.uiElem;
 
-	//ブラウザデフォルトのキー操作をキャンセル
-	document.addEventListener("keydown",(e)=>{
-		const keys = ["+", ";", "=","-","s","h","r","o"];
-		if ((e.ctrlKey||e.metaKey) && keys.includes(e.key.toLowerCase())||(e.key === "Enter")) {
-			// console.log("e.key",e.key);
-			e.preventDefault();
-		}
-		
-	});
-	//長押しでコンテキストメニューを開かない
-	uiElem.addEventListener('contextmenu', (e)=>{
-		e.preventDefault();
-		e.stopPropagation();
-	}, { passive: false });
+    const uiElem = options.uiElem;
 
-    let
-        that = this,
+    //ブラウザデフォルトのキー操作をキャンセル
+    document.addEventListener("keydown", (e) => {
+        const keys = ["+", ";", "=", "-", "s", "h", "r", "o"];
+        if (
+            ((e.ctrlKey || e.metaKey) && keys.includes(e.key.toLowerCase())) ||
+            e.key === "Enter"
+        ) {
+            // console.log("e.key",e.key);
+            e.preventDefault();
+        }
+    });
+    //長押しでコンテキストメニューを開かない
+    uiElem.addEventListener(
+        "contextmenu",
+        (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        },
+        { passive: false }
+    );
 
-
-	    /**
+    let that = this,
+        /**
          * @type {CPCanvas}
          */
         canvas,
-
-	    /**
+        /**
          * @type {CPMainGUI}
          */
         mainGUI,
-
-	    /**
+        /**
          *
          * @type {CPColor}
          */
         curColor = new CPColor(0),
-        curMaskColor = 0xFF,
-
+        curMaskColor = 0xff,
         colorMode = ChickenPaint.COLOR_MODE_RGB,
-
         curBrush = ChickenPaint.T_PENCIL,
         curMode = ChickenPaint.M_DRAW,
         preTransformMode = curMode,
-        curGradient = [0xFF000000, 0xFFFFFFFF],
-
+        curGradient = [0xff000000, 0xffffffff],
         smallScreenMode = false,
         isFullScreen = false,
-
         tools = createDrawingTools(),
-        
         preferences = new CPUserPreferences(),
-
-        boxBlurDialog, gridDialog,
-		
+        boxBlurDialog,
+        gridDialog,
         actions = {
             // GUI actions
 
@@ -355,31 +358,50 @@ export default function ChickenPaint(options) {
                 action: function () {
                     that.setFullScreen(!isFullScreen);
                 },
-                isSupported: function() {
+                isSupported: function () {
                     return !(
-                        options.fullScreenMode === "disable" || options.fullScreenMode === "force" 
-                        || options.allowFullScreen === false /* For backwards compat */
+                        (
+                            options.fullScreenMode === "disable" ||
+                            options.fullScreenMode === "force" ||
+                            options.allowFullScreen === false
+                        ) /* For backwards compat */
                     );
                 },
-                modifies: {gui: true}
+                modifies: { gui: true },
             },
             CPZoomIn: {
                 action: function () {
                     canvas.zoomIn();
                 },
-                modifies: {gui: true}
+                modifies: { gui: true },
             },
             CPZoomOut: {
                 action: function () {
                     canvas.zoomOut();
                 },
-                modifies: {gui: true}
+                modifies: { gui: true },
             },
             CPZoom100: {
                 action: function () {
                     canvas.zoom100();
                 },
-                modifies: {gui: true}
+                modifies: { gui: true },
+            },
+            CPViewHFlip: {
+                action: function () {
+                    const flipped = canvas.toggleViewFlip();
+                    const paletteManager = mainGUI.getPaletteManager();
+                    const flipButton = paletteManager.palettes.misc.flipButton;
+                    if (flipButton) {
+                        //表示の左右反転時には、左右反転アイコンに赤枠を付ける
+                        if (flipped) {
+                            flipButton.classList.add("flipped");
+                        } else {
+                            flipButton.classList.remove("flipped");
+                        }
+                    }
+                },
+                modifies: { gui: true },
             },
             // 古いアイコンは使わない。
             // CPToolbarStyle: {
@@ -395,75 +417,104 @@ export default function ChickenPaint(options) {
                 action: function () {
                     that.artwork.undo();
                 },
-                modifies: {document: true},
-                allowed: "isUndoAllowed"
+                modifies: { document: true },
+                allowed: "isUndoAllowed",
             },
             CPRedo: {
                 action: function () {
                     that.artwork.redo();
                 },
-                modifies: {document: true},
-                allowed: "isRedoAllowed"
+                modifies: { document: true },
+                allowed: "isRedoAllowed",
             },
             CPClearHistory: {
                 action: function () {
-                    if (confirm(_("You're about to clear the current Undo/Redo history.\nThis operation cannot be undone, are you sure you want to do that?"))) {
+                    if (
+                        confirm(
+                            _(
+                                "You're about to clear the current Undo/Redo history.\nThis operation cannot be undone, are you sure you want to do that?"
+                            )
+                        )
+                    ) {
                         that.artwork.clearHistory();
                     }
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
 
             // Drawing tools
 
-            CPPencil:     new ToolChangeAction(ChickenPaint.T_PENCIL),
-            CPPen:        new ToolChangeAction(ChickenPaint.T_PEN),
-            CPEraser:     new ToolChangeAction(ChickenPaint.T_ERASER),
+            CPPencil: new ToolChangeAction(ChickenPaint.T_PENCIL),
+            CPPen: new ToolChangeAction(ChickenPaint.T_PEN),
+            CPEraser: new ToolChangeAction(ChickenPaint.T_ERASER),
             CPSoftEraser: new ToolChangeAction(ChickenPaint.T_SOFTERASER),
-            CPAirbrush  : new ToolChangeAction(ChickenPaint.T_AIRBRUSH),
-            CPDodge:      new ToolChangeAction(ChickenPaint.T_DODGE),
-            CPBurn:       new ToolChangeAction(ChickenPaint.T_BURN),
-            CPWater:      new ToolChangeAction(ChickenPaint.T_WATER),
-            CPBlur:       new ToolChangeAction(ChickenPaint.T_BLUR),
-            CPSmudge:     new ToolChangeAction(ChickenPaint.T_SMUDGE),
-            CPBlender:    new ToolChangeAction(ChickenPaint.T_BLENDER),
+            CPAirbrush: new ToolChangeAction(ChickenPaint.T_AIRBRUSH),
+            CPDodge: new ToolChangeAction(ChickenPaint.T_DODGE),
+            CPBurn: new ToolChangeAction(ChickenPaint.T_BURN),
+            CPWater: new ToolChangeAction(ChickenPaint.T_WATER),
+            CPBlur: new ToolChangeAction(ChickenPaint.T_BLUR),
+            CPSmudge: new ToolChangeAction(ChickenPaint.T_SMUDGE),
+            CPBlender: new ToolChangeAction(ChickenPaint.T_BLENDER),
 
             // Modes
 
-            CPFloodFill:     new ModeChangeAction(ChickenPaint.M_FLOODFILL),
-            CPGradientFill:  new ModeChangeAction(ChickenPaint.M_GRADIENTFILL),
-            CPRectSelection: new ModeChangeAction(ChickenPaint.M_RECT_SELECTION),
-            CPMoveTool:      new ModeChangeAction(ChickenPaint.M_MOVE_TOOL),
-            CPRotateCanvas:  new ModeChangeAction(ChickenPaint.M_ROTATE_CANVAS),
-            CPPanCanvas:     new ModeChangeAction(ChickenPaint.M_PAN_CANVAS),
-            CPColorPicker:   new ModeChangeAction(ChickenPaint.M_COLOR_PICKER),
+            CPFloodFill: new ModeChangeAction(ChickenPaint.M_FLOODFILL),
+            CPGradientFill: new ModeChangeAction(ChickenPaint.M_GRADIENTFILL),
+            CPRectSelection: new ModeChangeAction(
+                ChickenPaint.M_RECT_SELECTION
+            ),
+            CPMoveTool: new ModeChangeAction(ChickenPaint.M_MOVE_TOOL),
+            CPRotateCanvas: new ModeChangeAction(ChickenPaint.M_ROTATE_CANVAS),
+            CPPanCanvas: new ModeChangeAction(ChickenPaint.M_PAN_CANVAS),
+            CPColorPicker: new ModeChangeAction(ChickenPaint.M_COLOR_PICKER),
 
             // Layer transform
 
-			CPTransform: {
-				action: function () {
-					const layer = that.artwork.getActiveLayer();
+            CPTransform: {
+                action: function () {
+                    const layer = that.artwork.getActiveLayer();
 
-					if (that.artwork.transformAffineBegin() == null) {
-						that.showLayerNotification(layer, _("Whoops! All of the selected pixels are transparent!"), "layer");
-					} else {
-						setMode(ChickenPaint.M_TRANSFORM);
-					}
-				},
-				modifies: {mode: true},
-				allowed: function() {
-					const layer = that.artwork.getActiveLayer();
+                    if (that.artwork.transformAffineBegin() == null) {
+                        that.showLayerNotification(
+                            layer,
+                            _(
+                                "Whoops! All of the selected pixels are transparent!"
+                            ),
+                            "layer"
+                        );
+                    } else {
+                        setMode(ChickenPaint.M_TRANSFORM);
+                    }
+                },
+                modifies: { mode: true },
+                allowed: function () {
+                    const layer = that.artwork.getActiveLayer();
 
-					if (!layer.visible) {//非表示レイヤーを変形しようとした時にエラーメッセージを出す
-						that.showLayerNotification(layer, _("Whoops! This layer is currently hidden"), "layer");
-					  } else if (layer.alpha == 0) {
-						that.showLayerNotification(layer, _("Whoops! This layer's opacity is currently 0%"), "opacity");
-					  } else if (that.artwork.transformAffineBegin() == null) {
-						that.showLayerNotification(layer, _("Whoops! All of the selected pixels are transparent!"), "layer");
-					  } else {
-						return layer.getEffectiveAlpha() != 0;
-					}
-				}
+                    if (!layer.visible) {
+                        //非表示レイヤーを変形しようとした時にエラーメッセージを出す
+                        that.showLayerNotification(
+                            layer,
+                            _("Whoops! This layer is currently hidden"),
+                            "layer"
+                        );
+                    } else if (layer.alpha == 0) {
+                        that.showLayerNotification(
+                            layer,
+                            _("Whoops! This layer's opacity is currently 0%"),
+                            "opacity"
+                        );
+                    } else if (that.artwork.transformAffineBegin() == null) {
+                        that.showLayerNotification(
+                            layer,
+                            _(
+                                "Whoops! All of the selected pixels are transparent!"
+                            ),
+                            "layer"
+                        );
+                    } else {
+                        return layer.getEffectiveAlpha() != 0;
+                    }
+                },
             },
             CPTransformAccept: {
                 action: function () {
@@ -472,7 +523,7 @@ export default function ChickenPaint(options) {
                         setMode(preTransformMode);
                     }
                 },
-                modifies: {mode: true}
+                modifies: { mode: true },
             },
             CPTransformReject: {
                 action: function () {
@@ -481,31 +532,32 @@ export default function ChickenPaint(options) {
                         setMode(preTransformMode);
                     }
                 },
-                modifies: {document: true, mode: true}
+                modifies: { document: true, mode: true },
             },
 
             // Stroke modes
 
             CPFreeHand: {
                 action: function () {
-                    tools[curBrush].strokeMode = CPBrushInfo.STROKE_MODE_FREEHAND;
+                    tools[curBrush].strokeMode =
+                        CPBrushInfo.STROKE_MODE_FREEHAND;
                     callToolListeners();
                 },
-                modifies: {tool: true}
+                modifies: { tool: true },
             },
             CPLine: {
                 action: function () {
                     tools[curBrush].strokeMode = CPBrushInfo.STROKE_MODE_LINE;
                     callToolListeners();
                 },
-                modifies: {tool: true}
+                modifies: { tool: true },
             },
             CPBezier: {
                 action: function () {
                     tools[curBrush].strokeMode = CPBrushInfo.STROKE_MODE_BEZIER;
                     callToolListeners();
                 },
-                modifies: {tool: true}
+                modifies: { tool: true },
             },
 
             // Help dialogs
@@ -514,19 +566,19 @@ export default function ChickenPaint(options) {
                 action: function () {
                     new CPAboutDialog(uiElem).show();
                 },
-                modifies: {}
+                modifies: {},
             },
             CPShortcuts: {
                 action: function () {
                     new CPShortcutsDialog(uiElem).show();
                 },
-                modifies: {}
+                modifies: {},
             },
             CPTabletSupport: {
                 action: function () {
                     new CPTabletDialog(uiElem).show();
                 },
-                modifies: {}
+                modifies: {},
             },
 
             // Layer actions
@@ -535,246 +587,250 @@ export default function ChickenPaint(options) {
                 action: function () {
                     that.artwork.duplicateLayer();
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
             CPLayerMergeDown: {
                 action: function () {
                     that.artwork.mergeDown();
                 },
-                modifies: {document: true},
-                allowed: "isMergeDownAllowed"
+                modifies: { document: true },
+                allowed: "isMergeDownAllowed",
             },
             CPGroupMerge: {
                 action: function () {
                     that.artwork.mergeGroup();
                 },
-                modifies: {document: true},
-                allowed: "isMergeGroupAllowed"
+                modifies: { document: true },
+                allowed: "isMergeGroupAllowed",
             },
             CPLayerMergeAll: {
                 action: function () {
                     that.artwork.mergeAllLayers();
                 },
-                modifies: {document: true},
-                allowed: "isMergeAllLayersAllowed"
+                modifies: { document: true },
+                allowed: "isMergeAllLayersAllowed",
             },
             CPAddMergedLayer: {
                 action: function () {
                     that.artwork.mergeAllLayers(true);
                 },
-                modifies: {document: true},
-                allowed: "isMergeAllLayersAllowed"
+                modifies: { document: true },
+                allowed: "isMergeAllLayersAllowed",
             },
             CPExpandLayerGroup: {
                 action: function (e) {
                     that.artwork.expandLayerGroup(e.group, e.expand);
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
             CPFill: {
                 action: function () {
                     that.artwork.fill(that.getCurColor().getRgb() | 0xff000000);
                 },
-                modifies: {document: true},
-                requiresDrawable: true
+                modifies: { document: true },
+                requiresDrawable: true,
             },
             CPClear: {
                 action: function () {
                     that.artwork.clear();
                 },
-                modifies: {document: true},
-                requiresDrawable: true
+                modifies: { document: true },
+                requiresDrawable: true,
             },
             CPSelectAll: {
                 action: function () {
                     that.artwork.rectangleSelection(that.artwork.getBounds());
                     canvas.repaintAll();
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
             CPDeselectAll: {
                 action: function () {
                     that.artwork.rectangleSelection(new CPRect(0, 0, 0, 0));
                     canvas.repaintAll();
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
             CPHFlip: {
                 action: function () {
                     that.artwork.hFlip();
                 },
-                modifies: {document: true},
-                requiresDrawable: true // TODO
+                modifies: { document: true },
+                requiresDrawable: true, // TODO
             },
             CPVFlip: {
                 action: function () {
                     that.artwork.vFlip();
                 },
-                modifies: {document: true},
-                requiresDrawable: true //TODO
+                modifies: { document: true },
+                requiresDrawable: true, //TODO
             },
             CPMNoise: {
                 action: function () {
                     that.artwork.monochromaticNoise();
                 },
-                modifies: {document: true},
-                requiresDrawable: true
+                modifies: { document: true },
+                requiresDrawable: true,
             },
             CPCNoise: {
                 action: function () {
                     that.artwork.colorNoise();
                 },
-                modifies: {document: true},
-                allowed: "isColorNoiseAllowed"
+                modifies: { document: true },
+                allowed: "isColorNoiseAllowed",
             },
             CPFXBoxBlur: {
                 action: function () {
                     showBoxBlurDialog();
                 },
-                modifies: {document: true},
-                requiresDrawable: true
+                modifies: { document: true },
+                requiresDrawable: true,
             },
             CPFXInvert: {
                 action: function () {
                     that.artwork.invert();
                 },
-                modifies: {document: true},
-                requiresDrawable: true
+                modifies: { document: true },
+                requiresDrawable: true,
             },
             CPBrightnessToOpacity: {
                 action: function () {
                     that.artwork.brightnessToOpacity();
                 },
-                modifies: {document: true},
-                requiresDrawable: true
+                modifies: { document: true },
+                requiresDrawable: true,
             },
 
             CPCut: {
                 action: function () {
                     that.artwork.cutSelection();
                 },
-                modifies: {document: true},
+                modifies: { document: true },
                 requiresDrawable: true,
-                allowed: "isCutSelectionAllowed"
+                allowed: "isCutSelectionAllowed",
             },
             CPCopy: {
                 action: function () {
                     that.artwork.copySelection();
                 },
-                modifies: {document: true},
+                modifies: { document: true },
                 requiresDrawable: true,
-                allowed: "isCopySelectionAllowed"
+                allowed: "isCopySelectionAllowed",
             },
             CPCopyMerged: {
                 action: function () {
                     that.artwork.copySelectionMerged();
                 },
-                modifies: {document: true},
-                allowed: "isCopySelectionMergedAllowed"
+                modifies: { document: true },
+                allowed: "isCopySelectionMergedAllowed",
             },
             CPPaste: {
                 action: function () {
                     that.artwork.pasteClipboard();
                 },
-                modifies: {document: true},
-                allowed: "isPasteClipboardAllowed"
+                modifies: { document: true },
+                allowed: "isPasteClipboardAllowed",
             },
 
             CPToggleGrid: {
-                action: function(e) {
+                action: function (e) {
                     canvas.showGrid(e.selected);
                 },
-                modifies: {gui: true}
+                modifies: { gui: true },
             },
             CPGridOptions: {
                 action: function () {
                     showGridOptionsDialog();
                 },
-                modifies: {gui: true}
+                modifies: { gui: true },
             },
 
             CPLinearInterpolation: {
-                action: function(e) {
+                action: function (e) {
                     canvas.setInterpolation(e.selected);
                 },
-                modifies: {gui: true},
-                isSupported: function() {
+                modifies: { gui: true },
+                isSupported: function () {
                     return isCanvasInterpolationSupported();
-                }
+                },
             },
             CPResetCanvasRotation: {
                 action: function () {
                     canvas.resetRotation();
                 },
-                modifies: {gui: true}
+                modifies: { gui: true },
             },
 
             // Layer palette
 
             CPAddLayer: {
-                action: function() {
+                action: function () {
                     that.artwork.addLayer("layer");
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
             CPAddGroup: {
-                action: function() {
+                action: function () {
                     that.artwork.addLayer("group");
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
             CPAddLayerMask: {
-                action: function() {
+                action: function () {
                     that.artwork.addLayerMask();
                 },
-                modifies: {document: true},
-                allowed: "isAddLayerMaskAllowed"
+                modifies: { document: true },
+                allowed: "isAddLayerMaskAllowed",
             },
             CPApplyLayerMask: {
-                action: function() {
+                action: function () {
                     that.artwork.applyLayerMask(true);
                 },
-                modifies: {document: true},
-                allowed: "isApplyLayerMaskAllowed"
+                modifies: { document: true },
+                allowed: "isApplyLayerMaskAllowed",
             },
             CPRemoveLayerMask: {
-                action: function() {
+                action: function () {
                     that.artwork.removeLayerMask();
                 },
-                modifies: {document: true},
-                allowed: "isRemoveLayerMaskAllowed"
+                modifies: { document: true },
+                allowed: "isRemoveLayerMaskAllowed",
             },
             CPRemoveLayer: {
-                action: function() {
+                action: function () {
                     if (!that.artwork.removeLayer()) {
-                        alert(_("Sorry, you can't remove the last remaining layer in the drawing."));
+                        alert(
+                            _(
+                                "Sorry, you can't remove the last remaining layer in the drawing."
+                            )
+                        );
                     }
                 },
-                modifies: {document: true},
-                allowed: "isRemoveLayerAllowed"
+                modifies: { document: true },
+                allowed: "isRemoveLayerAllowed",
             },
             CPCreateClippingMask: {
-                action: function() {
+                action: function () {
                     that.artwork.createClippingMask();
                 },
-                modifies: {document: true},
-                allowed: "isCreateClippingMaskAllowed"
+                modifies: { document: true },
+                allowed: "isCreateClippingMaskAllowed",
             },
             CPReleaseClippingMask: {
-                action: function() {
+                action: function () {
                     that.artwork.releaseClippingMask();
                 },
-                modifies: {document: true},
-                allowed: "isReleaseClippingMaskAllowed"
+                modifies: { document: true },
+                allowed: "isReleaseClippingMaskAllowed",
             },
             CPRelocateLayer: {
-                action: function(e) {
+                action: function (e) {
                     that.artwork.relocateLayer(e.layer, e.toGroup, e.toIndex);
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
             CPSetActiveLayer: {
-                action: function(e) {
+                action: function (e) {
                     // Enable disabled layer masks when clicked on
                     if (e.mask && e.layer.mask && !e.layer.maskVisible) {
                         that.artwork.setLayerMaskVisible(e.layer, true);
@@ -785,54 +841,53 @@ export default function ChickenPaint(options) {
                     // Since this is a slow GUI operation, this is a good chance to get the canvas ready for drawing
                     that.artwork.performIdleTasks();
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
             CPToggleMaskView: {
-                action: function() {
-                    let
-                        newView = that.artwork.toggleMaskView();
+                action: function () {
+                    let newView = that.artwork.toggleMaskView();
 
                     if (newView) {
                         that.emitEvent("maskViewOpened", [newView]);
                     }
                 },
-                modifies: {gui: true}
+                modifies: { gui: true },
             },
-	        CPSetMaskVisible: {
-		        action: function(e) {
-			        that.artwork.setLayerMaskVisible(e.layer, e.visible);
-		        },
-		        modifies: {layerProp: true}
-	        },
+            CPSetMaskVisible: {
+                action: function (e) {
+                    that.artwork.setLayerMaskVisible(e.layer, e.visible);
+                },
+                modifies: { layerProp: true },
+            },
             CPSetLayerVisibility: {
-                action: function(e) {
+                action: function (e) {
                     that.artwork.setLayerVisibility(e.layer, e.visible);
                 },
-                modifies: {layerProp: true}
+                modifies: { layerProp: true },
             },
             CPSetLayerName: {
-                action: function(e) {
+                action: function (e) {
                     that.artwork.setLayerName(e.layer, e.name);
                 },
-                modifies: {layerProp: true}
+                modifies: { layerProp: true },
             },
             CPSetLayerBlendMode: {
-                action: function(e) {
+                action: function (e) {
                     that.artwork.setLayerBlendMode(e.blendMode);
                 },
-                modifies: {layerProp: true}
+                modifies: { layerProp: true },
             },
             CPSetLayerAlpha: {
-                action: function(e) {
+                action: function (e) {
                     that.artwork.setLayerAlpha(e.alpha);
                 },
-                modifies: {layerProp: true}
+                modifies: { layerProp: true },
             },
             CPSetLayerLockAlpha: {
-                action: function(e) {
+                action: function (e) {
                     that.artwork.setLayerLockAlpha(e.lock);
                 },
-                modifies: {layerProp: true}
+                modifies: { layerProp: true },
             },
 
             // Palettes
@@ -850,13 +905,13 @@ export default function ChickenPaint(options) {
                 action: function () {
                     mainGUI.togglePalettes();
                 },
-                modifies: {gui: true}
+                modifies: { gui: true },
             },
             CPArrangePalettes: {
                 action: function () {
                     mainGUI.arrangePalettes();
                 },
-                modifies: {gui: true}
+                modifies: { gui: true },
             },
 
             // Saving
@@ -865,70 +920,71 @@ export default function ChickenPaint(options) {
                 action: function () {
                     saveDrawing();
                 },
-                isSupported: function() {
+                isSupported: function () {
                     return options.allowDownload !== false;
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
             CPSend: {
                 action: function () {
                     sendDrawing();
                 },
-                isSupported: function() {
+                isSupported: function () {
                     return !!options.saveUrl;
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
             CPPost: {
                 action: function () {
-				//画面移動の関数が定義されている時はユーザーが定義した関数で画面移動
-				if (typeof handleExit === 'function') {
-					return handleExit();
-				}
+                    //画面移動の関数が定義されている時はユーザーが定義した関数で画面移動
+                    if (typeof handleExit === "function") {
+                        return handleExit();
+                    }
                     window.location = options.postUrl;
                 },
-                isSupported: function() {
-                    return !!(options.postUrl||(typeof handleExit === 'function'));
+                isSupported: function () {
+                    return !!(
+                        options.postUrl || typeof handleExit === "function"
+                    );
                 },
-                modifies: {document: true}
+                modifies: { document: true },
             },
             CPContinue: {
-                action: function() {
-                },
-                isSupported: function() {
+                action: function () {},
+                isSupported: function () {
                     return !!options.allowMultipleSends;
-                }
+                },
             },
             CPExit: {
                 action: function () {
                     // Exit the drawing session without posting the drawing to the forum
                     window.location = options.exitUrl;
                 },
-                isSupported: function() {
+                isSupported: function () {
                     return !!options.exitUrl;
                 },
-                modifies: {}
-            }
+                modifies: {},
+            },
         };
 
     function PaletteToggleAction(palName) {
         this.palName = palName;
     }
 
-    PaletteToggleAction.prototype.action = function(e) {
+    PaletteToggleAction.prototype.action = function (e) {
         mainGUI.showPalette(this.palName, e.selected);
     };
-    PaletteToggleAction.prototype.modifies = {gui: true};
+    PaletteToggleAction.prototype.modifies = { gui: true };
 
     function ToolChangeAction(toolNum) {
         this.toolNum = toolNum;
     }
 
-    ToolChangeAction.prototype.action = function() {
+    ToolChangeAction.prototype.action = function () {
         setTool(this.toolNum);
     };
 
-    ToolChangeAction.prototype.modifies = {mode: true, tool: true};
+    ToolChangeAction.prototype.modifies = { mode: true, tool: true };
 
     ToolChangeAction.prototype.requiresDrawable = true;
 
@@ -936,30 +992,34 @@ export default function ChickenPaint(options) {
         this.modeNum = modeNum;
     }
 
-    ModeChangeAction.prototype.action = function() {
+    ModeChangeAction.prototype.action = function () {
         setMode(this.modeNum);
     };
-    ModeChangeAction.prototype.modifies = {mode: true};
+    ModeChangeAction.prototype.modifies = { mode: true };
 
     function onEditModeChanged(newMode) {
-        colorMode = (newMode == CPArtwork.EDITING_MODE_IMAGE ? ChickenPaint.COLOR_MODE_RGB : ChickenPaint.COLOR_MODE_GREYSCALE);
+        colorMode =
+            newMode == CPArtwork.EDITING_MODE_IMAGE
+                ? ChickenPaint.COLOR_MODE_RGB
+                : ChickenPaint.COLOR_MODE_GREYSCALE;
 
-        that.emitEvent("colorModeChange", [newMode == CPArtwork.EDITING_MODE_IMAGE ? "rgb" : "greyscale"]);
+        that.emitEvent("colorModeChange", [
+            newMode == CPArtwork.EDITING_MODE_IMAGE ? "rgb" : "greyscale",
+        ]);
 
-        let
-            newColor;
+        let newColor;
 
         switch (colorMode) {
             case ChickenPaint.COLOR_MODE_RGB:
                 newColor = curColor.clone();
-            break;
+                break;
             case ChickenPaint.COLOR_MODE_GREYSCALE:
                 newColor = new CPColor(CPColor.greyToRGB(curMaskColor));
-            break;
+                break;
         }
 
         that.artwork.setForegroundColor(newColor.getRgb());
-        that.emitEvent('colorChange', [newColor]);
+        that.emitEvent("colorChange", [newColor]);
     }
 
     function showBoxBlurDialog() {
@@ -979,43 +1039,43 @@ export default function ChickenPaint(options) {
     }
 
     function callToolListeners() {
-        that.emitEvent('toolChange', [curBrush, tools[curBrush]]);
+        that.emitEvent("toolChange", [curBrush, tools[curBrush]]);
     }
 
     // TODO make me private
-    this.callToolListeners = function() {
+    this.callToolListeners = function () {
         callToolListeners();
     };
 
     function callModeListeners() {
-        that.emitEvent('modeChange', [curMode]);
+        that.emitEvent("modeChange", [curMode]);
     }
 
-	/**
+    /**
      * @returns {CPArtwork}
      */
-    this.getArtwork = function() {
+    this.getArtwork = function () {
         return this.artwork;
     };
 
-    this.setCanvas = function(_canvas) {
+    this.setCanvas = function (_canvas) {
         canvas = _canvas;
     };
-	
-	/**
+
+    /**
      * Change the interpolation mode used by Free Transform operations
-     * 
+     *
      * @param {string} interpolation - Either "sharp" or "smooth"
      */
-    this.setTransformInterpolation = function(interpolation) {
+    this.setTransformInterpolation = function (interpolation) {
         this.artwork.setTransformInterpolation(interpolation);
     };
 
-	/**
+    /**
      *
      * @param {CPColor} color
      */
-    this.setCurColor = function(color) {
+    this.setCurColor = function (color) {
         switch (colorMode) {
             case ChickenPaint.COLOR_MODE_RGB:
                 if (!curColor.isEqual(color)) {
@@ -1023,31 +1083,29 @@ export default function ChickenPaint(options) {
 
                     this.artwork.setForegroundColor(color.getRgb());
 
-                    this.emitEvent('colorChange', [color]);
+                    this.emitEvent("colorChange", [color]);
                 }
-            break;
+                break;
             case ChickenPaint.COLOR_MODE_GREYSCALE:
-                let
-                    grey = color.getValue();
+                let grey = color.getValue();
 
                 if (curMaskColor != grey) {
-                    let
-                        greyRGB = CPColor.greyToRGB(grey);
+                    let greyRGB = CPColor.greyToRGB(grey);
 
                     this.artwork.setForegroundColor(greyRGB);
-            
+
                     curMaskColor = grey;
 
-                    this.emitEvent('colorChange', [new CPColor(greyRGB)]);
+                    this.emitEvent("colorChange", [new CPColor(greyRGB)]);
                 }
-            break;
+                break;
         }
     };
 
-	/**
+    /**
      * @returns {CPColor}
      */
-    this.getCurColor = function() {
+    this.getCurColor = function () {
         switch (colorMode) {
             case ChickenPaint.COLOR_MODE_RGB:
                 return curColor.clone();
@@ -1056,35 +1114,35 @@ export default function ChickenPaint(options) {
         }
     };
 
-    this.setCurGradient = function(gradient) {
+    this.setCurGradient = function (gradient) {
         curGradient = gradient.slice(0); // Clone
 
-        this.emitEvent('gradientChange', [curGradient]);
+        this.emitEvent("gradientChange", [curGradient]);
     };
 
-    this.getCurGradient = function() {
+    this.getCurGradient = function () {
         return curGradient.slice(0); // Clone
     };
 
-    this.setBrushSize = function(size) {
+    this.setBrushSize = function (size) {
         tools[curBrush].size = Math.max(1, Math.min(200, size));
         callToolListeners();
     };
 
-    this.getBrushSize = function() {
+    this.getBrushSize = function () {
         return tools[curBrush].size;
     };
 
-    this.setAlpha = function(alpha) {
+    this.setAlpha = function (alpha) {
         tools[curBrush].alpha = alpha;
         callToolListeners();
     };
 
-    this.getAlpha = function() {
+    this.getAlpha = function () {
         return tools[curBrush].alpha;
     };
 
-    this.getCurMode = function() {
+    this.getCurMode = function () {
         return curMode;
     };
 
@@ -1098,7 +1156,7 @@ export default function ChickenPaint(options) {
         }
     }
 
-    this.getCurTool = function() {
+    this.getCurTool = function () {
         return curBrush;
     };
 
@@ -1109,59 +1167,75 @@ export default function ChickenPaint(options) {
         callToolListeners();
     }
 
-    this.getBrushInfo = function() {
+    this.getBrushInfo = function () {
         return tools[curBrush];
     };
-    
-    function saveDrawing() {
-        let
-            saver = new CPResourceSaver({
-                artwork: that.getArtwork(),
-                rotation: canvas.getRotation90(),
-                swatches: mainGUI.getSwatches()
-            });
 
-        saver.on("savingComplete", function() {
+    function saveDrawing() {
+        let saver = new CPResourceSaver({
+            artwork: that.getArtwork(),
+            rotation: canvas.getRotation90(),
+            swatches: mainGUI.getSwatches(),
+        });
+
+        saver.on("savingComplete", function () {
             that.artwork.setHasUnsavedChanges(false);
         });
-        
-        saver.on("savingFailure", function() {
-            alert(_("Sorry, your drawing could not be saved, Please see the error message."));
+
+        saver.on("savingFailure", function () {
+            alert(
+                _(
+                    "Sorry, your drawing could not be saved, Please see the error message."
+                )
+            );
         });
-        
+
         saver.save();
     }
-    
+
     function sendDrawing() {
-        if (!that.isActionSupported("CPContinue") && !confirm(_('Are you sure you want to send your drawing to the server and finish drawing now?'))) {
+        if (
+            !that.isActionSupported("CPContinue") &&
+            !confirm(
+                _(
+                    "Are you sure you want to send your drawing to the server and finish drawing now?"
+                )
+            )
+        ) {
             return;
         }
 
-        let
-            saver = new CPResourceSaver({
+        let saver = new CPResourceSaver({
                 artwork: that.getArtwork(),
                 rotation: canvas.getRotation90(),
                 swatches: mainGUI.getSwatches(),
                 url: options.saveUrl,
-                post_max_size:options.post_max_size
+                post_max_size: options.post_max_size,
             }),
             sendDialog = new CPSendDialog(that, uiElem, saver);
 
-        saver.on("savingComplete", function() {
+        saver.on("savingComplete", function () {
             that.artwork.setHasUnsavedChanges(false);
-            
+
             // If we're not allowed to keep editing, we can only go straight to viewing the new post
-            if (!that.isActionSupported("CPContinue") && that.isActionSupported("CPPost")) {
-                that.actionPerformed({action: "CPPost"});
+            if (
+                !that.isActionSupported("CPContinue") &&
+                that.isActionSupported("CPPost")
+            ) {
+                that.actionPerformed({ action: "CPPost" });
             }
         });
 
-        saver.on("savingFailure", function() {
-            alert(_("Sorry, your drawing could not be saved, Please see the error message."));
+        saver.on("savingFailure", function () {
+            alert(
+                _(
+                    "Sorry, your drawing could not be saved, Please see the error message."
+                )
+            );
         });
 
         // Allow the dialog to show before we begin serialization
-        sendDialog.on("shown", function() {
+        sendDialog.on("shown", function () {
             saver.save();
         });
 
@@ -1175,10 +1249,9 @@ export default function ChickenPaint(options) {
      * @param {string} actionName
      * @returns {boolean}
      */
-    this.isActionSupported = function(actionName) {
+    this.isActionSupported = function (actionName) {
         if (actions[actionName]) {
-            let
-                supportedType = typeof actions[actionName].isSupported;
+            let supportedType = typeof actions[actionName].isSupported;
 
             if (supportedType == "function") {
                 return actions[actionName].isSupported();
@@ -1193,14 +1266,13 @@ export default function ChickenPaint(options) {
         return false;
     };
 
-	/**
+    /**
      * Check if a given action is allowed at the moment (e.g. in the current mode and with the current layer selected).
      *
      * @param actionName
      */
-    this.isActionAllowed = function(actionName) {
-        let
-            action = actions[actionName];
+    this.isActionAllowed = function (actionName) {
+        let action = actions[actionName];
 
         if (!action) {
             return false;
@@ -1209,33 +1281,37 @@ export default function ChickenPaint(options) {
         } else if (typeof action.allowed == "string") {
             return this.artwork[action.allowed]();
         } else {
-            return !action.requiresDrawable || this.artwork.isActiveLayerDrawable();
+            return (
+                !action.requiresDrawable || this.artwork.isActiveLayerDrawable()
+            );
         }
     };
 
-    this.showLayerNotification = function(layer, message, where) {
+    this.showLayerNotification = function (layer, message, where) {
         this.emitEvent("layerNotification", [layer, message, where]);
     };
-    
-    this.actionPerformed = function(e) {
+
+    this.actionPerformed = function (e) {
         if (this.artwork == null || canvas == null) {
             return; // this shouldn't happen, but just in case
         }
 
-        let
-            action = actions[e.action];
+        let action = actions[e.action];
 
         if (action) {
-            if (curMode == ChickenPaint.M_TRANSFORM && (action.modifies.document || action.modifies.mode)
-                    && ["CPTransformAccept", "CPTransformReject"].indexOf(e.action) == -1) {
+            if (
+                curMode == ChickenPaint.M_TRANSFORM &&
+                (action.modifies.document || action.modifies.mode) &&
+                ["CPTransformAccept", "CPTransformReject"].indexOf(e.action) ==
+                    -1
+            ) {
                 if (e.action == "CPUndo") {
                     actions.CPTransformReject.action();
                 } else if (e.action == "CPTransform") {
                     // You're already transforming the selection!
                 } else {
                     // Prompt the user to finish their transform before starting something else
-                    let
-                        dialog = new CPConfirmTransformDialog(uiElem, this);
+                    let dialog = new CPConfirmTransformDialog(uiElem, this);
 
                     /* If they decide to finish up with the transform, we can apply the original action they
                      * attempted afterwards.
@@ -1249,122 +1325,135 @@ export default function ChickenPaint(options) {
                 action.action(e);
             }
         }
-    
+
         // callCPEventListeners(); TODO
     };
 
-		this.setSmallScreenMode = function(small) {
+    this.setSmallScreenMode = function (small) {
         if (smallScreenMode !== small) {
             smallScreenMode = small;
 
-            uiElem.classList.toggle("chickenpaint-small-screen", smallScreenMode);
+            uiElem.classList.toggle(
+                "chickenpaint-small-screen",
+                smallScreenMode
+            );
             that.emitEvent("smallScreen", [smallScreenMode]);
         }
     };
-    
-    this.getSmallScreenMode = function() {
+
+    this.getSmallScreenMode = function () {
         return smallScreenMode;
     };
 
-    this.setFullScreen = function(newVal) {
+    this.setFullScreen = function (newVal) {
         if (isFullScreen !== newVal) {
             isFullScreen = newVal;
 
-            document.body.classList.toggle("chickenpaint-full-screen", isFullScreen);
+            document.body.classList.toggle(
+                "chickenpaint-full-screen",
+                isFullScreen
+            );
             uiElem.classList.toggle("chickenpaint-full-screen", isFullScreen);
-            
-            const viewportMetaTags = document.querySelectorAll('head meta[name="viewport"]');
+
+            const viewportMetaTags = document.querySelectorAll(
+                'head meta[name="viewport"]'
+            );
             const count = viewportMetaTags.length;
             if (isFullScreen && count === 0) {
                 // Reset page zoom to zero if the host page didn't already set a viewport
                 const metaTag = document.createElement("meta");
                 metaTag.name = "viewport";
-                metaTag.content = "width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,,user-scalable=no";
+                metaTag.content =
+                    "width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,,user-scalable=no";
                 document.head.appendChild(metaTag);
-                                
+
                 // Give the browser time to adjust the viewport before we adapt to the new size
-                setTimeout(() => that.emitEvent("fullScreen", [isFullScreen]), 200);
+                setTimeout(
+                    () => that.emitEvent("fullScreen", [isFullScreen]),
+                    200
+                );
             } else {
                 that.emitEvent("fullScreen", [isFullScreen]);
             }
         }
     };
-    
-    this.isFullScreen = function() {
+
+    this.isFullScreen = function () {
         return isFullScreen;
-    }
-    
-    this.setToolbarStyle = function(styleName) {
+    };
+
+    this.setToolbarStyle = function (styleName) {
         preferences.set("toolbarStyle", styleName);
         preferences.save(); // Eager save, so we don't lose it upon a crash
     };
-    
-    this.getToolbarStyle = function() {
+
+    this.getToolbarStyle = function () {
         return preferences.get("toolbarStyle");
     };
-    
+
     function installUnsavedWarning() {
-        window.addEventListener("beforeunload", function(e) {
+        window.addEventListener("beforeunload", function (e) {
             if (that.artwork.getHasUnsavedChanges()) {
                 e.preventDefault();
             }
         });
     }
-    
+
     function startMainGUI(swatches, initialRotation90) {
         if (!uiElem) {
             return;
         }
 
         // Prevent double-click iOS page zoom events
-        uiElem.addEventListener("dblclick", function(e){ 
-            e.preventDefault(); 
+        uiElem.addEventListener("dblclick", function (e) {
+            e.preventDefault();
             e.stopPropagation();
         });
 
         that.artwork.on("editModeChanged", onEditModeChanged);
 
         mainGUI = new CPMainGUI(that, uiElem);
-        
+
         that.emitEvent("fullScreen", [isFullScreen]);
         that.emitEvent("smallScreen", [smallScreenMode]);
-        
+
         preferences.load();
-        
+
         setTool(ChickenPaint.T_PEN);
         mainGUI.arrangePalettes();
-        
+
         if (swatches) {
             mainGUI.setSwatches(swatches);
         }
-        
+
         if (initialRotation90) {
             mainGUI.setRotation90(initialRotation90);
         }
-        
+
         installUnsavedWarning();
 
-        that.artwork.on("unsavedChanges", unsavedChanges => {
+        that.artwork.on("unsavedChanges", (unsavedChanges) => {
             // Only bug users to save if they can actually save multiple times per session.
             // Otherwise they'll save when they're done with their drawing and not before:
             if (options.allowMultipleSends) {
-                that.emitEvent("unsavedChanges", [unsavedChanges])
+                that.emitEvent("unsavedChanges", [unsavedChanges]);
             }
         });
     }
-    
-    this.getResourcesRoot = function() {
+
+    this.getResourcesRoot = function () {
         return options.resourcesRoot;
     };
 
     if (uiElem) {
-        uiElem.className += " chickenpaint chickenpaint-lang-" + currentLanguage();
+        uiElem.className +=
+            " chickenpaint chickenpaint-lang-" + currentLanguage();
     }
 
     options.resourcesRoot = options.resourcesRoot || "chickenpaint/";
 
     this.setSmallScreenMode(isSmallScreen());
-    
+
     switch (options.fullScreenMode) {
         case "force":
             this.setFullScreen(true);
@@ -1373,18 +1462,19 @@ export default function ChickenPaint(options) {
             this.setFullScreen(smallScreenMode);
             break;
     }
-    
-    preferences.on("toolbarStyle", newStyle => this.emitEvent("toolbarStyleChange", [newStyle]));
+
+    preferences.on("toolbarStyle", (newStyle) =>
+        this.emitEvent("toolbarStyleChange", [newStyle])
+    );
 
     if (options.loadImageUrl || options.loadChibiFileUrl) {
-        let
-            loader = new CPResourceLoader(options);
+        let loader = new CPResourceLoader(options);
 
         new CPSplashScreen(uiElem, loader, options.resourcesRoot);
 
-        loader.on("loadingComplete", function(resources) {
+        loader.on("loadingComplete", function (resources) {
             that.artwork = resources.layers || resources.flat;
-            
+
             startMainGUI(resources.swatches, options.rotation);
             if (options.onLoaded) {
                 options.onLoaded(this);
@@ -1396,14 +1486,17 @@ export default function ChickenPaint(options) {
         if (options.artwork) {
             this.artwork = options.artwork;
         } else {
-            this.artwork = new CPArtwork(options.canvasWidth || 800, options.canvasHeight || 600);
+            this.artwork = new CPArtwork(
+                options.canvasWidth || 800,
+                options.canvasHeight || 600
+            );
             this.artwork.addBackgroundLayer();
-			//起動時に透明なレイヤーを1枚追加
+            //起動時に透明なレイヤーを1枚追加
             this.artwork.addDefaultLayer();
         }
 
         startMainGUI();
-        
+
         if (options.onLoaded) {
             options.onLoaded(this);
         }
@@ -1413,20 +1506,20 @@ export default function ChickenPaint(options) {
 ChickenPaint.prototype = Object.create(EventEmitter.prototype);
 ChickenPaint.prototype.constructor = ChickenPaint;
 
-ChickenPaint.UnsupportedBrowserException = function(message) {
+ChickenPaint.UnsupportedBrowserException = function (message) {
     this.message = message;
 };
 
-ChickenPaint.UnsupportedBrowserException.prototype.toString = function() {
-    let
-        msg = "Sorry, your web browser does not support ChickenPaint.";
+ChickenPaint.UnsupportedBrowserException.prototype.toString = function () {
+    let msg = "Sorry, your web browser does not support ChickenPaint.";
 
     if (this.message) {
         msg += " " + this.message;
     } else {
-        msg += " Please try a modern browser like Chrome, Safari, Firefox, or Edge.";
+        msg +=
+            " Please try a modern browser like Chrome, Safari, Firefox, or Edge.";
     }
-    
+
     return msg;
 };
 

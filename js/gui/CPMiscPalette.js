@@ -20,72 +20,72 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import CPPalette from './CPPalette.js';
-import {_} from "../languages/lang.js";
+import CPPalette from "./CPPalette.js";
+import { _ } from "../languages/lang.js";
 
 export default function CPMiscPalette(cpController) {
     CPPalette.call(this, cpController, "misc", "Misc");
-    
-    let 
-        that = this,
 
+    let that = this,
         buttons = [
             {
                 className: "chickenpaint-tool-zoom-in",
                 command: "CPZoomIn",
-                toolTip: "Zoom in"
+                toolTip: "Zoom in",
             },
             {
                 className: "chickenpaint-tool-zoom-out",
                 command: "CPZoomOut",
-                toolTip: "Zoom out"
+                toolTip: "Zoom out",
             },
             {
                 className: "chickenpaint-tool-zoom-100",
                 command: "CPZoom100",
-                toolTip: "Zoom 100%"
+                toolTip: "Zoom 100%",
             },
             {
                 className: "chickenpaint-tool-flip-horizontal",
-                command: "CPHFlip",
-                toolTip: "Flip horizontal"
+                command: "CPViewHFlip",
+                toolTip: "Flip View horizontal",
             },
             {
                 className: "chickenpaint-tool-undo",
                 command: "CPUndo",
-                toolTip: "Undo"
+                toolTip: "Undo",
             },
             {
                 className: "chickenpaint-tool-redo",
                 command: "CPRedo",
-                toolTip: "Redo"
+                toolTip: "Redo",
             },
             {
                 className: "chickenpaint-tool-send",
                 command: "CPSend",
-                toolTip: "Save Oekaki"
-            }
+                toolTip: "Save Oekaki",
+            },
         ];
 
     function buildButtons() {
-        let
-            body = that.getBodyElement(),
+        let body = that.getBodyElement(),
             listElem = document.createElement("ul");
-        
+
         listElem.className = "chickenpaint-misc-tools list-unstyled";
-        
+
         for (let i in buttons) {
-            let 
-                button = buttons[i],
+            let button = buttons[i],
                 buttonElem = document.createElement("li"),
                 buttonIcon = document.createElement("div");
-            
-            if (button.command == 'CPSend' && !cpController.isActionSupported("CPContinue")) {
+
+            if (
+                button.command == "CPSend" &&
+                !cpController.isActionSupported("CPContinue")
+            ) {
                 button.toolTip = "Post Oekaki";
                 button.className = "chickenpaint-tool-send-and-end";
             }
-            
-            buttonElem.className = "chickenpaint-toolbar-button " + button.className;
+
+            buttonElem.className =
+                "chickenpaint-toolbar-button " + button.className;
             buttonElem.setAttribute("data-buttonIndex", i);
             buttonElem.setAttribute("title", _(button.toolTip));
 
@@ -93,25 +93,32 @@ export default function CPMiscPalette(cpController) {
             buttonElem.appendChild(buttonIcon);
 
             listElem.appendChild(buttonElem);
+            // 「左右反転ボタン」の要素を保存する
+            if (button.className === "chickenpaint-tool-flip-horizontal") {
+                that.flipButton = buttonElem;
+            }
         }
-        
-        listElem.addEventListener("click", function(e) {
+
+        listElem.addEventListener("click", function (e) {
             // クリックされた要素が <li> 内の何らかの要素の場合、親の <li> を取得
             const liElem = e.target.closest("li");
-        
+
             // 親が <li> であれば処理を行う
             if (liElem) {
-                let buttonIndex = parseInt(liElem.getAttribute("data-buttonIndex"), 10);
+                let buttonIndex = parseInt(
+                    liElem.getAttribute("data-buttonIndex"),
+                    10
+                );
                 let button = buttons[buttonIndex];
-        
+
                 // アクションを実行
                 cpController.actionPerformed({ action: button.command });
             }
         });
-                
+
         body.appendChild(listElem);
     }
-    
+
     buildButtons();
 }
 

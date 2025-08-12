@@ -116,6 +116,8 @@ export default function CPShortcutsDialog(parent) {
                                         <dd>${_("Rotate the canvas")}</dd>
                                         <dt><span class="chickenpaint-shortcut"><span class="fa icon-mouse-pointer"></span> ${_("Right")}</span><span class="chickenpaint-shortcut-alternate">${_("or")}</span><span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">Alt</span> + <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span></dt>
                                         <dd>${_("Sample the color under the cursor")}</dd>
+                                        <dt><span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">H</span></dt>
+                                        <dd>${_("Flip View horizontal")}</dd>
                                     </dl>
                                 </li>
                             </ul>

@@ -208,7 +208,6 @@ const MENU_ENTRIES = [
                 name: "Flip horizontal",
                 action: "CPHFlip",
                 mnemonic: "H",
-                shortcut: "h",
             },
             {
                 name: "Flip vertical",
@@ -287,6 +286,15 @@ const MENU_ENTRIES = [
                 action: "CPZoom100",
                 mnemonic: "1",
                 shortcut: "ctrl+0",
+            },
+            {
+                name: "-",
+            },
+            {
+                name: "Flip horizontal",
+                action: "CPViewHFlip",
+                mnemonic: "H",
+                shortcut: "H",
             },
             {
                 action: "CPLinearInterpolation",

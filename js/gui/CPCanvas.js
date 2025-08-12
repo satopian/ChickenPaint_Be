@@ -1047,6 +1047,8 @@ export default function CPCanvas(controller) {
         };
 
         this.mouseDrag = function (e) {
+            // if (key.isPressed("q")) return; // キーボードのQキーが押されている場合は何もしない
+
             if (this.capture) {
                 that.setOffset(
                     panningOffset.x + e.pageX - panningX,
@@ -1910,7 +1912,7 @@ export default function CPCanvas(controller) {
                 // もし一時的に反転している状態ならば、
                 // cloneしたtransformに反転変換を適用して
                 // 反転状態を反映させる
-                if (isTempFlipped) {
+                if (isViewFlipped) {
                     flippedTransform(initTransform);
                 }
                 dragged = false;
@@ -2170,7 +2172,7 @@ export default function CPCanvas(controller) {
         transform.translate(offsetX, offsetY);
         transform.scale(zoom, zoom);
         transform.rotate(canvasRotation);
-        if (isTempFlipped) {
+        if (isViewFlipped) {
             viewFlip();
         }
 
@@ -2532,7 +2534,23 @@ export default function CPCanvas(controller) {
         }
     }
 
-    let isTempFlipped = false;
+    //表示の左右反転
+    let savedTransform = null;
+    let isViewFlipped = false;
+    this.toggleViewFlip = () => {
+        if (!isViewFlipped) {
+            savedTransform = transform.clone(); // 現在のtransformを保存
+            viewFlip();
+        } else if (savedTransform) {
+            transform = savedTransform.clone(); // 保存したtransformに戻す
+            savedTransform = null;
+            isViewFlipped = false;
+        }
+        that.repaintAll();
+        //呼び出し元で反転状態の判定処理
+        return isViewFlipped;
+    };
+    // let isViewFlipped = false;
     function viewFlip() {
         // console.log("viewFlip");
         const cx = artwork.width / 2;
@@ -2540,26 +2558,8 @@ export default function CPCanvas(controller) {
         transform.scale(-1, 1);
         transform.translate(-cx, 0);
         // console.log("transform.m", transform.m);
-        isTempFlipped = true;
+        isViewFlipped = true;
     }
-
-    let savedTransform = null;
-    document.addEventListener("keydown", (e) => {
-        if (e.key.toLowerCase() === "q" && !isTempFlipped) {
-            savedTransform = transform.clone(); // 現在のtransformを保存
-            viewFlip();
-            that.repaintAll();
-        }
-    });
-
-    document.addEventListener("keyup", (e) => {
-        if (e.key.toLowerCase() === "q" && isTempFlipped) {
-            transform = savedTransform.clone(); // 保存したtransformに戻す
-            savedTransform = null;
-            isTempFlipped = false;
-            that.repaintAll();
-        }
-    });
 
     // ペンでズーム
     let penZoomActive = false;
