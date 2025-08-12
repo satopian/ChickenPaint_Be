@@ -1316,9 +1316,16 @@ export default function ChickenPaint(options) {
                     /* If they decide to finish up with the transform, we can apply the original action they
                      * attempted afterwards.
                      */
-                    dialog.on("accept", this.actionPerformed.bind(this, e));
-                    dialog.on("reject", this.actionPerformed.bind(this, e));
-
+                    // dialog.on("accept", this.actionPerformed.bind(this, e));
+                    // dialog.on("reject", this.actionPerformed.bind(this, e));
+                    dialog.on("accept", () => {
+                        this.actionPerformed(e); // 元アクション
+                        dialog.hide(); // モーダルを閉じる
+                    });
+                    dialog.on("reject", () => {
+                        this.actionPerformed(e);
+                        dialog.hide();
+                    });
                     dialog.show();
                 }
             } else {

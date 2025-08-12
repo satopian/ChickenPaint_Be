@@ -21,7 +21,7 @@
 */
 
 import EventEmitter from "wolfy87-eventemitter";
-import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
 export default function CPConfirmTransformDialog(parent, controller) {
@@ -39,13 +39,21 @@ export default function CPConfirmTransformDialog(parent, controller) {
                 </div>
                 <div class="modal-body">
                     <p>
-                        ${_("You need to finish transforming this layer before you can do that. What would you like to do with the transform?")}
+                        ${_(
+                            "You need to finish transforming this layer before you can do that. What would you like to do with the transform?"
+                        )}
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_("Cancel")}</button>
-                    <button type="button" class="btn btn-light chickenpaint-reject-transform" data-bs-dismiss="modal">${_("Undo transform")}</button>
-                    <button type="button" class="btn btn-primary chickenpaint-accept-transform" data-bs-dismiss="modal">${_("Apply transform")}</button>
+                    <button type="button" class="btn btn-light chickenpaint-cancel-transform" data-bs-dismiss="modal">${_(
+                        "Cancel"
+                    )}</button>
+                    <button type="button" class="btn btn-light chickenpaint-reject-transform" data-bs-dismiss="modal">${_(
+                        "Undo transform"
+                    )}</button>
+                    <button type="button" class="btn btn-primary chickenpaint-accept-transform" data-bs-dismiss="modal">${_(
+                        "Apply transform"
+                    )}</button>
                 </div>
             </div>
         </div>
@@ -55,16 +63,23 @@ export default function CPConfirmTransformDialog(parent, controller) {
     const that = this;
     const applyButton = dialog.querySelector(".chickenpaint-accept-transform");
     const rejectButton = dialog.querySelector(".chickenpaint-reject-transform");
+    const cancelButton = dialog.querySelector(".chickenpaint-cancel-transform");
 
     // イベントリスナーを追加
     applyButton?.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPTransformAccept" });
         that.emitEvent("accept");
+        modal.hide();
     });
 
     rejectButton?.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPTransformReject" });
         that.emitEvent("reject");
+        modal.hide();
+    });
+
+    cancelButton?.addEventListener("click", function (e) {
+        modal.hide();
     });
 
     // Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
@@ -74,9 +89,13 @@ export default function CPConfirmTransformDialog(parent, controller) {
     this.show = function () {
         modal.show();
     };
+    //モーダルを閉じるメソッド
+    this.hide = function () {
+        modal.hide();
+    };
 
     // モーダルが閉じられた後の処理
-    dialog.addEventListener('hidden.bs.modal', (e) => {
+    dialog.addEventListener("hidden.bs.modal", (e) => {
         dialog.remove();
     });
 
@@ -90,7 +109,7 @@ export default function CPConfirmTransformDialog(parent, controller) {
             parent.removeEventListener("keydown", keydown_EnterKey);
         }
     }
-    
+
     parent.addEventListener("keydown", keydown_EnterKey);
 
     // 親要素にダイアログを追加
