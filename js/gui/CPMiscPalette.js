@@ -26,8 +26,8 @@ import { _ } from "../languages/lang.js";
 export default function CPMiscPalette(cpController) {
     CPPalette.call(this, cpController, "misc", "Misc");
 
- /** @type {HTMLElement|null} */
- //表示の左右反転時に赤枠を付けるElement
+    /** @type {HTMLElement|null} */
+    //表示の左右反転時に赤枠を付けるElement
     this.flipButton = null;
 
     let that = this,

@@ -392,12 +392,27 @@ export default function ChickenPaint(options) {
                     const flipped = canvas.toggleViewFlip();
                     const paletteManager = mainGUI.getPaletteManager();
                     const flipButton = paletteManager.palettes.misc.flipButton;
+                    const mainMenu = mainGUI.getMainMenu();
+                    const menuElement = mainMenu.getElement();
+                    // console.log("mainMenu", mainMenu);
+                    // console.log("menuElement", menuElement);
+                    const flipMenuItem = menuElement.querySelector(
+                        '[data-action="CPViewHFlip"]'
+                    );
                     if (flipButton) {
                         //表示の左右反転時には、左右反転アイコンに赤枠を付ける
                         if (flipped) {
                             flipButton.classList.add("flipped");
                         } else {
                             flipButton.classList.remove("flipped");
+                        }
+                    }
+                    //表示の左右反転時には、メニュー→表示→表示の左右反転にチェックマークを付ける
+                    if (flipMenuItem) {
+                        if (flipped) {
+                            flipMenuItem.classList.add("selected");
+                        } else {
+                            flipMenuItem.classList.remove("selected");
                         }
                     }
                 },

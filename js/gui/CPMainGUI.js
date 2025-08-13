@@ -106,6 +106,10 @@ export default function CPMainGUI(controller, uiElem) {
 
     menuBar = new CPMainMenu(controller, this);
 
+    this.getMainMenu = function () {
+        return menuBar;
+    };
+
     uiElem.appendChild(menuBar.getElement());
 
     lowerArea.className = "chickenpaint-main-section";
