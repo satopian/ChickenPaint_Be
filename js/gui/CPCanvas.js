@@ -1898,22 +1898,13 @@ export default function CPCanvas(controller) {
                 firstClick = { x: mouseX, y: mouseY };
 
                 initAngle = that.getRotation();
-                initTransform = transform.clone();
 
-                // cloneしたtransformに反転の変換を再現する
-                function flippedTransform(t) {
-                    const cx = artwork.width / 2;
-                    t.translate(cx, 0);
-                    t.scale(-1, 1);
-                    t.translate(-cx, 0);
-                }
-
-                initTransform = transform.clone();
                 // もし一時的に反転している状態ならば、
                 // cloneしたtransformに反転変換を適用して
                 // 反転状態を反映させる
+                initTransform = transform.clone();
                 if (isViewFlipped) {
-                    flippedTransform(initTransform);
+                    viewFlip(initTransform);
                 }
                 dragged = false;
 
@@ -2174,7 +2165,7 @@ export default function CPCanvas(controller) {
         transform.scale(zoom, zoom);
         transform.rotate(canvasRotation);
         if (isViewFlipped && !resetViewFlip) {
-            viewFlip();
+            viewFlip(transform);
         }
 
         updateScrollBars();
@@ -2450,12 +2441,10 @@ export default function CPCanvas(controller) {
         rotTrans.rotateAroundPoint(-this.getRotation(), center.x, center.y);
         rotTrans.multiply(transform);
 
-        //表示が左右反転している時
+        //表示が左右反転している時は
         if (isViewFlipped) {
-            const cx = artwork.width / 2;
-            rotTrans.translate(cx, 0);
-            rotTrans.scale(-1, 1);
-            rotTrans.translate(-cx, 0);
+            //さらに反転して戻す
+            viewFlip(rotTrans);
         }
 
         this.setOffset(~~rotTrans.getTranslateX(), ~~rotTrans.getTranslateY());
@@ -2547,7 +2536,7 @@ export default function CPCanvas(controller) {
     let isViewFlipped = false;
     this.toggleViewFlip = () => {
         if (!isViewFlipped) {
-            viewFlip();
+            viewFlip(transform);
             isViewFlipped = true;
             that.repaintAll();
         } else {
@@ -2558,7 +2547,7 @@ export default function CPCanvas(controller) {
         return isViewFlipped;
     };
     //表示の左右反転
-    function viewFlip() {
+    function viewFlip(transform) {
         const cx = artwork.width / 2;
         transform.translate(cx, 0);
         transform.scale(-1, 1);
