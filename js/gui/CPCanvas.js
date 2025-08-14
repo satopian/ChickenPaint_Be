@@ -1865,7 +1865,12 @@ export default function CPCanvas(controller) {
         const delta = getArrowKeyDelta(e.key);
         if (!delta) return;
 
-        const { dx, dy } = delta;
+        let { dx, dy } = delta;
+
+        // 左右反転時はX方向の符号を逆に
+        if (isViewFlipped) {
+            dx = -dx;
+        }
 
         //変形操作中のキーボードでの移動を有効にする
         if (topMode === transformMode) {
