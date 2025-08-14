@@ -1534,6 +1534,10 @@ export default function CPCanvas(controller) {
                         /* Apply the rotation *after* the current affine instead of before it, so that we don't
                          * end up scaling on top of the rotated selection later (which would cause an unwanted shear)
                          */
+                        // 反転時は回転方向を逆に
+                        if (isViewFlipped) {
+                            rotateAngle = -rotateAngle;
+                        }
                         rotateInstance.rotateAroundPoint(
                             rotateAngle,
                             centerDoc.x,
@@ -2159,7 +2163,6 @@ export default function CPCanvas(controller) {
     }
 
     function updateTransform({ resetViewFlip = false } = {}) {
-
         transform.setToIdentity();
         transform.translate(offsetX, offsetY);
         transform.scale(zoom, zoom);
@@ -2541,7 +2544,7 @@ export default function CPCanvas(controller) {
             that.repaintAll();
         } else {
             isViewFlipped = false;
-            updateTransform({resetViewFlip : true});
+            updateTransform({ resetViewFlip: true });
         }
         //呼び出し元で反転状態の判定処理
         return isViewFlipped;
