@@ -137,6 +137,7 @@ export default function CPBrushPalette(controller) {
                 transformPanel.getElement().style.display = "block";
                 break;
             case ChickenPaint.M_RECT_SELECTION:
+            case ChickenPaint.M_MOVE_TOOL:
                 selectPanel.getElement().style.display = "block";
                 break;
             default:

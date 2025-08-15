@@ -32,6 +32,7 @@ import {createImageData} from "../util/Canvas.js";
  * @param {?number} height - The height of the bitmap
  *
  * @constructor
+ * @extends {CPBitmap}
  *
  * @property {number} width
  * @property {number} height
