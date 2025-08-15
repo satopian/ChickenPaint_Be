@@ -113,6 +113,7 @@ export default function CPBrushPalette(controller) {
         brushPanel = new CPBrushPanel(controller),
         gradientPanel = new CPGradientPanel(controller),
         transformPanel = new CPTransformPanel(controller),
+        selectPanel = new CPSelectionPanel(controller),
 
         body = this.getBodyElement();
 
@@ -124,11 +125,13 @@ export default function CPBrushPalette(controller) {
     body.appendChild(brushPanel.getElement());
     body.appendChild(gradientPanel.getElement());
     body.appendChild(transformPanel.getElement());
+    body.appendChild(selectPanel.getElement());
 
     controller.on('modeChange', function(mode) {
         brushPanel.getElement().style.display = "none";
         gradientPanel.getElement().style.display = "none";
         transformPanel.getElement().style.display = "none";
+        selectPanel.getElement().style.display = "none";
 
         switch (mode) {
             case ChickenPaint.M_GRADIENTFILL:
@@ -136,6 +139,9 @@ export default function CPBrushPalette(controller) {
             break;
             case ChickenPaint.M_TRANSFORM:
                 transformPanel.getElement().style.display = "block";
+            break;
+            case ChickenPaint.M_RECT_SELECTION:
+                selectPanel.getElement().style.display = "block";
             break;
             default:
                 brushPanel.getElement().style.display = "block";
@@ -571,4 +577,47 @@ function CPTransformPanel(controller) {
         controller.actionPerformed({action: "CPTransformReject"});
         e.preventDefault();
     });
+}
+//選択パネル
+// 選択パネル
+function CPSelectionPanel(controller) {
+    let panel = document.createElement("div"),
+        formGroup = document.createElement("div"),
+        label = document.createElement("label"),
+        selectAllButton = document.createElement("button"),
+        deselectButton = document.createElement("button");
+
+    this.getElement = function() {
+        return panel;
+    };
+
+    panel.className = "chickenpaint-selection-panel";
+    panel.style.display = "none"; // 初期非表示
+    formGroup.className = "form-group";
+
+    // ラベルのみ使用
+    label.textContent = _("Selection Area"); // 「選択範囲」
+    formGroup.appendChild(label);
+
+    // 「すべて選択」ボタン
+    selectAllButton.type = "button";
+    selectAllButton.className = "btn btn-primary btn-block";
+    selectAllButton.textContent = _("Select all");
+    selectAllButton.addEventListener("click", function(e) {
+        controller.actionPerformed({ action: "CPSelectAll" });
+        e.preventDefault();
+    });
+    formGroup.appendChild(selectAllButton);
+
+    // 「選択解除」ボタン
+    deselectButton.type = "button";
+    deselectButton.className = "btn btn-light btn-block";
+    deselectButton.textContent = _("Deselect");
+    deselectButton.addEventListener("click", function(e) {
+        controller.actionPerformed({ action: "CPDeselectAll" });
+        e.preventDefault();
+    });
+    formGroup.appendChild(deselectButton);
+
+    panel.appendChild(formGroup);
 }
