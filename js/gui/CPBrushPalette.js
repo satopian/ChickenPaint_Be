@@ -213,7 +213,7 @@ function CPBrushPanel(controller) {
         return _("Opacity") + ": " + value;
     };
 
-    alphaSlider.on("valueChange", function (value) { 
+    alphaSlider.on("valueChange", function (value) {
         controller.setAlpha(value);
     });
 
@@ -602,7 +602,8 @@ function CPSelectionPanel(controller) {
         formGroup = document.createElement("div"),
         label = document.createElement("label"),
         selectAllButton = document.createElement("button"),
-        deselectButton = document.createElement("button");
+        deselectButton = document.createElement("button"),
+        transformButton = document.createElement("button"); // 追加
 
     this.getElement = function () {
         return panel;
@@ -618,7 +619,7 @@ function CPSelectionPanel(controller) {
 
     // 「すべて選択」ボタン
     selectAllButton.type = "button";
-    selectAllButton.className = "btn btn-primary btn-block";
+    selectAllButton.className = "btn btn-light btn-block";
     selectAllButton.textContent = _("Select all");
     selectAllButton.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPSelectAll" });
@@ -635,6 +636,16 @@ function CPSelectionPanel(controller) {
         e.preventDefault();
     });
     formGroup.appendChild(deselectButton);
+
+    // 「変形」ボタン
+    transformButton.type = "button";
+    transformButton.className = "btn btn-light btn-block";
+    transformButton.textContent = _("Transform");
+    transformButton.addEventListener("click", function (e) {
+        controller.actionPerformed({ action: "CPTransform" });
+        e.preventDefault();
+    });
+    formGroup.appendChild(transformButton);
 
     panel.appendChild(formGroup);
 }
