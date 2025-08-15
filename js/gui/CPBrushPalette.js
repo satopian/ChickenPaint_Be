@@ -26,20 +26,19 @@ import CPPalette from "./CPPalette.js";
 import CPCheckbox from "./CPCheckbox.js";
 import CPColorSwatch from "./CPColorSwatch.js";
 import CPSlider from "./CPSlider.js";
-import {createCheckerboardPattern} from "./CPGUIUtils.js";
+import { createCheckerboardPattern } from "./CPGUIUtils.js";
 
 import CPColorBmp from "../engine/CPColorBmp.js";
 
 import CPColor from "../util/CPColor.js";
-import {isCanvasInterpolationSupported} from "../util/CPPolyfill.js";
+import { isCanvasInterpolationSupported } from "../util/CPPolyfill.js";
 
 import key from "../../lib/keymaster.js";
 
-import {_} from "../languages/lang.js";
+import { _ } from "../languages/lang.js";
 
 function sliderCheckboxGroup(checkbox, slider) {
-    let
-        group = document.createElement("div");
+    let group = document.createElement("div");
 
     group.className = "chickenpaint-checkbox-slider-group";
 
@@ -52,8 +51,7 @@ function sliderCheckboxGroup(checkbox, slider) {
 function fillCombobox(combo, optionNames) {
     for (let key in optionNames) {
         if (optionNames.hasOwnProperty(key)) {
-            let
-                option = document.createElement("option");
+            let option = document.createElement("option");
 
             option.appendChild(document.createTextNode(_(optionNames[key])));
             option.value = key;
@@ -64,18 +62,14 @@ function fillCombobox(combo, optionNames) {
 }
 
 function CPGradientPreview(controller) {
-    let
-        w = 150, h = 32,
-
+    let w = 150,
+        h = 32,
         canvas = document.createElement("canvas"),
         canvasContext = canvas.getContext("2d"),
-
         checkerboard = createCheckerboardPattern(canvasContext),
-
         image = new CPColorBmp(w, h),
         imageCanvas = document.createElement("canvas"),
         imageCanvasContext = imageCanvas.getContext("2d"),
-
         gradient = controller.getCurGradient();
 
     function paint() {
@@ -86,11 +80,11 @@ function CPGradientPreview(controller) {
         canvasContext.drawImage(imageCanvas, 0, 0);
     }
 
-    this.getElement = function() {
+    this.getElement = function () {
         return canvas;
     };
 
-    controller.on("gradientChange", function(_gradient) {
+    controller.on("gradientChange", function (_gradient) {
         gradient = _gradient;
 
         paint();
@@ -99,7 +93,7 @@ function CPGradientPreview(controller) {
     canvas.width = imageCanvas.width = w;
     canvas.height = imageCanvas.height = h;
 
-    canvas.className = 'chickenpaint-gradient-preview';
+    canvas.className = "chickenpaint-gradient-preview";
 
     canvasContext.fillStyle = checkerboard;
 
@@ -109,25 +103,27 @@ function CPGradientPreview(controller) {
 export default function CPBrushPalette(controller) {
     CPPalette.call(this, controller, "brush", "Tool options");
 
-    let
-        brushPanel = new CPBrushPanel(controller),
+    let brushPanel = new CPBrushPanel(controller),
         gradientPanel = new CPGradientPanel(controller),
         transformPanel = new CPTransformPanel(controller),
         selectPanel = new CPSelectionPanel(controller),
-
         body = this.getBodyElement();
 
     //touchmoveイベントのデフォルトの動作をキャンセル
-    body.addEventListener('touchmove', (e) => {
-        e.preventDefault(); // デフォルトの動作をキャンセル
-    }, { passive: false });
+    body.addEventListener(
+        "touchmove",
+        (e) => {
+            e.preventDefault(); // デフォルトの動作をキャンセル
+        },
+        { passive: false }
+    );
 
     body.appendChild(brushPanel.getElement());
     body.appendChild(gradientPanel.getElement());
     body.appendChild(transformPanel.getElement());
     body.appendChild(selectPanel.getElement());
 
-    controller.on('modeChange', function(mode) {
+    controller.on("modeChange", function (mode) {
         brushPanel.getElement().style.display = "none";
         gradientPanel.getElement().style.display = "none";
         transformPanel.getElement().style.display = "none";
@@ -136,17 +132,17 @@ export default function CPBrushPalette(controller) {
         switch (mode) {
             case ChickenPaint.M_GRADIENTFILL:
                 gradientPanel.getElement().style.display = "block";
-            break;
+                break;
             case ChickenPaint.M_TRANSFORM:
                 transformPanel.getElement().style.display = "block";
-            break;
+                break;
             case ChickenPaint.M_RECT_SELECTION:
                 selectPanel.getElement().style.display = "block";
-            break;
+                break;
             default:
                 brushPanel.getElement().style.display = "block";
-            break;
-       }
+                break;
+        }
     });
 }
 
@@ -154,29 +150,39 @@ CPBrushPalette.prototype = Object.create(CPPalette.prototype);
 CPBrushPalette.prototype.constructor = CPBrushPalette;
 
 function CPBrushPanel(controller) {
-    const
-        TIP_NAMES = ["Round Pixelated", "Round Hard Edge", "Round Soft", "Square Pixelated", "Square Hard Edge"],
-        BRUSH_SIZES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200];
+    const TIP_NAMES = [
+            "Round Pixelated",
+            "Round Hard Edge",
+            "Round Soft",
+            "Square Pixelated",
+            "Square Hard Edge",
+        ],
+        BRUSH_SIZES = [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60,
+            70, 80, 90, 100, 125, 150, 175, 200,
+        ];
 
-    let
-        panel = document.createElement("div"),
-
+    let panel = document.createElement("div"),
         tipCombo = document.createElement("select"),
-
-        alphaCB = new CPCheckbox(false, _("Control brush opacity with pen pressure")),
+        alphaCB = new CPCheckbox(
+            false,
+            _("Control brush opacity with pen pressure")
+        ),
         alphaSlider = new CPSlider(1, 255),
-
-        sizeCB = new CPCheckbox(true, _("Control brush size with pen pressure")),
+        sizeCB = new CPCheckbox(
+            true,
+            _("Control brush size with pen pressure")
+        ),
         sizeSlider = new CPSlider(1, 200, false, true),
-
-        scatteringCB  = new CPCheckbox(false, _("Control brush scattering with pen pressure")),
+        scatteringCB = new CPCheckbox(
+            false,
+            _("Control brush scattering with pen pressure")
+        ),
         scatteringSlider = new CPSlider(0, 1000, false, true),
-
         resatSlider = new CPSlider(0, 100, false, true),
         bleedSlider = new CPSlider(0, 100, false, true),
         spacingSlider = new CPSlider(0, 100, false, true),
         smoothingSlider = new CPSlider(0, 100, false, true),
-
         brushPreview = new CPBrushPalette.CPBrushPreview(controller);
 
     function fillWithInitialValues() {
@@ -187,7 +193,9 @@ function CPBrushPanel(controller) {
         sizeSlider.setValue(controller.getBrushSize());
 
         scatteringCB.setValue(controller.getBrushInfo().pressureScattering);
-        scatteringSlider.setValue(~~(controller.getBrushInfo().scattering * 100));
+        scatteringSlider.setValue(
+            ~~(controller.getBrushInfo().scattering * 100)
+        );
 
         tipCombo.value = controller.getBrushInfo().tip;
 
@@ -197,7 +205,7 @@ function CPBrushPanel(controller) {
         smoothingSlider.setValue(~~(controller.getBrushInfo().smoothing * 100));
     }
 
-    this.getElement = function() {
+    this.getElement = function () {
         return panel;
     };
 
@@ -205,7 +213,7 @@ function CPBrushPanel(controller) {
         return _("Opacity") + ": " + value;
     };
 
-    alphaSlider.on('valueChange', function (value) {
+    alphaSlider.on("valueChange", function (value) { 
         controller.setAlpha(value);
     });
 
@@ -213,7 +221,7 @@ function CPBrushPanel(controller) {
         return _("Brush size") + ": " + value;
     };
 
-    sizeSlider.on('valueChange', function (value) {
+    sizeSlider.on("valueChange", function (value) {
         controller.setBrushSize(value);
     });
 
@@ -221,7 +229,7 @@ function CPBrushPanel(controller) {
         return _("Color") + ": " + value + "%";
     };
 
-    resatSlider.on('valueChange', function (value) {
+    resatSlider.on("valueChange", function (value) {
         controller.getBrushInfo().resat = value / 100.0;
         controller.callToolListeners();
     });
@@ -230,7 +238,7 @@ function CPBrushPanel(controller) {
         return _("Blend") + ": " + value + "%";
     };
 
-    bleedSlider.on('valueChange', function (value) {
+    bleedSlider.on("valueChange", function (value) {
         controller.getBrushInfo().bleed = value / 100.0;
         controller.callToolListeners();
     });
@@ -239,7 +247,7 @@ function CPBrushPanel(controller) {
         return _("Spacing") + ": " + value + "%";
     };
 
-    spacingSlider.on('valueChange', function (value) {
+    spacingSlider.on("valueChange", function (value) {
         controller.getBrushInfo().spacing = value / 100.0;
         controller.callToolListeners();
     });
@@ -248,7 +256,7 @@ function CPBrushPanel(controller) {
         return _("Scattering") + ": " + value + "%";
     };
 
-    scatteringSlider.on('valueChange', function (value) {
+    scatteringSlider.on("valueChange", function (value) {
         controller.getBrushInfo().scattering = value / 100.0;
         controller.callToolListeners();
     });
@@ -257,38 +265,38 @@ function CPBrushPanel(controller) {
         return _("Smoothing") + ": " + value + "%";
     };
 
-    smoothingSlider.on('valueChange', function (value) {
+    smoothingSlider.on("valueChange", function (value) {
         controller.getBrushInfo().smoothing = value / 100.0;
         controller.callToolListeners();
     });
 
-    scatteringCB.on('valueChange', function (state) {
+    scatteringCB.on("valueChange", function (state) {
         controller.getBrushInfo().pressureScattering = state;
         controller.callToolListeners();
     });
 
-    alphaCB.on('valueChange', function (state) {
+    alphaCB.on("valueChange", function (state) {
         controller.getBrushInfo().pressureAlpha = state;
         controller.callToolListeners();
     });
 
-    sizeCB.on('valueChange', function (state) {
+    sizeCB.on("valueChange", function (state) {
         controller.getBrushInfo().pressureSize = state;
         controller.callToolListeners();
     });
 
-    tipCombo.addEventListener("change", function(e) {
+    tipCombo.addEventListener("change", function (e) {
         controller.getBrushInfo().tip = parseInt(tipCombo.value, 10);
-		tipCombo.blur();
-	});
-	// tipCombo.onfocus = ()=>{//フォーカスを検出したら
-	// 	document.activeElement.blur();//フォーカスを外す
-	// 	// console.log(document.activeElement);
+        tipCombo.blur();
+    });
+    // tipCombo.onfocus = ()=>{//フォーカスを検出したら
+    // 	document.activeElement.blur();//フォーカスを外す
+    // 	// console.log(document.activeElement);
 
-	// }; 
+    // };
 
     tipCombo.className = "form-control form-control-sm";
-	tipCombo.tabIndex = -1;
+    tipCombo.tabIndex = -1;
 
     fillCombobox(tipCombo, TIP_NAMES);
 
@@ -306,7 +314,7 @@ function CPBrushPanel(controller) {
 
     fillWithInitialValues();
 
-    controller.on('toolChange', function(tool, toolInfo) {
+    controller.on("toolChange", function (tool, toolInfo) {
         alphaSlider.setValue(toolInfo.alpha);
         sizeSlider.setValue(toolInfo.size);
         sizeCB.setValue(toolInfo.pressureSize);
@@ -335,20 +343,18 @@ function CPBrushPanel(controller) {
         }
     });
 
-    key("1,2,3,4,5,6,7,8,9,0", function(event, handler) {
-        let
-            shortcut = parseInt(handler.shortcut, 10);
+    key("1,2,3,4,5,6,7,8,9,0", function (event, handler) {
+        let shortcut = parseInt(handler.shortcut, 10);
 
         if (shortcut == 0) {
             shortcut = 10;
         }
 
-        controller.setAlpha(Math.round(shortcut / 10 * 255));
+        controller.setAlpha(Math.round((shortcut / 10) * 255));
     });
 
-    key("{,[", function() {
-        let
-            size = controller.getBrushSize();
+    key("{,[", function () {
+        let size = controller.getBrushSize();
 
         for (let i = BRUSH_SIZES.length - 1; i >= 0; i--) {
             if (size > BRUSH_SIZES[i]) {
@@ -358,9 +364,8 @@ function CPBrushPanel(controller) {
         }
     });
 
-    key("},]", function() {
-        let
-            size = controller.getBrushSize();
+    key("},]", function () {
+        let size = controller.getBrushSize();
 
         for (let i = 0; i < BRUSH_SIZES.length; i++) {
             if (size < BRUSH_SIZES[i]) {
@@ -371,105 +376,124 @@ function CPBrushPanel(controller) {
     });
 }
 
-CPBrushPalette.CPBrushPreview = function(controller) {
-    let
-        size = 16,
-        
+CPBrushPalette.CPBrushPreview = function (controller) {
+    let size = 16,
         canvas = document.createElement("canvas"),
         canvasContext = canvas.getContext("2d"),
-        
         mouseCaptured = false;
-    
+
     function paint() {
         canvasContext.clearRect(0, 0, canvas.width, canvas.height);
-        
+
         canvasContext.beginPath();
-        canvasContext.arc(canvas.width / 2, canvas.height / 2, size / 2 * window.devicePixelRatio, 0, Math.PI * 2);
+        canvasContext.arc(
+            canvas.width / 2,
+            canvas.height / 2,
+            (size / 2) * window.devicePixelRatio,
+            0,
+            Math.PI * 2
+        );
         canvasContext.stroke();
     }
-    
+
     function handlePointerDrag(e) {
         const rect = canvas.getBoundingClientRect();
-        const  pt = {x: e.clientX - rect.left, y: e.clientY - rect.top};        
+        const pt = { x: e.clientX - rect.left, y: e.clientY - rect.top };
         const x = pt.x - canvas.clientWidth / 2;
         const y = pt.y - canvas.clientHeight / 2;
         const newSize = Math.round(Math.sqrt(x * x + y * y) * 2);
-        
+
         let size = Math.max(1, Math.min(200, newSize));
 
         paint();
         controller.setBrushSize(size);
     }
-    
+
     function handlePointerUp(e) {
         if (mouseCaptured) {
             mouseCaptured = false;
-            document.removeEventListener('pointerup', handlePointerUp, { passive: true, capture: false });
-            document.removeEventListener('pointermove', handlePointerDrag, { passive: true, capture: false });
+            document.removeEventListener("pointerup", handlePointerUp, {
+                capture: false,
+            });
+            document.removeEventListener("pointermove", handlePointerDrag, {
+                capture: false,
+            });
         }
     }
-    
-    canvas.addEventListener('pointerdown', function(e) {
+
+    canvas.addEventListener("pointerdown", function (e) {
         if (!mouseCaptured) {
             mouseCaptured = true;
-            
-            document.addEventListener('pointerup', handlePointerUp, { passive: true, capture: false });
-            document.addEventListener('pointermove', handlePointerDrag, { passive: true, capture: false });
-            
+
+            document.addEventListener("pointerup", handlePointerUp, {
+                passive: true,
+                capture: false,
+            });
+            document.addEventListener("pointermove", handlePointerDrag, {
+                passive: true,
+                capture: false,
+            });
+
             handlePointerDrag(e);
         }
     });
 
-    this.getElement = function() {
+    this.getElement = function () {
         return canvas;
     };
-    
-    controller.on("toolChange", function(tool, toolInfo) {
+
+    controller.on("toolChange", function (tool, toolInfo) {
         if (toolInfo.size != size) {
             size = toolInfo.size;
             paint();
         }
     });
-    
-    canvas.width = 64; 
+
+    canvas.width = 64;
     canvas.height = 64;
-    
+
     if (window.devicePixelRatio > 1) {
-        canvas.style.width = canvas.width + 'px';
-        canvas.style.height = canvas.height + 'px';
-        
+        canvas.style.width = canvas.width + "px";
+        canvas.style.height = canvas.height + "px";
+
         canvas.width = canvas.width * window.devicePixelRatio;
         canvas.height = canvas.height * window.devicePixelRatio;
     }
-    
-    canvas.className = 'chickenpaint-brush-preview';
 
-    canvasContext.strokeStyle = 'black';
+    canvas.className = "chickenpaint-brush-preview";
+
+    canvasContext.strokeStyle = "black";
     canvasContext.lineWidth = 1.0 * window.devicePixelRatio;
-    
+
     paint();
 };
 
 function CPGradientPanel(controller) {
-    const
-        gradientPanel = document.createElement("div"),
-
+    const gradientPanel = document.createElement("div"),
         gradientPreview = new CPGradientPreview(controller),
-
-        gradientStartSwatch = new CPColorSwatch(new CPColor(controller.getCurGradient()[0] & 0xFFFFFF), controller.getCurGradient()[0] >>> 24, gradientPanel),
-        gradientEndSwatch = new CPColorSwatch(new CPColor(controller.getCurGradient()[1] & 0xFFFFFF), controller.getCurGradient()[1] >>> 24, gradientPanel);
+        gradientStartSwatch = new CPColorSwatch(
+            new CPColor(controller.getCurGradient()[0] & 0xffffff),
+            controller.getCurGradient()[0] >>> 24,
+            gradientPanel
+        ),
+        gradientEndSwatch = new CPColorSwatch(
+            new CPColor(controller.getCurGradient()[1] & 0xffffff),
+            controller.getCurGradient()[1] >>> 24,
+            gradientPanel
+        );
 
     function updateGradient() {
-        const
-            gradient = [
-                (gradientStartSwatch.getAlpha() << 24) | gradientStartSwatch.getColorRgb(),
-                (gradientEndSwatch.getAlpha() << 24)   | gradientEndSwatch.getColorRgb()
-            ];
+        const gradient = [
+            (gradientStartSwatch.getAlpha() << 24) |
+                gradientStartSwatch.getColorRgb(),
+            (gradientEndSwatch.getAlpha() << 24) |
+                gradientEndSwatch.getColorRgb(),
+        ];
 
         controller.setCurGradient(gradient);
     }
 
-    this.getElement = function() {
+    this.getElement = function () {
         return gradientPanel;
     };
 
@@ -481,8 +505,7 @@ function CPGradientPanel(controller) {
     gradientEndSwatch.on("colorChange", updateGradient);
     gradientEndSwatch.on("alphaChange", updateGradient);
 
-    let
-        title, colorsGroup, colorGroup;
+    let title, colorsGroup, colorGroup;
 
     title = document.createElement("p");
     title.textContent = _("Gradient");
@@ -511,17 +534,14 @@ function CPGradientPanel(controller) {
 }
 
 function CPTransformPanel(controller) {
-    const
-        TRANSFORM_INTERPOLATION = {smooth: _("Smooth"), sharp: _("Sharp")};
+    const TRANSFORM_INTERPOLATION = { smooth: _("Smooth"), sharp: _("Sharp") };
 
-    let
-        panel = document.createElement("div"),
-
+    let panel = document.createElement("div"),
         acceptButton = document.createElement("button"),
         rejectButton = document.createElement("button"),
         interpCombo = document.createElement("select");
 
-    this.getElement = function() {
+    this.getElement = function () {
         return panel;
     };
 
@@ -537,16 +557,15 @@ function CPTransformPanel(controller) {
     acceptButton.textContent = _("Apply transform");
     rejectButton.textContent = _("Cancel");
 
-    interpCombo.addEventListener("change", function(e) {
+    interpCombo.addEventListener("change", function (e) {
         controller.setTransformInterpolation(this.value);
     });
 
-    interpCombo.className = 'form-control chickenpaint-transform-interpolation';
+    interpCombo.className = "form-control chickenpaint-transform-interpolation";
     fillCombobox(interpCombo, TRANSFORM_INTERPOLATION);
 
     if (isCanvasInterpolationSupported()) {
-        let
-            interpGroup = document.createElement("div"),
+        let interpGroup = document.createElement("div"),
             interpLabel = document.createElement("label");
 
         interpLabel.textContent = _("Transform style");
@@ -558,8 +577,7 @@ function CPTransformPanel(controller) {
         panel.appendChild(interpGroup);
     }
 
-    let
-        buttonGroup = document.createElement("div");
+    let buttonGroup = document.createElement("div");
 
     buttonGroup.appendChild(acceptButton);
     buttonGroup.appendChild(rejectButton);
@@ -568,17 +586,16 @@ function CPTransformPanel(controller) {
 
     panel.appendChild(buttonGroup);
 
-    acceptButton.addEventListener("click", function(e) {
-        controller.actionPerformed({action: "CPTransformAccept"});
+    acceptButton.addEventListener("click", function (e) {
+        controller.actionPerformed({ action: "CPTransformAccept" });
         e.preventDefault();
     });
 
-    rejectButton.addEventListener("click", function(e) {
-        controller.actionPerformed({action: "CPTransformReject"});
+    rejectButton.addEventListener("click", function (e) {
+        controller.actionPerformed({ action: "CPTransformReject" });
         e.preventDefault();
     });
 }
-//選択パネル
 // 選択パネル
 function CPSelectionPanel(controller) {
     let panel = document.createElement("div"),
@@ -587,7 +604,7 @@ function CPSelectionPanel(controller) {
         selectAllButton = document.createElement("button"),
         deselectButton = document.createElement("button");
 
-    this.getElement = function() {
+    this.getElement = function () {
         return panel;
     };
 
@@ -603,7 +620,7 @@ function CPSelectionPanel(controller) {
     selectAllButton.type = "button";
     selectAllButton.className = "btn btn-primary btn-block";
     selectAllButton.textContent = _("Select all");
-    selectAllButton.addEventListener("click", function(e) {
+    selectAllButton.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPSelectAll" });
         e.preventDefault();
     });
@@ -613,7 +630,7 @@ function CPSelectionPanel(controller) {
     deselectButton.type = "button";
     deselectButton.className = "btn btn-light btn-block";
     deselectButton.textContent = _("Deselect");
-    deselectButton.addEventListener("click", function(e) {
+    deselectButton.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPDeselectAll" });
         e.preventDefault();
     });
