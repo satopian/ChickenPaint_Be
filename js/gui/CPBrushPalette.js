@@ -587,15 +587,15 @@ function CPTransformPanel(controller) {
 
     panel.appendChild(buttonGroup);
 
-    let { wrapper: keepAspectGroup, checkbox: keepAspectCheckbox } =
+    let { wrapper: maintainAspectGroup, checkbox: maintainAspectCheckbox } =
         createBootstrapCheckbox(
-            "chickenpaint-keepAspectCheckbox",
-            _("Keep aspect ratio"),
+            "chickenpaint-maintainAspectCheckbox",
+            _("Maintain Aspect Ratio"),
             true
         );
 
     // パネルに追加
-    panel.appendChild(keepAspectGroup);
+    panel.appendChild(maintainAspectGroup);
 
     acceptButton.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPTransformAccept" });
@@ -608,9 +608,9 @@ function CPTransformPanel(controller) {
     });
 
     // ローカル変数から直接リスナーを追加
-    keepAspectCheckbox.addEventListener("change", () => {
-        keepAspectCheckbox.blur(); // フォーカス解除
-        // console.log("チェック状態:", keepAspectCheckbox.checked);
+    maintainAspectCheckbox.addEventListener("change", () => {
+        maintainAspectCheckbox.blur(); // フォーカス解除
+        // console.log("チェック状態:", maintainAspectCheckbox.checked);
     });
 }
 // 選択パネル
