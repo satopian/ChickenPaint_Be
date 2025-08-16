@@ -114,6 +114,7 @@ https://github.com/satopian/Petit_Note/assets/44894014/a79c6e5d-1a9d-4520-8a83-f
 - Dで指先ツール  
 - Cで混色ツール
 - SHIFT+CTRL+Eで全レイヤー結合
+- SHIFT+ALT+Eで全レイヤーを結合した新レイヤーを追加
 - SHIFT+CTRL+Gでグループ結合
 - CTRL+Mでマスク適用
 - SHIFT+Mでマスク削除
