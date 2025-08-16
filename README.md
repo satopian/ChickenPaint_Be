@@ -77,6 +77,12 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 この操作は実際の画像を変更しないため、アンドゥの履歴にも残りません。    
   
 [ChickenPaint Beの新機能 表示の左右反転 - YouTube](https://www.youtube.com/watch?v=ATRIBAJKq5c)   
+
+### 選択範囲のワークフローを改善
+  
+<img width="402" height="318" alt="image" src="https://github.com/user-attachments/assets/b7c3a0ba-e452-4ef9-9c2a-12d84fbad32e" />  
+
+- 長方形選択ツールと移動ツールの使用時に、ツールオプションパレットに｢すべて選択｣｢選択解除｣｢変形｣ボタンを表示します。
   
 ### 変形確定前に別のレイヤーを選択、または新規レイヤーを追加しようとした時に表示されるダイヤログの動作を改良
 
