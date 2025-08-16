@@ -587,6 +587,16 @@ function CPTransformPanel(controller) {
 
     panel.appendChild(buttonGroup);
 
+    let { wrapper: keepAspectGroup, checkbox: keepAspectCheckbox } =
+        createBootstrapCheckbox(
+            "chickenpaint-keepAspectCheckbox",
+            _("Keep aspect ratio"),
+            true
+        );
+
+    // パネルに追加
+    panel.appendChild(keepAspectGroup);
+
     acceptButton.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPTransformAccept" });
         e.preventDefault();
@@ -595,6 +605,12 @@ function CPTransformPanel(controller) {
     rejectButton.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPTransformReject" });
         e.preventDefault();
+    });
+
+    // ローカル変数から直接リスナーを追加
+    keepAspectCheckbox.addEventListener("change", () => {
+        keepAspectCheckbox.blur(); // フォーカス解除
+        // console.log("チェック状態:", keepAspectCheckbox.checked);
     });
 }
 // 選択パネル
@@ -649,4 +665,33 @@ function CPSelectionPanel(controller) {
     formGroup.appendChild(transformButton);
 
     panel.appendChild(formGroup);
+}
+//Bootstrapのチェックボックスを作成
+function createBootstrapCheckbox(id, title, checked = false) {
+    // チェックボックス作成
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = id;
+    checkbox.className = "form-check-input";
+    checkbox.checked = checked;
+
+    // フォーカス時の青枠を消す
+    checkbox.style.outline = "none";
+    checkbox.style.boxShadow = "none";
+    //タブキーでのフォーカスを無効にする
+    checkbox.tabIndex = -1;
+    // ラベル作成
+    const label = document.createElement("label");
+    label.className = "form-check-label";
+    label.setAttribute("for", id);
+    label.textContent = title;
+
+    // ラッパー div
+    const wrapper = document.createElement("div");
+    wrapper.className = "form-check";
+    wrapper.appendChild(checkbox);
+    wrapper.appendChild(label);
+
+    // チェック状態取得用に input を返す場合は一緒に返す
+    return { wrapper, checkbox };
 }

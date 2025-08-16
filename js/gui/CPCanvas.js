@@ -1434,7 +1434,19 @@ export default function CPCanvas(controller) {
             }
         }
 
+        let keepAspectCheckd = false;
         this.mouseDown = function (e, button, pressure) {
+            const keepAspectCheckbox = document.getElementById(
+                "chickenpaint-keepAspectCheckbox"
+            );
+
+            if (
+                keepAspectCheckbox &&
+                keepAspectCheckbox instanceof HTMLInputElement
+            ) {
+                keepAspectCheckd = keepAspectCheckbox.checked;
+            }
+
             if (
                 !this.capture &&
                 button == BUTTON_PRIMARY &&
@@ -1593,7 +1605,7 @@ export default function CPCanvas(controller) {
                             }
 
                             // Does user want proportional resize?
-                            if (e.shiftKey) {
+                            if (keepAspectCheckd || e.shiftKey) {
                                 var largestScale = Math.max(scaleX, scaleY);
 
                                 scaleX = largestScale;
