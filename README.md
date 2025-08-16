@@ -77,7 +77,13 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 この操作は実際の画像を変更しないため、アンドゥの履歴にも残りません。    
   
 [ChickenPaint Beの新機能 表示の左右反転 - YouTube](https://www.youtube.com/watch?v=ATRIBAJKq5c)   
+
+### 選択範囲のワークフローを改善
+
+- ツールオプションパレットに「すべて選択」「選択解除」「変形」ボタンが表示されるようになりました（長方形選択ツール・移動ツール使用時）。
   
+<img width="402" height="318" alt="image" src="https://github.com/user-attachments/assets/b7c3a0ba-e452-4ef9-9c2a-12d84fbad32e" />
+
 ### 変形確定前に別のレイヤーを選択、または新規レイヤーを追加しようとした時に表示されるダイヤログの動作を改良
 
 - 変形確定前にレイヤーを追加しようとすると変形を確定する取り消すなどの操作を促すダイヤログが表示されますが、従来の動作では、変形確定のエンターキーの押下で変形は確定されるものの、ダイヤログはすぐには消えず、レイヤーの追加も行われませんでした。  
@@ -99,7 +105,8 @@ https://github.com/satopian/Petit_Note/assets/44894014/a79c6e5d-1a9d-4520-8a83-f
 ### ショートカットキーの変更と拡張
 [ChickenPaintのショートカットキーを拡張しました｜さとぴあ](https://note.com/satopian/n/n79fee71aa102)
 - R+左クリックでキャンバスの回転
-- Hでレイヤーの左右反転  
+- Hで表示の左右反転
+- Qでレイヤーの左右反転  
 - Wで水彩
 - Aでエアブラシ  
 - Sで薄消しゴム
@@ -107,6 +114,7 @@ https://github.com/satopian/Petit_Note/assets/44894014/a79c6e5d-1a9d-4520-8a83-f
 - Dで指先ツール  
 - Cで混色ツール
 - SHIFT+CTRL+Eで全レイヤー結合
+- SHIFT+ALT+Eで全レイヤーを結合した新レイヤーを追加
 - SHIFT+CTRL+Gでグループ結合
 - CTRL+Mでマスク適用
 - SHIFT+Mでマスク削除
