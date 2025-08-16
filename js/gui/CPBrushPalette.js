@@ -590,7 +590,7 @@ function CPTransformPanel(controller) {
     let { wrapper: maintainAspectGroup, checkbox: maintainAspectCheckbox } =
         createBootstrapCheckbox(
             "chickenpaint-maintainAspectCheckbox",
-            _("Maintain Aspect Ratio"),
+            _("Constrain"),
             true
         );
 
