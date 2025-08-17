@@ -1114,7 +1114,19 @@ export default function CPCanvas(controller) {
             curRect = new CPRect(0, 0, 0, 0),
             selectingButton = -1;
 
+        let maintainAspectCheckd = false;
         this.mouseDown = function (e, button, pressure) {
+            const maintainAspectCheckbox = document.getElementById(
+                "chickenpaint-s-maintainAspectCheckbox"
+            );
+
+            if (
+                maintainAspectCheckbox &&
+                maintainAspectCheckbox instanceof HTMLInputElement
+            ) {
+                maintainAspectCheckd = maintainAspectCheckbox.checked;
+            }
+
             if (
                 !this.capture &&
                 button == BUTTON_PRIMARY &&
@@ -1139,12 +1151,12 @@ export default function CPCanvas(controller) {
         this.mouseDrag = function (e) {
             if (!this.capture) return false;
 
-            var p = coordToDocumentInt({ x: mouseX, y: mouseY }),
-                square = e.shiftKey,
-                squareDist = ~~Math.max(
-                    Math.abs(p.x - firstClick.x),
-                    Math.abs(p.y - firstClick.y)
-                );
+            let p = coordToDocumentInt({ x: mouseX, y: mouseY });
+            let square = e.shiftKey || maintainAspectCheckd;
+            let squareDist = ~~Math.max(
+                Math.abs(p.x - firstClick.x),
+                Math.abs(p.y - firstClick.y)
+            );
 
             if (p.x >= firstClick.x) {
                 curRect.left = firstClick.x;
@@ -1437,7 +1449,7 @@ export default function CPCanvas(controller) {
         let maintainAspectCheckd = false;
         this.mouseDown = function (e, button, pressure) {
             const maintainAspectCheckbox = document.getElementById(
-                "chickenpaint-maintainAspectCheckbox"
+                "chickenpaint-t-maintainAspectCheckbox"
             );
 
             if (

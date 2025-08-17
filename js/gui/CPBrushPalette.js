@@ -129,6 +129,11 @@ export default function CPBrushPalette(controller) {
         transformPanel.getElement().style.display = "none";
         selectPanel.getElement().style.display = "none";
 
+        const checkbox = selectPanel.getElement().querySelector(".form-check"); //
+
+        if (checkbox) {
+            checkbox.style.display = "none"; // 非表示にする
+        }
         switch (mode) {
             case ChickenPaint.M_GRADIENTFILL:
                 gradientPanel.getElement().style.display = "block";
@@ -137,6 +142,11 @@ export default function CPBrushPalette(controller) {
                 transformPanel.getElement().style.display = "block";
                 break;
             case ChickenPaint.M_RECT_SELECTION:
+                selectPanel.getElement().style.display = "block";
+                if (checkbox) {
+                    checkbox.style.display = ""; // 表示する
+                }
+                break;
             case ChickenPaint.M_MOVE_TOOL:
                 selectPanel.getElement().style.display = "block";
                 break;
@@ -589,7 +599,7 @@ function CPTransformPanel(controller) {
 
     let { wrapper: maintainAspectGroup, checkbox: maintainAspectCheckbox } =
         createBootstrapCheckbox(
-            "chickenpaint-maintainAspectCheckbox",
+            "chickenpaint-t-maintainAspectCheckbox",
             _("Constrain"),
             true
         );
@@ -631,7 +641,7 @@ function CPSelectionPanel(controller) {
     formGroup.className = "form-group";
 
     // ラベルのみ使用
-    label.textContent = _("Selection Area"); // 「選択範囲」
+    label.textContent = _("Selection"); // 「選択範囲」
     formGroup.appendChild(label);
 
     // 「すべて選択」ボタン
@@ -665,6 +675,23 @@ function CPSelectionPanel(controller) {
     formGroup.appendChild(transformButton);
 
     panel.appendChild(formGroup);
+
+
+    let { wrapper: maintainAspectGroup, checkbox: maintainAspectCheckbox } =
+        createBootstrapCheckbox(
+            "chickenpaint-s-maintainAspectCheckbox",
+            _("Constrain"),
+            false
+        );
+
+    panel.appendChild(maintainAspectGroup);
+    // パネルに追加
+
+    // ローカル変数から直接リスナーを追加
+    maintainAspectCheckbox.addEventListener("change", () => {
+        maintainAspectCheckbox.blur(); // フォーカス解除
+        // console.log("チェック状態:", maintainAspectCheckbox.checked);
+    });
 }
 //Bootstrapのチェックボックスを作成
 function createBootstrapCheckbox(id, title, checked = false) {
