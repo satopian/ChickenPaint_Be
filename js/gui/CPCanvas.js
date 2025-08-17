@@ -397,9 +397,13 @@ export default function CPCanvas(controller) {
             return true;
         }
 
-        if (modeStack.peek() === rectSelectionMode || modeStack.peek() === moveToolMode) {
+        if (
+            modeStack.peek() === rectSelectionMode ||
+            modeStack.peek() === moveToolMode
+        ) {
             if (e.key === "Enter") {
                 controller.actionPerformed({ action: "CPTransform" });
+                e.preventDefault();
             }
         }
 
