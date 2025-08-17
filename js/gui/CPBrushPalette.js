@@ -666,7 +666,7 @@ function CPSelectionPanel(controller) {
 
     // 「変形」ボタン
     transformButton.type = "button";
-    transformButton.className = "btn btn-light btn-block";
+    transformButton.className = "btn btn-primary btn-block";
     transformButton.textContent = _("Transform");
     transformButton.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPTransform" });
