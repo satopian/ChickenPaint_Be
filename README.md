@@ -82,7 +82,8 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 
 - ツールオプションパレットに「すべて選択」「選択解除」「変形」ボタンが表示されるようになりました（長方形選択ツール・移動ツール使用時）。
   
-<img width="212" height="263" alt="image" src="https://github.com/user-attachments/assets/64978518-7e12-473e-86f1-b1958a116962" />
+<img width="209" height="261" alt="image" src="https://github.com/user-attachments/assets/91650e47-5912-4ec5-987f-559142a414e6" />
+
 
 ### 変形確定前に別のレイヤーを選択、または新規レイヤーを追加しようとした時に表示されるダイヤログの動作を改良
 
