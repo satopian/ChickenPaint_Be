@@ -107,6 +107,7 @@ export default function CPBrushPalette(controller) {
         gradientPanel = new CPGradientPanel(controller),
         transformPanel = new CPTransformPanel(controller),
         selectPanel = new CPSelectionPanel(controller),
+        panPanel = new CPPanPanel(controller),
         body = this.getBodyElement();
 
     //touchmoveイベントのデフォルトの動作をキャンセル
@@ -122,13 +123,18 @@ export default function CPBrushPalette(controller) {
     body.appendChild(gradientPanel.getElement());
     body.appendChild(transformPanel.getElement());
     body.appendChild(selectPanel.getElement());
+    body.appendChild(panPanel.getElement());
 
-    controller.on("modeChange", function (mode) {
+    function hideAllPanels() {
         brushPanel.getElement().style.display = "none";
         gradientPanel.getElement().style.display = "none";
         transformPanel.getElement().style.display = "none";
         selectPanel.getElement().style.display = "none";
-
+        panPanel.getElement().style.display = "none";
+    }
+    let currentMode = null;
+    function updatePanelByMode(mode) {
+        hideAllPanels();
         const checkbox = selectPanel.getElement().querySelector(".form-check"); //
 
         if (checkbox) {
@@ -150,9 +156,38 @@ export default function CPBrushPalette(controller) {
             case ChickenPaint.M_MOVE_TOOL:
                 selectPanel.getElement().style.display = "block";
                 break;
+            case ChickenPaint.M_ROTATE_CANVAS:
+            case ChickenPaint.M_PAN_CANVAS:
+                panPanel.getElement().style.display = "block";
+                break;
             default:
                 brushPanel.getElement().style.display = "block";
                 break;
+        }
+    }
+    controller.on("modeChange", function (mode) {
+        currentMode = mode;
+        updatePanelByMode(mode);
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (
+            e.key.toLocaleLowerCase() === "r" ||
+            e.key.toLocaleLowerCase() === "z" ||
+            e.key === " "
+        ) {
+            hideAllPanels();
+            panPanel.getElement().style.display = "block";
+        }
+    });
+    document.addEventListener("keyup", (e) => {
+        if (
+            e.key.toLocaleLowerCase() === "r" ||
+            e.key.toLocaleLowerCase() === "z" ||
+            e.key === " "
+        ) {
+            hideAllPanels();
+            updatePanelByMode(currentMode);
         }
     });
 }
@@ -184,8 +219,7 @@ function CPBrushPanel(controller) {
             true,
             _("Control brush size with pen pressure")
         ),
-        // sizeSlider = new CPSlider(1, 200, false, true),
-        sizeSlider = new CPSlider(10, 1600, false, true),
+        sizeSlider = new CPSlider(1, 200, false, true),
         scatteringCB = new CPCheckbox(
             false,
             _("Control brush scattering with pen pressure")
@@ -202,9 +236,7 @@ function CPBrushPanel(controller) {
         alphaSlider.setValue(controller.getAlpha());
 
         sizeCB.setValue(controller.getBrushInfo().pressureSize);
-        // sizeSlider.setValue(controller.getBrushSize());
-        sizeSlider.setValue(controller.getZoom()*100);
-        console.log("controller.getZoom()",controller.getZoom());
+        sizeSlider.setValue(controller.getBrushSize());
 
         scatteringCB.setValue(controller.getBrushInfo().pressureScattering);
         scatteringSlider.setValue(
@@ -232,12 +264,11 @@ function CPBrushPanel(controller) {
     });
 
     sizeSlider.title = function (value) {
-        return _("Brush size") + ": " + value+"%";
+        return _("Brush size") + ": " + value;
     };
 
     sizeSlider.on("valueChange", function (value) {
-        // controller.setBrushSize(value);
-        controller.zoomOnCenter(value/100);
+        controller.setBrushSize(value);
     });
 
     resatSlider.title = function (value) {
@@ -331,8 +362,7 @@ function CPBrushPanel(controller) {
 
     controller.on("toolChange", function (tool, toolInfo) {
         alphaSlider.setValue(toolInfo.alpha);
-        // sizeSlider.setValue(toolInfo.size);
-        sizeSlider.setValue(controller.getZoom()*100);
+        sizeSlider.setValue(toolInfo.size);
         sizeCB.setValue(toolInfo.pressureSize);
         alphaCB.setValue(toolInfo.pressureAlpha);
         tipCombo.value = toolInfo.tip;
@@ -374,7 +404,6 @@ function CPBrushPanel(controller) {
 
         for (let i = BRUSH_SIZES.length - 1; i >= 0; i--) {
             if (size > BRUSH_SIZES[i]) {
-                // controller.setBrushSize(BRUSH_SIZES[i]);
                 controller.setBrushSize(BRUSH_SIZES[i]);
                 break;
             }
@@ -671,6 +700,7 @@ function CPSelectionPanel(controller) {
     formGroup.appendChild(deselectButton);
 
     // 「変形」ボタン
+
     transformButton.type = "button";
     transformButton.className = "btn btn-primary btn-block";
     transformButton.textContent = _("Transform");
@@ -682,7 +712,7 @@ function CPSelectionPanel(controller) {
 
     panel.appendChild(formGroup);
 
-
+    //チェックボックスの作成
     let { wrapper: maintainAspectGroup, checkbox: maintainAspectCheckbox } =
         createBootstrapCheckbox(
             "chickenpaint-s-maintainAspectCheckbox",
@@ -727,4 +757,108 @@ function createBootstrapCheckbox(id, title, checked = false) {
 
     // チェック状態取得用に input を返す場合は一緒に返す
     return { wrapper, checkbox };
+}
+
+function CPPanPanel(controller) {
+    let panel = document.createElement("div");
+    let formGroup = document.createElement("div");
+    let label = document.createElement("label");
+    let resetButton = document.createElement("button");
+
+    let zoomSlider = new CPSlider(10, 1600, false, true);
+    let rotationSlider = new CPSlider(-180, 180, true, false);
+
+    panel.className = "chickenpaint-pan-panel";
+    panel.style.display = "none"; // 初期非表示
+    panel.appendChild(zoomSlider.getElement());
+
+    formGroup.className = "form-group";
+
+    // ラベルのみ使用
+    label.textContent = _("Zoom / Rotate"); // 「選択範囲」
+    formGroup.appendChild(label);
+    formGroup.appendChild(label);
+    panel.appendChild(formGroup);
+    // 「すべて選択」ボタン
+    resetButton.type = "button";
+    resetButton.className = "btn btn-primary btn-block";
+    resetButton.textContent = _("Reset View");
+    resetButton.addEventListener("click", function (e) {
+        controller.actionPerformed({ action: "CPResetZoomAndRotation" });
+        e.preventDefault();
+    });
+    formGroup.appendChild(resetButton);
+    panel.appendChild(formGroup);
+    function fillWithInitialValues() {
+        zoomSlider.setValue(controller.getZoom() * 100);
+        rotationSlider.setValue(controller.getRotationDegrees());
+    }
+
+    zoomSlider.title = function (value) {
+        return _("Zoom") + ": " + value + "%";
+    };
+    rotationSlider.title = function (value) {
+        return _("Rotation") + ": " + value + "°";
+    };
+
+    zoomSlider.on("valueChange", function (value) {
+        controller.zoomOnCenter(value / 100);
+    });
+    rotationSlider.on("valueChange", function (value) {
+        controller.setRotationDegrees(value);
+    });
+
+    panel.appendChild(zoomSlider.getElement());
+    panel.appendChild(rotationSlider.getElement());
+
+    this.getElement = function () {
+        return panel;
+    };
+
+    fillWithInitialValues();
+
+    // キーボードでのサイズ変更
+    key("=,-,ctrl+0", function () {
+        updateSliderDebounced();
+    });
+    document.addEventListener("click", (e) => {
+        const liElem = e.target.closest("li");
+        if (!liElem) return;
+
+        const classList = liElem.classList;
+        if (
+            classList.contains("chickenpaint-tool-zoom-in") ||
+            classList.contains("chickenpaint-tool-zoom-out") ||
+            classList.contains("chickenpaint-tool-zoom-100")
+        ) {
+            updateSliderDebounced();
+        }
+    });
+    document.addEventListener(
+        "wheel",
+        (e) => {
+            e.preventDefault(); // これでスクロール抑制できる
+            updateSliderDebounced();
+        },
+        { passive: false }
+    );
+    // デバウンス関数の定義
+    function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+    //スライダーを更新
+    const updateSlider = () => {
+        if (!controller.isPanOrRotateMode()) return;
+        zoomSlider.setValue(controller.getZoom() * 100);
+        rotationSlider.setValue(controller.getRotationDegrees());
+    };
+
+    // デバウンス関数を使用して、連続したイベントをまとめて処理
+    const updateSliderDebounced = debounce(updateSlider, 10);
+
+    document.addEventListener("pointerup", updateSliderDebounced);
 }

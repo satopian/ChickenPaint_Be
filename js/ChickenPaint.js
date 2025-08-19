@@ -387,6 +387,12 @@ export default function ChickenPaint(options) {
                 },
                 modifies: { gui: true },
             },
+            CPResetZoomAndRotation: {
+                action: function () {
+                    canvas.resetZoomAndRotation();
+                },
+                modifies: { gui: true },
+            },
             CPViewHFlip: {
                 action: function () {
                     const flipped = canvas.toggleViewFlip();
@@ -1175,6 +1181,29 @@ export default function ChickenPaint(options) {
      */
     this.getZoom = function () {
         return canvas.getZoom();
+    };
+
+    /**
+     * キャンバスの回転角度を度単位で取得します。
+     * - 返される値は [-180, +180] の範囲に正規化されています。
+     * @returns {number} 現在の回転角度（度）
+     */
+    this.getRotationDegrees = function () {
+        return canvas.getRotationDegrees();
+    };
+
+    /**
+     * キャンバスの回転角度を度単位で設定します。
+     * - 内部ではラジアンに変換されてセットされます。
+     * - 指定値は [-180, +180] の範囲でなくても自動的に正規化されます。
+     * @param {number} degrees 設定する角度（度）
+     */
+    this.setRotationDegrees = function (degrees) {
+        canvas.setRotationDegrees(degrees);
+    };
+
+    this.isPanOrRotateMode = function () {
+        return ChickenPaint.M_ROTATE_CANVAS || ChickenPaint.M_PAN_CANVAS;
     };
 
     function setMode(newMode) {
