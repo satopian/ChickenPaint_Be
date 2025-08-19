@@ -455,6 +455,8 @@ export default function CPCanvas(controller) {
         );
     };
 
+    console.log("controller.getBrushSize()", controller.getBrushSize());
+
     /**
      * Queues up the brush preview oval to be drawn.
      */
@@ -2443,23 +2445,26 @@ export default function CPCanvas(controller) {
     }
 
     // More advanced zoom methods
-    function zoomOnCenter(zoom) {
+    function zoomOnCenter(zoom, snap = true) {
         const width = canvas.clientWidth;
         const height = canvas.clientHeight;
-        // 拡大を1.41、縮小を0.7092にした関係で、zoomが浮動小数点になるため、1倍2倍に近い時は値をまるめる
-        const roundedZoom = parseFloat(zoom);
 
-        if (Math.abs(roundedZoom - 1) < 0.01) {
-            zoom = 1;
-        } else if (Math.abs(roundedZoom - 2) < 0.2) {
-            zoom = 2;
-        } else if (Math.abs(roundedZoom - 0.5) < 0.08) {
-            zoom = 0.5;
+        if (snap) {
+            // 拡大を1.41、縮小を0.7092にした関係で、zoomが浮動小数点になるため、1倍2倍に近い時は値をまるめる
+            const roundedZoom = parseFloat(zoom);
+
+            if (Math.abs(roundedZoom - 1) < 0.01) {
+                zoom = 1;
+            } else if (Math.abs(roundedZoom - 2) < 0.2) {
+                zoom = 2;
+            } else if (Math.abs(roundedZoom - 0.5) < 0.08) {
+                zoom = 0.5;
+            }
+            // console.log("Math.abs(roundedZoom - 1)",Math.abs(roundedZoom - 1));
+            // console.log("Math.abs(roundedZoom - 2)",Math.abs(roundedZoom - 2));
+            // console.log("Math.abs(roundedZoom - 0.5)",Math.abs(roundedZoom - 0.5));
+            // console.log("zoom",zoom);
         }
-        // console.log("Math.abs(roundedZoom - 1)",Math.abs(roundedZoom - 1));
-        // console.log("Math.abs(roundedZoom - 2)",Math.abs(roundedZoom - 2));
-        // console.log("Math.abs(roundedZoom - 0.5)",Math.abs(roundedZoom - 0.5));
-        // console.log("zoom",zoom);
 
         zoomOnPoint(zoom, width / 2, height / 2);
     }
@@ -2475,6 +2480,10 @@ export default function CPCanvas(controller) {
     this.zoom100 = function () {
         zoomOnCenter(1);
         centerCanvas();
+    };
+
+    this.zoomOnCenter = (zoom, snap = false) => {
+        zoomOnCenter(zoom, snap);
     };
 
     this.resetRotation = function () {

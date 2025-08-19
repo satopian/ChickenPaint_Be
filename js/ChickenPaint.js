@@ -1160,6 +1160,22 @@ export default function ChickenPaint(options) {
     this.getCurMode = function () {
         return curMode;
     };
+    /**
+     * キャンバスの中心を基準にズームします。
+     * @param {number} zoom ズーム倍率
+     * @param {boolean} [snap=false] true の場合、1倍/2倍/0.5倍に丸めます
+     */
+    this.zoomOnCenter = function (zoom, snap = false) {
+        canvas.zoomOnCenter(zoom, snap);
+    };
+
+    /**
+     * 現在のキャンバスのズーム倍率を取得します。
+     * @returns {number} 現在のズーム倍率
+     */
+    this.getZoom = function () {
+        return canvas.getZoom();
+    };
 
     function setMode(newMode) {
         if (curMode != newMode) {

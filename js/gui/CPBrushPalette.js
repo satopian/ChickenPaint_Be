@@ -143,7 +143,7 @@ export default function CPBrushPalette(controller) {
                 break;
             case ChickenPaint.M_RECT_SELECTION:
                 selectPanel.getElement().style.display = "block";
-                if (checkbox) {
+                if (checkbox instanceof HTMLElement) {
                     checkbox.style.display = ""; // 表示する
                 }
                 break;
@@ -184,7 +184,8 @@ function CPBrushPanel(controller) {
             true,
             _("Control brush size with pen pressure")
         ),
-        sizeSlider = new CPSlider(1, 200, false, true),
+        // sizeSlider = new CPSlider(1, 200, false, true),
+        sizeSlider = new CPSlider(10, 1600, false, true),
         scatteringCB = new CPCheckbox(
             false,
             _("Control brush scattering with pen pressure")
@@ -201,7 +202,9 @@ function CPBrushPanel(controller) {
         alphaSlider.setValue(controller.getAlpha());
 
         sizeCB.setValue(controller.getBrushInfo().pressureSize);
-        sizeSlider.setValue(controller.getBrushSize());
+        // sizeSlider.setValue(controller.getBrushSize());
+        sizeSlider.setValue(controller.getZoom()*100);
+        console.log("controller.getZoom()",controller.getZoom());
 
         scatteringCB.setValue(controller.getBrushInfo().pressureScattering);
         scatteringSlider.setValue(
@@ -229,11 +232,12 @@ function CPBrushPanel(controller) {
     });
 
     sizeSlider.title = function (value) {
-        return _("Brush size") + ": " + value;
+        return _("Brush size") + ": " + value+"%";
     };
 
     sizeSlider.on("valueChange", function (value) {
-        controller.setBrushSize(value);
+        // controller.setBrushSize(value);
+        controller.zoomOnCenter(value/100);
     });
 
     resatSlider.title = function (value) {
@@ -327,7 +331,8 @@ function CPBrushPanel(controller) {
 
     controller.on("toolChange", function (tool, toolInfo) {
         alphaSlider.setValue(toolInfo.alpha);
-        sizeSlider.setValue(toolInfo.size);
+        // sizeSlider.setValue(toolInfo.size);
+        sizeSlider.setValue(controller.getZoom()*100);
         sizeCB.setValue(toolInfo.pressureSize);
         alphaCB.setValue(toolInfo.pressureAlpha);
         tipCombo.value = toolInfo.tip;
@@ -369,6 +374,7 @@ function CPBrushPanel(controller) {
 
         for (let i = BRUSH_SIZES.length - 1; i >= 0; i--) {
             if (size > BRUSH_SIZES[i]) {
+                // controller.setBrushSize(BRUSH_SIZES[i]);
                 controller.setBrushSize(BRUSH_SIZES[i]);
                 break;
             }
