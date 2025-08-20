@@ -34,7 +34,7 @@ export default function CPSlider(
     defaultWidth = 150
 ) {
     const PRECISE_DRAG_SCALE = 4,
-        EXP_MODE_FACTOR = 1.5,
+        EXP_MODE_FACTOR = 2.5,
         DRAG_MODE_IDLE = 0,
         DRAG_MODE_NORMAL = 1,
         DRAG_MODE_PRECISE = 2;
