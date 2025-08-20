@@ -191,7 +191,7 @@ export default function CPCanvas(controller) {
         BUTTON_WHEEL = 1,
         BUTTON_SECONDARY = 2,
         MIN_ZOOM = 0.1,
-        MAX_ZOOM = 16.0,
+        MAX_ZOOM = 8.0,
         CURSOR_DEFAULT = "default",
         CURSOR_PANNABLE = "grab",
         CURSOR_PANNING = "grabbing",
@@ -2557,6 +2557,8 @@ export default function CPCanvas(controller) {
     this.resetZoomAndRotation = function () {
         this.zoom100();
         this.resetRotation();
+        isViewFlipped = false;
+        updateTransform({ resetViewFlip: true });
     };
 
     /**

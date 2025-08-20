@@ -390,7 +390,22 @@ export default function ChickenPaint(options) {
             CPResetZoomAndRotation: {
                 action: function () {
                     canvas.resetZoomAndRotation();
+                    const paletteManager = mainGUI.getPaletteManager();
+                    const flipButton = paletteManager.palettes.misc.flipButton;
+                    const mainMenu = mainGUI.getMainMenu();
+                    const menuElement = mainMenu.getElement();
+                    const flipMenuItem = menuElement.querySelector(
+                        '[data-action="CPViewHFlip"]'
+                    );
+                    if (flipButton) {
+                        flipButton.classList.remove("flipped");
+                    }
+                    //表示の左右反転時には、メニュー→表示→表示の左右反転にチェックマークを外す
+                    if (flipMenuItem) {
+                        flipMenuItem.classList.remove("selected");
+                    }
                 },
+
                 modifies: { gui: true },
             },
             CPViewHFlip: {

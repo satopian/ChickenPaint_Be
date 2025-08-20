@@ -173,7 +173,7 @@ export default function CPBrushPalette(controller) {
     document.addEventListener("keydown", (e) => {
         if (
             e.key.toLocaleLowerCase() === "r" ||
-            e.key.toLocaleLowerCase() === "z" ||
+            !e.ctrlKey && e.key.toLocaleLowerCase() === "z" ||
             e.key === " "
         ) {
             hideAllPanels();
@@ -765,8 +765,8 @@ function CPPanPanel(controller) {
     let label = document.createElement("label");
     let resetButton = document.createElement("button");
 
-    let zoomSlider = new CPSlider(10, 1600, false, true);
-    let rotationSlider = new CPSlider(-180, 180, true, false);
+    let zoomSlider = new CPSlider(10, 800, false, true);
+    let rotationSlider = new CPSlider(-180, 180, false, false);
 
     panel.className = "chickenpaint-pan-panel";
     panel.style.display = "none"; // 初期非表示
@@ -782,6 +782,9 @@ function CPPanPanel(controller) {
     // 「すべて選択」ボタン
     resetButton.type = "button";
     resetButton.className = "btn btn-primary btn-block";
+    resetButton.style.outline = "none";
+    resetButton.style.boxShadow = "none";
+
     resetButton.textContent = _("Reset View");
     resetButton.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPResetZoomAndRotation" });
@@ -821,19 +824,7 @@ function CPPanPanel(controller) {
     key("=,-,ctrl+0", function () {
         updateSliderDebounced();
     });
-    document.addEventListener("click", (e) => {
-        const liElem = e.target.closest("li");
-        if (!liElem) return;
 
-        const classList = liElem.classList;
-        if (
-            classList.contains("chickenpaint-tool-zoom-in") ||
-            classList.contains("chickenpaint-tool-zoom-out") ||
-            classList.contains("chickenpaint-tool-zoom-100")
-        ) {
-            updateSliderDebounced();
-        }
-    });
     document.addEventListener(
         "wheel",
         (e) => {
