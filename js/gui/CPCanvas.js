@@ -2431,8 +2431,7 @@ export default function CPCanvas(controller) {
      */
     this.getRotationDegrees = function () {
         let deg = (this.getRotation() * 180) / Math.PI;
-        // -180〜180 に変換
-        deg = ((deg + 180) % 360) - 180;
+        deg = ((deg + 180 + 360) % 360) - 180; // 負の値を補正
         return deg;
     };
 
