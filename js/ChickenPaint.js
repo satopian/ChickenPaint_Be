@@ -1218,7 +1218,7 @@ export default function ChickenPaint(options) {
     };
 
     this.isPanOrRotateMode = function () {
-        return ChickenPaint.M_ROTATE_CANVAS || ChickenPaint.M_PAN_CANVAS;
+        return canvas.isPanOrRotateMode();
     };
 
     function setMode(newMode) {

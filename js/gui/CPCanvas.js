@@ -2561,6 +2561,11 @@ export default function CPCanvas(controller) {
         updateTransform({ resetViewFlip: true });
     };
 
+    //パンまたは回転モードかどうかを判定
+    this.isPanOrRotateMode = function () {
+        return isPinchZoomAllowed;
+    };
+
     /**
      * Get the current pen pressure, given a pointer event.
      *
