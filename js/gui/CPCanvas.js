@@ -191,7 +191,7 @@ export default function CPCanvas(controller) {
         BUTTON_WHEEL = 1,
         BUTTON_SECONDARY = 2,
         MIN_ZOOM = 0.1,
-        MAX_ZOOM = 16.0,
+        MAX_ZOOM = 8.0,
         CURSOR_DEFAULT = "default",
         CURSOR_PANNABLE = "grab",
         CURSOR_PANNING = "grabbing",
@@ -403,6 +403,16 @@ export default function CPCanvas(controller) {
         ) {
             if (e.key === "Enter") {
                 controller.actionPerformed({ action: "CPTransform" });
+                e.preventDefault();
+            }
+        } else if (
+            modeStack.peek() === panMode ||
+            modeStack.peek() === rotateCanvasMode
+        ) {
+            if (e.key === "Enter") {
+                controller.actionPerformed({
+                    action: "CPResetZoomAndRotation",
+                });
                 e.preventDefault();
             }
         }
@@ -2385,13 +2395,54 @@ export default function CPCanvas(controller) {
         updateTransform();
     };
 
+    this.setRotationOnCenter = function (angle) {
+        const width = canvas.width;
+        const height = canvas.height;
+        const centerX = width / 2;
+        const centerY = height / 2;
+
+        // 前の回転との差分を使って offset を補正する
+        const delta = angle - canvasRotation;
+        const cos = Math.cos(delta);
+        const sin = Math.sin(delta);
+
+        // 中心を基準にするようにオフセット調整
+        const dx = offsetX - centerX;
+        const dy = offsetY - centerY;
+        offsetX = centerX + dx * cos - dy * sin;
+        offsetY = centerY + dx * sin + dy * cos;
+
+        canvasRotation = angle % (2 * Math.PI);
+        updateTransform();
+    };
+
     /**
-     * Get canvas rotation in radians.
+     * 現在のキャンバスの回転角度をラジアンで取得します。
      *
-     * @return {number}
+     * @returns {number} キャンバスの回転角度（ラジアン）
      */
     this.getRotation = function () {
         return canvasRotation;
+    };
+
+    /**
+     * Get canvas rotation in degrees, normalized to [-180, +180].
+     * @returns {number} 現在の角度（度）
+     */
+    this.getRotationDegrees = function () {
+        let deg = (this.getRotation() * 180) / Math.PI;
+        // -180〜180 に変換
+        deg = ((deg + 180) % 360) - 180;
+        return deg;
+    };
+
+    /**
+     * Set canvas rotation in degrees, accepts [-180, +180] or any degree.
+     * @param {number} degrees
+     */
+    this.setRotationDegrees = function (degrees) {
+        const radians = (degrees * Math.PI) / 180;
+        this.setRotationOnCenter(radians);
     };
 
     /**
@@ -2443,23 +2494,26 @@ export default function CPCanvas(controller) {
     }
 
     // More advanced zoom methods
-    function zoomOnCenter(zoom) {
+    function zoomOnCenter(zoom, snap = true) {
         const width = canvas.clientWidth;
         const height = canvas.clientHeight;
-        // 拡大を1.41、縮小を0.7092にした関係で、zoomが浮動小数点になるため、1倍2倍に近い時は値をまるめる
-        const roundedZoom = parseFloat(zoom);
 
-        if (Math.abs(roundedZoom - 1) < 0.01) {
-            zoom = 1;
-        } else if (Math.abs(roundedZoom - 2) < 0.2) {
-            zoom = 2;
-        } else if (Math.abs(roundedZoom - 0.5) < 0.08) {
-            zoom = 0.5;
+        if (snap) {
+            // 拡大を1.41、縮小を0.7092にした関係で、zoomが浮動小数点になるため、1倍2倍に近い時は値をまるめる
+            const roundedZoom = parseFloat(zoom);
+
+            if (Math.abs(roundedZoom - 1) < 0.01) {
+                zoom = 1;
+            } else if (Math.abs(roundedZoom - 2) < 0.2) {
+                zoom = 2;
+            } else if (Math.abs(roundedZoom - 0.5) < 0.08) {
+                zoom = 0.5;
+            }
+            // console.log("Math.abs(roundedZoom - 1)",Math.abs(roundedZoom - 1));
+            // console.log("Math.abs(roundedZoom - 2)",Math.abs(roundedZoom - 2));
+            // console.log("Math.abs(roundedZoom - 0.5)",Math.abs(roundedZoom - 0.5));
+            // console.log("zoom",zoom);
         }
-        // console.log("Math.abs(roundedZoom - 1)",Math.abs(roundedZoom - 1));
-        // console.log("Math.abs(roundedZoom - 2)",Math.abs(roundedZoom - 2));
-        // console.log("Math.abs(roundedZoom - 0.5)",Math.abs(roundedZoom - 0.5));
-        // console.log("zoom",zoom);
 
         zoomOnPoint(zoom, width / 2, height / 2);
     }
@@ -2475,6 +2529,10 @@ export default function CPCanvas(controller) {
     this.zoom100 = function () {
         zoomOnCenter(1);
         centerCanvas();
+    };
+
+    this.zoomOnCenter = (zoom, snap = false) => {
+        zoomOnCenter(zoom, snap);
     };
 
     this.resetRotation = function () {
@@ -2493,6 +2551,19 @@ export default function CPCanvas(controller) {
         this.setOffset(~~rotTrans.getTranslateX(), ~~rotTrans.getTranslateY());
         this.setRotation(0);
         that.emitEvent("canvasRotated90", [0]);
+    };
+
+    //ズームと回転をリセット
+    this.resetZoomAndRotation = function () {
+        this.zoom100();
+        this.resetRotation();
+        isViewFlipped = false;
+        updateTransform({ resetViewFlip: true });
+    };
+
+    //パンまたは回転モードかどうかを判定
+    this.isPanOrRotateMode = function () {
+        return isPinchZoomAllowed;
     };
 
     /**

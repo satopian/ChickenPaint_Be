@@ -106,6 +106,8 @@
     "Scattering": "散乱",
     "Smoothing": "手ぶれ補正",
 
+    "Rotation": "角度",
+
     "Color swatches": "カラーセット",
     "Color swatches (shorter)": "カラーセット",
     "Remove": "削除",
@@ -179,6 +181,8 @@
     "Add mask": "レイヤーマスク追加",
 
     "Gradient": "グラデーション作成",
+    "Zoom and Rotate": "ズームと回転",
+    "Reset View": "表示をリセット",
     "Transform style": "変形スタイル",
     "Apply transform": "変形確定",
     "Complete transform": "変形を完了",

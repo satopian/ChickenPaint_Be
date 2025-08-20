@@ -387,6 +387,27 @@ export default function ChickenPaint(options) {
                 },
                 modifies: { gui: true },
             },
+            CPResetZoomAndRotation: {
+                action: function () {
+                    canvas.resetZoomAndRotation();
+                    const paletteManager = mainGUI.getPaletteManager();
+                    const flipButton = paletteManager.palettes.misc.flipButton;
+                    const mainMenu = mainGUI.getMainMenu();
+                    const menuElement = mainMenu.getElement();
+                    const flipMenuItem = menuElement.querySelector(
+                        '[data-action="CPViewHFlip"]'
+                    );
+                    if (flipButton) {
+                        flipButton.classList.remove("flipped");
+                    }
+                    //表示の左右反転時には、メニュー→表示→表示の左右反転にチェックマークを外す
+                    if (flipMenuItem) {
+                        flipMenuItem.classList.remove("selected");
+                    }
+                },
+
+                modifies: { gui: true },
+            },
             CPViewHFlip: {
                 action: function () {
                     const flipped = canvas.toggleViewFlip();
@@ -1159,6 +1180,45 @@ export default function ChickenPaint(options) {
 
     this.getCurMode = function () {
         return curMode;
+    };
+    /**
+     * キャンバスの中心を基準にズームします。
+     * @param {number} zoom ズーム倍率
+     * @param {boolean} [snap=false] true の場合、1倍/2倍/0.5倍に丸めます
+     */
+    this.zoomOnCenter = function (zoom, snap = false) {
+        canvas.zoomOnCenter(zoom, snap);
+    };
+
+    /**
+     * 現在のキャンバスのズーム倍率を取得します。
+     * @returns {number} 現在のズーム倍率
+     */
+    this.getZoom = function () {
+        return canvas.getZoom();
+    };
+
+    /**
+     * キャンバスの回転角度を度単位で取得します。
+     * - 返される値は [-180, +180] の範囲に正規化されています。
+     * @returns {number} 現在の回転角度（度）
+     */
+    this.getRotationDegrees = function () {
+        return canvas.getRotationDegrees();
+    };
+
+    /**
+     * キャンバスの回転角度を度単位で設定します。
+     * - 内部ではラジアンに変換されてセットされます。
+     * - 指定値は [-180, +180] の範囲でなくても自動的に正規化されます。
+     * @param {number} degrees 設定する角度（度）
+     */
+    this.setRotationDegrees = function (degrees) {
+        canvas.setRotationDegrees(degrees);
+    };
+
+    this.isPanOrRotateMode = function () {
+        return canvas.isPanOrRotateMode();
     };
 
     function setMode(newMode) {

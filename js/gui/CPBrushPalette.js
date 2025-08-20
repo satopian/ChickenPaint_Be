@@ -107,6 +107,7 @@ export default function CPBrushPalette(controller) {
         gradientPanel = new CPGradientPanel(controller),
         transformPanel = new CPTransformPanel(controller),
         selectPanel = new CPSelectionPanel(controller),
+        panPanel = new CPPanPanel(controller),
         body = this.getBodyElement();
 
     //touchmoveイベントのデフォルトの動作をキャンセル
@@ -122,13 +123,18 @@ export default function CPBrushPalette(controller) {
     body.appendChild(gradientPanel.getElement());
     body.appendChild(transformPanel.getElement());
     body.appendChild(selectPanel.getElement());
+    body.appendChild(panPanel.getElement());
 
-    controller.on("modeChange", function (mode) {
+    function hideAllPanels() {
         brushPanel.getElement().style.display = "none";
         gradientPanel.getElement().style.display = "none";
         transformPanel.getElement().style.display = "none";
         selectPanel.getElement().style.display = "none";
-
+        panPanel.getElement().style.display = "none";
+    }
+    let currentMode = null;
+    function updatePanelByMode(mode) {
+        hideAllPanels();
         const checkbox = selectPanel.getElement().querySelector(".form-check"); //
 
         if (checkbox) {
@@ -143,16 +149,45 @@ export default function CPBrushPalette(controller) {
                 break;
             case ChickenPaint.M_RECT_SELECTION:
                 selectPanel.getElement().style.display = "block";
-                if (checkbox) {
+                if (checkbox instanceof HTMLElement) {
                     checkbox.style.display = ""; // 表示する
                 }
                 break;
             case ChickenPaint.M_MOVE_TOOL:
                 selectPanel.getElement().style.display = "block";
                 break;
+            case ChickenPaint.M_ROTATE_CANVAS:
+            case ChickenPaint.M_PAN_CANVAS:
+                panPanel.getElement().style.display = "block";
+                break;
             default:
                 brushPanel.getElement().style.display = "block";
                 break;
+        }
+    }
+    controller.on("modeChange", function (mode) {
+        currentMode = mode;
+        updatePanelByMode(mode);
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (
+            e.key.toLocaleLowerCase() === "r" ||
+            (!e.ctrlKey && e.key.toLocaleLowerCase() === "z") ||
+            e.key === " "
+        ) {
+            hideAllPanels();
+            panPanel.getElement().style.display = "block";
+        }
+    });
+    document.addEventListener("keyup", (e) => {
+        if (
+            e.key.toLocaleLowerCase() === "r" ||
+            e.key.toLocaleLowerCase() === "z" ||
+            e.key === " "
+        ) {
+            hideAllPanels();
+            updatePanelByMode(currentMode);
         }
     });
 }
@@ -665,6 +700,7 @@ function CPSelectionPanel(controller) {
     formGroup.appendChild(deselectButton);
 
     // 「変形」ボタン
+
     transformButton.type = "button";
     transformButton.className = "btn btn-primary btn-block";
     transformButton.textContent = _("Transform");
@@ -676,7 +712,7 @@ function CPSelectionPanel(controller) {
 
     panel.appendChild(formGroup);
 
-
+    //チェックボックスの作成
     let { wrapper: maintainAspectGroup, checkbox: maintainAspectCheckbox } =
         createBootstrapCheckbox(
             "chickenpaint-s-maintainAspectCheckbox",
@@ -721,4 +757,107 @@ function createBootstrapCheckbox(id, title, checked = false) {
 
     // チェック状態取得用に input を返す場合は一緒に返す
     return { wrapper, checkbox };
+}
+
+function CPPanPanel(controller) {
+    let panel = document.createElement("div");
+    let formGroup = document.createElement("div");
+    let label = document.createElement("label");
+    let resetButton = document.createElement("button");
+
+    let zoomSlider = new CPSlider(10, 800, false, true);
+    let rotationSlider = new CPSlider(-180, 180, false, false);
+
+    panel.className = "chickenpaint-pan-panel";
+    panel.style.display = "none"; // 初期非表示
+    panel.appendChild(zoomSlider.getElement());
+
+    formGroup.className = "form-group";
+
+    // ラベルのみ使用
+    label.textContent = _("Zoom and Rotate"); //「ズームと回転」
+    formGroup.appendChild(label);
+    formGroup.appendChild(label);
+    panel.appendChild(formGroup);
+    // 「すべて選択」ボタン
+    resetButton.type = "button";
+    resetButton.className = "btn btn-primary btn-block";
+    resetButton.style.outline = "none";
+    resetButton.style.boxShadow = "none";
+
+    resetButton.textContent = _("Reset View");
+    resetButton.addEventListener("click", function (e) {
+        controller.actionPerformed({ action: "CPResetZoomAndRotation" });
+        e.preventDefault();
+    });
+    formGroup.appendChild(resetButton);
+    panel.appendChild(formGroup);
+    function fillWithInitialValues() {
+        zoomSlider.setValue(controller.getZoom() * 100);
+        rotationSlider.setValue(controller.getRotationDegrees());
+    }
+
+    zoomSlider.title = function (value) {
+        return _("Zoom") + ": " + value + "%";
+    };
+    rotationSlider.title = function (value) {
+        return _("Rotation") + ": " + value + "°";
+    };
+
+    zoomSlider.on("valueChange", function (value) {
+        controller.zoomOnCenter(value / 100);
+    });
+    rotationSlider.on("valueChange", function (value) {
+        controller.setRotationDegrees(value);
+    });
+
+    panel.appendChild(zoomSlider.getElement());
+    panel.appendChild(rotationSlider.getElement());
+
+    this.getElement = function () {
+        return panel;
+    };
+
+    fillWithInitialValues();
+
+    // キーボードでのサイズ変更
+    key("=,-,ctrl+0", function () {
+        updateSliderDebounced();
+    });
+
+    document.addEventListener(
+        "wheel",
+        (e) => {
+            e.preventDefault(); // これでスクロール抑制できる
+            updateSliderDebounced();
+        },
+        { passive: false }
+    );
+    // デバウンス関数の定義
+    function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+    //スライダーを更新
+    const updateSlider = () => {
+        zoomSlider.setValue(controller.getZoom() * 100);
+        rotationSlider.setValue(controller.getRotationDegrees());
+    };
+
+    // デバウンス関数を使用して、連続したイベントをまとめて処理
+    const updateSliderDebounced = debounce(updateSlider, 10);
+
+    document.addEventListener("pointerup", () => {
+        if (
+            !controller.isPanOrRotateMode() &&
+            !key.isPressed("z") &&
+            !key.isPressed("space") &&
+            !key.isPressed("r")
+        )
+            return;
+        updateSliderDebounced();
+    });
 }
