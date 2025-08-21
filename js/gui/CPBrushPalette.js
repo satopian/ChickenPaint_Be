@@ -821,7 +821,7 @@ function CPPanPanel(controller) {
     fillWithInitialValues();
 
     // キーボードでのサイズ変更
-    key("=,-,ctrl+0,alt+0", function () {
+    key("=,-,ctrl+0,alt+0,r,z,space,enter", function () {
         updateSliderDebounced();
     });
 
@@ -863,15 +863,15 @@ function CPPanPanel(controller) {
         updateSliderDebounced();
     });
 
-    document.addEventListener("keydown", (e) => {
-        if (!isPanPanelView()) return;
-        if (
-            e.key === "r" ||
-            e.key === "z" ||
-            e.key === " " ||
-            e.key === "Enter"
-        ) {
-            updateSliderDebounced();
+    document.addEventListener("click", (e) => {
+        if (e.target instanceof HTMLButtonElement) {
+            if (
+                !e.target.classList.contains("chickenpaint-toolbar-button-icon")
+            ) {
+                return;
+            }
         }
+        // クリックされたのがツールバーのボタンアイコンの場合
+        updateSliderDebounced();
     });
 }
