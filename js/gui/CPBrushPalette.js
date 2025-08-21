@@ -765,8 +765,8 @@ function CPPanPanel(controller) {
     let label = document.createElement("label");
     let resetButton = document.createElement("button");
 
-    let zoomSlider = new CPSlider(10, 800, false, true);
-    let rotationSlider = new CPSlider(-180, 180, false, false);
+    let zoomSlider = new CPSlider(10, 800, false, true, 180, 3.13);
+    let rotationSlider = new CPSlider(-180, 180, false, false, 180);
 
     panel.className = "chickenpaint-pan-panel";
     panel.style.display = "none"; // 初期非表示
