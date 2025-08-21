@@ -90,7 +90,7 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 ズームの倍率･キャンバスの回転角度をスライダーで操作できます。   
 ｢表示をリセット｣ボタン押下で、｢拡大率｣｢回転角度｣｢表示の左右反転｣をすべてリセットします。
    
-<img width="208" height="258" alt="image" src="https://github.com/user-attachments/assets/7dd94925-5ee2-40c6-a009-5a5988cf87ac" />
+<img width="209" height="259" alt="image" src="https://github.com/user-attachments/assets/f63ec5aa-2bff-46e4-9877-9d4506932b85" />
 
 ### 変形確定前に別のレイヤーを選択、または新規レイヤーを追加しようとした時に表示されるダイヤログの動作を改良
 
