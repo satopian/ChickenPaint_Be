@@ -292,13 +292,21 @@ const MENU_ENTRIES = [
                 name: "-",
             },
             {
-                name: "Flip View horizontal",
+                name: "Reset Rotation",
+                action: "CPResetCanvasRotation",
+                mnemonic: "R",
+                shortcut: "alt+0",
+            },
+            {
+                name: "-",
+            },
+            {
+                name: "Flip View Horizontal",
                 action: "CPViewHFlip",
                 mnemonic: "H",
                 shortcut: "h",
             },
             {
-                action: "CPLinearInterpolation",
                 name: "-",
             },
             {

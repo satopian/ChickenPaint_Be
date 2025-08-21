@@ -50,7 +50,7 @@ export default function CPMiscPalette(cpController) {
             {
                 className: "chickenpaint-tool-flip-horizontal",
                 command: "CPViewHFlip",
-                toolTip: "Flip View horizontal",
+                toolTip: "Flip View Horizontal",
             },
             {
                 className: "chickenpaint-tool-undo",
