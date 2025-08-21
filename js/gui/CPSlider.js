@@ -32,7 +32,7 @@ export default function CPSlider(
     centerMode,
     expMode,
     defaultWidth = 150,
-    exp_mode_factor= 2.3
+    expModeFactor = 2.5 //低い値の時にスライダーの動作を細やかにする係数
 ) {
     const PRECISE_DRAG_SCALE = 4,
         DRAG_MODE_IDLE = 0,
@@ -116,7 +116,7 @@ export default function CPSlider(
                 barWidth;
 
             if (expMode) {
-                barProp = Math.pow(barProp, 1 / exp_mode_factor);
+                barProp = Math.pow(barProp, 1 / expModeFactor);
             }
 
             barWidth = barProp * width;
@@ -160,7 +160,7 @@ export default function CPSlider(
 
         if (expMode) {
             // Give the user finer control over the low values
-            proportion = Math.pow(Math.max(proportion, 0.0), exp_mode_factor);
+            proportion = Math.pow(Math.max(proportion, 0.0), expModeFactor);
         }
 
         that.setValue(proportion * valueRange + minValue);
