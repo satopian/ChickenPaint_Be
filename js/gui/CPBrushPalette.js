@@ -821,7 +821,7 @@ function CPPanPanel(controller) {
     fillWithInitialValues();
 
     // キーボードでのサイズ変更
-    key("=,-,ctrl+0", function () {
+    key("=,-,ctrl+0,alt+0", function () {
         updateSliderDebounced();
     });
 
@@ -850,14 +850,23 @@ function CPPanPanel(controller) {
     // デバウンス関数を使用して、連続したイベントをまとめて処理
     const updateSliderDebounced = debounce(updateSlider, 10);
 
+    const isPanPanelView = () => {
+        return (
+            controller.isPanOrRotateMode() ||
+            key.isPressed("space") ||
+            key.isPressed("r") ||
+            key.isPressed("z")
+        );
+    };
     document.addEventListener("pointerup", () => {
-        if (
-            !controller.isPanOrRotateMode() &&
-            !key.isPressed("z") &&
-            !key.isPressed("space") &&
-            !key.isPressed("r")
-        )
-            return;
+        if (!isPanPanelView()) return;
         updateSliderDebounced();
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (!isPanPanelView()) return;
+        if (e.key === "Enter") {
+            updateSliderDebounced();
+        }
     });
 }
