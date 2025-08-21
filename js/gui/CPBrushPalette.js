@@ -865,7 +865,12 @@ function CPPanPanel(controller) {
 
     document.addEventListener("keydown", (e) => {
         if (!isPanPanelView()) return;
-        if (e.key === "Enter") {
+        if (
+            e.key === "r" ||
+            e.key === "z" ||
+            e.key === " " ||
+            e.key === "Enter"
+        ) {
             updateSliderDebounced();
         }
     });
