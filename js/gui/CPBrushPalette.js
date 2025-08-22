@@ -850,28 +850,26 @@ function CPPanPanel(controller) {
     // デバウンス関数を使用して、連続したイベントをまとめて処理
     const updateSliderDebounced = debounce(updateSlider, 10);
 
-    const isPanPanelView = () => {
+    const isZoomRotateEnabled = (e) => {
         return (
             controller.isPanOrRotateMode() ||
-            key.isPressed("space") ||
+            (key.isPressed("space") && e.ctrlKey) ||
             key.isPressed("r") ||
             key.isPressed("z")
         );
     };
-    document.addEventListener("pointerup", () => {
-        if (!isPanPanelView()) return;
+    document.addEventListener("pointerup", (e) => {
+        if (!isZoomRotateEnabled(e)) return;
         updateSliderDebounced();
     });
 
+    //パンや回転ツールのアイコンがクリックされたときにスライダーを更新
     document.addEventListener("click", (e) => {
-        if (e.target instanceof HTMLButtonElement) {
-            if (
-                !e.target.classList.contains("chickenpaint-toolbar-button-icon")
-            ) {
-                return;
-            }
+        if (
+            e.target instanceof HTMLElement &&
+            e.target.classList.contains("chickenpaint-toolbar-button-icon")
+        ) {
+            updateSliderDebounced();
         }
-        // クリックされたのがツールバーのボタンアイコンの場合
-        updateSliderDebounced();
     });
 }
