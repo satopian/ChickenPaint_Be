@@ -820,11 +820,6 @@ function CPPanPanel(controller) {
 
     fillWithInitialValues();
 
-    // キーボードでのサイズ変更
-    key("=,-,ctrl+0,alt+0,r,z,space,enter", function () {
-        updateSliderDebounced();
-    });
-
     document.addEventListener(
         "wheel",
         (e) => {
@@ -858,12 +853,30 @@ function CPPanPanel(controller) {
             key.isPressed("z")
         );
     };
-    document.addEventListener("pointerup", (e) => {
+
+    let isPointerDown = false;
+
+    document.addEventListener("pointerdown", (e) => {
+        if (!isZoomRotateEnabled(e)) return;
+        isPointerDown = true;
+        updateSliderDebounced();
+    });
+
+    document.addEventListener("pointermove", (e) => {
+        if (!isPointerDown) return;
         if (!isZoomRotateEnabled(e)) return;
         updateSliderDebounced();
     });
-    document.addEventListener("pointermove", (e) => {
+
+    document.addEventListener("pointerup", (e) => {
+        isPointerDown = false;
         if (!isZoomRotateEnabled(e)) return;
+        updateSliderDebounced();
+    });
+
+    // キーボードでのサイズ変更
+    key("=,-,ctrl+0,alt+0,r,z,space,enter", function () {
+        if (isPointerDown) return; // ポインターダウンの時は更新しない
         updateSliderDebounced();
     });
 
