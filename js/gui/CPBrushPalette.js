@@ -848,17 +848,21 @@ function CPPanPanel(controller) {
     };
 
     // デバウンス関数を使用して、連続したイベントをまとめて処理
-    const updateSliderDebounced = debounce(updateSlider, 10);
+    const updateSliderDebounced = debounce(updateSlider, 15);
 
     const isZoomRotateEnabled = (e) => {
         return (
             controller.isPanOrRotateMode() ||
-            (key.isPressed("space") && e.ctrlKey) ||
+            key.isPressed("space") ||
             key.isPressed("r") ||
             key.isPressed("z")
         );
     };
     document.addEventListener("pointerup", (e) => {
+        if (!isZoomRotateEnabled(e)) return;
+        updateSliderDebounced();
+    });
+    document.addEventListener("pointermove", (e) => {
         if (!isZoomRotateEnabled(e)) return;
         updateSliderDebounced();
     });
