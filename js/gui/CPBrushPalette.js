@@ -848,7 +848,7 @@ function CPPanPanel(controller) {
     };
 
     // デバウンス関数を使用して、連続したイベントをまとめて処理
-    const updateSliderDebounced = debounce(updateSlider, 15);
+    const updateSliderDebounced = debounce(updateSlider, 12);
 
     const isZoomRotateEnabled = (e) => {
         return (
