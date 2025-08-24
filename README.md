@@ -81,16 +81,16 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 ### 選択範囲のワークフローを改善
 
 - ツールオプションパレットに「すべて選択」「選択解除」「変形」ボタンが表示されるようになりました（長方形選択ツール・移動ツール使用時）。
-  
-<img width="209" height="261" alt="image" src="https://github.com/user-attachments/assets/91650e47-5912-4ec5-987f-559142a414e6" />
+
+<img width="209" height="259" alt="image" src="https://github.com/user-attachments/assets/156e29df-4043-4675-8a26-84dc73b214ba" /> 
 
 ### ズームと回転
 - ツールオプションパレットに｢ズームと回転｣が追加されました。  
 手のひらツール･回転ツール選択時、スペースキー押下時などに表示されます。  
 ズームの倍率･キャンバスの回転角度をスライダーで操作できます。   
-｢表示をリセット｣ボタン押下で、｢拡大率｣｢回転角度｣｢表示の左右反転｣をすべてリセットします。
+｢表示を初期化｣ボタン押下で、｢拡大率｣｢回転角度｣｢表示の左右反転｣をすべてリセットします。
    
-<img width="209" height="259" alt="image" src="https://github.com/user-attachments/assets/f63ec5aa-2bff-46e4-9877-9d4506932b85" />
+<img width="210" height="261" alt="image" src="https://github.com/user-attachments/assets/471d2124-5ded-4ad1-86b3-d1f270854c3b" />
 
 ### 変形確定前に別のレイヤーを選択、または新規レイヤーを追加しようとした時に表示されるダイヤログの動作を改良
 
@@ -233,7 +233,7 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 ｢縦横比を維持｣するチェックボックスがチェックされている時は縦横比が維持されます。     
 これまでは、縦横比を維持するためにShiftキーを押下する必要がありました。  
  
-<img width="216" height="267" alt="image" src="https://github.com/user-attachments/assets/9ca28b4b-b8a9-4235-961b-2745be0a33db" />
+<img width="207" height="259" alt="image" src="https://github.com/user-attachments/assets/31c6c3c9-1d47-4f59-9fcf-3475c68ffb3c" />
 
 ### ｢輝度を透明度に変換｣機能を追加
 - 白いキャンバス上の線画を透明な背景の線画に変換する｢輝度を透明度に変換｣機能を実装しました。   
