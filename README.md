@@ -82,7 +82,9 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 
 - ツールオプションパレットに「すべて選択」「選択解除」「変形」ボタンが表示されるようになりました（長方形選択ツール・移動ツール使用時）。
 
-<img width="209" height="259" alt="image" src="https://github.com/user-attachments/assets/156e29df-4043-4675-8a26-84dc73b214ba" /> 
+<img width="209" height="259" alt="image" src="https://github.com/user-attachments/assets/156e29df-4043-4675-8a26-84dc73b214ba" /><br>
+
+[ChickenPaint Beの新機能 選択範囲パネル･ズームと回転パネル - YouTube](https://www.youtube.com/watch?v=0fipzBPHCRk)
 
 ### ズームと回転
 - ツールオプションパレットに｢ズームと回転｣が追加されました。  
