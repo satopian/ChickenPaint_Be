@@ -46,7 +46,6 @@ import CPTabletDialog from "./gui/CPTabletDialog.js";
 import CPGridDialog from "./gui/CPGridDialog.js";
 import CPSendDialog from "./gui/CPSendDialog.js";
 
-import { isCanvasInterpolationSupported } from "./util/CPPolyfill.js";
 import CPColor from "./util/CPColor.js";
 import CPRect from "./util/CPRect.js";
 
@@ -786,9 +785,6 @@ export default function ChickenPaint(options) {
                     canvas.setInterpolation(e.selected);
                 },
                 modifies: { gui: true },
-                isSupported: function () {
-                    return isCanvasInterpolationSupported();
-                },
             },
             CPResetCanvasRotation: {
                 action: function () {

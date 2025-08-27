@@ -29,7 +29,6 @@ import CPTransform from "../util/CPTransform.js";
 import CPBezier from "../util/CPBezier.js";
 import { throttle } from "../util/throttle-debounce.js";
 import CPPolygon from "../util/CPPolygon.js";
-import { setCanvasInterpolation } from "../util/CPPolyfill.js";
 import CPVector from "../util/CPVector.js";
 
 import ChickenPaint from "../ChickenPaint.js";
@@ -2385,7 +2384,7 @@ export default function CPCanvas(controller) {
     this.setInterpolation = function (enabled) {
         interpolation = enabled;
 
-        setCanvasInterpolation(canvasContext, enabled);
+        canvasContext.imageSmoothingEnabled = enabled;
 
         this.repaintAll();
     };

@@ -31,7 +31,6 @@ import { createCheckerboardPattern } from "./CPGUIUtils.js";
 import CPColorBmp from "../engine/CPColorBmp.js";
 
 import CPColor from "../util/CPColor.js";
-import { isCanvasInterpolationSupported } from "../util/CPPolyfill.js";
 
 import key from "../../lib/keymaster.js";
 
@@ -610,18 +609,16 @@ function CPTransformPanel(controller) {
     interpCombo.className = "form-control chickenpaint-transform-interpolation";
     fillCombobox(interpCombo, TRANSFORM_INTERPOLATION);
 
-    if (isCanvasInterpolationSupported()) {
-        let interpGroup = document.createElement("div"),
-            interpLabel = document.createElement("label");
+    let interpGroup = document.createElement("div"),
+        interpLabel = document.createElement("label");
 
-        interpLabel.textContent = _("Transform style");
+    interpLabel.textContent = _("Transform style");
 
-        interpGroup.className = "form-group";
-        interpGroup.appendChild(interpLabel);
-        interpGroup.appendChild(interpCombo);
+    interpGroup.className = "form-group";
+    interpGroup.appendChild(interpLabel);
+    interpGroup.appendChild(interpCombo);
 
-        panel.appendChild(interpGroup);
-    }
+    panel.appendChild(interpGroup);
 
     let buttonGroup = document.createElement("div");
 

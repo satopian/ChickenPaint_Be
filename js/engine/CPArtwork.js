@@ -37,7 +37,6 @@ import CPColor from "../util/CPColor.js";
 import CPRect from "../util/CPRect.js";
 import CPRandom from "../util/CPRandom.js";
 import CPTransform from "../util/CPTransform.js";
-import { setCanvasInterpolation } from "../util/CPPolyfill.js";
 import { createCanvas } from "../util/Canvas.js";
 
 import EventEmitter from "wolfy87-eventemitter";
@@ -3184,10 +3183,8 @@ export default function CPArtwork(_width, _height) {
                         willReadFrequently: true,
                     }
                 );
-                setCanvasInterpolation(
-                    this.composeCanvasContext,
-                    this.interpolation == "smooth"
-                );
+                this.composeCanvasContext.imageSmoothingEnabled =
+                    this.interpolation === "smooth";
 
                 /* Calling getImageData on the canvas forces Chrome to disable hardware acceleration for it, see
                  * GetImageDataForcesNoAcceleration in https://cs.chromium.org/chromium/src/third_party/WebKit/Source/platform/graphics/ExpensiveCanvasHeuristicParameters.h
@@ -3473,10 +3470,8 @@ export default function CPArtwork(_width, _height) {
                 this.interpolation = newInterpolation;
 
                 if (this.composeCanvasContext) {
-                    setCanvasInterpolation(
-                        this.composeCanvasContext,
-                        this.interpolation == "smooth"
-                    );
+                    this.composeCanvasContext.imageSmoothingEnabled =
+                        this.interpolation == "smooth";
                 }
 
                 this.undo();
