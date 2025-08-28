@@ -848,14 +848,14 @@ function CPPanPanel(controller) {
         );
     };
 
-    let isPointerDown = false;
-
     const isMainPaintCanvas = (el) => {
         return (
             el instanceof HTMLCanvasElement &&
             el.classList.contains("chickenpaint-canvas")
         );
     };
+
+    let isPointerDown = false;
 
     document.addEventListener("pointerdown", (e) => {
         if (!isZoomRotateEnabled(e)) return;
@@ -883,14 +883,22 @@ function CPPanPanel(controller) {
         }
         updateSliderDebounced();
     });
+
+    // キーボードでのサイズ変更
+    //+-の時は連打を許可する
+    key("=,-", function () {
+        updateSliderDebounced();
+    });
+
     let isFirstKeyPress = true;
     // キーボードでのサイズ変更
-    key("=,-,ctrl+0,alt+0,r,z,space,enter", function () {
-        if (isPointerDown) return; // ポインターダウンの時は更新しない
+    //キーが押下された時に一度だけ更新する
+    key("ctrl+0,alt+0,r,z,space,enter", function () {
         if (!isFirstKeyPress) return;
         isFirstKeyPress = false;
         updateSliderDebounced();
     });
+    //キーが離されたときにフラグをリセット
     document.addEventListener("keyup", (e) => {
         isFirstKeyPress = true;
     });
