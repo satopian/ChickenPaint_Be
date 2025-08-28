@@ -907,7 +907,7 @@ function CPPanPanel(controller) {
     document.addEventListener("click", (e) => {
         if (
             e.target instanceof HTMLElement &&
-            e.target.classList.contains("chickenpaint-toolbar-button-icon")
+            !(e.target instanceof HTMLCanvasElement)
         ) {
             updateSliderDebounced();
         }
