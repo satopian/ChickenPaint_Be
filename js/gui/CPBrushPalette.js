@@ -336,7 +336,6 @@ function CPBrushPanel(controller) {
     });
     // tipCombo.onfocus = ()=>{//フォーカスを検出したら
     // 	document.activeElement.blur();//フォーカスを外す
-    // 	// console.log(document.activeElement);
 
     // };
 
@@ -652,7 +651,6 @@ function CPTransformPanel(controller) {
     // ローカル変数から直接リスナーを追加
     maintainAspectCheckbox.addEventListener("change", () => {
         maintainAspectCheckbox.blur(); // フォーカス解除
-        // console.log("チェック状態:", maintainAspectCheckbox.checked);
     });
 }
 // 選択パネル
@@ -723,7 +721,6 @@ function CPSelectionPanel(controller) {
     // ローカル変数から直接リスナーを追加
     maintainAspectCheckbox.addEventListener("change", () => {
         maintainAspectCheckbox.blur(); // フォーカス解除
-        // console.log("チェック状態:", maintainAspectCheckbox.checked);
     });
 }
 //Bootstrapのチェックボックスを作成
@@ -853,28 +850,49 @@ function CPPanPanel(controller) {
 
     let isPointerDown = false;
 
+    const isMainPaintCanvas = (el) => {
+        return (
+            el instanceof HTMLCanvasElement &&
+            el.classList.contains("chickenpaint-canvas")
+        );
+    };
+
     document.addEventListener("pointerdown", (e) => {
         if (!isZoomRotateEnabled(e)) return;
         isPointerDown = true;
+        if (!isMainPaintCanvas(e.target)) {
+            return; // 描画キャンバス以外の時は処理しない
+        }
         updateSliderDebounced();
     });
 
     document.addEventListener("pointermove", (e) => {
         if (!isPointerDown) return;
         if (!isZoomRotateEnabled(e)) return;
+        if (!isMainPaintCanvas(e.target)) {
+            return; // 描画キャンバス以外の時は処理しない
+        }
         updateSliderDebounced();
     });
 
     document.addEventListener("pointerup", (e) => {
         isPointerDown = false;
         if (!isZoomRotateEnabled(e)) return;
+        if (!isMainPaintCanvas(e.target)) {
+            return; // 描画キャンバス以外の時は処理しない
+        }
         updateSliderDebounced();
     });
-
+    let isFirstKeyPress = true;
     // キーボードでのサイズ変更
     key("=,-,ctrl+0,alt+0,r,z,space,enter", function () {
         if (isPointerDown) return; // ポインターダウンの時は更新しない
+        if (!isFirstKeyPress) return;
+        isFirstKeyPress = false;
         updateSliderDebounced();
+    });
+    document.addEventListener("keyup", (e) => {
+        isFirstKeyPress = true;
     });
 
     //パンや回転ツールのアイコンがクリックされたときにスライダーを更新
