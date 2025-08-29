@@ -235,7 +235,7 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 ｢縦横比を維持｣するチェックボックスがチェックされている時は縦横比が維持されます。     
 これまでは、縦横比を維持するためにShiftキーを押下する必要がありました。  
  
-<img width="207" height="259" alt="image" src="https://github.com/user-attachments/assets/31c6c3c9-1d47-4f59-9fcf-3475c68ffb3c" />
+<img width="208" height="259" alt="image" src="https://github.com/user-attachments/assets/bfef4ba8-01ae-48db-a4fb-45955903b5be" />
 
 ### ｢輝度を透明度に変換｣機能を追加
 - 白いキャンバス上の線画を透明な背景の線画に変換する｢輝度を透明度に変換｣機能を実装しました。   
