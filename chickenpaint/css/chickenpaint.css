@@ -1726,7 +1726,7 @@ body.chickenpaint-full-screen {
     margin: 0 0 0 6px;
 }
 .chickenpaint .btn-block + .btn-block {
-    margin-top: 0.8rem;
+    margin-top: 0.92rem;
 }
 .chickenpaint input[type="submit"].btn-block,
 .chickenpaint input[type="reset"].btn-block,
@@ -4834,7 +4834,7 @@ textarea.form-control.is-invalid {
 
 .btn {
     --bs-btn-padding-x: 0.75rem;
-    --bs-btn-padding-y: 0.2rem; /* ボタンの余白 */
+    --bs-btn-padding-y: 0.15rem; /* ボタンの余白 */
     --bs-btn-font-family: ;
     --bs-btn-font-size: 1rem;
     --bs-btn-font-weight: 400;
