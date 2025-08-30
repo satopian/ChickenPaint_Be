@@ -77,6 +77,8 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 この操作は実際の画像を変更しないため、アンドゥの履歴にも残りません。    
   
 [ChickenPaint Beの新機能 表示の左右反転 - YouTube](https://www.youtube.com/watch?v=ATRIBAJKq5c)   
+  
+[表示の左右反転!ChickenPaint Beの大進化｜さとぴあ](https://note.com/satopian/n/n3c91b1b1dda6)
 
 ### 選択範囲のワークフローを改善
 
