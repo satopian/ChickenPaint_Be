@@ -339,7 +339,7 @@ IE11は完全にサポートが終了しているため、これらのポリフ�
 - オリジナル版の｢ChickenPaint｣で発生していない問題をオリジナルの｢ChickenPaint｣のリポジトリに問い合わせないようお願いします。
 
 ## ビルド
-`npm i`でパッケージをインストールすると`make all`も実行され、`chickenpaint/js/`に本番環境で使用するための`chickenpaint.js`と`chickenpaint.min.js'`がビルドされます。  
+`npm i`でパッケージをインストールすると`make all`も実行され、`chickenpaint/js/`に本番環境で使用するための`chickenpaint.js`と`chickenpaint.min.js`がビルドされます。  
 `example/index.html`を開くとChickenPaint Beが起動します。  
 再度ビルドしたい時は`make all`と入力します。  
 
