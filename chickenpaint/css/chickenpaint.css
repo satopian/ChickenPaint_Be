@@ -398,7 +398,7 @@
 }
 
 .chickenpaint .md-panel {
-    font-size: 20px;
+    font-size: 22px;
 }
 .chickenpaint .sr-only {
     border: 0;
@@ -1776,7 +1776,7 @@ body.chickenpaint-full-screen {
     margin: 0 0 0 6px;
 }
 .chickenpaint .btn-block + .btn-block {
-    margin-top: 0.91rem;
+    margin-top: 0.86rem;
 }
 .chickenpaint input[type="submit"].btn-block,
 .chickenpaint input[type="reset"].btn-block,
