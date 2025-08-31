@@ -77,12 +77,14 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 この操作は実際の画像を変更しないため、アンドゥの履歴にも残りません。    
   
 [ChickenPaint Beの新機能 表示の左右反転 - YouTube](https://www.youtube.com/watch?v=ATRIBAJKq5c)   
+  
+[表示の左右反転!ChickenPaint Beの大進化｜さとぴあ](https://note.com/satopian/n/n3c91b1b1dda6)
 
 ### 選択範囲のワークフローを改善
 
 - ツールオプションパレットに「すべて選択」「選択解除」「変形」ボタンが表示されるようになりました（長方形選択ツール・移動ツール使用時）。
 
-<img width="209" height="259" alt="image" src="https://github.com/user-attachments/assets/156e29df-4043-4675-8a26-84dc73b214ba" /><br>
+<img width="211" height="260" alt="image" src="https://github.com/user-attachments/assets/9826cb5e-f142-4229-8c03-9c00f1c9b184" /><br>
 
 [ChickenPaint Beの新機能 選択範囲パネル･ズームと回転パネル - YouTube](https://www.youtube.com/watch?v=0fipzBPHCRk)
 
@@ -90,9 +92,9 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 - ツールオプションパレットに｢ズームと回転｣が追加されました。  
 手のひらツール･回転ツール選択時、スペースキー押下時などに表示されます。  
 ズームの倍率･キャンバスの回転角度をスライダーで操作できます。   
-｢表示を初期化｣ボタン押下で、｢拡大率｣｢回転角度｣｢表示の左右反転｣をすべてリセットします。
+｢表示を初期化｣ボタン押下で｢拡大率｣｢回転角度｣｢表示の左右反転｣をすべてリセットします。
    
-<img width="210" height="261" alt="image" src="https://github.com/user-attachments/assets/471d2124-5ded-4ad1-86b3-d1f270854c3b" />
+<img width="210" height="262" alt="image" src="https://github.com/user-attachments/assets/4767f129-81f0-4e5d-baf6-2c7d9570c5e6" />
 
 ### 変形確定前に別のレイヤーを選択、または新規レイヤーを追加しようとした時に表示されるダイヤログの動作を改良
 
@@ -235,7 +237,7 @@ Altキーのブラウザのデフォルトの動作をキャンセルしてこ�
 ｢縦横比を維持｣するチェックボックスがチェックされている時は縦横比が維持されます。     
 これまでは、縦横比を維持するためにShiftキーを押下する必要がありました。  
  
-<img width="207" height="259" alt="image" src="https://github.com/user-attachments/assets/31c6c3c9-1d47-4f59-9fcf-3475c68ffb3c" />
+<img width="208" height="259" alt="image" src="https://github.com/user-attachments/assets/bfef4ba8-01ae-48db-a4fb-45955903b5be" />
 
 ### ｢輝度を透明度に変換｣機能を追加
 - 白いキャンバス上の線画を透明な背景の線画に変換する｢輝度を透明度に変換｣機能を実装しました。   
@@ -337,7 +339,7 @@ IE11は完全にサポートが終了しているため、これらのポリフ�
 - オリジナル版の｢ChickenPaint｣で発生していない問題をオリジナルの｢ChickenPaint｣のリポジトリに問い合わせないようお願いします。
 
 ## ビルド
-`npm i`でパッケージをインストールすると`make all`も実行され、`chickenpaint/js/`に本番環境で使用するための`chickenpaint.js`と`chickenpaint.min.js'`がビルドされます。  
+`npm i`でパッケージをインストールすると`make all`も実行され、`chickenpaint/js/`に本番環境で使用するための`chickenpaint.js`と`chickenpaint.min.js`がビルドされます。  
 `example/index.html`を開くとChickenPaint Beが起動します。  
 再度ビルドしたい時は`make all`と入力します。  
 
