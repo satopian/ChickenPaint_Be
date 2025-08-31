@@ -398,7 +398,7 @@
 }
 
 .chickenpaint .md-panel {
-    font-size: 22px;
+    font-size: 24px;
 }
 .chickenpaint .sr-only {
     border: 0;
@@ -1776,7 +1776,7 @@ body.chickenpaint-full-screen {
     margin: 0 0 0 6px;
 }
 .chickenpaint .btn-block + .btn-block {
-    margin-top: 0.86rem;
+    margin-top: 0.67rem;
 }
 .chickenpaint input[type="submit"].btn-block,
 .chickenpaint input[type="reset"].btn-block,
@@ -4921,7 +4921,7 @@ textarea.form-control.is-invalid {
         border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 .chickenpaint .chickenpaint-palette-body .btn{
-    --bs-btn-padding-y: 0.27rem; /* ボタンの余白 */
+    --bs-btn-padding-y: 0.30rem; /* ボタンの余白 */
     --bs-btn-font-size: 14px;
 }
 
