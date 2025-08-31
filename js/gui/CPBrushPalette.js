@@ -577,6 +577,96 @@ function CPGradientPanel(controller) {
     gradientPanel.appendChild(colorsGroup);
 }
 
+// ボタンにアイコンを設定
+// function setButtonIcon(button, iconClass) {
+//     const text = button.textContent;
+//     button.textContent = "";
+
+//     // ボタンを flex に
+//     button.classList.add(
+//         "d-flex",
+//         "align-items-center",
+//         "justify-content-center"
+//     );
+
+//     let iconWidth = 0;
+
+//     if (iconClass) {
+//         const icon = document.createElement("span");
+//         icon.className = `md-panel ${iconClass}`;
+//         icon.style.flex = "0 0 auto"; // アイコンは縮まない
+//         button.prepend(icon);
+
+//         // アイコンとテキスト間のマージン
+//         iconWidth = 0.2; // rem
+//     }
+
+//     // テキスト
+//     const spanText = document.createElement("span");
+//     spanText.textContent = text;
+//     spanText.style.flex = "1 1 auto"; // 残りスペースを使って中央寄せ
+//     spanText.style.textAlign = "center";
+
+//     if (iconClass) {
+//         spanText.style.marginLeft = `${iconWidth}rem`; // アイコン分スペースを確保
+//     }
+
+//     button.appendChild(spanText);
+// }
+// function setButtonIcon(button, iconClass) {
+//     const text = button.textContent;
+//     button.textContent = "";
+
+//     // ボタンを相対位置 + flex に
+//     button.classList.add(
+//         "d-flex",
+//         "align-items-center",
+//         "justify-content-center",
+//         "position-relative"
+//     );
+
+//     // アイコンを絶対配置で左端に追加
+//     if (iconClass) {
+//         const icon = document.createElement("span");
+//         icon.className = `md-panel ${iconClass}`;
+//         icon.style.position = "absolute";
+//         icon.style.left = "0.35rem"; // 左端から0.35rem
+//         icon.style.marginRight = "0"; // アイコン自体の余白は不要
+//         button.appendChild(icon);
+//     }
+
+//     // テキスト用 span を中央に
+//     const spanText = document.createElement("span");
+//     spanText.textContent = text;
+//     spanText.style.marginLeft = "1rem"; // 左のアイコン分の余白
+//     button.appendChild(spanText);
+// }
+function setButtonIcon(button, iconClass) {
+    const text = button.textContent;
+    button.textContent = "";
+
+    // ボタン自体を flex に
+    button.classList.add("d-flex", "align-items-center", "justify-content-center", "position-relative");
+
+    // 左端からの開始位置（パディング）を設定
+    const startOffset = "0.35rem";
+    button.style.paddingLeft = startOffset;
+
+    if (iconClass) {
+        const icon = document.createElement("span");
+        icon.className = `md-panel ${iconClass}`;
+        icon.style.flex = "0 0 auto";  // 縮まない
+        icon.style.marginRight = "0"; // アイコンとテキストの間隔
+        button.prepend(icon);
+    }
+
+    const spanText = document.createElement("span");
+    spanText.textContent = text;
+    spanText.style.flex = "1 1 auto";       // 残りスペースを使う
+    spanText.style.textAlign = "center";    // 中央寄せ
+    button.appendChild(spanText);
+}
+
 function CPTransformPanel(controller) {
     const TRANSFORM_INTERPOLATION = { smooth: _("Smooth"), sharp: _("Sharp") };
 
@@ -600,6 +690,9 @@ function CPTransformPanel(controller) {
 
     acceptButton.textContent = _("Apply transform");
     rejectButton.textContent = _("Cancel");
+
+    setButtonIcon(acceptButton, "icon-md-circle");
+    setButtonIcon(rejectButton, "icon-md-close");
 
     interpCombo.addEventListener("change", function (e) {
         controller.setTransformInterpolation(this.value);
@@ -682,6 +775,7 @@ function CPSelectionPanel(controller) {
         controller.actionPerformed({ action: "CPSelectAll" });
         e.preventDefault();
     });
+    setButtonIcon(selectAllButton, "icon-md-select_all");
     formGroup.appendChild(selectAllButton);
 
     // 「選択解除」ボタン
@@ -692,6 +786,7 @@ function CPSelectionPanel(controller) {
         controller.actionPerformed({ action: "CPDeselectAll" });
         e.preventDefault();
     });
+    setButtonIcon(deselectButton, "icon-md-deselect");
     formGroup.appendChild(deselectButton);
 
     // 「変形」ボタン
@@ -703,6 +798,7 @@ function CPSelectionPanel(controller) {
         controller.actionPerformed({ action: "CPTransform" });
         e.preventDefault();
     });
+    setButtonIcon(transformButton, "icon-md-resize");
     formGroup.appendChild(transformButton);
 
     panel.appendChild(formGroup);
@@ -773,7 +869,7 @@ function CPPanPanel(controller) {
     formGroup.appendChild(label);
     formGroup.appendChild(label);
     panel.appendChild(formGroup);
-    // 「すべて選択」ボタン
+    // 「表示を初期化」ボタン
     resetButton.type = "button";
     resetButton.className = "btn btn-primary btn-block";
     resetButton.style.outline = "none";
@@ -784,6 +880,7 @@ function CPPanPanel(controller) {
         controller.actionPerformed({ action: "CPResetZoomAndRotation" });
         e.preventDefault();
     });
+    setButtonIcon(resetButton, "icon-md-restart_alt");
     formGroup.appendChild(resetButton);
     panel.appendChild(formGroup);
     function fillWithInitialValues() {

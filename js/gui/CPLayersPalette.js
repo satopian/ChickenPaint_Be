@@ -1310,13 +1310,13 @@ export default function CPLayersPalette(controller) {
                 },
                 {
                     title: "Merge down",
-                    icon: createFontAwesomeIcon("icon-download_FILL"),
+                    icon: createFontAwesomeIcon("icon-md-download"),
                     action: "CPLayerMergeDown",
                     require: ["image-layer"],
                 },
                 {
                     title: "Merge group",
-                    icon: createFontAwesomeIcon("icon-collapse_all_FILL"),
+                    icon: createFontAwesomeIcon("icon-md-collapse_all"),
                     action: "CPGroupMerge",
                     require: ["layer-group"],
                 },
