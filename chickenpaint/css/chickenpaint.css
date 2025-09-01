@@ -4929,7 +4929,10 @@ textarea.form-control.is-invalid {
     --bs-btn-padding-y: 0.29rem; /* ボタンの余白 */
     --bs-btn-font-size: 14px;
 }
-
+.chickenpaint .btn:not(.btn-sm) {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 0px 2px rgba(0, 0, 0, 0.2);
+}
 @media (prefers-reduced-motion: reduce) {
     .btn {
         transition: none;
@@ -5087,8 +5090,8 @@ fieldset:disabled .btn {
 
 .btn-light {
     --bs-btn-color: #000;
-    --bs-btn-bg: #f8f9fa;
-    --bs-btn-border-color: #f8f9fa;
+    --bs-btn-bg: hsl(211 10% 96% / 1);
+    --bs-btn-border-color: hsl(211 10% 96% / 1);
     --bs-btn-hover-color: #000;
     --bs-btn-hover-bg: #d3d4d5;
     --bs-btn-hover-border-color: #c6c7c8;
