@@ -398,7 +398,7 @@
 }
 
 .chickenpaint .md-panel {
-    font-size: 22px;
+    font-size: 24px;
 }
 .chickenpaint .sr-only {
     border: 0;
@@ -1781,7 +1781,7 @@ body.chickenpaint-full-screen {
     margin: 0 0 0 6px;
 }
 .chickenpaint .btn-block + .btn-block {
-    margin-top: 0.86rem;
+    margin-top: 0.51rem;
 }
 .chickenpaint input[type="submit"].btn-block,
 .chickenpaint input[type="reset"].btn-block,
@@ -3967,7 +3967,7 @@ progress {
     display: block;
     width: 100%;
     padding: 0.375rem 0.75rem;
-    font-size: 1rem;
+    font-size: 14px;
     font-weight: 400;
     line-height: 1.5;
     color: var(--bs-body-color);
@@ -4094,7 +4094,7 @@ progress {
 .form-control-sm {
     min-height: calc(1.5em + 0.5rem + calc(var(--bs-border-width) * 2));
     padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
+    font-size: 14px;
     border-radius: var(--bs-border-radius-sm);
 }
 .form-control-sm::-webkit-file-upload-button {
@@ -4925,8 +4925,8 @@ textarea.form-control.is-invalid {
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
         border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
-.chickenpaint .chickenpaint-palette-body .btn {
-    --bs-btn-padding-y: 0.27rem; /* ボタンの余白 */
+.chickenpaint .chickenpaint-palette-body .btn:not(.btn-sm) {
+    --bs-btn-padding-y: 0.29rem; /* ボタンの余白 */
     --bs-btn-font-size: 14px;
 }
 
