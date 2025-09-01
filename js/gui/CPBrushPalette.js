@@ -873,7 +873,6 @@ function CPPanPanel(controller) {
     resetButton.type = "button";
     resetButton.className = "btn btn-primary btn-block";
     resetButton.style.outline = "none";
-    resetButton.style.boxShadow = "none";
 
     resetButton.textContent = _("Reset View");
     resetButton.addEventListener("click", function (e) {
