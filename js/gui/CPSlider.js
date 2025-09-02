@@ -82,28 +82,12 @@ export default function CPSlider(
             canvasContext.fillText(title, textX, textY);
             canvasContext.beginPath();
 
-            // if (that.value >= valueRange / 2) {
-            //     canvasContext.rect(width / 2, 0, (that.value - valueRange / 2) * width / valueRange, height);
-            // } else {
-            //     canvasContext.rect(that.value * width / valueRange, 0, (valueRange / 2 - that.value) * width / valueRange, height);
-            // }
-            if (that.value >= 0) {
-                // 正の値は中央→右へ
-                canvasContext.rect(
-                    width / 2,
-                    0,
-                    (that.value / maxValue) * (width / 2),
-                    height
-                );
+            if (that.value >= valueRange / 2) {
+                canvasContext.rect(width / 2, 0, (that.value - valueRange / 2) * width / valueRange, height);
             } else {
-                // 負の値は中央→左へ
-                canvasContext.rect(
-                    width / 2 + (that.value / Math.abs(minValue)) * (width / 2),
-                    0,
-                    -(that.value / Math.abs(minValue)) * (width / 2),
-                    height
-                );
+                canvasContext.rect(that.value * width / valueRange, 0, (valueRange / 2 - that.value) * width / valueRange, height);
             }
+
             canvasContext.fill();
             canvasContext.clip();
 
