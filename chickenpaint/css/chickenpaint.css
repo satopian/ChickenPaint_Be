@@ -14518,7 +14518,7 @@ fieldset:disabled .btn {
     opacity: 1;
 }
 
-.nav-link:any-link {
+.chickenpaint .nav-link:any-link {
   color: var(--bs-nav-link-color);
 }
 .chickenpaint .dropdown-item:any-link {
