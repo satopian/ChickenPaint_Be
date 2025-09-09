@@ -158,8 +158,24 @@ class ChibiLayerDecoder {
         return this.nameLength;
     }
 
+    // readVariableSizeHeader(stream) {
+    //     this.name = stream.readString(this.nameLength);
+    // }
     readVariableSizeHeader(stream) {
-        this.name = stream.readString(this.nameLength);
+        // stream.readString がバイト列を 0..255 の文字として返す実装を想定しているので、
+        // まずそれを受け取りバイト配列に戻してから UTF-8 デコードする
+        const raw = stream.readString(this.nameLength); // raw.length == nameLength
+        const bytes = new Uint8Array(raw.length);
+        for (let i = 0; i < raw.length; i++) {
+            bytes[i] = raw.charCodeAt(i) & 0xff;
+        }
+
+        try {
+            this.name = new TextDecoder("utf-8").decode(bytes);
+        } catch (e) {
+            // TextDecoder が無い or デコード失敗時は互換性のため生のバイト文字列を使う
+            this.name = raw;
+        }
     }
 
     /**
@@ -629,9 +645,10 @@ function serializeEndChunk() {
  * @param {CPImageLayer|CPLayerGroup} layer
  */
 function serializeLayerChunk(layer) {
+    const utf8LayerName = new TextEncoder().encode(layer.name);
     const isImageLayer = layer instanceof CPImageLayer,
         FIXED_HEADER_LENGTH = 4 * (isImageLayer ? 5 : 6),
-        VARIABLE_HEADER_LENGTH = layer.name.length,
+        VARIABLE_HEADER_LENGTH = utf8LayerName.length,
         COMBINED_HEADER_LENGTH = FIXED_HEADER_LENGTH + VARIABLE_HEADER_LENGTH,
         PAYLOAD_LENGTH =
             (isImageLayer ? layer.image.data.length : 0) +
@@ -683,14 +700,17 @@ function serializeLayerChunk(layer) {
     stream.writeU32BE(layer.alpha);
 
     stream.writeU32BE(layerFlags);
-    stream.writeU32BE(layer.name.length);
+    stream.writeU32BE(utf8LayerName.length);
 
     if (!isImageLayer) {
         stream.writeU32BE(layer.layers.length);
     }
 
     // Variable length header portion
-    stream.writeString(layer.name);
+    // stream.writeString(layer.name);
+    //マルチバイト文字対応 writeString()を使わずに直接バイト列を書き込む
+    stream.data.set(utf8LayerName, stream.pos);
+    stream.pos += utf8LayerName.length;
 
     // Payload:
     if (isImageLayer) {
