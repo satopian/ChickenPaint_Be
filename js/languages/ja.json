@@ -126,6 +126,7 @@
     "Mirror": "左右反転",
     "Brightness": "輝度",
     "Contrast": "コントラスト",
+    "Scale": "倍率",
     "Reset": "リセット",
 
     "Layer blending mode": "合成モード",

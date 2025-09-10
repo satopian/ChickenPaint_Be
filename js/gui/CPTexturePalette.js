@@ -123,6 +123,7 @@ export default function CPTexturePalette(controller) {
         inverse = false,
         brightness = 0.0,
         contrast = 0.0,
+        scale = 1.0,
         optionsPanel,
         texturesPanel = document.createElement("div"),
         body = this.getBodyElement();
@@ -293,6 +294,35 @@ export default function CPTexturePalette(controller) {
         return texture;
     }
 
+    function scaleGreyBmp(src, scale) {
+        let newW = Math.max(1, Math.floor(src.width * scale));
+        let newH = Math.max(1, Math.floor(src.height * scale));
+        let dst = new CPGreyBmp(newW, newH, src.bitDepth);
+
+        let minVal = 255;
+        let maxVal = 0;
+
+        for (let y = 0; y < newH; y++) {
+            for (let x = 0; x < newW; x++) {
+                let srcX = Math.floor(x / scale);
+                let srcY = Math.floor(y / scale);
+                let val = src.data[srcY * src.width + srcX];
+                dst.data[y * newW + x] = val;
+
+                // 最大値・最小値を記録
+                if (val < minVal) minVal = val;
+                if (val > maxVal) maxVal = val;
+            }
+        }
+
+        // 全体が黒か白なら元画像を返す
+        if (minVal === maxVal) {
+            return src;
+        }
+
+        return dst;
+    }
+
     function updateSelectedTexture() {
         if (selectedTexture != null) {
             processedTexture = selectedTexture.clone();
@@ -308,7 +338,9 @@ export default function CPTexturePalette(controller) {
             if (inverse) {
                 lut.invert();
             }
-
+            if (scale !== 1.0) {
+                processedTexture = scaleGreyBmp(processedTexture, scale);
+            }
             processedTexture.applyLUT(lut);
         } else {
             processedTexture = null;
@@ -327,6 +359,7 @@ export default function CPTexturePalette(controller) {
             cbMirror = document.createElement("input"),
             slBrightness = new CPSlider(0, 200, true),
             slContrast = new CPSlider(0, 200, true),
+            slScale = new CPSlider(80, 500, false, true, 150, 2.5),
             sampleSwatch = new CPTextureSwatch(
                 null,
                 TEXTURE_PREVIEW_SIZE,
@@ -348,6 +381,7 @@ export default function CPTexturePalette(controller) {
 
             slBrightness.setValue(brightness * 100 + 100);
             slContrast.setValue(contrast * 100 + 100);
+            slScale.setValue(scale * 100);
         }
 
         function buildTextureControlsPanel() {
@@ -396,6 +430,17 @@ export default function CPTexturePalette(controller) {
             });
 
             panel.appendChild(slContrast.getElement());
+            slScale.title = function (value) {
+                return _("Scale") + ": " + value + "%";
+            };
+
+            slScale.on("valueChange", function (value) {
+                scale = value / 100;
+
+                updateSelectedTexture();
+            });
+
+            panel.appendChild(slScale.getElement());
 
             let okayButton = document.createElement("button"),
                 resetButton = document.createElement("button");
@@ -418,6 +463,7 @@ export default function CPTexturePalette(controller) {
             resetButton.addEventListener("click", function (e) {
                 brightness = 0;
                 contrast = 0;
+                scale = 1.0;
                 mirror = false;
                 inverse = false;
 
