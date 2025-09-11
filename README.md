@@ -103,6 +103,9 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 
 <img width="242" height="382" alt="image" src="https://github.com/user-attachments/assets/03b5c482-c4f1-4bb5-8051-c3546aaa6e59" />
 
+### テクスチャの拡大縮小ができるようになりました。  
+ 
+https://github.com/user-attachments/assets/0e619262-2e24-49db-8882-dccf7fcb48bb
 
 ### 変形確定前に別のレイヤーを選択、または新規レイヤーを追加しようとした時に表示されるダイヤログの動作を改良
 
