@@ -374,6 +374,7 @@ export default function CPTexturePalette(controller) {
             trigger: "manual",
             placement: "right", // ツールチップの位置を右に指定
             container: body,
+            fallbackPlacements: [], // 自動で他の方向に切り替えない
         });
         function updatePopoverControls() {
             cbInverse.checked = inverse;
