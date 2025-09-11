@@ -359,7 +359,7 @@ export default function CPTexturePalette(controller) {
             cbMirror = document.createElement("input"),
             slBrightness = new CPSlider(0, 200, true),
             slContrast = new CPSlider(0, 200, true),
-            slScale = new CPSlider(80, 500, false, true, 150, 2.5),
+            slScale = new CPSlider(50, 500, false, true, 150, 3.17),
             sampleSwatch = new CPTextureSwatch(
                 null,
                 TEXTURE_PREVIEW_SIZE,
