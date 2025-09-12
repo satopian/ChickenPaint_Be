@@ -457,7 +457,7 @@ export default function CPTexturePalette(controller) {
             panel.appendChild(okayButton);
             panel.appendChild(document.createTextNode(" "));
 
-            resetButton.textContent = "Reset";
+            resetButton.textContent = _("Reset");
             resetButton.className = "btn btn-secondary btn-sm";
             resetButton.type = "button";
 
