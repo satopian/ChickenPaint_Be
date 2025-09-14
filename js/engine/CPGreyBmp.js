@@ -96,6 +96,26 @@ CPGreyBmp.prototype.getPixel = function(x, y) {
     return this.data[this.offsetOfPixel(x, y)];
 };
 
+/**
+ * 指定座標のピクセルにARGB値を設定します（座標は自動でキャンバス内に補正されます）
+ *
+ * @param {number} x - X座標
+ * @param {number} y - Y座標
+ * @param {number} argb - 32ビット整数のARGB値
+ */
+CPGreyBmp.prototype.setPixel = function(x, y, argb) {
+    x = Math.max(0, Math.min(this.width - 1, x));
+    y = Math.max(0, Math.min(this.height - 1, y));
+
+    const pixIndex = this.offsetOfPixel(x, y);
+
+    this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = (argb >> 24) & 0xff;
+    this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET]   = (argb >> 16) & 0xff;
+    this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] = (argb >> 8) & 0xff;
+    this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET]  = argb & 0xff;
+};
+
+
 CPGreyBmp.prototype.clearAll = function(value) {
     this.data.fill(value);
 };
