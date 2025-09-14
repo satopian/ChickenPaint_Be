@@ -235,8 +235,11 @@ export default function CPArtwork(_width, _height) {
          */
         curColor = 0x000000, // Black
         transformInterpolation = "smooth";
+    /**
+     * @type {CPGreyBmp|null} ブラシ用テクスチャ
+     */
 
-        this.texture = null; // ブラシ用テクスチャ
+    this.texture = null;
     /**
      * We use this routine to suppress the updating of a thumbnail while the user is still drawing.
      */
@@ -1449,98 +1452,98 @@ export default function CPArtwork(_width, _height) {
     //         invalidateLayerPaint(curLayer, r);
     //     }
     // };
-/**
- * Replace the pixels in the selection rectangle with the specified color
- * or with the currently selected brush texture.
- *
- * @param {number} color - ARGB color to fill with
- */
-this.fill = function (color) {
-    let r = this.getSelectionAutoSelect(),
-        target = getActiveImage(),
-        texture = this.texture; // ブラシ用 texture を取得
+    /**
+     * Replace the pixels in the selection rectangle with the specified color
+     * or with the currently selected brush texture.
+     *
+     * @param {number} color - ARGB color to fill with
+     */
+    this.fill = function (color) {
+        let r = this.getSelectionAutoSelect(),
+            target = getActiveImage(),
+            texture = this.texture; // ブラシ用 texture を取得
 
-    if (!target) return;
+        if (!target) return;
 
-    prepareForLayerPaintUndo();
-    paintUndoArea = r.clone();
+        prepareForLayerPaintUndo();
+        paintUndoArea = r.clone();
 
-    if (texture) {
-        // texture がある場合は、選択色で pattern 塗り
-        drawTextureRect(target, r, texture, color);
-    } else {
-        // texture がない場合は従来通り単色塗り
-        target.clearRect(r, color);
-    }
+        if (texture) {
+            // texture がある場合は、選択色で pattern 塗り
+            drawTextureRect(target, r, texture, color);
+        } else {
+            // texture がない場合は従来通り単色塗り
+            target.clearRect(r, color);
+        }
 
-    addUndo(new CPUndoPaint());
-    invalidateLayerPaint(curLayer, r);
-};
+        addUndo(new CPUndoPaint());
+        invalidateLayerPaint(curLayer, r);
+    };
 
-/**
- * Fill a rectangle with a texture and a base color
- *
- * @param {CPColorBmp} target - 描画対象のレイヤー
- * @param {CPRect} rect - 塗りつぶす範囲
- * @param {CPGreyBmp} texture - 8bit grayscale texture
- * @param {number} color - ARGB color
- */
-function drawTextureRect(target, rect, texture, color) {
-    const texW = texture.width,
-        texH = texture.height;
+    /**
+     * Fill a rectangle with a texture and a base color
+     *
+     * @param {CPColorBmp} target - 描画対象のレイヤー
+     * @param {CPRect} rect - 塗りつぶす範囲
+     * @param {CPGreyBmp} texture - 8bit grayscale texture
+     * @param {number} color - ARGB color
+     */
+    function drawTextureRect(target, rect, texture, color) {
+        const texW = texture.width,
+            texH = texture.height;
 
-    // CPRect から幅と高さを計算
-    const width = rect.right - rect.left;
-    const height = rect.bottom - rect.top;
+        // CPRect から幅と高さを計算
+        const width = rect.right - rect.left;
+        const height = rect.bottom - rect.top;
 
-    for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-            const px = rect.left + x;
-            const py = rect.top + y;
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const px = rect.left + x;
+                const py = rect.top + y;
 
-            const texX = px % texW;
-            const texY = py % texH;
+                const texX = px % texW;
+                const texY = py % texH;
 
-            const alpha = 1 - texture.data[texY * texW + texX] / 255;
+                const alpha = 1 - texture.data[texY * texW + texX] / 255;
 
-            const oldPixel = target.getPixel(px, py);
-            const newPixel = blendColor(color, alpha, oldPixel);
-            target.setPixel(px, py, newPixel);
+                const oldPixel = target.getPixel(px, py);
+                const newPixel = blendColor(color, alpha, oldPixel);
+                target.setPixel(px, py, newPixel);
+            }
         }
     }
-}
 
-/**
- * Blend a color with existing pixel according to alpha
- *
- * @param {number} color - 塗り色 ARGB
- * @param {number} alpha - 0.0～1.0
- * @param {number} dest - 元の pixel ARGB
- * @returns {number} - 合成後 ARGB
- */
-function blendColor(color, alpha, dest) {
-    let a = ((color >> 24) & 0xff) * alpha,
-        r = ((color >> 16) & 0xff),
-        g = ((color >> 8) & 0xff),
-        b = (color & 0xff);
+    /**
+     * Blend a color with existing pixel according to alpha
+     *
+     * @param {number} color - 塗り色 ARGB
+     * @param {number} alpha - 0.0～1.0
+     * @param {number} dest - 元の pixel ARGB
+     * @returns {number} - 合成後 ARGB
+     */
+    function blendColor(color, alpha, dest) {
+        let a = ((color >> 24) & 0xff) * alpha,
+            r = (color >> 16) & 0xff,
+            g = (color >> 8) & 0xff,
+            b = color & 0xff;
 
-    let da = (dest >> 24) & 0xff,
-        dr = (dest >> 16) & 0xff,
-        dg = (dest >> 8) & 0xff,
-        db = dest & 0xff;
+        let da = (dest >> 24) & 0xff,
+            dr = (dest >> 16) & 0xff,
+            dg = (dest >> 8) & 0xff,
+            db = dest & 0xff;
 
-    let outA = a + da * (1 - alpha),
-        outR = r * alpha + dr * (1 - alpha),
-        outG = g * alpha + dg * (1 - alpha),
-        outB = b * alpha + db * (1 - alpha);
+        let outA = a + da * (1 - alpha),
+            outR = r * alpha + dr * (1 - alpha),
+            outG = g * alpha + dg * (1 - alpha),
+            outB = b * alpha + db * (1 - alpha);
 
-    return (
-        ((outA & 0xff) << 24) |
-        ((outR & 0xff) << 16) |
-        ((outG & 0xff) << 8) |
-        (outB & 0xff)
-    );
-}
+        return (
+            ((outA & 0xff) << 24) |
+            ((outR & 0xff) << 16) |
+            ((outG & 0xff) << 8) |
+            (outB & 0xff)
+        );
+    }
 
     this.clear = function () {
         if (maskEditingMode) {
