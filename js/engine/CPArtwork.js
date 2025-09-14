@@ -1458,7 +1458,7 @@ export default function CPArtwork(_width, _height) {
      *
      * @param {number} color - ARGB color to fill with
      */
-    this.fill = function (color) {
+    this.fill = function (color,clear) {
         let r = this.getSelectionAutoSelect(),
             target = getActiveImage(),
             texture = this.texture; // ブラシ用 texture を取得
@@ -1468,7 +1468,7 @@ export default function CPArtwork(_width, _height) {
         prepareForLayerPaintUndo();
         paintUndoArea = r.clone();
 
-        if (texture) {
+        if (texture && !clear) {
             // texture がある場合は、選択色で pattern 塗り
             drawTextureRect(target, r, texture, color);
         } else {
@@ -1547,9 +1547,9 @@ export default function CPArtwork(_width, _height) {
 
     this.clear = function () {
         if (maskEditingMode) {
-            this.fill(EMPTY_MASK_COLOR);
+            this.fill(EMPTY_MASK_COLOR,true);
         } else {
-            this.fill(EMPTY_LAYER_COLOR);
+            this.fill(EMPTY_LAYER_COLOR,true);
         }
     };
 
