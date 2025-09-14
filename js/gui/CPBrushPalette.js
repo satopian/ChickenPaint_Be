@@ -770,12 +770,12 @@ function CPSelectionPanel(controller) {
     // 「すべて選択」ボタン
     selectAllButton.type = "button";
     selectAllButton.className = "btn btn-light btn-block";
-    selectAllButton.textContent = _("Select all");
+    selectAllButton.textContent = _("Fill");
     selectAllButton.addEventListener("click", function (e) {
-        controller.actionPerformed({ action: "CPSelectAll" });
+        controller.actionPerformed({ action: "CPFill" });
         e.preventDefault();
     });
-    setButtonIcon(selectAllButton, "icon-md-select_all");
+    setButtonIcon(selectAllButton, "icon-md-ink_selection");
     formGroup.appendChild(selectAllButton);
 
     // 「選択解除」ボタン
