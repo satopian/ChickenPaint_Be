@@ -82,9 +82,9 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 
 ### 選択範囲のワークフローを改善
 
-- ツールオプションパレットに「すべて選択」「選択解除」「変形」ボタンが表示されるようになりました（長方形選択ツール・移動ツール使用時）。
+- ツールオプションパレットに「塗り潰し」「選択解除」「変形」ボタンが表示されるようになりました（長方形選択ツール・移動ツール使用時）。
 
-<img width="211" height="258" alt="image" src="https://github.com/user-attachments/assets/60f60bdc-553b-4481-b89c-2703bb30c046" /><br>
+<img width="209" height="259" alt="image" src="https://github.com/user-attachments/assets/9827ac2b-bb20-4ab7-b50f-3f641a42fdd6" /><br>
 
 [ChickenPaint Beの新機能 選択範囲パネル･ズームと回転パネル - YouTube](https://www.youtube.com/watch?v=0fipzBPHCRk)
 
@@ -106,6 +106,11 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 ### テクスチャの拡大縮小ができるようになりました。  
  
 https://github.com/user-attachments/assets/0e619262-2e24-49db-8882-dccf7fcb48bb
+
+### テクスチャ塗り潰し
+- テクスチャを選択している時は、そのテクスチャで選択範囲を塗り潰す事ができるようになりました。
+
+https://github.com/user-attachments/assets/ddf63802-8a32-4acf-92b2-8fcab09503c9
 
 ### 変形確定前に別のレイヤーを選択、または新規レイヤーを追加しようとした時に表示されるダイヤログの動作を改良
 
