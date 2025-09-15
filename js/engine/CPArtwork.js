@@ -1545,11 +1545,11 @@ export default function CPArtwork(_width, _height) {
         );
     }
 
-    this.clear = function () {
+    this.clear = function (allclear=true) {
         if (maskEditingMode) {
-            this.fill(EMPTY_MASK_COLOR,true);
+            this.fill(EMPTY_MASK_COLOR,allclear);
         } else {
-            this.fill(EMPTY_LAYER_COLOR,true);
+            this.fill(EMPTY_LAYER_COLOR,allclear);
         }
     };
 

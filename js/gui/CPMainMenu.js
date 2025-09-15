@@ -199,6 +199,12 @@ const MENU_ENTRIES = [
                 shortcut: "del,backspace",
             },
             {
+                name: "Clear with texture",
+                action: "CPClearWithTexture",
+                mnemonic: "T",
+                shortcut: "shift+x",
+            },
+            {
                 name: "Fill",
                 action: "CPFill",
                 mnemonic: "F",

@@ -672,6 +672,13 @@ export default function ChickenPaint(options) {
                 modifies: { document: true },
                 requiresDrawable: true,
             },
+            CPClearWithTexture: {
+                action: function () {
+                    that.artwork.clear(false);
+                },
+                modifies: { document: true },
+                requiresDrawable: true,
+            },
             CPSelectAll: {
                 action: function () {
                     that.artwork.rectangleSelection(that.artwork.getBounds());

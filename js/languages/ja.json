@@ -35,6 +35,7 @@
 
     "Effects": "効果",
     "Clear": "消去",
+    "Clear with texture": "テクスチャで消去",
     "Fill": "塗り潰し",
     "Flip horizontal": "左右反転",
     "Flip vertical": "上下反転",
