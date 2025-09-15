@@ -271,7 +271,7 @@ export default function CPCanvas(controller) {
         horzScroll = new CPScrollbar(false),
         vertScroll = new CPScrollbar(true),
         modalIsShown = null,
-        ignoreEnterOnce = null;
+        desableEnterKey = null;
     Math.sign =
         Math.sign ||
         function (x) {
@@ -402,9 +402,8 @@ export default function CPCanvas(controller) {
             modeStack.peek() === moveToolMode
         ) {
             if (e.key === "Enter") {
-                if (modalIsShown || ignoreEnterOnce) {
-                    // モーダル表示中またはモーダル閉じ直後のEnterを無効化（1回のみ無効化）
-                    ignoreEnterOnce = false; //次回ののEnterを有効化
+                if (modalIsShown || desableEnterKey) {
+                    // モーダル表示中またはモーダルを閉じてから300ms経過していない場合
                     return;
                 }
                 controller.actionPerformed({ action: "CPTransform" });
@@ -1833,9 +1832,8 @@ export default function CPCanvas(controller) {
 
         this.keyDown = function (e) {
             if (e.key === "Enter") {
-                if (modalIsShown || ignoreEnterOnce) {
-                    // モーダル表示中またはモーダル閉じ直後のEnterを無効化（1回のみ無効化）
-                    ignoreEnterOnce = false; //次回ののEnterを有効化
+                if (modalIsShown || desableEnterKey) {
+                    // モーダル表示中またはモーダルを閉じてから300ms経過していない場合
                     return;
                 }
 
@@ -1906,7 +1904,8 @@ export default function CPCanvas(controller) {
         modalIsShown = !!shown;
         if (!modalIsShown) {
             // モーダルが閉じられたとき
-            ignoreEnterOnce = true;
+            desableEnterKey = true;
+            setTimeout(() => (desableEnterKey = false), 300);
         }
     };
 
