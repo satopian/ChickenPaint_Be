@@ -1220,6 +1220,15 @@ export default function ChickenPaint(options) {
         canvas.setRotationDegrees(degrees);
     };
 
+    /**
+     * モーダルの表示状態を設定します。
+     * - 内部的には canvas.modalIsShown() を呼び出しています。
+     * @param {boolean} shown true の場合モーダルを表示、false の場合非表示
+     */
+    this.modalIsShown = function (shown) {
+        canvas.modalIsShown(shown);
+    };
+
     this.isPanOrRotateMode = function () {
         return canvas.isPanOrRotateMode();
     };

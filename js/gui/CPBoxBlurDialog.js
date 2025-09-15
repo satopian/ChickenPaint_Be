@@ -43,21 +43,29 @@ export default function CPBoxBlurDialog(parent, controller) {
                             <input type="number" class="form-control chickenpaint-blur-amount" value="3" min="1">
                         </div>
                         <div class="form-group">
-                            <label>${_("Iterations (1-8, larger gives smoother blur)")}</label>
+                            <label>${_(
+                                "Iterations (1-8, larger gives smoother blur)"
+                            )}</label>
                             <input type="number" class="form-control chickenpaint-blur-iterations" value="1" min="1" max="8">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_("Cancel")}</button>
-                    <button type="button" class="btn btn-primary chickenpaint-apply-box-blur" data-bs-dismiss="modal">${_("Ok")}</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_(
+                        "Cancel"
+                    )}</button>
+                    <button type="button" class="btn btn-primary chickenpaint-apply-box-blur" data-bs-dismiss="modal">${_(
+                        "Ok"
+                    )}</button>
                 </div>
             </div>
         </div>
     `;
 
     const blurAmountElem = dialog.querySelector(".chickenpaint-blur-amount");
-    const blurIterationsElem = dialog.querySelector(".chickenpaint-blur-iterations");
+    const blurIterationsElem = dialog.querySelector(
+        ".chickenpaint-blur-iterations"
+    );
     const applyButton = dialog.querySelector(".chickenpaint-apply-box-blur");
 
     // Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
@@ -66,13 +74,16 @@ export default function CPBoxBlurDialog(parent, controller) {
     // モーダル表示用のメソッド
     this.show = function () {
         // ハンバガーメニューとモーダルの二重表示防止
-        const collapseElement = document.getElementById("chickenpaint-main-menu-content");
+        const collapseElement = document.getElementById(
+            "chickenpaint-main-menu-content"
+        );
         if (collapseElement && collapseElement.classList.contains("show")) {
             const bsCollapse = new bootstrap.Collapse(collapseElement, {
                 toggle: false, // すでに閉じている場合のエラーを防ぐ
             });
             bsCollapse.hide();
         }
+        controller.modalIsShown(true);
         // モーダルを表示
         modal.show();
     };
@@ -80,9 +91,13 @@ export default function CPBoxBlurDialog(parent, controller) {
     // モーダル内でOKボタンがクリックされた時の処理
     applyButton.addEventListener("click", (e) => {
         let blur = Math.max(parseInt(blurAmountElem.value, 10), 1),
-            iterations = Math.min(Math.max(parseInt(blurIterationsElem.value, 10), 1), 8);
+            iterations = Math.min(
+                Math.max(parseInt(blurIterationsElem.value, 10), 1),
+                8
+            );
 
         controller.getArtwork().boxBlur(blur, blur, iterations);
+        controller.modalIsShown(false);
         modal.hide(); // モーダルを閉じる
     });
 

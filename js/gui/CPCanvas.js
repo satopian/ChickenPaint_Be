@@ -269,8 +269,9 @@ export default function CPCanvas(controller) {
         modeStack = new CPModeStack(),
         curDrawMode,
         horzScroll = new CPScrollbar(false),
-        vertScroll = new CPScrollbar(true);
-
+        vertScroll = new CPScrollbar(true),
+        modalIsShown = null,
+        ignoreEnterOnce = null;
     Math.sign =
         Math.sign ||
         function (x) {
@@ -401,6 +402,11 @@ export default function CPCanvas(controller) {
             modeStack.peek() === moveToolMode
         ) {
             if (e.key === "Enter") {
+                if (modalIsShown || ignoreEnterOnce) {
+                    // モーダル表示中またはモーダル閉じ直後のEnterを無効化（1回のみ無効化）
+                    ignoreEnterOnce = false; //次回ののEnterを有効化
+                    return;
+                }
                 controller.actionPerformed({ action: "CPTransform" });
                 e.preventDefault();
             }
@@ -433,7 +439,6 @@ export default function CPCanvas(controller) {
             e.preventDefault(); // 既定動作キャンセル
         }
     };
-
     /**
      * A base for the three drawing modes, so they can all share the same brush-preview-circle drawing behaviour.
      *
@@ -1828,6 +1833,12 @@ export default function CPCanvas(controller) {
 
         this.keyDown = function (e) {
             if (e.key === "Enter") {
+                if (modalIsShown || ignoreEnterOnce) {
+                    // モーダル表示中またはモーダル閉じ直後のEnterを無効化（1回のみ無効化）
+                    ignoreEnterOnce = false; //次回ののEnterを有効化
+                    return;
+                }
+
                 controller.actionPerformed({ action: "CPTransformAccept" });
 
                 return true;
@@ -1886,8 +1897,24 @@ export default function CPCanvas(controller) {
     CPTransformMode.prototype = Object.create(CPMode.prototype);
     CPTransformMode.prototype.constructor = CPTransformMode;
 
+    /**
+     * モーダルの表示状態フラグを更新します。
+     * - 内部変数 modalIsShown に値をセットします。
+     * @param {boolean} shown true の場合モーダルを表示、false の場合非表示
+     */
+    this.modalIsShown = function (shown) {
+        modalIsShown = !!shown;
+        if (!modalIsShown) {
+            // モーダルが閉じられたとき
+            ignoreEnterOnce = true;
+        }
+    };
+
     //キーボードで1pxずつ移動できるようにする
     function getArrowKeyDelta(key) {
+        if (modalIsShown) {
+            return;
+        }
         if (!key) return null;
         switch (key.toLowerCase()) {
             case "arrowup":

@@ -45,24 +45,34 @@ export default function CPGridDialog(parent, canvas) {
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_("Cancel")}</button>
-                    <button type="button" class="btn btn-primary chickenpaint-apply-grid-settings" data-bs-dismiss="modal">${_("Ok")}</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_(
+                        "Cancel"
+                    )}</button>
+                    <button type="button" class="btn btn-primary chickenpaint-apply-grid-settings" data-bs-dismiss="modal">${_(
+                        "Ok"
+                    )}</button>
                 </div>
             </div>
         </div>
     `;
 
     const gridSizeElem = dialog.querySelector(".chickenpaint-grid-size");
-    const applyButton = dialog.querySelector(".chickenpaint-apply-grid-settings");
+    const applyButton = dialog.querySelector(
+        ".chickenpaint-apply-grid-settings"
+    );
 
     // Bootstrap 5: Modalコンストラクタを使用してモーダルを初期化
     const modal = new bootstrap.Modal(dialog);
 
     this.show = function () {
         // ハンバガーメニューとモーダルの二重表示防止
-        const collapseElement = document.getElementById("chickenpaint-main-menu-content");
+        const collapseElement = document.getElementById(
+            "chickenpaint-main-menu-content"
+        );
         if (collapseElement && collapseElement.classList.contains("show")) {
-            const bsCollapse = new bootstrap.Collapse(collapseElement, { toggle: false });
+            const bsCollapse = new bootstrap.Collapse(collapseElement, {
+                toggle: false,
+            });
             bsCollapse.hide();
         }
         // モーダルを表示
@@ -81,11 +91,13 @@ export default function CPGridDialog(parent, canvas) {
     applyButton.addEventListener("click", () => {
         const gridSize = parseInt(gridSizeElem.value, 10);
         canvas.setGridSize(gridSize);
+        canvas.modalIsShown(false);
         modal.hide(); // モーダルを手動で閉じる
     });
 
     // モーダルが表示されたときに、グリッドサイズの入力フィールドにフォーカス
     dialog.addEventListener("shown.bs.modal", () => {
+        canvas.modalIsShown(true);
         gridSizeElem.focus();
     });
 
