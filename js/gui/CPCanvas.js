@@ -403,7 +403,8 @@ export default function CPCanvas(controller) {
         ) {
             if (e.key === "Enter") {
                 if (modalIsShown || desableEnterKey) {
-                    // モーダル表示中またはモーダルを閉じてから300ms経過していない場合
+                    // モーダル表示中
+                    // またはモーダル閉じてから300ms経過していない場合
                     return;
                 }
                 controller.actionPerformed({ action: "CPTransform" });
@@ -414,6 +415,12 @@ export default function CPCanvas(controller) {
             modeStack.peek() === rotateCanvasMode
         ) {
             if (e.key === "Enter") {
+                if (modalIsShown || desableEnterKey) {
+                    // モーダル表示中
+                    // またはモーダル閉じてから300ms経過していない場合
+                    return;
+                }
+
                 controller.actionPerformed({
                     action: "CPResetZoomAndRotation",
                 });
@@ -1833,7 +1840,8 @@ export default function CPCanvas(controller) {
         this.keyDown = function (e) {
             if (e.key === "Enter") {
                 if (modalIsShown || desableEnterKey) {
-                    // モーダル表示中またはモーダルを閉じてから300ms経過していない場合
+                    // モーダル表示中
+                    // またはモーダル閉じてから300ms経過していない場合
                     return;
                 }
 
