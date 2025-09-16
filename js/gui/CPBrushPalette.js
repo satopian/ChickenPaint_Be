@@ -107,6 +107,7 @@ export default function CPBrushPalette(controller) {
         transformPanel = new CPTransformPanel(controller),
         selectPanel = new CPSelectionPanel(controller),
         panPanel = new CPPanPanel(controller),
+        floodFillPanel = new CPfloodFillPanel(controller),
         body = this.getBodyElement();
 
     //touchmoveイベントのデフォルトの動作をキャンセル
@@ -123,6 +124,7 @@ export default function CPBrushPalette(controller) {
     body.appendChild(transformPanel.getElement());
     body.appendChild(selectPanel.getElement());
     body.appendChild(panPanel.getElement());
+    body.appendChild(floodFillPanel.getElement());
 
     function hideAllPanels() {
         brushPanel.getElement().style.display = "none";
@@ -130,6 +132,7 @@ export default function CPBrushPalette(controller) {
         transformPanel.getElement().style.display = "none";
         selectPanel.getElement().style.display = "none";
         panPanel.getElement().style.display = "none";
+        floodFillPanel.getElement().style.display = "none";
     }
     let currentMode = null;
     function updatePanelByMode(mode) {
@@ -158,6 +161,9 @@ export default function CPBrushPalette(controller) {
             case ChickenPaint.M_ROTATE_CANVAS:
             case ChickenPaint.M_PAN_CANVAS:
                 panPanel.getElement().style.display = "block";
+                break;
+            case ChickenPaint.M_FLOODFILL:
+                floodFillPanel.getElement().style.display = "block";
                 break;
             default:
                 brushPanel.getElement().style.display = "block";
@@ -646,7 +652,12 @@ function setButtonIcon(button, iconClass) {
     button.textContent = "";
 
     // ボタン自体を flex に
-    button.classList.add("d-flex", "align-items-center", "justify-content-center", "position-relative");
+    button.classList.add(
+        "d-flex",
+        "align-items-center",
+        "justify-content-center",
+        "position-relative"
+    );
 
     // 左端からの開始位置（パディング）を設定
     const startOffset = "0.35rem";
@@ -655,15 +666,15 @@ function setButtonIcon(button, iconClass) {
     if (iconClass) {
         const icon = document.createElement("span");
         icon.className = `md-panel ${iconClass}`;
-        icon.style.flex = "0 0 auto";  // 縮まない
+        icon.style.flex = "0 0 auto"; // 縮まない
         icon.style.marginRight = "0"; // アイコンとテキストの間隔
         button.prepend(icon);
     }
 
     const spanText = document.createElement("span");
     spanText.textContent = text;
-    spanText.style.flex = "1 1 auto";       // 残りスペースを使う
-    spanText.style.textAlign = "center";    // 中央寄せ
+    spanText.style.flex = "1 1 auto"; // 残りスペースを使う
+    spanText.style.textAlign = "center"; // 中央寄せ
     button.appendChild(spanText);
 }
 
@@ -1008,4 +1019,51 @@ function CPPanPanel(controller) {
             updateSliderDebounced();
         }
     });
+}
+function CPfloodFillPanel(controller) {
+    let panel = document.createElement("div");
+    let formGroup = document.createElement("div");
+    let label = document.createElement("label");
+
+    let glowSlider = new CPSlider(0, 5, false, false, 180);
+    let alphaSlider = new CPSlider(1, 255, false, false, 180);
+
+    panel.className = "chickenpaint-floodFill-panel";
+    panel.style.display = "none"; // 初期非表示
+    panel.appendChild(glowSlider.getElement());
+
+    formGroup.className = "form-group";
+
+    // ラベルのみ使用
+    label.textContent = _("Flood fill"); //「バケツ塗り」
+    formGroup.appendChild(label);
+    panel.appendChild(formGroup);
+
+    function fillWithInitialValues() {
+        glowSlider.setValue(2);
+        alphaSlider.setValue(255);
+    }
+
+    glowSlider.title = function (value) {
+        return _("Grow fill area") + ": " + value;
+    };
+    alphaSlider.title = function (value) {
+        return _("Opacity") + ": " + value;
+    };
+
+    glowSlider.on("valueChange", function (value) {
+        controller.growFillArea(value);
+    });
+    alphaSlider.on("valueChange", function (value) {
+        controller.setFoodFillAlpha(value);
+    });
+
+    panel.appendChild(glowSlider.getElement());
+    panel.appendChild(alphaSlider.getElement());
+
+    this.getElement = function () {
+        return panel;
+    };
+
+    fillWithInitialValues();
 }

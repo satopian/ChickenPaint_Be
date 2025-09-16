@@ -944,7 +944,7 @@
     margin-left: 23px;
 }
 
-.chickenpaint-palette-brush .chickenpaint-pan-panel .chickenpaint-slider {
+.chickenpaint-palette-brush .chickenpaint-pan-panel .chickenpaint-slider , .chickenpaint-palette-brush .chickenpaint-floodFill-panel .chickenpaint-slider {
     margin: 2px auto;
 }
 

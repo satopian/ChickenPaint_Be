@@ -271,7 +271,9 @@ export default function CPCanvas(controller) {
         horzScroll = new CPScrollbar(false),
         vertScroll = new CPScrollbar(true),
         modalIsShown = null,
-        desableEnterKey = null;
+        desableEnterKey = null,
+        fillExpandPixels = 0,
+        foodFillAlpha = 255;
     Math.sign =
         Math.sign ||
         function (x) {
@@ -1117,6 +1119,17 @@ export default function CPCanvas(controller) {
     CPPanCanvasMode.prototype = Object.create(CPMode.prototype);
     CPPanCanvasMode.prototype.constructor = CPPanCanvasMode;
 
+    /**
+     * 塗りつぶしの拡張ピクセル数を設定します。
+     * @param {number} value - 拡張するピクセル数（デフォルトは0）
+     */
+    this.growFillArea = function (value=0) {
+        fillExpandPixels = Number(value);
+    };
+    this.setFoodFillAlpha = function (value=255) {
+        foodFillAlpha = Number(value);
+    };
+
     function CPFloodFillMode() {}
 
     CPFloodFillMode.prototype = Object.create(CPMode.prototype);
@@ -1132,7 +1145,7 @@ export default function CPCanvas(controller) {
             var pf = coordToDocument({ x: mouseX, y: mouseY });
 
             if (artwork.isPointWithin(pf.x, pf.y)) {
-                artwork.floodFill(pf.x, pf.y);
+                artwork.floodFill(pf.x, pf.y,fillExpandPixels,foodFillAlpha);
                 that.repaintAll();
             }
 

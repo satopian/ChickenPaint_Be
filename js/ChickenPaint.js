@@ -1221,6 +1221,19 @@ export default function ChickenPaint(options) {
     };
 
     /**
+     * 塗りつぶし領域を拡張するピクセル数を設定します。
+     * @param {number} value - 拡張するピクセル数
+     */
+    this.growFillArea = function (value) {
+        canvas.growFillArea(value);
+    };
+    
+    this.setFoodFillAlpha = function (value) {
+        canvas.setFoodFillAlpha(value);
+    };
+    
+    
+    /**
      * モーダルの表示状態を設定します。
      * - 内部フラグを更新し、必要に応じて Enter キーの一時無効化処理を行います。
      * @param {boolean} shown true の場合モーダルを表示、false の場合非表示

@@ -1400,14 +1400,25 @@ export default function CPArtwork(_width, _height) {
      * @param {number} x
      * @param {number} y
      */
-    this.floodFill = function (x, y) {
+    this.floodFill = function (
+        x,
+        y,
+        fillExpandPixels = 0,
+        foodFillAlpha = 255
+    ) {
         let target = getActiveImage();
 
         if (target) {
             prepareForLayerPaintUndo();
             paintUndoArea = this.getBounds();
 
-            target.floodFill(~~x, ~~y, curColor | 0xff000000);
+            target.floodFillWithBorder(
+                ~~x,
+                ~~y,
+                curColor | 0xff000000,
+                fillExpandPixels,
+                foodFillAlpha
+            );
 
             addUndo(new CPUndoPaint());
             invalidateLayerPaint(curLayer, this.getBounds());
@@ -1458,7 +1469,7 @@ export default function CPArtwork(_width, _height) {
      *
      * @param {number} color - ARGB color to fill with
      */
-    this.fill = function (color,clear) {
+    this.fill = function (color, clear) {
         let r = this.getSelectionAutoSelect(),
             target = getActiveImage(),
             texture = this.texture; // ブラシ用 texture を取得
@@ -1545,11 +1556,11 @@ export default function CPArtwork(_width, _height) {
         );
     }
 
-    this.clear = function (allclear=true) {
+    this.clear = function (allclear = true) {
         if (maskEditingMode) {
-            this.fill(EMPTY_MASK_COLOR,allclear);
+            this.fill(EMPTY_MASK_COLOR, allclear);
         } else {
-            this.fill(EMPTY_LAYER_COLOR,allclear);
+            this.fill(EMPTY_LAYER_COLOR, allclear);
         }
     };
 
