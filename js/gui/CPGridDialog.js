@@ -91,13 +91,13 @@ export default function CPGridDialog(parent, canvas) {
     applyButton.addEventListener("click", () => {
         const gridSize = parseInt(gridSizeElem.value, 10);
         canvas.setGridSize(gridSize);
-        canvas.modalIsShown(false);
+        canvas.setModalShown(false);
         modal.hide(); // モーダルを手動で閉じる
     });
 
     // モーダルが表示されたときに、グリッドサイズの入力フィールドにフォーカス
     dialog.addEventListener("shown.bs.modal", () => {
-        canvas.modalIsShown(true);
+        canvas.setModalShown(true);
         gridSizeElem.focus();
     });
 

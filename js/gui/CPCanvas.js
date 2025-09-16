@@ -404,7 +404,7 @@ export default function CPCanvas(controller) {
             if (e.key === "Enter") {
                 if (modalIsShown || desableEnterKey) {
                     // モーダル表示中
-                    // またはモーダルを閉じてから100ms経過していない場合
+                    // またはモーダルを閉じてから300ms経過していない場合
                     return;
                 }
                 controller.actionPerformed({ action: "CPTransform" });
@@ -417,7 +417,7 @@ export default function CPCanvas(controller) {
             if (e.key === "Enter") {
                 if (modalIsShown || desableEnterKey) {
                     // モーダル表示中
-                    // またはモーダルを閉じてから100ms経過していない場合
+                    // またはモーダルを閉じてから300ms経過していない場合
                     return;
                 }
 
@@ -1841,7 +1841,7 @@ export default function CPCanvas(controller) {
             if (e.key === "Enter") {
                 if (modalIsShown || desableEnterKey) {
                     // モーダル表示中
-                    // またはモーダルを閉じてから100ms経過していない場合
+                    // またはモーダルを閉じてから300ms経過していない場合
                     return;
                 }
 
@@ -1908,12 +1908,12 @@ export default function CPCanvas(controller) {
      * - 内部変数 modalIsShown に値をセットします。
      * @param {boolean} shown true の場合モーダルを表示、false の場合非表示
      */
-    this.modalIsShown = function (shown) {
+    this.setModalShown = function (shown) {
         modalIsShown = !!shown;
         if (!modalIsShown) {
             // モーダルが閉じられたとき
             desableEnterKey = true;
-            setTimeout(() => (desableEnterKey = false), 100);
+            setTimeout(() => (desableEnterKey = false), 300);
         }
     };
 

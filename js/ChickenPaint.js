@@ -1222,11 +1222,11 @@ export default function ChickenPaint(options) {
 
     /**
      * モーダルの表示状態を設定します。
-     * - 内部的には canvas.modalIsShown() を呼び出しています。
+     * - 内部フラグを更新し、必要に応じて Enter キーの一時無効化処理を行います。
      * @param {boolean} shown true の場合モーダルを表示、false の場合非表示
      */
-    this.modalIsShown = function (shown) {
-        canvas.modalIsShown(shown);
+    this.setModalShown = function (shown) {
+        canvas.setModalShown(shown);
     };
 
     this.isPanOrRotateMode = function () {

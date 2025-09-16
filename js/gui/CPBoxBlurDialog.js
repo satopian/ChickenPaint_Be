@@ -83,7 +83,7 @@ export default function CPBoxBlurDialog(parent, controller) {
             });
             bsCollapse.hide();
         }
-        controller.modalIsShown(true);
+        controller.setModalShown(true);
         // モーダルを表示
         modal.show();
     };
@@ -97,7 +97,7 @@ export default function CPBoxBlurDialog(parent, controller) {
             );
 
         controller.getArtwork().boxBlur(blur, blur, iterations);
-        controller.modalIsShown(false);
+        controller.setModalShown(false);
         modal.hide(); // モーダルを閉じる
     });
 
