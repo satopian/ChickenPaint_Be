@@ -113,7 +113,7 @@ https://github.com/user-attachments/assets/0e619262-2e24-49db-8882-dccf7fcb48bb
 https://github.com/user-attachments/assets/ddf63802-8a32-4acf-92b2-8fcab09503c9
 
 ### バケツ塗りを改善
-ChickenPaint Beで別のレイヤーの画像を参照して｢バケツ塗り｣ができるようになりました。  
+- ChickenPaint Beで別のレイヤーの画像を参照して｢バケツ塗り｣ができるようになりました。  
 線画のレイヤーとバケツ塗りするレイヤーを分ける事が可能になりました。  
 これまでは線画の領域を塗り潰す時に、同一レイヤー内でしか塗り潰せませんでしたが、｢全レイヤー参照｣にチェックが入っていれば、｢全レイヤー｣の画像を統合した画像を元に塗り潰しの領域を判定します。  
 この機能は、クリスタやSAI、FireAlpacaなどには普通にある機能ですが、ChickenPaint Beにはありませんでした。  
