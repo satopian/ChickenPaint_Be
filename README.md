@@ -122,8 +122,6 @@ https://github.com/user-attachments/assets/ddf63802-8a32-4acf-92b2-8fcab09503c9
 
 <img width="209" height="261" alt="image" src="https://github.com/user-attachments/assets/e07a5aad-94b7-40af-bb7d-8e539dac5ede" />
 
-achments/assets/e07a5aad-94b7-40af-bb7d-8e539dac5ede" /><br>
-
 ### 変形確定前に別のレイヤーを選択、または新規レイヤーを追加しようとした時に表示されるダイヤログの動作を改良
 
 - 変形確定前にレイヤーを追加しようとすると変形を確定する取り消すなどの操作を促すダイヤログが表示されますが、従来の動作では、変形確定のエンターキーの押下で変形は確定されるものの、ダイヤログはすぐには消えず、レイヤーの追加も行われませんでした。  
