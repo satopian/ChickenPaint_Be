@@ -149,7 +149,7 @@ const MENU_ENTRIES = [
                 mnemonic: "A",
             },
             {
-                name: "Add Merged Layer",
+                name: "Add merged layer",
                 action: "CPAddMergedLayer",
                 shortcut: "shift+alt+e",
             },
