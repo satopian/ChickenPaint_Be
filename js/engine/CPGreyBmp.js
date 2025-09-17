@@ -183,7 +183,8 @@ CPGreyBmp.prototype.floodFillWithBorder = function (
     y,
     color,
     expandBy = 2,
-    alpha255 = 255
+    alpha255 = 255,
+    fusion = null
 ) {
     if (!this.isInside(x, y)) return;
 
@@ -301,6 +302,7 @@ CPGreyBmp.prototype.floodFillWithBorder = function (
         data.set(expandedData);
     }
 };
+
 
 /**
  * Replace the pixels in this image with a scaled down thumbnail of that image.

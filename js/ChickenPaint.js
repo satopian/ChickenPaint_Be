@@ -1227,12 +1227,33 @@ export default function ChickenPaint(options) {
     this.growFillArea = function (value) {
         canvas.growFillArea(value);
     };
-    
+
+    /**
+     * 塗りつぶしの不透明度を設定します。
+     * - value: 0～255 の範囲で指定
+     * - 内部的には canvas.setFoodFillAlpha() を呼び出します
+     */
     this.setFoodFillAlpha = function (value) {
         canvas.setFoodFillAlpha(value);
     };
-    
-    
+
+    /**
+     * 「全レイヤー参照」での塗りつぶしを有効／無効にします。
+     * - checked: true の場合は全レイヤーを参照して塗りつぶし、false の場合は現在のレイヤーのみ
+     * - 内部的には canvas.setFloodFillSampleAllLayers() を呼び出します
+     */
+    this.setFloodFillSampleAllLayers = function (checked) {
+        canvas.setFloodFillSampleAllLayers(checked);
+    };
+    /**
+     * 「縦横比を維持」チェックボックスの状態を設定します。
+     * - checked: true の場合は縦横比を固定
+     * - 内部的には canvas.setMaintainAspectCheckbox() を呼び出します
+     */
+    this.setMaintainAspectCheckbox = function (checked) {
+        canvas.setMaintainAspectCheckbox(checked);
+    };
+
     /**
      * モーダルの表示状態を設定します。
      * - 内部フラグを更新し、必要に応じて Enter キーの一時無効化処理を行います。

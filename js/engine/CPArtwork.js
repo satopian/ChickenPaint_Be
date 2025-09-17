@@ -1404,8 +1404,11 @@ export default function CPArtwork(_width, _height) {
         x,
         y,
         fillExpandPixels = 0,
-        foodFillAlpha = 255
+        foodFillAlpha = 255,
+        floodFillSampleAllLayers = true
     ) {
+
+        const fusion = floodFillSampleAllLayers ? this.fusionLayers() : null; 
         let target = getActiveImage();
 
         if (target) {
@@ -1417,7 +1420,8 @@ export default function CPArtwork(_width, _height) {
                 ~~y,
                 curColor | 0xff000000,
                 fillExpandPixels,
-                foodFillAlpha
+                foodFillAlpha,
+                fusion
             );
 
             addUndo(new CPUndoPaint());

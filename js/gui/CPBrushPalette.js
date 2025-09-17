@@ -164,6 +164,9 @@ export default function CPBrushPalette(controller) {
                 break;
             case ChickenPaint.M_FLOODFILL:
                 floodFillPanel.getElement().style.display = "block";
+                if (checkbox instanceof HTMLElement) {
+                    checkbox.style.display = ""; // 表示する
+                }
                 break;
             default:
                 brushPanel.getElement().style.display = "block";
@@ -828,6 +831,7 @@ function CPSelectionPanel(controller) {
     // ローカル変数から直接リスナーを追加
     maintainAspectCheckbox.addEventListener("change", () => {
         maintainAspectCheckbox.blur(); // フォーカス解除
+        controller.setMaintainAspectCheckbox(maintainAspectCheckbox.checked);
     });
 }
 //Bootstrapのチェックボックスを作成
@@ -1060,6 +1064,23 @@ function CPfloodFillPanel(controller) {
 
     panel.appendChild(glowSlider.getElement());
     panel.appendChild(alphaSlider.getElement());
+
+    //チェックボックスの作成
+    let { wrapper: sampleAllLayersGroup, checkbox: sampleAllLayersCheckbox } =
+        createBootstrapCheckbox(
+            "chickenpaint-floodFillCheckbox",
+            _("Sample all layers"),
+            true
+        );
+
+    panel.appendChild(sampleAllLayersGroup);
+    // パネルに追加
+
+    // ローカル変数から直接リスナーを追加
+    sampleAllLayersCheckbox.addEventListener("change", () => {
+        sampleAllLayersCheckbox.blur(); // フォーカス解除
+        controller.setFloodFillSampleAllLayers(sampleAllLayersCheckbox.checked);
+    });
 
     this.getElement = function () {
         return panel;

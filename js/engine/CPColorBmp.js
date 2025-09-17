@@ -474,322 +474,27 @@ CPColorBmp.prototype.createThumbnailFrom = function (that) {
 };
 
 /**
- * Flood fill the given color starting from the given point
- * @param x int
- * @param y int
- * @param color int
- */
-CPColorBmp.prototype.floodFill = function (x, y, color) {
-    if (!this.isInside(x, y)) {
-        return;
-    }
-
-    let oldColor = this.getPixel(x, y),
-        oldAlpha = (oldColor >> 24) & 0xff,
-        oldRed = (oldColor >> 16) & 0xff,
-        oldGreen = (oldColor >> 8) & 0xff,
-        oldBlue = oldColor & 0xff,
-        colorAlpha = (color >> 24) & 0xff,
-        colorRed = (color >> 16) & 0xff,
-        colorGreen = (color >> 8) & 0xff,
-        colorBlue = color & 0xff,
-        stack = [],
-        clip = this.getBounds(),
-        data = this.data;
-
-    // Change the left and right bounds from pixel indexes into byte indexes for easy clipping
-    clip.left *= CPColorBmp.BYTES_PER_PIXEL;
-    clip.right *= CPColorBmp.BYTES_PER_PIXEL;
-
-    stack.push({
-        x1: x * CPColorBmp.BYTES_PER_PIXEL,
-        x2: x * CPColorBmp.BYTES_PER_PIXEL,
-        y: y,
-        dy: -1,
-    });
-    stack.push({
-        x1: x * CPColorBmp.BYTES_PER_PIXEL,
-        x2: x * CPColorBmp.BYTES_PER_PIXEL,
-        y: y + 1,
-        dy: 1,
-    });
-
-    /*
-     * If we are filling 100% transparent areas then we need to ignore the residual color information
-     * (it would also be possible to clear it when erasing, but then the performance impact would be on the eraser
-     * rather than on this low importance flood fill)
-     */
-    if (oldAlpha == 0) {
-        if (colorAlpha == 0) {
-            return;
-        }
-
-        while (stack.length > 0) {
-            let line = stack.pop();
-
-            if (line.y < clip.top || line.y >= clip.bottom) {
-                continue;
-            }
-
-            let lineOffset = this.offsetOfPixel(0, line.y),
-                left = line.x1,
-                next;
-
-            while (
-                left >= clip.left &&
-                data[left + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] == 0
-            ) {
-                data[left + lineOffset + CPColorBmp.RED_BYTE_OFFSET] = colorRed;
-                data[left + lineOffset + CPColorBmp.GREEN_BYTE_OFFSET] =
-                    colorGreen;
-                data[left + lineOffset + CPColorBmp.BLUE_BYTE_OFFSET] =
-                    colorBlue;
-                data[left + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] =
-                    colorAlpha;
-
-                left -= CPColorBmp.BYTES_PER_PIXEL;
-            }
-
-            if (left >= line.x1) {
-                while (
-                    left <= line.x2 &&
-                    data[left + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] !=
-                        oldAlpha
-                ) {
-                    left += CPColorBmp.BYTES_PER_PIXEL;
-                }
-                next = left + CPColorBmp.BYTES_PER_PIXEL;
-                if (left > line.x2) {
-                    continue;
-                }
-            } else {
-                left += CPColorBmp.BYTES_PER_PIXEL;
-                if (left < line.x1) {
-                    stack.push({
-                        x1: left,
-                        x2: line.x1 - CPColorBmp.BYTES_PER_PIXEL,
-                        y: line.y - line.dy,
-                        dy: -line.dy,
-                    });
-                }
-                next = line.x1 + CPColorBmp.BYTES_PER_PIXEL;
-            }
-
-            do {
-                data[left + lineOffset + CPColorBmp.RED_BYTE_OFFSET] = colorRed;
-                data[left + lineOffset + CPColorBmp.GREEN_BYTE_OFFSET] =
-                    colorGreen;
-                data[left + lineOffset + CPColorBmp.BLUE_BYTE_OFFSET] =
-                    colorBlue;
-                data[left + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] =
-                    colorAlpha;
-
-                while (
-                    next < clip.right &&
-                    data[next + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] ==
-                        oldAlpha
-                ) {
-                    data[next + lineOffset + CPColorBmp.RED_BYTE_OFFSET] =
-                        colorRed;
-                    data[next + lineOffset + CPColorBmp.GREEN_BYTE_OFFSET] =
-                        colorGreen;
-                    data[next + lineOffset + CPColorBmp.BLUE_BYTE_OFFSET] =
-                        colorBlue;
-                    data[next + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] =
-                        colorAlpha;
-
-                    next += CPColorBmp.BYTES_PER_PIXEL;
-                }
-                stack.push({
-                    x1: left,
-                    x2: next - CPColorBmp.BYTES_PER_PIXEL,
-                    y: line.y + line.dy,
-                    dy: line.dy,
-                });
-
-                if (next - CPColorBmp.BYTES_PER_PIXEL > line.x2) {
-                    stack.push({
-                        x1: line.x2 + CPColorBmp.BYTES_PER_PIXEL,
-                        x2: next - CPColorBmp.BYTES_PER_PIXEL,
-                        y: line.y - line.dy,
-                        dy: -line.dy,
-                    });
-                }
-
-                left = next + CPColorBmp.BYTES_PER_PIXEL;
-                while (
-                    left <= line.x2 &&
-                    data[left + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] !=
-                        oldAlpha
-                ) {
-                    left += CPColorBmp.BYTES_PER_PIXEL;
-                }
-
-                next = left + CPColorBmp.BYTES_PER_PIXEL;
-            } while (left <= line.x2);
-        }
-    } else {
-        if (color == oldColor) {
-            return;
-        }
-
-        while (stack.length > 0) {
-            let line = stack.pop();
-
-            if (line.y < clip.top || line.y >= clip.bottom) {
-                continue;
-            }
-
-            let lineOffset = this.offsetOfPixel(0, line.y),
-                left = line.x1,
-                next;
-
-            while (
-                left >= clip.left &&
-                data[left + lineOffset + CPColorBmp.RED_BYTE_OFFSET] ==
-                    oldRed &&
-                data[left + lineOffset + CPColorBmp.GREEN_BYTE_OFFSET] ==
-                    oldGreen &&
-                data[left + lineOffset + CPColorBmp.BLUE_BYTE_OFFSET] ==
-                    oldBlue &&
-                data[left + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] ==
-                    oldAlpha
-            ) {
-                data[left + lineOffset + CPColorBmp.RED_BYTE_OFFSET] = colorRed;
-                data[left + lineOffset + CPColorBmp.GREEN_BYTE_OFFSET] =
-                    colorGreen;
-                data[left + lineOffset + CPColorBmp.BLUE_BYTE_OFFSET] =
-                    colorBlue;
-                data[left + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] =
-                    colorAlpha;
-
-                left -= CPColorBmp.BYTES_PER_PIXEL;
-            }
-
-            if (left >= line.x1) {
-                while (
-                    left <= line.x2 &&
-                    !(
-                        data[left + lineOffset + CPColorBmp.RED_BYTE_OFFSET] ==
-                            oldRed &&
-                        data[
-                            left + lineOffset + CPColorBmp.GREEN_BYTE_OFFSET
-                        ] == oldGreen &&
-                        data[left + lineOffset + CPColorBmp.BLUE_BYTE_OFFSET] ==
-                            oldBlue &&
-                        data[
-                            left + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET
-                        ] == oldAlpha
-                    )
-                ) {
-                    left += CPColorBmp.BYTES_PER_PIXEL;
-                }
-                next = left + CPColorBmp.BYTES_PER_PIXEL;
-                if (left > line.x2) {
-                    continue;
-                }
-            } else {
-                left += CPColorBmp.BYTES_PER_PIXEL;
-                if (left < line.x1) {
-                    stack.push({
-                        x1: left,
-                        x2: line.x1 - CPColorBmp.BYTES_PER_PIXEL,
-                        y: line.y - line.dy,
-                        dy: -line.dy,
-                    });
-                }
-                next = line.x1 + CPColorBmp.BYTES_PER_PIXEL;
-            }
-
-            do {
-                data[left + lineOffset + CPColorBmp.RED_BYTE_OFFSET] = colorRed;
-                data[left + lineOffset + CPColorBmp.GREEN_BYTE_OFFSET] =
-                    colorGreen;
-                data[left + lineOffset + CPColorBmp.BLUE_BYTE_OFFSET] =
-                    colorBlue;
-                data[left + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] =
-                    colorAlpha;
-
-                while (
-                    next < clip.right &&
-                    data[next + lineOffset + CPColorBmp.RED_BYTE_OFFSET] ==
-                        oldRed &&
-                    data[next + lineOffset + CPColorBmp.GREEN_BYTE_OFFSET] ==
-                        oldGreen &&
-                    data[next + lineOffset + CPColorBmp.BLUE_BYTE_OFFSET] ==
-                        oldBlue &&
-                    data[next + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] ==
-                        oldAlpha
-                ) {
-                    data[next + lineOffset + CPColorBmp.RED_BYTE_OFFSET] =
-                        colorRed;
-                    data[next + lineOffset + CPColorBmp.GREEN_BYTE_OFFSET] =
-                        colorGreen;
-                    data[next + lineOffset + CPColorBmp.BLUE_BYTE_OFFSET] =
-                        colorBlue;
-                    data[next + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET] =
-                        colorAlpha;
-
-                    next += CPColorBmp.BYTES_PER_PIXEL;
-                }
-                stack.push({
-                    x1: left,
-                    x2: next - CPColorBmp.BYTES_PER_PIXEL,
-                    y: line.y + line.dy,
-                    dy: line.dy,
-                });
-
-                if (next - CPColorBmp.BYTES_PER_PIXEL > line.x2) {
-                    stack.push({
-                        x1: line.x2 + CPColorBmp.BYTES_PER_PIXEL,
-                        x2: next - CPColorBmp.BYTES_PER_PIXEL,
-                        y: line.y - line.dy,
-                        dy: -line.dy,
-                    });
-                }
-
-                left = next + CPColorBmp.BYTES_PER_PIXEL;
-                while (
-                    left <= line.x2 &&
-                    !(
-                        data[left + lineOffset + CPColorBmp.RED_BYTE_OFFSET] ==
-                            oldRed &&
-                        data[
-                            left + lineOffset + CPColorBmp.GREEN_BYTE_OFFSET
-                        ] == oldGreen &&
-                        data[left + lineOffset + CPColorBmp.BLUE_BYTE_OFFSET] ==
-                            oldBlue &&
-                        data[
-                            left + lineOffset + CPColorBmp.ALPHA_BYTE_OFFSET
-                        ] == oldAlpha
-                    )
-                ) {
-                    left += CPColorBmp.BYTES_PER_PIXEL;
-                }
-
-                next = left + CPColorBmp.BYTES_PER_PIXEL;
-            } while (left <= line.x2);
-        }
-    }
-};
-/**
- * 指定座標からの Flood Fill（塗りつぶし）を行い、オプションで縁取り拡張も行う
- * - fillColor: 0xAARRGGBB 形式の色
- * - expandBy: 塗りつぶした領域の周囲に追加で塗るピクセル数（縁取り）
- * - alpha255: 塗りつぶしの不透明度（1-255）
+ * Flood Fill（塗りつぶし）＋縁取り拡張
+ * - fillColor: 0xAARRGGBB
+ * - expandBy: 塗りつぶし範囲を拡張するピクセル数
+ * - alpha255: 不透明度 (1-255)
+ * - mergedData: 判定用に渡す全レイヤー合成結果 (Uint8ClampedArray)
+ *   null の場合は現在のレイヤーを基準にする
  */
 CPColorBmp.prototype.floodFillWithBorder = function (
     x,
     y,
     fillColor,
     expandBy = 2,
-    alpha255 = 255
+    alphaPercent = 100,
+    fusion = null
 ) {
     if (!this.isInside(x, y)) return;
 
     const w = this.width;
     const h = this.height;
-    const data = this.data;
+    const data = this.data;                     // 書き込み先
+    const srcData = fusion ? fusion.data : data; // 判定元
     const BYTES = CPColorBmp.BYTES_PER_PIXEL;
 
     const fillR = (fillColor >> 16) & 0xff;
@@ -797,28 +502,27 @@ CPColorBmp.prototype.floodFillWithBorder = function (
     const fillB = fillColor & 0xff;
     const fillA = (fillColor >> 24) & 0xff;
 
-    // 処理済みピクセルフラグ
-    const Processed = new Uint8Array(w * h);
+    const alpha255 = Math.round((alphaPercent / 100) * 255);
 
-    // 塗り対象スタック
+    const Processed = new Uint8Array(w * h);
     const stack = [{ x, y }];
 
-    // 元の色を取得
+    // 元色を fusion から取得
     const idx0 = (y * w + x) * BYTES;
-    const oldR = data[idx0 + CPColorBmp.RED_BYTE_OFFSET];
-    const oldG = data[idx0 + CPColorBmp.GREEN_BYTE_OFFSET];
-    const oldB = data[idx0 + CPColorBmp.BLUE_BYTE_OFFSET];
-    const oldA = data[idx0 + CPColorBmp.ALPHA_BYTE_OFFSET];
+    const oldR = srcData[idx0 + CPColorBmp.RED_BYTE_OFFSET];
+    const oldG = srcData[idx0 + CPColorBmp.GREEN_BYTE_OFFSET];
+    const oldB = srcData[idx0 + CPColorBmp.BLUE_BYTE_OFFSET];
+    const oldA = srcData[idx0 + CPColorBmp.ALPHA_BYTE_OFFSET];
 
     const comparePixel = (px, py) => {
         if (px < 0 || py < 0 || px >= w || py >= h) return false;
         if (Processed[py * w + px]) return false;
         const idx = (py * w + px) * BYTES;
         return (
-            data[idx + CPColorBmp.RED_BYTE_OFFSET] === oldR &&
-            data[idx + CPColorBmp.GREEN_BYTE_OFFSET] === oldG &&
-            data[idx + CPColorBmp.BLUE_BYTE_OFFSET] === oldB &&
-            data[idx + CPColorBmp.ALPHA_BYTE_OFFSET] === oldA
+            srcData[idx + CPColorBmp.RED_BYTE_OFFSET] === oldR &&
+            srcData[idx + CPColorBmp.GREEN_BYTE_OFFSET] === oldG &&
+            srcData[idx + CPColorBmp.BLUE_BYTE_OFFSET] === oldB &&
+            srcData[idx + CPColorBmp.ALPHA_BYTE_OFFSET] === oldA
         );
     };
 
@@ -829,16 +533,15 @@ CPColorBmp.prototype.floodFillWithBorder = function (
         data[idx + CPColorBmp.BLUE_BYTE_OFFSET] = b;
         data[idx + CPColorBmp.ALPHA_BYTE_OFFSET] = a;
     };
-    // 通常の flood fill
+
+    // flood fill 本体
     while (stack.length) {
         const { x: px, y: py } = stack.pop();
         if (!comparePixel(px, py)) continue;
 
         Processed[py * w + px] = 1;
-        // setPixel(px, py, fillR, fillG, fillB, fillA);
         setPixel(px, py, fillR, fillG, fillB, alpha255);
 
-        // 上下左右をスタックに追加
         if (comparePixel(px, py - 1)) stack.push({ x: px, y: py - 1 });
         if (comparePixel(px + 1, py)) stack.push({ x: px + 1, y: py });
         if (comparePixel(px, py + 1)) stack.push({ x: px, y: py + 1 });
@@ -846,7 +549,7 @@ CPColorBmp.prototype.floodFillWithBorder = function (
     }
 
     // 縁取り拡張
-    const expandedData = new Uint8ClampedArray(data); // コピー
+    const expandedData = new Uint8ClampedArray(data);
     for (let py = 0; py < h; py++) {
         for (let px = 0; px < w; px++) {
             if (!Processed[py * w + px]) continue;
@@ -856,7 +559,7 @@ CPColorBmp.prototype.floodFillWithBorder = function (
                     const nx = px + dx;
                     const ny = py + dy;
                     if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
-                    if (Processed[ny * w + nx]) continue; // 元の塗りは無視
+                    if (Processed[ny * w + nx]) continue;
 
                     const nidx = (ny * w + nx) * BYTES;
                     expandedData[nidx + CPColorBmp.RED_BYTE_OFFSET] = fillR;
@@ -867,7 +570,6 @@ CPColorBmp.prototype.floodFillWithBorder = function (
             }
         }
     }
-
     data.set(expandedData);
 };
 

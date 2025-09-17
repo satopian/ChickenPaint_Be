@@ -273,7 +273,10 @@ export default function CPCanvas(controller) {
         modalIsShown = null,
         desableEnterKey = null,
         fillExpandPixels = 0,
-        foodFillAlpha = 255;
+        foodFillAlpha = 255,
+        floodFillSampleAllLayers = true,
+        maintainAspectCheckbox = false;
+
     Math.sign =
         Math.sign ||
         function (x) {
@@ -1123,11 +1126,24 @@ export default function CPCanvas(controller) {
      * 塗りつぶしの拡張ピクセル数を設定します。
      * @param {number} value - 拡張するピクセル数（デフォルトは0）
      */
-    this.growFillArea = function (value=0) {
+    this.growFillArea = function (value = 0) {
         fillExpandPixels = Number(value);
     };
-    this.setFoodFillAlpha = function (value=255) {
+
+    /**
+     * 塗りつぶし用の不透明度を設定します。
+     * @param {number} value 不透明度（0〜255）。省略時は255。
+     */
+    this.setFoodFillAlpha = function (value = 255) {
         foodFillAlpha = Number(value);
+    };
+
+    /**
+     * 「全レイヤー参照」での塗りつぶしを有効/無効にします。
+     * @param {boolean} checked true の場合、塗りつぶし範囲の判定を全レイヤーで行う
+     */
+    this.setFloodFillSampleAllLayers = function (checked) {
+        floodFillSampleAllLayers = !!checked;
     };
 
     function CPFloodFillMode() {}
@@ -1145,7 +1161,13 @@ export default function CPCanvas(controller) {
             var pf = coordToDocument({ x: mouseX, y: mouseY });
 
             if (artwork.isPointWithin(pf.x, pf.y)) {
-                artwork.floodFill(pf.x, pf.y,fillExpandPixels,foodFillAlpha);
+                artwork.floodFill(
+                    pf.x,
+                    pf.y,
+                    fillExpandPixels,
+                    foodFillAlpha,
+                    floodFillSampleAllLayers
+                );
                 that.repaintAll();
             }
 
@@ -1153,6 +1175,9 @@ export default function CPCanvas(controller) {
         }
     };
 
+    this.setMaintainAspectCheckbox = function (checked) {
+        maintainAspectCheckbox = checked;
+    };
     function CPRectSelectionMode() {
         var firstClick,
             curRect = new CPRect(0, 0, 0, 0),
@@ -1160,10 +1185,6 @@ export default function CPCanvas(controller) {
 
         let maintainAspectCheckd = false;
         this.mouseDown = function (e, button, pressure) {
-            const maintainAspectCheckbox = document.getElementById(
-                "chickenpaint-s-maintainAspectCheckbox"
-            );
-
             if (
                 maintainAspectCheckbox &&
                 maintainAspectCheckbox instanceof HTMLInputElement
