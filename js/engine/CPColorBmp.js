@@ -486,7 +486,7 @@ CPColorBmp.prototype.floodFillWithBorder = function (
     y,
     fillColor,
     expandBy = 2,
-    alphaPercent = 100,
+    alpha255 = 255,
     fusion = null
 ) {
     if (!this.isInside(x, y)) return;
@@ -500,9 +500,6 @@ CPColorBmp.prototype.floodFillWithBorder = function (
     const fillR = (fillColor >> 16) & 0xff;
     const fillG = (fillColor >> 8) & 0xff;
     const fillB = fillColor & 0xff;
-    const fillA = (fillColor >> 24) & 0xff;
-
-    const alpha255 = Math.round((alphaPercent / 100) * 255);
 
     const Processed = new Uint8Array(w * h);
     const stack = [{ x, y }];
@@ -565,7 +562,7 @@ CPColorBmp.prototype.floodFillWithBorder = function (
                     expandedData[nidx + CPColorBmp.RED_BYTE_OFFSET] = fillR;
                     expandedData[nidx + CPColorBmp.GREEN_BYTE_OFFSET] = fillG;
                     expandedData[nidx + CPColorBmp.BLUE_BYTE_OFFSET] = fillB;
-                    expandedData[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] = fillA;
+                    expandedData[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] = alpha255;
                 }
             }
         }
