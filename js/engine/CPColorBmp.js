@@ -493,7 +493,7 @@ CPColorBmp.prototype.floodFillWithBorder = function (
 
     const w = this.width;
     const h = this.height;
-    const data = this.data;                     // 書き込み先
+    const data = this.data; // 書き込み先
     const srcData = fusion ? fusion.data : data; // 判定元
     const BYTES = CPColorBmp.BYTES_PER_PIXEL;
 
@@ -562,7 +562,8 @@ CPColorBmp.prototype.floodFillWithBorder = function (
                     expandedData[nidx + CPColorBmp.RED_BYTE_OFFSET] = fillR;
                     expandedData[nidx + CPColorBmp.GREEN_BYTE_OFFSET] = fillG;
                     expandedData[nidx + CPColorBmp.BLUE_BYTE_OFFSET] = fillB;
-                    expandedData[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] = alpha255;
+                    expandedData[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] =
+                        alpha255;
                 }
             }
         }

@@ -1145,7 +1145,6 @@ export default function CPCanvas(controller) {
     this.setFloodFillSampleAllLayers = function (checked) {
         floodFillSampleAllLayers = !!checked;
     };
-
     function CPFloodFillMode() {}
 
     CPFloodFillMode.prototype = Object.create(CPMode.prototype);

@@ -1246,6 +1246,15 @@ export default function ChickenPaint(options) {
         canvas.setFloodFillSampleAllLayers(checked);
     };
     /**
+     * 塗りつぶしの消しゴム化を有効／無効にします。
+     * - checked: true の場合は全レイヤーを参照して塗りつぶし、false の場合は現在のレイヤーのみ
+     * - 内部的には canvas.setFloodFillSampleAllLayers() を呼び出します
+     */
+    this.setFloodfillEraserCheckbox = function (checked) {
+        canvas.setFloodfillEraserCheckbox(checked);
+    };
+    
+    /**
      * 「縦横比を維持」チェックボックスの状態を設定します。
      * - checked: true の場合は縦横比を固定
      * - 内部的には canvas.setMaintainAspectCheckbox() を呼び出します

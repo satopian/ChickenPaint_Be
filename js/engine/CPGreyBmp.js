@@ -171,114 +171,59 @@ CPGreyBmp.prototype.copyScaledNearestNeighbor = function (that) {
 
 /**
  * Flood fill gray pixels starting from (x, y) with optional border expansion.
- * Minimal changes to original scanline algorithm.
- * @param {number} x
- * @param {number} y
- * @param {number} color - 0-255 gray
- * @param {number} [expandBy=2] - Pixels to expand around filled area
- * @param {number} [alpha255=255] - Fill alpha (1-255)
+ * - expandBy: 塗りつぶし範囲を拡張するピクセル数
+ * - alpha255: 不透明度 (1-255)
  */
 CPGreyBmp.prototype.floodFillWithBorder = function (
     x,
     y,
     color,
     expandBy = 2,
-    alpha255 = 255,
-    fusion = null
+    alpha255 = 255
 ) {
+
+
     if (!this.isInside(x, y)) return;
 
-    color = color & 0xff;
+    const gray = color & 0xFF;
 
-    let oldColor = this.getPixel(x, y);
-    if (oldColor === color && alphaPercent === 100) return;
+    const w = this.width;
+    const h = this.height;
+    const data = this.data;
+    const Processed = new Uint8Array(w * h);
+    const threshold = 10;
 
-    let stack = [];
-    let clip = this.getBounds();
-    let data = this.data;
+    const oldGray = data[y * w + x];
+    const alpha = alpha255 / 255;
 
-    // フラグ配列：塗ったピクセルを記録
-    let Processed = new Uint8Array(this.width * this.height);
+    const stack = [{ x, y }];
 
-    // 初期スタック
-    stack.push({ x1: x, x2: x, y: y, dy: -1 });
-    stack.push({ x1: x, x2: x, y: y + 1, dy: 1 });
+    while (stack.length) {
+        const { x: px, y: py } = stack.pop();
+        if (px < 0 || py < 0 || px >= w || py >= h) continue;
+        const idx = py * w + px;
+        if (Processed[idx]) continue;
 
-    const setPixel = (px, py, gray) => {
-        const idx = py * this.width + px;
-        data[idx] = gray;
-        // ここに alpha の情報を別チャンネルで管理している場合は設定
-        if (this.alpha) this.alpha[idx] = alpha255;
-    };
+        if (Math.abs(data[idx] - oldGray) > threshold) continue;
 
-    while (stack.length > 0) {
-        let line = stack.pop();
-        if (line.y < clip.top || line.y >= clip.bottom) continue;
+        Processed[idx] = 1;
 
-        let lineOffset = line.y * this.width;
-        let left = line.x1,
-            next;
+        let applied;
+        // 元の色と選択色を補間: old * (1 - alpha) + selected * alpha
+        applied = Math.round(data[idx] * (1 - alpha) + gray * alpha);
+        data[idx] = applied;
 
-        while (left >= clip.left && data[left + lineOffset] === oldColor) {
-            setPixel(left, line.y, color);
-            Processed[line.y * this.width + left] = 1;
-            left--;
-        }
-
-        if (left >= line.x1) {
-            while (left <= line.x2 && data[left + lineOffset] !== oldColor) left++;
-            next = left + 1;
-            if (left > line.x2) continue;
-        } else {
-            left++;
-            if (left < line.x1) {
-                stack.push({
-                    x1: left,
-                    x2: line.x1 - 1,
-                    y: line.y - line.dy,
-                    dy: -line.dy,
-                });
-            }
-            next = line.x1 + 1;
-        }
-
-        do {
-            setPixel(left, line.y, color);
-            Processed[line.y * this.width + left] = 1;
-
-            while (next < clip.right && data[next + lineOffset] === oldColor) {
-                setPixel(next, line.y, color);
-                Processed[line.y * this.width + next] = 1;
-                next++;
-            }
-
-            stack.push({
-                x1: left,
-                x2: next - 1,
-                y: line.y + line.dy,
-                dy: line.dy,
-            });
-
-            if (next - 1 > line.x2) {
-                stack.push({
-                    x1: line.x2 + 1,
-                    x2: next - 1,
-                    y: line.y - line.dy,
-                    dy: -line.dy,
-                });
-            }
-
-            left = next + 1;
-            while (left <= line.x2 && data[left + lineOffset] !== oldColor) left++;
-            next = left + 1;
-        } while (left <= line.x2);
+        stack.push({ x: px + 1, y: py });
+        stack.push({ x: px - 1, y: py });
+        stack.push({ x: px, y: py + 1 });
+        stack.push({ x: px, y: py - 1 });
     }
 
     // 縁取り拡張
     if (expandBy > 0) {
-        const w = this.width;
-        const h = this.height;
-        const expandedData = new Uint8ClampedArray(data);
+        // 拡張の基準として、元の状態をコピーしておく
+        const orig = new Uint8ClampedArray(data);
+        const expandedData = new Uint8ClampedArray(orig);
 
         for (let py = 0; py < h; py++) {
             for (let px = 0; px < w; px++) {
@@ -289,20 +234,22 @@ CPGreyBmp.prototype.floodFillWithBorder = function (
                         const nx = px + dx;
                         const ny = py + dy;
                         if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
-                        if (Processed[ny * w + nx]) continue;
+                        const nidx = ny * w + nx;
+                        if (Processed[nidx]) continue;
 
-                        const idx = ny * w + nx;
-                        expandedData[idx] = color;
-                        if (this.alpha) this.alpha[idx] = alpha255;
+                        // ここで必ず元の値から補間する
+                        const base = orig[nidx];
+                        const applied = Math.round(
+                            base * (1 - alpha) + gray * alpha
+                        );
+                        expandedData[nidx] = applied;
                     }
                 }
             }
         }
-
         data.set(expandedData);
     }
 };
-
 
 /**
  * Replace the pixels in this image with a scaled down thumbnail of that image.

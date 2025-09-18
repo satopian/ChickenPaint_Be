@@ -1029,12 +1029,12 @@ function CPfloodFillPanel(controller) {
     let formGroup = document.createElement("div");
     let label = document.createElement("label");
 
-    let glowSlider = new CPSlider(0, 5, false, false, 180);
+    let growSlider = new CPSlider(0, 5, false, false, 180);
     let alphaSlider = new CPSlider(1, 255, false, false, 180);
 
     panel.className = "chickenpaint-floodFill-panel";
     panel.style.display = "none"; // 初期非表示
-    panel.appendChild(glowSlider.getElement());
+    panel.appendChild(growSlider.getElement());
 
     formGroup.className = "form-group";
 
@@ -1044,35 +1044,39 @@ function CPfloodFillPanel(controller) {
     panel.appendChild(formGroup);
 
     function fillWithInitialValues() {
-        glowSlider.setValue(2);
+        growSlider.setValue(2);
         alphaSlider.setValue(255);
     }
 
-    glowSlider.title = function (value) {
+    growSlider.title = function (value) {
         return _("Grow fill area") + ": " + value;
     };
     alphaSlider.title = function (value) {
         return _("Opacity") + ": " + value;
     };
 
-    glowSlider.on("valueChange", function (value) {
+    growSlider.on("valueChange", function (value) {
         controller.growFillArea(value);
     });
     alphaSlider.on("valueChange", function (value) {
         controller.setFoodFillAlpha(value);
     });
 
-    panel.appendChild(glowSlider.getElement());
-    panel.appendChild(alphaSlider.getElement());
+    const sliderWrapper = document.createElement("div");
+    sliderWrapper.className = "form-group"; // ラップ用
 
+    sliderWrapper.appendChild(growSlider.getElement());
+    sliderWrapper.appendChild(alphaSlider.getElement());
+
+    panel.appendChild(sliderWrapper);
     //チェックボックスの作成
     let { wrapper: sampleAllLayersGroup, checkbox: sampleAllLayersCheckbox } =
         createBootstrapCheckbox(
-            "chickenpaint-floodFillCheckbox",
+            "chickenpaint-floodFillSampleAllLayersCheckbox",
             _("Sample all layers"),
             true
         );
-
+    sampleAllLayersGroup.classList.add("mb-1");
     panel.appendChild(sampleAllLayersGroup);
     // パネルに追加
 
