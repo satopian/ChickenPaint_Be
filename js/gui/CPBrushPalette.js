@@ -1073,7 +1073,7 @@ function CPfloodFillPanel(controller) {
     let { wrapper: sampleAllLayersGroup, checkbox: sampleAllLayersCheckbox } =
         createBootstrapCheckbox(
             "chickenpaint-floodFillSampleAllLayersCheckbox",
-            _("Sample all layers"),
+            _("Refer all layers"),
             true
         );
     sampleAllLayersGroup.classList.add("mb-1");
