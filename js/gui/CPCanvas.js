@@ -274,7 +274,7 @@ export default function CPCanvas(controller) {
         desableEnterKey = null,
         fillExpandPixels = 0,
         foodFillAlpha = 255,
-        floodFillSampleAllLayers = true,
+        floodFillReferAllLayers = true,
         maintainAspectCheckbox = false;
 
     Math.sign =
@@ -1142,8 +1142,8 @@ export default function CPCanvas(controller) {
      * 「全レイヤー参照」での塗りつぶしを有効/無効にします。
      * @param {boolean} checked true の場合、塗りつぶし範囲の判定を全レイヤーで行う
      */
-    this.setFloodFillSampleAllLayers = function (checked) {
-        floodFillSampleAllLayers = !!checked;
+    this.setFloodFillReferAllLayers = function (checked) {
+        floodFillReferAllLayers = !!checked;
     };
     function CPFloodFillMode() {}
 
@@ -1165,7 +1165,7 @@ export default function CPCanvas(controller) {
                     pf.y,
                     fillExpandPixels,
                     foodFillAlpha,
-                    floodFillSampleAllLayers
+                    floodFillReferAllLayers
                 );
                 that.repaintAll();
             }

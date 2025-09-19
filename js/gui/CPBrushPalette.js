@@ -781,7 +781,7 @@ function CPSelectionPanel(controller) {
     label.textContent = _("Selection"); // 「選択範囲」
     formGroup.appendChild(label);
 
-    // 「すべて選択」ボタン
+    // 「塗り潰し」ボタン
     selectAllButton.type = "button";
     selectAllButton.className = "btn btn-light btn-block";
     selectAllButton.textContent = _("Fill");
@@ -1070,20 +1070,20 @@ function CPfloodFillPanel(controller) {
 
     panel.appendChild(sliderWrapper);
     //チェックボックスの作成
-    let { wrapper: sampleAllLayersGroup, checkbox: sampleAllLayersCheckbox } =
+    let { wrapper: referAllLayersGroup, checkbox: referAllLayersCheckbox } =
         createBootstrapCheckbox(
-            "chickenpaint-floodFillSampleAllLayersCheckbox",
+            "chickenpaint-floodFillreferAllLayersCheckbox",
             _("Refer all layers"),
             true
         );
-    sampleAllLayersGroup.classList.add("mb-1");
-    panel.appendChild(sampleAllLayersGroup);
+    referAllLayersGroup.classList.add("mb-1");
+    panel.appendChild(referAllLayersGroup);
     // パネルに追加
 
     // ローカル変数から直接リスナーを追加
-    sampleAllLayersCheckbox.addEventListener("change", () => {
-        sampleAllLayersCheckbox.blur(); // フォーカス解除
-        controller.setFloodFillSampleAllLayers(sampleAllLayersCheckbox.checked);
+    referAllLayersCheckbox.addEventListener("change", () => {
+        referAllLayersCheckbox.blur(); // フォーカス解除
+        controller.setFloodFillReferAllLayers(referAllLayersCheckbox.checked);
     });
 
     this.getElement = function () {

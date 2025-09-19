@@ -1240,18 +1240,10 @@ export default function ChickenPaint(options) {
     /**
      * 「全レイヤー参照」での塗りつぶしを有効／無効にします。
      * - checked: true の場合は全レイヤーを参照して塗りつぶし、false の場合は現在のレイヤーのみ
-     * - 内部的には canvas.setFloodFillSampleAllLayers() を呼び出します
+     * - 内部的には canvas.setFloodFillReferAllLayers() を呼び出します
      */
-    this.setFloodFillSampleAllLayers = function (checked) {
-        canvas.setFloodFillSampleAllLayers(checked);
-    };
-    /**
-     * 塗りつぶしの消しゴム化を有効／無効にします。
-     * - checked: true の場合は全レイヤーを参照して塗りつぶし、false の場合は現在のレイヤーのみ
-     * - 内部的には canvas.setFloodFillSampleAllLayers() を呼び出します
-     */
-    this.setFloodfillEraserCheckbox = function (checked) {
-        canvas.setFloodfillEraserCheckbox(checked);
+    this.setFloodFillReferAllLayers = function (checked) {
+        canvas.setFloodFillReferAllLayers(checked);
     };
     
     /**

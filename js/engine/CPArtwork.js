@@ -755,65 +755,83 @@ export default function CPArtwork(_width, _height) {
      * @param {number} pressure - Pen pressure (tablets).
      */
     this.paintDab = function (x, y, pressure) {
+        if (!curBrush) return;
+
+        // ブラシ圧力を適用
         curBrush.applyPressure(pressure);
 
+        // 散布がある場合は位置をランダムにずらす
         if (curBrush.scattering > 0.0) {
             x += (rnd.nextGaussian() * curBrush.curScattering) / 4.0;
             y += (rnd.nextGaussian() * curBrush.curScattering) / 4.0;
         }
 
-        let brushTool = paintingModes[curBrush.brushMode],
-            dab = brushManager.getDab(x, y, curBrush),
-            brushRect = new CPRect(0, 0, dab.width, dab.height),
-            imageRect = new CPRect(0, 0, dab.width, dab.height);
+        let brushTool = paintingModes[curBrush.brushMode];
+        let dab = brushManager.getDab(x, y, curBrush);
 
-        imageRect.translate(dab.x, dab.y);
+        // dab の描画矩形
+        let dabRect = new CPRect(
+            dab.x,
+            dab.y,
+            dab.x + dab.width,
+            dab.y + dab.height
+        );
+        let sourceRect = new CPRect(0, 0, dab.width, dab.height);
 
-        that.getBounds().clipSourceDest(brushRect, imageRect);
+        // 選択範囲取得（マスク編集中は無効）
+        let selection = !maskEditingMode ? that.getSelection() : null;
 
-        if (imageRect.isEmpty()) {
-            // drawing entirely outside the canvas
-            return;
+        if (selection && !selection.isEmpty()) {
+            let intersect = dabRect.getIntersection(selection, true);
+            if (!intersect || intersect.isEmpty()) return; // 交差なし
+
+            // sourceRect を intersection に合わせて調整
+            sourceRect.left += intersect.left - dabRect.left;
+            sourceRect.top += intersect.top - dabRect.top;
+            sourceRect.right = sourceRect.left + intersect.getWidth();
+            sourceRect.bottom = sourceRect.top + intersect.getHeight();
+
+            dabRect = intersect;
         }
 
-        paintUndoArea.union(imageRect);
+        // 描画先とサンプル画像
+        let destImage = maskEditingMode ? curLayer.mask : curLayer.image;
+        let sampleImage =
+            sampleAllLayers && !maskEditingMode ? fusion : destImage;
 
-        let destImage = maskEditingMode ? curLayer.mask : curLayer.image,
-            sampleImage =
-                sampleAllLayers && !maskEditingMode ? fusion : destImage;
+        // Undo 対応: ここで intersection 後の dabRect を登録
+        paintUndoArea.union(dabRect);
 
-        /* The brush will either paint itself directly to the image, or paint itself to the strokeBuffer and update
-         * the strokedRegion (which will be merged to the image later by mergeStrokeBuffer(), perhaps in response
-         * to a call to fusionLayers())
-         */
+        // 実際の描画
         brushTool.paintDab(
             destImage,
-            imageRect,
+            dabRect,
             sampleImage,
             curBrush,
-            brushRect,
+            sourceRect,
             dab,
             curColor
         );
 
+        // alpha ロック対応
         if (
             !maskEditingMode &&
             brushTool.noMergePhase &&
             curLayer.getLockAlpha()
         ) {
-            // This tool painted to the image during paintDab(), so we have to apply image alpha here instead of during merge
-            restoreImageAlpha(destImage, imageRect);
+            restoreImageAlpha(destImage, dabRect);
         }
 
+        // 必要ならストロークバッファをマージ
         if (brushTool.wantsOutputAsInput) {
             mergeStrokeBuffer();
-
             if (sampleAllLayers && !maskEditingMode) {
                 that.fusionLayers();
             }
         }
 
-        invalidateLayerPaint(curLayer, imageRect);
+        // 描画範囲を無効化して再描画
+        invalidateLayerPaint(curLayer, dabRect);
     };
 
     this.getDefaultLayerName = function (isGroup) {
@@ -1405,10 +1423,12 @@ export default function CPArtwork(_width, _height) {
         y,
         fillExpandPixels = 0,
         foodFillAlpha = 255,
-        floodFillSampleAllLayers = true,
+        floodFillReferAllLayers = true
     ) {
-
-        const fusion = (!maskEditingMode && floodFillSampleAllLayers) ? this.fusionLayers() : null; 
+        const fusion =
+            !maskEditingMode && floodFillReferAllLayers
+                ? this.fusionLayers()
+                : null;
         let target = getActiveImage();
 
         if (target) {
@@ -1421,7 +1441,7 @@ export default function CPArtwork(_width, _height) {
                 curColor | 0xff000000,
                 fillExpandPixels,
                 foodFillAlpha,
-                fusion,
+                fusion
             );
 
             addUndo(new CPUndoPaint());
