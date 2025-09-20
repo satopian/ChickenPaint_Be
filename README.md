@@ -123,7 +123,7 @@ https://github.com/user-attachments/assets/ddf63802-8a32-4acf-92b2-8fcab09503c9
 <img width="209" height="261" alt="image" src="https://github.com/user-attachments/assets/e07a5aad-94b7-40af-bb7d-8e539dac5ede" />
 
 ### 水彩ブラシを改善
-- 描き始めの時にレイヤーの透明部分の白を引きずって白く浮き上がる問題を修正しました。
+- 描き始めの時にレイヤーの透明部分の白を引きずり白く浮き上がる問題を修正しました。
 
 ### 選択範囲内のみ描画
 - 選択範囲がかかっている時は、ブラシで描画できる範囲が選択範囲内のみになりました。   
