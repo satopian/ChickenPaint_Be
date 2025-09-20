@@ -748,81 +748,92 @@ export default function CPArtwork(_width, _height) {
     };
 
     /**
-     * Paint a dab of paint to the canvas using the current brush.
+     * ブラシの先端でキャンバスに描画します。
      *
-     * @param {number} x - Position of brush tip
-     * @param {number} y - Position of brush tip
-     * @param {number} pressure - Pen pressure (tablets).
+     * @param {number} x - ブラシ先端の X 座標
+     * @param {number} y - ブラシ先端の Y 座標
+     * @param {number} pressure - ペンの筆圧（タブレット対応）
      */
     this.paintDab = function (x, y, pressure) {
         if (!curBrush) return;
 
-        // ブラシ圧力を適用
         curBrush.applyPressure(pressure);
 
-        // 散布がある場合は位置をランダムにずらす
         if (curBrush.scattering > 0.0) {
             x += (rnd.nextGaussian() * curBrush.curScattering) / 4.0;
             y += (rnd.nextGaussian() * curBrush.curScattering) / 4.0;
         }
 
-        let brushTool = paintingModes[curBrush.brushMode];
-        let dab = brushManager.getDab(x, y, curBrush);
+        const brushTool = paintingModes[curBrush.brushMode];
+        const dab = brushManager.getDab(x, y, curBrush);
 
-        // dab の描画矩形
-        let dabRect = new CPRect(
-            dab.x,
-            dab.y,
-            dab.x + dab.width,
-            dab.y + dab.height
-        );
-        let sourceRect = new CPRect(0, 0, dab.width, dab.height);
+        const brushRect = new CPRect(0, 0, dab.width, dab.height);
+        let imageRect = new CPRect(0, 0, dab.width, dab.height);
+        imageRect.translate(dab.x, dab.y);
 
-        // 選択範囲取得（マスク編集中は無効）
-        let selection = !maskEditingMode ? that.getSelection() : null;
+        that.getBounds().clipSourceDest(brushRect, imageRect);
 
-        if (selection && !selection.isEmpty()) {
-            let intersect = dabRect.getIntersection(selection, true);
-            if (!intersect || intersect.isEmpty()) return; // 交差なし
+        if (imageRect.isEmpty()) return; // canvas 外
 
-            // sourceRect を intersection に合わせて調整
-            sourceRect.left += intersect.left - dabRect.left;
-            sourceRect.top += intersect.top - dabRect.top;
-            sourceRect.right = sourceRect.left + intersect.getWidth();
-            sourceRect.bottom = sourceRect.top + intersect.getHeight();
+        paintUndoArea.union(imageRect);
 
-            dabRect = intersect;
-        }
-
-        // 描画先とサンプル画像
-        let destImage = maskEditingMode ? curLayer.mask : curLayer.image;
-        let sampleImage =
+        const destImage = maskEditingMode ? curLayer.mask : curLayer.image;
+        const sampleImage =
             sampleAllLayers && !maskEditingMode ? fusion : destImage;
 
-        // Undo 対応: ここで intersection 後の dabRect を登録
-        paintUndoArea.union(dabRect);
+        const selection = !maskEditingMode ? that.getSelection() : null;
 
-        // 実際の描画
-        brushTool.paintDab(
-            destImage,
-            dabRect,
-            sampleImage,
-            curBrush,
-            sourceRect,
-            dab,
-            curColor
-        );
+        if (!selection || selection.isEmpty()) {
+            // 選択範囲なし → 元の安全な処理
+            brushTool.paintDab(
+                destImage,
+                imageRect,
+                sampleImage,
+                curBrush,
+                brushRect,
+                dab,
+                curColor
+            );
+        } else {
+            // 選択範囲あり → intersection 計算
+            let intersect = imageRect.getIntersection(selection, true);
+            if (!intersect || intersect.isEmpty()) return;
 
-        // alpha ロック対応
+            // canvas 内に clamp
+            intersect.left = Math.max(0, intersect.left);
+            intersect.top = Math.max(0, intersect.top);
+            intersect.right = Math.min(destImage.width, intersect.right);
+            intersect.bottom = Math.min(destImage.height, intersect.bottom);
+
+            if (intersect.isEmpty()) return;
+
+            // sourceRect を intersection に合わせて補正
+            let sourceRect = new CPRect(
+                intersect.left - dab.x,
+                intersect.top - dab.y,
+                intersect.left - dab.x + intersect.getWidth(),
+                intersect.top - dab.y + intersect.getHeight()
+            );
+
+            brushTool.paintDab(
+                destImage,
+                intersect,
+                sampleImage,
+                curBrush,
+                sourceRect,
+                dab,
+                curColor
+            );
+        }
+
         if (
             !maskEditingMode &&
             brushTool.noMergePhase &&
             curLayer.getLockAlpha()
         ) {
-            restoreImageAlpha(destImage, dabRect);
+            restoreImageAlpha(destImage, imageRect);
         }
 
-        // 必要ならストロークバッファをマージ
         if (brushTool.wantsOutputAsInput) {
             mergeStrokeBuffer();
             if (sampleAllLayers && !maskEditingMode) {
@@ -830,8 +841,7 @@ export default function CPArtwork(_width, _height) {
             }
         }
 
-        // 描画範囲を無効化して再描画
-        invalidateLayerPaint(curLayer, dabRect);
+        invalidateLayerPaint(curLayer, imageRect);
     };
 
     this.getDefaultLayerName = function (isGroup) {

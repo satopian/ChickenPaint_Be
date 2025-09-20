@@ -959,7 +959,6 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         x = x | 0;
         y = y | 0;
 
-        console.log("brushColor", brushColor);
 
         const samples = [{ x, y }];
         for (let r = 0.25; r < 1.001; r += 0.25) {
@@ -1290,6 +1289,8 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         }
     }
 }
+
+
 
 export class CPBrushToolOil extends CPBrushToolDirectBrush {
     constructor(strokeBuffer, strokedRegion) {
