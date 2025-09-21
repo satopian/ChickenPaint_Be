@@ -222,7 +222,7 @@ function CPBrushPanel(controller) {
             false,
             _("Control brush opacity with pen pressure")
         ),
-        alphaSlider = new CPSlider(1, 255, false, true),
+        alphaSlider = new CPSlider(5, 255, false, true),
         sizeCB = new CPCheckbox(
             true,
             _("Control brush size with pen pressure")
@@ -587,69 +587,6 @@ function CPGradientPanel(controller) {
 }
 
 // ボタンにアイコンを設定
-// function setButtonIcon(button, iconClass) {
-//     const text = button.textContent;
-//     button.textContent = "";
-
-//     // ボタンを flex に
-//     button.classList.add(
-//         "d-flex",
-//         "align-items-center",
-//         "justify-content-center"
-//     );
-
-//     let iconWidth = 0;
-
-//     if (iconClass) {
-//         const icon = document.createElement("span");
-//         icon.className = `md-panel ${iconClass}`;
-//         icon.style.flex = "0 0 auto"; // アイコンは縮まない
-//         button.prepend(icon);
-
-//         // アイコンとテキスト間のマージン
-//         iconWidth = 0.2; // rem
-//     }
-
-//     // テキスト
-//     const spanText = document.createElement("span");
-//     spanText.textContent = text;
-//     spanText.style.flex = "1 1 auto"; // 残りスペースを使って中央寄せ
-//     spanText.style.textAlign = "center";
-
-//     if (iconClass) {
-//         spanText.style.marginLeft = `${iconWidth}rem`; // アイコン分スペースを確保
-//     }
-
-//     button.appendChild(spanText);
-// }
-// function setButtonIcon(button, iconClass) {
-//     const text = button.textContent;
-//     button.textContent = "";
-
-//     // ボタンを相対位置 + flex に
-//     button.classList.add(
-//         "d-flex",
-//         "align-items-center",
-//         "justify-content-center",
-//         "position-relative"
-//     );
-
-//     // アイコンを絶対配置で左端に追加
-//     if (iconClass) {
-//         const icon = document.createElement("span");
-//         icon.className = `md-panel ${iconClass}`;
-//         icon.style.position = "absolute";
-//         icon.style.left = "0.35rem"; // 左端から0.35rem
-//         icon.style.marginRight = "0"; // アイコン自体の余白は不要
-//         button.appendChild(icon);
-//     }
-
-//     // テキスト用 span を中央に
-//     const spanText = document.createElement("span");
-//     spanText.textContent = text;
-//     spanText.style.marginLeft = "1rem"; // 左のアイコン分の余白
-//     button.appendChild(spanText);
-// }
 function setButtonIcon(button, iconClass) {
     const text = button.textContent;
     button.textContent = "";
@@ -1030,7 +967,7 @@ function CPfloodFillPanel(controller) {
     let label = document.createElement("label");
 
     let growSlider = new CPSlider(0, 5, false, false, 180);
-    let alphaSlider = new CPSlider(1, 255, false, false, 180);
+    let alphaSlider = new CPSlider(0, 255, false, false, 180);
 
     panel.className = "chickenpaint-floodFill-panel";
     panel.style.display = "none"; // 初期非表示
