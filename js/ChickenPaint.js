@@ -101,7 +101,7 @@ function createDrawingTools() {
     tools[ChickenPaint.T_PEN] = new CPBrushInfo({
         toolNb: ChickenPaint.T_PEN,
         size: 2,
-        alpha: 128,
+        alpha: 100,
         isAA: true,
         minSpacing: 0.5,
         spacing: 0.05,
@@ -116,7 +116,7 @@ function createDrawingTools() {
     tools[ChickenPaint.T_SOFTERASER] = new CPBrushInfo({
         toolNb: ChickenPaint.T_SOFTERASER,
         size: 16,
-        alpha: 64,
+        alpha: 60,
         isAA: false,
         minSpacing: 0.5,
         spacing: 0.05,
@@ -132,7 +132,7 @@ function createDrawingTools() {
     tools[ChickenPaint.T_AIRBRUSH] = new CPBrushInfo({
         toolNb: ChickenPaint.T_AIRBRUSH,
         size: 50,
-        alpha: 32,
+        alpha: 30,
         isAA: false,
         minSpacing: 0.5,
         spacing: 0.05,
@@ -177,7 +177,7 @@ function createDrawingTools() {
     tools[ChickenPaint.T_WATER] = new CPBrushInfo({
         toolNb: ChickenPaint.T_WATER,
         size: 30,
-        alpha: 60,
+        alpha: 50,
         isAA: false,
         minSpacing: 0.5,
         spacing: 0.02,

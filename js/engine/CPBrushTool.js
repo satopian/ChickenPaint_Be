@@ -104,6 +104,8 @@ export class CPBrushTool {
         dab,
         color
     ) {
+        // dab.alpha (1-255) → 5～255 に変換
+        dab.alpha = Math.round((dab.alpha - 1) * (250 / 254) + 5);
         let alpha = Math.max(1, Math.ceil(dab.alpha * brushConfig.alphaScale));
 
         switch (brushConfig.paintMode) {
@@ -959,7 +961,6 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         x = x | 0;
         y = y | 0;
 
-
         const samples = [{ x, y }];
         for (let r = 0.25; r < 1.001; r += 0.25) {
             Array.prototype.push.apply(samples, [
@@ -1163,6 +1164,11 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         dab,
         color
     ) {
+        const alphaScale = this.isTransparentCanvas ? 0.3 : 1.0;
+        // dab.alpha の最小値1を8に、最大値255はそのまま255にマッピング
+        // 1〜255 の入力を 8〜255 の範囲に線形変換して描画用に調整
+        dab.alpha = (dab.alpha - 1) * (247 / 254) + 8;
+        dab.alpha = dab.alpha * alphaScale;
         var paintAlpha = Math.max(1, dab.alpha / 4),
             sampleX = (imageRect.left + imageRect.right) / 2,
             sampleY = (imageRect.top + imageRect.bottom) / 2,
@@ -1239,7 +1245,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
                 // Seed the previousSamples list to capacity with a bunch of copies of one sample to get us started
                 this._previousSamples = new Array(WATERCOLOR_NUM_SAMPLES);
 
-                let brushColorFloat = CPColorFloat.createFromInt(color); // newColor は整数 ARGB
+                const brushColorFloat = CPColorFloat.createFromInt(color); // newColor は整数 ARGB
                 this._previousSamples.fill(
                     CPBrushToolWatercolor._sampleRGB(
                         sampleImage,
@@ -1261,19 +1267,18 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
             );
 
             let newColor = wcColor.toInt();
-            let brushColorFloat = CPColorFloat.createFromInt(color); // newColor は整数 ARGB
-            // bleed
-            wcColor.mixWith(
-                CPBrushToolWatercolor._sampleRGB(
-                    sampleImage,
-                    sampleX,
-                    sampleY,
-                    dx,
-                    dy,
-                    brushColorFloat
-                ),
-                brushConfig.bleed
+            const brushColorFloat = CPColorFloat.createFromInt(color); // newColor は整数 ARGB
+            const sampled = CPBrushToolWatercolor._sampleRGB(
+                sampleImage,
+                sampleX,
+                sampleY,
+                dx,
+                dy,
+                brushColorFloat
             );
+            this.isTransparentCanvas = brushColorFloat === sampled;
+            // bleed
+            wcColor.mixWith(sampled, brushConfig.bleed);
 
             this._previousSamples.push(wcColor);
             this._previousSamples.shift();
@@ -1290,13 +1295,12 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
     }
 }
 
-
-
 export class CPBrushToolOil extends CPBrushToolDirectBrush {
     constructor(strokeBuffer, strokedRegion) {
         super(strokeBuffer, strokedRegion);
 
         this.wantsOutputAsInput = true;
+        this.isTransparentCanvas = false;
     }
 
     /**
