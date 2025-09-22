@@ -3039,8 +3039,6 @@ export default function CPCanvas(controller) {
                 imageData = maskView.getImageData();
             } else {
                 imageData = artwork.fusionLayers().getImageData();
-                //下のレイヤーの色を拾うため、現在のレイヤーより下の画像を結合した画像作る
-                artwork.fusionLayersBelowCurrent();
             }
 
             artworkCanvasContext.putImageData(

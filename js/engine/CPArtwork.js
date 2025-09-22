@@ -198,7 +198,6 @@ export default function CPArtwork(_width, _height) {
          * @type {CPColorBmp}
          */
         fusion = null,
-        fusionLayersBelowCurrent = null,
         rnd = new CPRandom(),
         previewOperation = null,
         /**
@@ -781,7 +780,7 @@ export default function CPArtwork(_width, _height) {
         const destImage = maskEditingMode ? curLayer.mask : curLayer.image;
         const sampleImage =
             sampleAllLayers && !maskEditingMode
-                ? fusionLayersBelowCurrent
+                ? fusion
                 : destImage;
 
         const selection = !maskEditingMode ? that.getSelection() : null;
@@ -839,9 +838,9 @@ export default function CPArtwork(_width, _height) {
 
         if (brushTool.wantsOutputAsInput) {
             mergeStrokeBuffer();
-            // if (sampleAllLayers && !maskEditingMode) {
-            // that.fusionLayers();
-            // }
+            if (sampleAllLayers && !maskEditingMode) {
+            that.fusionLayers();
+            }
         }
 
         invalidateLayerPaint(curLayer, imageRect);
@@ -974,48 +973,6 @@ export default function CPArtwork(_width, _height) {
         fusion = blendTree.blendTree().image;
 
         return fusion;
-    };
-    this.fusionLayersBelowCurrent = function () {
-        if (!sampleAllLayers) {
-            fusionLayersBelowCurrent = curLayer.image;
-            return fusionLayersBelowCurrent;
-        }
-        // 一時的なルートグループを作成
-        prepareForFusion();
-        const tempRoot = new CPLayerGroup();
-
-        // 下のレイヤーから順にコピーして curLayer で止める
-        this.copyUntilLayer(layersRoot, tempRoot, curLayer);
-
-        // それを使って blendTree を作成
-        const tree = new CPBlendTree(tempRoot, _width, _height, false);
-        tree.buildTree();
-
-        fusionLayersBelowCurrent = tree.blendTree().image;
-
-        // console.log("tree.blendTree().image",tree.blendTree().image);
-        return fusionLayersBelowCurrent;
-    };
-
-    /**
-     * 再帰的にレイヤーをコピーし、curLayerで止める
-     */
-    this.copyUntilLayer = function (srcGroup, dstGroup, stopLayer) {
-        for (let layer of srcGroup.layers) {
-            dstGroup.layers.push(layer);
-
-            if (layer === stopLayer) {
-                return true; // 見つかったので終了
-            }
-            if (layer instanceof CPLayerGroup) {
-                const newGroup = new CPLayerGroup();
-                dstGroup.layers[dstGroup.layers.length - 1] = newGroup;
-                if (this.copyUntilLayer(layer, newGroup, stopLayer)) {
-                    return true; // 子で見つかったので終了
-                }
-            }
-        }
-        return false;
     };
 
     /**
