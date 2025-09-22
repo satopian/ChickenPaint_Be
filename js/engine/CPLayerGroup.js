@@ -29,7 +29,7 @@ import CPRect from "../util/CPRect.js";
  * @param {number} blendMode
  * @constructor
  */
-export default function CPLayerGroup(name, blendMode) {
+export default function CPLayerGroup(name="", blendMode=0) {
 	CPLayer.call(this, name);
 
 	/**
