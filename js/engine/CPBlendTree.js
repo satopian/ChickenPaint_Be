@@ -479,138 +479,41 @@ export default function CPBlendTree(
      * Blend the given tree node and return the tree node that contains the resulting blend, or null if the tree is empty.
      *
      * @param {?CPBlendNode} treeNode
-     */
-    // function blendTreeInternal(treeNode) {
-    // 	if (!treeNode || !treeNode.isGroup) {
-    // 		// Tree is empty, or it's just a layer and doesn't need further blending
-    // 		return treeNode;
-    // 	}
-
-    // 	let
-    // 		blendArea = treeNode.dirtyRect,
-    // 		groupIsEmpty = true,
-    // 		fusionHasTransparency = true;
-
-    // 	if (treeNode.blendMode == CPBlend.LM_PASSTHROUGH && treeNode.parent) {
-    // 		/* With passthrough blending, the contents of the group are also dependent on the fusion it sits on top of,
-    // 		 * so invalidating the parent must invalidate the passthrough child.
-    // 		 */
-    // 		blendArea.union(treeNode.parent.dirtyRect);
-    // 	}
-
-    // 	if (blendArea.isEmpty()) {
-    // 		// Nothing to draw!
-    // 		return treeNode;
-    // 	}
-
-    // 	if (treeNode.blendMode == CPBlend.LM_PASSTHROUGH && treeNode.parent) {
-    // 		// We need to fuse our children layers onto a copy of our parents fusion, so make that copy now
-    // 		groupIsEmpty = false;
-
-    // 		copyOpaqueImageRect(treeNode.image, treeNode.parent.image, blendArea);
-    // 	}
-
-    // 	// Avoid using an iterator here because Chrome refuses to optimize when a "finally" clause is present (caused by Babel iterator codegen)
-    // 	for (let i = 0; i < treeNode.layers.length; i++) {
-    //           let
-    //               child = treeNode.layers[i],
-    //               childNode = blendTreeInternal(child);
-
-    //           if (groupIsEmpty) {
-    //               // If the fusion is currently empty then there's nothing to blend, replace the fusion with the contents of the bottom layer instead
-
-    //               copyImageRect(treeNode.image, childNode.image, childNode.alpha, blendArea, childNode.mask);
-    //               groupIsEmpty = false;
-    //           } else {
-    //               fusionHasTransparency = fusionHasTransparency && treeNode.image.hasAlphaInRect(blendArea);
-
-    //               if (DEBUG) {
-    //                   console.log(`CPBlend.fuseImageOntoImage(treeNode.image, fusionHasTransparency == ${fusionHasTransparency}, childNode.image, childNode.alpha == ${childNode.alpha}, childNode.blendMode == ${childNode.blendMode}, ${blendArea}, ${childNode.mask});`);
-    //               }
-
-    //               CPBlend.fuseImageOntoImage(treeNode.image, fusionHasTransparency, childNode.image, childNode.alpha, childNode.blendMode, blendArea, childNode.mask);
-    //           }
-    //       }
-
-    // 	if (treeNode.clip) {
-    // 		// Need to restore the original alpha from the base layer we're clipping onto
-    // 		let
-    // 			baseLayer = treeNode.layers[0];
-
-    // 		if (baseLayer.alpha < 100) {
-    // 			if (baseLayer.mask) {
-    //                   if (DEBUG) {
-    //                       console.log(`CPBlend.replaceAlphaOntoFusionWithTransparentLayerMasked(treeNode.image, baseLayer.image, treeNode.layers[0].alpha == ${treeNode.layers[0].alpha}, ${blendArea});`);
-    //                   }
-    //                   CPBlend.replaceAlphaOntoFusionWithTransparentLayerMasked(treeNode.image, baseLayer.image, baseLayer.alpha, blendArea, baseLayer.mask);
-    // 			} else {
-    //                   if (DEBUG) {
-    //                       console.log(`CPBlend.replaceAlphaOntoFusionWithTransparentLayer(treeNode.image, baseLayer.image, treeNode.layers[0].alpha == ${treeNode.layers[0].alpha}, ${blendArea});`);
-    //                   }
-    //                   CPBlend.replaceAlphaOntoFusionWithTransparentLayer(treeNode.image, baseLayer.image, baseLayer.alpha, blendArea);
-    //               }
-    // 		} else {
-    // 			if (baseLayer.mask) {
-    //                   if (DEBUG) {
-    //                       console.log(`CPBlend.replaceAlphaOntoFusionWithOpaqueLayerMasked(treeNode.image, baseLayer.image, 100, ${blendArea});`);
-    //                   }
-    //                   CPBlend.replaceAlphaOntoFusionWithOpaqueLayerMasked(treeNode.image, baseLayer.image, 100, blendArea, baseLayer.mask);
-    //               } else {
-    //                   if (DEBUG) {
-    //                       console.log(`CPBlend.replaceAlphaOntoFusionWithOpaqueLayer(treeNode.image, baseLayer.image, 100, ${blendArea});`);
-    //                   }
-    //                   CPBlend.replaceAlphaOntoFusionWithOpaqueLayer(treeNode.image, baseLayer.image, 100, blendArea);
-    // 			}
-    // 		}
-    // 	}
-
-    // 	treeNode.dirtyRect.makeEmpty();
-
-    // 	return treeNode;
-    // }
-    /**
-     * Blend the given tree node and return the tree node that contains the resulting blend, or null if the tree is empty.
-     *
-     * @param {?CPBlendNode} treeNode
      * @param {?CPBlendNode} stopAtNode - このノードに達したら、それ以下の子は合成せずに返す
      */
     function blendTreeInternal(treeNode, stopAtNode = null) {
-        if (!treeNode || !treeNode.isGroup) {
-            return treeNode;
-        }
+        if (!treeNode || !treeNode.isGroup) return treeNode;
 
-        let blendArea = treeNode.dirtyRect;
+        const blendArea = treeNode.dirtyRect;
         let groupIsEmpty = true;
         let fusionHasTransparency = true;
 
-        if (treeNode === stopAtNode) {
-            console.log(
-                "treeNode === stopAtNode",
-                treeNode === stopAtNode,
-                "stopAtNode",
-                stopAtNode
-            );
-            // stopノードに到達したら、ここで終了
-            return treeNode;
-        }
+        // stopノードに到達したら即終了
+        if (treeNode === stopAtNode) return treeNode;
 
-        if (treeNode.blendMode == CPBlend.LM_PASSTHROUGH && treeNode.parent) {
+        // パススルー処理（親からコピー）
+        if (treeNode.blendMode === CPBlend.LM_PASSTHROUGH && treeNode.parent) {
             blendArea.union(treeNode.parent.dirtyRect);
-            copyOpaqueImageRect(
-                treeNode.image,
-                treeNode.parent.image,
-                blendArea
-            );
-            groupIsEmpty = false;
+            if (!stopAtNode) {
+                // 完全合成時のみ親コピーを行う
+                copyOpaqueImageRect(
+                    treeNode.image,
+                    treeNode.parent.image,
+                    blendArea
+                );
+                groupIsEmpty = false;
+            }
         }
 
-        for (let i = 0; i < treeNode.layers.length; i++) {
-            let child = treeNode.layers[i];
+        const layers = treeNode.layers;
+        const stopIndex = stopAtNode ? layers.indexOf(stopAtNode) : -1;
 
-            // stopノードに達したら、それ以上子ノードは合成しない
-            if (child === stopAtNode) {
-                // stopノード自体は合成する
-                let childNode = blendTreeInternal(child, stopAtNode);
+        for (let i = 0; i < layers.length; i++) {
+            const child = layers[i];
+            let childNode;
+
+            if (i === stopIndex) {
+                childNode = blendTreeInternal(child, stopAtNode);
                 if (groupIsEmpty) {
                     copyImageRect(
                         treeNode.image,
@@ -621,12 +524,9 @@ export default function CPBlendTree(
                     );
                     groupIsEmpty = false;
                 } else {
-                    fusionHasTransparency =
-                        fusionHasTransparency &&
-                        treeNode.image.hasAlphaInRect(blendArea);
                     CPBlend.fuseImageOntoImage(
                         treeNode.image,
-                        fusionHasTransparency,
+                        true,
                         childNode.image,
                         childNode.alpha,
                         childNode.blendMode,
@@ -634,11 +534,10 @@ export default function CPBlendTree(
                         childNode.mask
                     );
                 }
-                // stopノードに達したのでこれ以上ループを回さない
-                break;
+                break; // stopノードに達したので終了
             }
 
-            let childNode = blendTreeInternal(child, stopAtNode);
+            childNode = blendTreeInternal(child, stopAtNode);
             if (!childNode) continue;
 
             if (groupIsEmpty) {
@@ -656,7 +555,7 @@ export default function CPBlendTree(
                     treeNode.image.hasAlphaInRect(blendArea);
                 CPBlend.fuseImageOntoImage(
                     treeNode.image,
-                    fusionHasTransparency,
+                    stopAtNode ? true : fusionHasTransparency,
                     childNode.image,
                     childNode.alpha,
                     childNode.blendMode,
@@ -666,8 +565,9 @@ export default function CPBlendTree(
             }
         }
 
-        if (treeNode.clip) {
-            let baseLayer = treeNode.layers[0];
+        // クリッピング・マスク処理
+        if (treeNode.clip && layers.length > 0) {
+            const baseLayer = layers[0];
             if (baseLayer.alpha < 100) {
                 if (baseLayer.mask) {
                     CPBlend.replaceAlphaOntoFusionWithTransparentLayerMasked(
@@ -722,7 +622,6 @@ export default function CPBlendTree(
         if (DEBUG) {
             console.log("Fusing layers...");
         }
-
         return blendTreeInternal(drawTree, stopAtNode);
     };
 }

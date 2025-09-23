@@ -3039,6 +3039,7 @@ export default function CPCanvas(controller) {
                 imageData = maskView.getImageData();
             } else {
                 imageData = artwork.fusionLayers().getImageData();
+                artwork.fusionLayersBelowCurrent();
             }
 
             artworkCanvasContext.putImageData(
