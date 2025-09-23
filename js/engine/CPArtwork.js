@@ -22,6 +22,7 @@
 
 import CPImageLayer from "./CPImageLayer.js";
 import CPLayerGroup from "./CPLayerGroup.js";
+import CPLayer from "./CPLayer.js";
 import CPBlend from "./CPBlend.js";
 import "./CPBlendAdditional.js";
 import CPGreyBmp from "./CPGreyBmp.js";
