@@ -221,6 +221,9 @@ export default function CPArtwork(_width, _height) {
         lastY = 0.0,
         lastPressure = 0.0,
         sampleAllLayers = false,
+        fusionLayersBelowCurrent = null,
+        lastCurLayer = null,
+        cacheBelowImage = null,
         /**
          * Set to true when the user is in the middle of a painting operation (so redrawing the thumbnail would be
          * a waste of time).
@@ -779,9 +782,19 @@ export default function CPArtwork(_width, _height) {
         paintUndoArea.union(imageRect);
 
         const destImage = maskEditingMode ? curLayer.mask : curLayer.image;
+
+        // 下のレイヤーだけのキャッシュを先に作る
+        if (
+            sampleAllLayers &&
+            (typeof fusionLayersBelowCurrent === "undefined" ||
+                fusionLayersBelowCurrent === null)
+        ) {
+            fusionLayersBelowCurrent = this.fusionLayersBelowCurrent();
+        }
+
         const sampleImage =
             sampleAllLayers && !maskEditingMode
-                ? fusion
+                ? fusionLayersBelowCurrent
                 : destImage;
 
         const selection = !maskEditingMode ? that.getSelection() : null;
@@ -840,7 +853,8 @@ export default function CPArtwork(_width, _height) {
         if (brushTool.wantsOutputAsInput) {
             mergeStrokeBuffer();
             if (sampleAllLayers && !maskEditingMode) {
-            that.fusionLayers();
+                // this.getSampleImage();
+                // that.fusionLayers();
             }
         }
 
@@ -974,6 +988,25 @@ export default function CPArtwork(_width, _height) {
         fusion = blendTree.blendTree().image;
 
         return fusion;
+    };
+
+    this.fusionLayersBelowCurrent = function () {
+        if (!sampleAllLayers) {
+            fusionLayersBelowCurrent = curLayer.image;
+            return fusionLayersBelowCurrent;
+        }
+
+        // 既存の blendTree を使い、curLayer まで部分合成
+        const tree = new CPBlendTree(layersRoot, _width, _height, false);
+        tree.buildTree();
+
+        // nodeForLayer から対象ノードを取得
+        const targetNode = tree.getNodeForLayer(curLayer);
+
+        // 部分合成して結果を取得
+        fusionLayersBelowCurrent = tree.blendTree(targetNode).image;
+
+        return fusionLayersBelowCurrent;
     };
 
     /**
