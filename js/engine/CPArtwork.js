@@ -990,7 +990,24 @@ export default function CPArtwork(_width, _height) {
         return fusion;
     };
 
+    /**
+     * 指定したレイヤー以降のレイヤーをまとめて合成した画像を取得。
+     * - 混色が必要なブラシ以外は処理しない。
+     * - sampleAllLayers が false の場合は、現在レイヤーのみ対象。
+     *
+     * @returns {Image} fusionLayersBelowCurrent に上書きされた合成画像
+     */
     this.fusionLayersBelowCurrent = function () {
+        const brushTool = paintingModes[curBrush.brushMode];
+
+        //混色が必要なブラシ以外の時はreturn
+        if (
+            !(brushTool instanceof CPBrushToolOil) &&
+            !(brushTool instanceof CPBrushToolSmudge) &&
+            !(brushTool instanceof CPBrushToolWatercolor)
+        ) {
+            return;
+        }
         if (!sampleAllLayers) {
             fusionLayersBelowCurrent = curLayer.image;
             return fusionLayersBelowCurrent;

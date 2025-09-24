@@ -507,13 +507,18 @@ export default function CPBlendTree(
 
         const layers = treeNode.layers;
         const stopIndex = stopAtNode ? layers.indexOf(stopAtNode) : -1;
+        
 
         for (let i = 0; i < layers.length; i++) {
             const child = layers[i];
-            let childNode;
 
+            if (!child) continue;
+
+            // stopノード到達前に処理
             if (i === stopIndex) {
-                childNode = blendTreeInternal(child, stopAtNode);
+                const childNode = blendTreeInternal(child, stopAtNode);
+                if (!childNode) break;
+
                 if (groupIsEmpty) {
                     copyImageRect(
                         treeNode.image,
@@ -534,10 +539,10 @@ export default function CPBlendTree(
                         childNode.mask
                     );
                 }
-                break; // stopノードに達したので終了
+                break;
             }
 
-            childNode = blendTreeInternal(child, stopAtNode);
+            const childNode = blendTreeInternal(child, stopAtNode);
             if (!childNode) continue;
 
             if (groupIsEmpty) {
@@ -550,9 +555,11 @@ export default function CPBlendTree(
                 );
                 groupIsEmpty = false;
             } else {
-                fusionHasTransparency =
-                    fusionHasTransparency &&
-                    treeNode.image.hasAlphaInRect(blendArea);
+                if (!stopAtNode) {
+                    fusionHasTransparency =
+                        fusionHasTransparency &&
+                        treeNode.image.hasAlphaInRect(blendArea);
+                }
                 CPBlend.fuseImageOntoImage(
                     treeNode.image,
                     stopAtNode ? true : fusionHasTransparency,
