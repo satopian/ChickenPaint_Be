@@ -991,7 +991,7 @@ export default function CPArtwork(_width, _height) {
     };
 
     /**
-     * 指定したレイヤー以降のレイヤーをまとめて合成した画像を取得。
+     * 指定したレイヤー以下のレイヤーをまとめて合成した画像を取得。
      * - 混色が必要なブラシ以外は処理しない。
      * - sampleAllLayers が false の場合は、現在レイヤーのみ対象。
      *
