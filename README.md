@@ -120,7 +120,9 @@ https://github.com/user-attachments/assets/ddf63802-8a32-4acf-92b2-8fcab09503c9
 ｢バケツ塗り｣の不透明度が調整できるようになりました。  
 ｢バケツ塗り｣に半透明色が使えるようになりました。
 
-<img width="209" height="261" alt="image" src="https://github.com/user-attachments/assets/e07a5aad-94b7-40af-bb7d-8e539dac5ede" />
+<img width="209" height="261" alt="image" src="https://github.com/user-attachments/assets/e07a5aad-94b7-40af-bb7d-8e539dac5ede" /><br>
+
+[ChickenPaint Beの新機能 バケツ塗りの全レイヤー参照･領域拡張 - YouTube](https://www.youtube.com/watch?v=S99kXFLzAAA)
 
 ### 水彩ブラシを改善
 - 描き始めの時にレイヤーの透明部分の白を引きずり白く浮き上がる問題を修正しました。
