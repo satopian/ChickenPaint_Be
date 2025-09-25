@@ -1017,11 +1017,14 @@ export default function CPArtwork(_width, _height) {
         }
 
         // 既存の blendTree を使い、curLayer まで部分合成
+        const tree = new CPBlendTree(layersRoot, _width, _height, false);
+        tree.buildTree();
+
         // nodeForLayer から対象ノードを取得
-        const targetNode = blendTree.getNodeForLayer(curLayer);
+        const targetNode = tree.getNodeForLayer(curLayer);
 
         // 部分合成して結果を取得
-        fusionLayersBelowCurrent = blendTree.blendTree(targetNode).image;
+        fusionLayersBelowCurrent = tree.blendTree(targetNode).image;
 
         return fusionLayersBelowCurrent;
     };
