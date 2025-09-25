@@ -991,7 +991,7 @@ export default function CPArtwork(_width, _height) {
     };
 
     /**
-     * 指定したレイヤー以下のレイヤーを合成した画像のキャッシュを更新する。
+     * 現在のレイヤー以下のレイヤーを統合した画像のキャッシュを更新する。
      * - 混色が必要なブラシ以外は処理しない。
      * - sampleAllLayers が false の場合は、現在レイヤーのみ対象。
      *
@@ -1008,7 +1008,8 @@ export default function CPArtwork(_width, _height) {
             !(brushTool instanceof CPBrushToolSmudge) &&
             !(brushTool instanceof CPBrushToolWatercolor)
         ) {
-            return;
+            fusionLayersBelowCurrent = curLayer.image;
+            return fusionLayersBelowCurrent;
         }
         if (!sampleAllLayers) {
             fusionLayersBelowCurrent = curLayer.image;
@@ -1016,14 +1017,11 @@ export default function CPArtwork(_width, _height) {
         }
 
         // 既存の blendTree を使い、curLayer まで部分合成
-        const tree = new CPBlendTree(layersRoot, _width, _height, false);
-        tree.buildTree();
-
         // nodeForLayer から対象ノードを取得
-        const targetNode = tree.getNodeForLayer(curLayer);
+        const targetNode = blendTree.getNodeForLayer(curLayer);
 
         // 部分合成して結果を取得
-        fusionLayersBelowCurrent = tree.blendTree(targetNode).image;
+        fusionLayersBelowCurrent = blendTree.blendTree(targetNode).image;
 
         return fusionLayersBelowCurrent;
     };
