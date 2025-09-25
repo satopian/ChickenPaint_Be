@@ -1731,7 +1731,7 @@ export default function CPLayersPalette(controller) {
     });
 
     body.appendChild(
-        wrapBootstrapCheckbox(cbSampleAllLayers, _("Pick up underlying"))
+        wrapBootstrapCheckbox(cbSampleAllLayers, _("Blend all layers"))
     );
 
     // 透明度をロックのチェックボックスの設定を取得
