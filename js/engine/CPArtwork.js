@@ -789,7 +789,7 @@ export default function CPArtwork(_width, _height) {
             (typeof fusionLayersBelowCurrent === "undefined" ||
                 fusionLayersBelowCurrent === null)
         ) {
-            fusionLayersBelowCurrent = this.fusionLayersBelowCurrent();
+            fusionLayersBelowCurrent = this.fusionLayersBelowCurrent(true);
         }
 
         const sampleImage =
@@ -991,17 +991,19 @@ export default function CPArtwork(_width, _height) {
     };
 
     /**
-     * 指定したレイヤー以下のレイヤーをまとめて合成した画像を取得。
+     * 指定したレイヤー以下のレイヤーを合成した画像のキャッシュを更新する。
      * - 混色が必要なブラシ以外は処理しない。
      * - sampleAllLayers が false の場合は、現在レイヤーのみ対象。
      *
-     * @returns {Image} fusionLayersBelowCurrent に上書きされた合成画像
+     * @param {boolean} [force=false] - true の場合、ブラシ判定に関係なく更新する
+     * @returns {ImageData} 部分合成した下レイヤーのイメージデータ
      */
-    this.fusionLayersBelowCurrent = function () {
+    this.fusionLayersBelowCurrent = function (force = false) {
         const brushTool = paintingModes[curBrush.brushMode];
 
         //混色が必要なブラシ以外の時はreturn
         if (
+            !force &&
             !(brushTool instanceof CPBrushToolOil) &&
             !(brushTool instanceof CPBrushToolSmudge) &&
             !(brushTool instanceof CPBrushToolWatercolor)
@@ -2021,8 +2023,11 @@ export default function CPArtwork(_width, _height) {
         return clipboard == null;
     };
 
-    this.setSampleAllLayers = function (b) {
-        sampleAllLayers = b;
+    this.setSampleAllLayers = function (checked) {
+        sampleAllLayers = checked;
+        if (sampleAllLayers) {
+            this.fusionLayersBelowCurrent(true);
+        }
     };
 
     this.getLayerLockAlpha = function () {

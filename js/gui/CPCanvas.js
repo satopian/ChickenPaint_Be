@@ -275,8 +275,8 @@ export default function CPCanvas(controller) {
         fillExpandPixels = 0,
         foodFillAlpha = 255,
         floodFillReferAllLayers = true,
-        maintainAspectCheckbox = false;
-
+        maintainAspectCheckbox = false,
+        fusionLayersBelowCounter = 0;
     Math.sign =
         Math.sign ||
         function (x) {
@@ -3003,6 +3003,29 @@ export default function CPCanvas(controller) {
         repaint();
     }
 
+    /**
+     * 指定したレイヤー以下のレイヤーを合成した画像のキャッシュを更新する。
+     * 処理回数を1/2にして負荷を軽減する。
+     *
+     * @returns {void}
+     */
+    this.fusionLayersBelowCurrent = function () {
+        fusionLayersBelowCounter++; // 呼び出し回数をカウント
+        if (fusionLayersBelowCounter >= 2) {
+            // 2回に1回だけ実行
+            fusionLayersBelowCounter = 0; // カウンターをリセット
+            artwork.fusionLayersBelowCurrent(); // 実際の処理
+        }
+    };
+
+    /**
+     * キャンバス全体を再描画する。
+     * - 更新領域があれば合成キャッシュを更新し、表示に反映する。
+     * - グリッド、選択範囲、モード固有の描画なども含めてレンダリング。
+     *
+     * @function paint
+     * @returns {void}
+     */
     this.paint = function () {
         var drawingWasClipped = false;
 
@@ -3039,7 +3062,8 @@ export default function CPCanvas(controller) {
                 imageData = maskView.getImageData();
             } else {
                 imageData = artwork.fusionLayers().getImageData();
-                artwork.fusionLayersBelowCurrent();
+                //関数の呼び出し回数を1/2にする
+                this.fusionLayersBelowCurrent();
             }
 
             artworkCanvasContext.putImageData(
