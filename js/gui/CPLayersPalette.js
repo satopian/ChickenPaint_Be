@@ -1467,6 +1467,8 @@ export default function CPLayersPalette(controller) {
     function onChangeLayer(layer) {
         artwork = this;
 
+        controller.onChangeLayer();
+
         palette.dismissNotification();
         layerWidget.layerChanged(layer);
 

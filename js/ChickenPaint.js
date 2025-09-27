@@ -1264,6 +1264,10 @@ export default function ChickenPaint(options) {
         canvas.setModalShown(shown);
     };
 
+this.onChangeLayer= function(){
+    canvas.onChangeLayer();
+}
+
     this.isPanOrRotateMode = function () {
         return canvas.isPanOrRotateMode();
     };

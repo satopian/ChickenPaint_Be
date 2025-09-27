@@ -199,6 +199,9 @@ export default function CPArtwork(_width, _height) {
          * @type {CPColorBmp}
          */
         fusion = null,
+        fusionLayersBelowCurrent = null,
+        lastLayer = null,
+        lastColor = null,
         rnd = new CPRandom(),
         previewOperation = null,
         /**
@@ -221,9 +224,6 @@ export default function CPArtwork(_width, _height) {
         lastY = 0.0,
         lastPressure = 0.0,
         sampleAllLayers = false,
-        fusionLayersBelowCurrent = null,
-        lastCurLayer = null,
-        cacheBelowImage = null,
         /**
          * Set to true when the user is in the middle of a painting operation (so redrawing the thumbnail would be
          * a waste of time).
@@ -783,6 +783,9 @@ export default function CPArtwork(_width, _height) {
 
         const destImage = maskEditingMode ? curLayer.mask : curLayer.image;
 
+        this.checkCurrentLayerChanged();
+        this.checkCurrentColorChanged();
+
         // 下のレイヤーだけのキャッシュを先に作る
         if (
             sampleAllLayers &&
@@ -791,7 +794,6 @@ export default function CPArtwork(_width, _height) {
         ) {
             fusionLayersBelowCurrent = this.fusionLayersBelowCurrent(true);
         }
-
         const sampleImage =
             sampleAllLayers && !maskEditingMode
                 ? fusionLayersBelowCurrent
@@ -852,10 +854,9 @@ export default function CPArtwork(_width, _height) {
 
         if (brushTool.wantsOutputAsInput) {
             mergeStrokeBuffer();
-            if (sampleAllLayers && !maskEditingMode) {
-                // this.getSampleImage();
-                // that.fusionLayers();
-            }
+            // if (sampleAllLayers && !maskEditingMode) {
+            // that.fusionLayers();
+            // }
         }
 
         invalidateLayerPaint(curLayer, imageRect);
@@ -990,23 +991,36 @@ export default function CPArtwork(_width, _height) {
         return fusion;
     };
 
+    this.checkCurrentColorChanged = function () {
+        if (curColor !== lastColor) {
+            lastColor = curColor;
+            this.fusionLayersBelowCurrent(true);
+        }
+    };
+    this.checkCurrentLayerChanged = function () {
+        if (curLayer !== lastLayer) {
+            lastLayer = curLayer;
+            this.fusionLayersBelowCurrent(true);
+        }
+    };
+
     /**
-     * 現在のレイヤー以下のレイヤーを統合した画像のキャッシュを更新する。
+     * 指定したレイヤー以下のレイヤーをまとめて合成した画像を取得。
      * - 混色が必要なブラシ以外は処理しない。
      * - sampleAllLayers が false の場合は、現在レイヤーのみ対象。
      *
-     * @param {boolean} [force=false] - true の場合、ブラシ判定に関係なく更新する
-     * @returns {ImageData} 部分合成した下レイヤーのイメージデータ
+     * @returns {Image} fusionLayersBelowCurrent に上書きされた合成画像
      */
-    this.fusionLayersBelowCurrent = function (force = false) {
+    
+    this._fusionLayersBelowCurrent = function (force = false) {
         const brushTool = paintingModes[curBrush.brushMode];
 
         //混色が必要なブラシ以外の時はreturn
         if (
-            !force &&
+            !force &&(
             !(brushTool instanceof CPBrushToolOil) &&
-            !(brushTool instanceof CPBrushToolSmudge) &&
             !(brushTool instanceof CPBrushToolWatercolor)
+            ||(brushTool instanceof CPBrushToolSmudge))
         ) {
             fusionLayersBelowCurrent = curLayer.image;
             return fusionLayersBelowCurrent;
@@ -1016,20 +1030,141 @@ export default function CPArtwork(_width, _height) {
             return fusionLayersBelowCurrent;
         }
 
-        // 既存の blendTree を使い、curLayer まで部分合成
-        const tree = new CPBlendTree(layersRoot, _width, _height, false);
+        // 一時的なルートグループを作成
+        prepareForFusion();
+        const tempRoot = new CPLayerGroup();
+
+        // 下のレイヤーから順にコピーして curLayer で止める
+        this.copyUntilLayer(layersRoot, tempRoot, curLayer);
+
+        // それを使って blendTree を作成
+        const tree = new CPBlendTree(tempRoot, _width, _height, false);
         tree.buildTree();
 
-        // nodeForLayer から対象ノードを取得
-        const targetNode = tree.getNodeForLayer(curLayer);
-
-        // 部分合成して結果を取得
-        fusionLayersBelowCurrent = tree.blendTree(targetNode).image;
+        fusionLayersBelowCurrent = tree.blendTree().image;
 
         return fusionLayersBelowCurrent;
     };
 
     /**
+ * 再帰的にレイヤーをコピーし、curLayerで止める
+ * 非表示レイヤーはスキップする
+ */
+this._copyUntilLayer = function (srcGroup, dstGroup, stopLayer) {
+    for (let layer of srcGroup.layers) {
+        // 非表示レイヤーはスキップ
+        if (!layer.visible) {
+            if (layer === stopLayer) {
+                return true; // stopLayer が非表示でも見つけたら終了
+            }
+            continue;
+        }
+
+        dstGroup.layers.push(layer);
+
+        if (layer === stopLayer) {
+            return true; // 見つかったので終了
+        }
+
+        if (layer instanceof CPLayerGroup) {
+            const newGroup = new CPLayerGroup();
+            dstGroup.layers[dstGroup.layers.length - 1] = newGroup;
+            if (this.copyUntilLayer(layer, newGroup, stopLayer)) {
+                return true; // 子で見つかったので終了
+            }
+        }
+    }
+    return false;
+};
+
+
+/**
+ * 指定したレイヤー以下のレイヤーをまとめて合成した画像を取得
+ * - 混色が必要なブラシ以外は処理しない
+ * - sampleAllLayers が false の場合は現在レイヤーのみ対象
+ *
+ * @returns {Image} fusionLayersBelowCurrent に上書きされた合成画像
+ */
+this.fusionLayersBelowCurrent = function (force = false) {
+    const brushTool = paintingModes[curBrush.brushMode];
+
+    // 混色が必要なブラシ以外は return（元の論理を維持）
+    if (
+        !force &&
+        (
+            (!(brushTool instanceof CPBrushToolOil) &&
+             !(brushTool instanceof CPBrushToolWatercolor)) ||
+            (brushTool instanceof CPBrushToolSmudge)
+        )
+    ) {
+        fusionLayersBelowCurrent = curLayer.image;
+        return fusionLayersBelowCurrent;
+    }
+
+    if (!sampleAllLayers) {
+        fusionLayersBelowCurrent = curLayer.image;
+        return fusionLayersBelowCurrent;
+    }
+
+    // 一時的なルートグループを作成
+    prepareForFusion();
+    const tempRoot = new CPLayerGroup();
+
+    // 下のレイヤーから順にコピーして curLayer で止める
+    this.copyUntilLayerWithBlend(layersRoot, tempRoot, curLayer);
+
+    // それを使って blendTree を作成
+    const tree = new CPBlendTree(tempRoot, _width, _height, false);
+    tree.buildTree();
+
+    fusionLayersBelowCurrent = tree.blendTree().image;
+    return fusionLayersBelowCurrent;
+};
+
+/**
+ * 再帰的にレイヤーをコピーし、curLayerで止める
+ * 非表示レイヤーはスキップ
+ * グループ内のブレンドも反映
+ */
+this.copyUntilLayerWithBlend = function (srcGroup, dstGroup, stopLayer) {
+    for (let layer of srcGroup.layers) {
+        if (!layer.visible) {
+            if (layer === stopLayer) return true;
+            continue;
+        }
+
+        if (layer instanceof CPLayerGroup) {
+            // グループ全体のブレンド結果を作成
+            const tempTree = new CPBlendTree(layer, _width, _height, false);
+            tempTree.buildTree();
+
+            const blendedLayer = new CPLayer();
+            blendedLayer.image = tempTree.blendTree().image;
+            blendedLayer.blendMode = layer.blendMode; // 親グループのブレンドモードを保持
+            dstGroup.layers.push(blendedLayer);
+
+            // stopLayer がこのグループ内にあるか確認
+            if (this.containsLayer(layer, stopLayer)) return true;
+        } else {
+            dstGroup.layers.push(layer);
+            if (layer === stopLayer) return true;
+        }
+    }
+    return false;
+};
+
+/**
+ * グループ内に特定レイヤーがあるか
+ */
+this.containsLayer = function (group, targetLayer) {
+    for (let layer of group.layers) {
+        if (layer === targetLayer) return true;
+        if (layer instanceof CPLayerGroup && this.containsLayer(layer, targetLayer)) return true;
+    }
+    return false;
+};
+
+/**
      * Old ChibiPaint used a blending operator with a slightly different formula than us for blending onto opaque
      * canvases. We can fix this in two ways:
      *
@@ -2026,7 +2161,7 @@ export default function CPArtwork(_width, _height) {
 
     this.setSampleAllLayers = function (checked) {
         sampleAllLayers = checked;
-        if (sampleAllLayers) {
+        if (checked) {
             this.fusionLayersBelowCurrent(true);
         }
     };
@@ -2158,6 +2293,7 @@ export default function CPArtwork(_width, _height) {
      */
     this.getFlatPNG = function (rotation) {
         this.fusionLayers();
+        // const fusion = this.fusionLayersBelowCurrent(true);
 
         return fusion.getAsPNG(rotation);
     };

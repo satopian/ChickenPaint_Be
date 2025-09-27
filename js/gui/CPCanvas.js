@@ -3005,18 +3005,23 @@ export default function CPCanvas(controller) {
 
     /**
      * 現在のレイヤー以下のレイヤーを統合した画像のキャッシュを更新する。
-     * 処理回数を1/2にして負荷を軽減する。
+     * 実際の関数の呼び出し回数を減らし負荷を軽減する。
      *
      * @returns {void}
      */
     this.fusionLayersBelowCurrent = function () {
         fusionLayersBelowCounter++; // 呼び出し回数をカウント
-        if (fusionLayersBelowCounter >= 2) {
-            // 2回に1回だけ実行
+        if (fusionLayersBelowCounter >= 180) {
+            // n回に1回だけ実行
             fusionLayersBelowCounter = 0; // カウンターをリセット
             artwork.fusionLayersBelowCurrent(); // 実際の処理
         }
     };
+
+this.onChangeLayer = function(){
+    artwork.fusionLayersBelowCurrent(true); // 実際の処理
+
+}
 
     /**
      * キャンバス全体を再描画する。
@@ -3062,7 +3067,7 @@ export default function CPCanvas(controller) {
                 imageData = maskView.getImageData();
             } else {
                 imageData = artwork.fusionLayers().getImageData();
-                //関数の呼び出し回数を1/2にする
+                //実際の関数の呼び出し回数を減らす
                 this.fusionLayersBelowCurrent();
             }
 
