@@ -164,9 +164,6 @@ export default function CPBrushPalette(controller) {
                 break;
             case ChickenPaint.M_FLOODFILL:
                 floodFillPanel.getElement().style.display = "block";
-                if (checkbox instanceof HTMLElement) {
-                    checkbox.style.display = ""; // 表示する
-                }
                 break;
             default:
                 brushPanel.getElement().style.display = "block";
@@ -993,7 +990,7 @@ function CPfloodFillPanel(controller) {
     };
 
     growSlider.on("valueChange", function (value) {
-        controller.growFillArea(value);
+        controller.setGrowFillArea(value);
     });
     alphaSlider.on("valueChange", function (value) {
         controller.setFoodFillAlpha(value);

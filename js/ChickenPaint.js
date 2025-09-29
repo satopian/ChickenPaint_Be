@@ -1224,8 +1224,8 @@ export default function ChickenPaint(options) {
      * 塗りつぶし領域を拡張するピクセル数を設定します。
      * @param {number} value - 拡張するピクセル数
      */
-    this.growFillArea = function (value) {
-        canvas.growFillArea(value);
+    this.setGrowFillArea = function (value) {
+        canvas.setGrowFillArea(value);
     };
 
     /**

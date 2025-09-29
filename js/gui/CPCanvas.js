@@ -1125,7 +1125,7 @@ export default function CPCanvas(controller) {
      * 塗りつぶしの拡張ピクセル数を設定します。
      * @param {number} value - 拡張するピクセル数（デフォルトは0）
      */
-    this.growFillArea = function (value = 0) {
+    this.setGrowFillArea = function (value = 0) {
         fillExpandPixels = Number(value);
     };
 
