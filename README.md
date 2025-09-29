@@ -124,6 +124,8 @@ https://github.com/user-attachments/assets/ddf63802-8a32-4acf-92b2-8fcab09503c9
   
 [ChickenPaint Beの新機能 バケツ塗りの全レイヤー参照･領域拡張 - YouTube](https://www.youtube.com/watch?v=sBvNNA_Ne_c)  
   
+[ChickenPaint Beの2025年9月の新機能｜さとぴあ](https://note.com/satopian/n/n19546604422b)  
+  
 ### 水彩ブラシを改善
 - 描き始めの時にレイヤーの透明部分の白を引きずり白く浮き上がる問題を修正しました。
 
