@@ -758,6 +758,55 @@ CPColorBmp.prototype.boxBlur = function (rect, radiusX, radiusY) {
     }
 };
 
+CPColorBmp.prototype.chromaticAberration = function(rect,offset) {
+
+    rect = this.getBounds().clipTo(rect);
+
+    const w = this.width;
+    const h = this.height;
+    const BYTES = CPColorBmp.BYTES_PER_PIXEL;
+
+    const src = new Uint8ClampedArray(this.data);
+    const dst = new Uint8ClampedArray(this.data.length);
+    dst.set(src);
+
+    for (let y = rect.top; y < rect.bottom; y++) {
+        for (let x = rect.left; x < rect.right; x++) {
+            const idx = (y * w + x) * BYTES;
+            const r0 = src[idx + CPColorBmp.RED_BYTE_OFFSET];
+            const g0 = src[idx + CPColorBmp.GREEN_BYTE_OFFSET];
+            const b0 = src[idx + CPColorBmp.BLUE_BYTE_OFFSET];
+            const a0 = src[idx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
+
+            if (a0 === 0) continue; // 完全透明なら処理不要
+
+            // --- 赤チャンネル：右方向に offset ---
+            let nx = Math.min(w - 1, x + offset);
+            let nidx = (y * w + nx) * BYTES;
+            let na = dst[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
+            dst[nidx + CPColorBmp.RED_BYTE_OFFSET] = Math.round(r0 * a0 + dst[nidx + CPColorBmp.RED_BYTE_OFFSET] * (1 - a0));
+
+            // --- 緑チャンネル：下方向に offset ---
+            let ny = Math.min(h - 1, y + offset);
+            nidx = (ny * w + x) * BYTES;
+            na = dst[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
+            dst[nidx + CPColorBmp.GREEN_BYTE_OFFSET] = Math.round(g0 * a0 + dst[nidx + CPColorBmp.GREEN_BYTE_OFFSET] * (1 - a0));
+
+            // --- 青チャンネル：左上方向に offset ---
+            nx = Math.max(0, x - offset);
+            ny = Math.max(0, y - offset);
+            nidx = (ny * w + nx) * BYTES;
+            na = dst[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
+            dst[nidx + CPColorBmp.BLUE_BYTE_OFFSET] = Math.round(b0 * a0 + dst[nidx + CPColorBmp.BLUE_BYTE_OFFSET] * (1 - a0));
+
+            // アルファは変更しない
+        }
+    }
+
+    this.data.set(dst);
+};
+
+
 CPColorBmp.prototype.offsetOfPixel = function (x, y) {
     return ((y * this.width + x) * 4) | 0;
 };

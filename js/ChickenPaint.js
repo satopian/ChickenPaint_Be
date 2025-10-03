@@ -44,6 +44,7 @@ import CPShortcutsDialog from "./gui/CPShortcutsDialog.js";
 import CPBoxBlurDialog from "./gui/CPBoxBlurDialog.js";
 import CPTabletDialog from "./gui/CPTabletDialog.js";
 import CPGridDialog from "./gui/CPGridDialog.js";
+import CPChromaticAberrationDialog from "./gui/ChromaticAberrationDialog.js";
 import CPSendDialog from "./gui/CPSendDialog.js";
 
 import CPColor from "./util/CPColor.js";
@@ -350,6 +351,7 @@ export default function ChickenPaint(options) {
         preferences = new CPUserPreferences(),
         boxBlurDialog,
         gridDialog,
+        chromaticAberrationDialog,
         actions = {
             // GUI actions
 
@@ -728,6 +730,12 @@ export default function ChickenPaint(options) {
                 modifies: { document: true },
                 requiresDrawable: true,
             },
+            CPChromaticAberration: {
+                action: function () {
+                    showChromaticAberrationDialog();
+                },
+                modifies: { gui: true },
+            },
             CPFXInvert: {
                 action: function () {
                     that.artwork.invert();
@@ -1069,6 +1077,17 @@ export default function ChickenPaint(options) {
         boxBlurDialog.show();
     }
 
+    function showChromaticAberrationDialog() {
+        if (!chromaticAberrationDialog) {
+            chromaticAberrationDialog = new CPChromaticAberrationDialog(
+                uiElem,
+                that
+            );
+        }
+
+        chromaticAberrationDialog.show();
+    }
+
     function showGridOptionsDialog() {
         if (!gridDialog) {
             gridDialog = new CPGridDialog(uiElem, canvas);
@@ -1245,7 +1264,7 @@ export default function ChickenPaint(options) {
     this.setFloodFillReferAllLayers = function (checked) {
         canvas.setFloodFillReferAllLayers(checked);
     };
-    
+
     /**
      * 「縦横比を維持」チェックボックスの状態を設定します。
      * - checked: true の場合は縦横比を固定

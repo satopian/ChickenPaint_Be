@@ -780,9 +780,7 @@ export default function CPArtwork(_width, _height) {
 
         const destImage = maskEditingMode ? curLayer.mask : curLayer.image;
         const sampleImage =
-            sampleAllLayers && !maskEditingMode
-                ? fusion
-                : destImage;
+            sampleAllLayers && !maskEditingMode ? fusion : destImage;
 
         const selection = !maskEditingMode ? that.getSelection() : null;
 
@@ -840,7 +838,7 @@ export default function CPArtwork(_width, _height) {
         if (brushTool.wantsOutputAsInput) {
             mergeStrokeBuffer();
             if (sampleAllLayers && !maskEditingMode) {
-            that.fusionLayers();
+                that.fusionLayers();
             }
         }
 
@@ -1735,6 +1733,21 @@ export default function CPArtwork(_width, _height) {
             for (let i = 0; i < iterations; i++) {
                 target.boxBlur(r, radiusX, radiusY);
             }
+
+            addUndo(new CPUndoPaint());
+            invalidateLayerPaint(curLayer, r);
+        }
+    };
+
+    this.chromaticAberration = function (offset) {
+        let r = this.getSelectionAutoSelect(),
+            target = getActiveImage();
+
+        if (target) {
+            prepareForLayerPaintUndo();
+            paintUndoArea = r.clone();
+
+            target.chromaticAberration(r, offset);
 
             addUndo(new CPUndoPaint());
             invalidateLayerPaint(curLayer, r);
