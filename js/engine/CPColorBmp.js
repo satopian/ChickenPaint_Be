@@ -711,6 +711,15 @@ CPColorBmp.prototype.copyArrayToPixelColumn = function (x, y, len, buffer) {
     }
 };
 
+/**
+ * 指定矩形内のピクセルに対してボックスぼかし （Box Blur） を適用する。
+ * 横方向に radiusX、縦方向に radiusY の半径でぼかす。
+ * 透明部分はアルファ値を考慮して処理する。
+ *
+ * @param {Rectangle} rect - ぼかしを適用する範囲。
+ * @param {number} radiusX - 横方向のぼかし半径（ピクセル単位）。
+ * @param {number} radiusY - 縦方向のぼかし半径（ピクセル単位）。
+ */
 CPColorBmp.prototype.boxBlur = function (rect, radiusX, radiusY) {
     rect = this.getBounds().clipTo(rect);
 
@@ -758,6 +767,14 @@ CPColorBmp.prototype.boxBlur = function (rect, radiusX, radiusY) {
     }
 };
 
+/**
+ * 指定矩形内のピクセルに対して色収差 （RGBずらし） を適用する。
+ * 赤チャンネルは右方向、緑チャンネルは下方向、青チャンネルは左上方向にずらす。
+ * アルファ値が0の完全透明ピクセルは処理しない。
+ *
+ * @param {Rectangle} rect - 色収差を適用する範囲。
+ * @param {number} offset - チャンネルごとのずれ量（ピクセル単位）。
+ */
 CPColorBmp.prototype.chromaticAberration = function(rect,offset) {
 
     rect = this.getBounds().clipTo(rect);
@@ -805,7 +822,6 @@ CPColorBmp.prototype.chromaticAberration = function(rect,offset) {
 
     this.data.set(dst);
 };
-
 
 CPColorBmp.prototype.offsetOfPixel = function (x, y) {
     return ((y * this.width + x) * 4) | 0;

@@ -1739,7 +1739,16 @@ export default function CPArtwork(_width, _height) {
         }
     };
 
+    /**
+     * 現在のレイヤーに色収差 （RGBずらし） を適用する。
+     *
+     * @param {number} offset - 色ずれの強さ（ピクセル単位）。
+     */
     this.chromaticAberration = function (offset) {
+        if (maskEditingMode) {
+            // マスク編集中は処理しない
+            return;
+        }
         let r = this.getSelectionAutoSelect(),
             target = getActiveImage();
 
