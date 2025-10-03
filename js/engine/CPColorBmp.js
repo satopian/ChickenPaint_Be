@@ -716,7 +716,7 @@ CPColorBmp.prototype.copyArrayToPixelColumn = function (x, y, len, buffer) {
  * 横方向に radiusX、縦方向に radiusY の半径でぼかす。
  * 透明部分はアルファ値を考慮して処理する。
  *
- * @param {Rectangle} rect - ぼかしを適用する範囲。
+ * @param rect - ぼかしを適用する範囲。
  * @param {number} radiusX - 横方向のぼかし半径（ピクセル単位）。
  * @param {number} radiusY - 縦方向のぼかし半径（ピクセル単位）。
  */
@@ -772,7 +772,7 @@ CPColorBmp.prototype.boxBlur = function (rect, radiusX, radiusY) {
  * 赤チャンネルは右方向、緑チャンネルは下方向、青チャンネルは左上方向にずらす。
  * アルファ値が0の完全透明ピクセルは処理しない。
  *
- * @param {Rectangle} rect - 色収差を適用する範囲。
+ * @param rect - 色収差を適用する範囲。
  * @param {number} offset - チャンネルごとのずれ量（ピクセル単位）。
  */
 CPColorBmp.prototype.chromaticAberration = function (rect, offset) {
