@@ -40,7 +40,7 @@ export default function CPchromaticAberration(parent, controller) {
                     <form>
                         <div class="form-group">
                             <label>${_("Offset (pixels)")}</label>
-                            <input type="number" class="form-control chickenpaint-aberration-offset" value="" min="3", max="32">
+                            <input type="number" class="form-control chickenpaint-aberration-offset" value="" min="1", max="32">
                         </div>
                     </form>
                 </div>

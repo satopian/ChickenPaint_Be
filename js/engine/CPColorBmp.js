@@ -775,8 +775,9 @@ CPColorBmp.prototype.boxBlur = function (rect, radiusX, radiusY) {
  * @param {Rectangle} rect - 色収差を適用する範囲。
  * @param {number} offset - チャンネルごとのずれ量（ピクセル単位）。
  */
-CPColorBmp.prototype.chromaticAberration = function(rect,offset) {
+CPColorBmp.prototype.chromaticAberration = function (rect, offset) {
 
+    offset = Math.max(1, Math.min(32, offset));
     rect = this.getBounds().clipTo(rect);
 
     const w = this.width;
@@ -801,20 +802,26 @@ CPColorBmp.prototype.chromaticAberration = function(rect,offset) {
             let nx = Math.min(w - 1, x + offset);
             let nidx = (y * w + nx) * BYTES;
             let na = dst[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
-            dst[nidx + CPColorBmp.RED_BYTE_OFFSET] = Math.round(r0 * a0 + dst[nidx + CPColorBmp.RED_BYTE_OFFSET] * (1 - a0));
+            dst[nidx + CPColorBmp.RED_BYTE_OFFSET] = Math.round(
+                r0 * a0 + dst[nidx + CPColorBmp.RED_BYTE_OFFSET] * (1 - a0)
+            );
 
             // --- 緑チャンネル：下方向に offset ---
             let ny = Math.min(h - 1, y + offset);
             nidx = (ny * w + x) * BYTES;
             na = dst[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
-            dst[nidx + CPColorBmp.GREEN_BYTE_OFFSET] = Math.round(g0 * a0 + dst[nidx + CPColorBmp.GREEN_BYTE_OFFSET] * (1 - a0));
+            dst[nidx + CPColorBmp.GREEN_BYTE_OFFSET] = Math.round(
+                g0 * a0 + dst[nidx + CPColorBmp.GREEN_BYTE_OFFSET] * (1 - a0)
+            );
 
             // --- 青チャンネル：左上方向に offset ---
             nx = Math.max(0, x - offset);
             ny = Math.max(0, y - offset);
             nidx = (ny * w + nx) * BYTES;
             na = dst[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
-            dst[nidx + CPColorBmp.BLUE_BYTE_OFFSET] = Math.round(b0 * a0 + dst[nidx + CPColorBmp.BLUE_BYTE_OFFSET] * (1 - a0));
+            dst[nidx + CPColorBmp.BLUE_BYTE_OFFSET] = Math.round(
+                b0 * a0 + dst[nidx + CPColorBmp.BLUE_BYTE_OFFSET] * (1 - a0)
+            );
 
             // アルファは変更しない
         }
