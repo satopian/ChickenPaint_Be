@@ -1744,12 +1744,14 @@ export default function CPArtwork(_width, _height) {
      *
      * @param {number} offset - 色ずれの強さ（ピクセル単位）。
      */
-    this.chromaticAberration = function (offset) {
+    this.chromaticAberration = function (offset, currentLayerOnly = true) {
         if (maskEditingMode) {
             // マスク編集中は処理しない
             return;
         }
-        this.mergeAllLayers(true);//結合レイヤーを自動的に追加。
+        if (!currentLayerOnly) {
+            this.mergeAllLayers(true); //結合レイヤーを自動的に追加。
+        }
         let r = this.getSelectionAutoSelect(),
             target = getActiveImage();
 

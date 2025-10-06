@@ -47,6 +47,7 @@
     "Iterations (1-8, larger gives smoother blur)": "反復(1-8,大きいほどぼかしが滑らか)",
     "Chromatic aberration": "色収差 (RGBずらし)",
     "Offset (pixels)": "オフセット (ピクセル単位)",
+    "Current layer only": "現在のレイヤーのみ",
     "Monochromatic noise": "単色ノイズ",
     "Color noise": "カラーノイズ",
 

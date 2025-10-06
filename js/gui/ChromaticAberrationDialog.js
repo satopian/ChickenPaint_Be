@@ -43,7 +43,14 @@ export default function CPchromaticAberration(parent, controller) {
                             <input type="number" class="form-control chickenpaint-aberration-offset" value="" min="1", max="32">
                         </div>
                     </form>
-                </div>
+                    <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" id="currentLayerCheckbox">
+                    <label class="form-check-label" for="currentLayerCheckbox">
+                    ${_("Current layer only")}
+                    </label>
+                    </div>
+                    
+                    </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_(
                         "Cancel"
@@ -56,7 +63,9 @@ export default function CPchromaticAberration(parent, controller) {
         </div>
     `;
 
-    const aberrationSizeElem = dialog.querySelector(".chickenpaint-aberration-offset");
+    const aberrationSizeElem = dialog.querySelector(
+        ".chickenpaint-aberration-offset"
+    );
     const applyButton = dialog.querySelector(
         ".chickenpaint-apply-aberration-settings"
     );
@@ -90,7 +99,11 @@ export default function CPchromaticAberration(parent, controller) {
     // 「OK」ボタンのクリックイベント
     applyButton?.addEventListener("click", () => {
         const offset = parseInt(aberrationSizeElem?.value, 10);
-        controller.getArtwork().chromaticAberration(offset);
+        // チェックONなら現在のレイヤーのみ
+        const currentLayerOnly = dialog.querySelector(
+            "#currentLayerCheckbox"
+        )?.checked;
+        controller.getArtwork().chromaticAberration(offset, currentLayerOnly);
         controller.setModalShown(false);
         modal.hide(); // モーダルを手動で閉じる
     });
