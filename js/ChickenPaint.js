@@ -647,7 +647,7 @@ export default function ChickenPaint(options) {
                 modifies: { document: true },
                 allowed: "isMergeAllLayersAllowed",
             },
-            CPAddMergedLayer: {
+            CPCreateMergedLayer: {
                 action: function () {
                     that.artwork.mergeAllLayers(true);
                 },

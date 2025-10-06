@@ -22,7 +22,7 @@
     "Merge down": "下のレイヤーと結合",
     "Merge group": "グループ結合",
     "Merge all layers": "全レイヤー結合",
-    "Add merged layer": "結合レイヤーを追加",
+    "Create merged layer": "結合レイヤーを追加",
     "Add layer mask": "レイヤーマスク追加",
     "Delete mask": "レイヤーマスク削除",
     "Delete layer mask": "レイヤーマスク削除",
@@ -47,7 +47,7 @@
     "Iterations (1-8, larger gives smoother blur)": "反復(1-8,大きいほどぼかしが滑らか)",
     "Chromatic aberration": "色収差 (RGBずらし)",
     "Offset (pixels)": "オフセット (ピクセル単位)",
-    "Current layer only": "現在のレイヤーのみ",
+    "Apply to all (create merged layer)": "全体に適用(結合レイヤーを追加)",
     "Monochromatic noise": "単色ノイズ",
     "Color noise": "カラーノイズ",
 

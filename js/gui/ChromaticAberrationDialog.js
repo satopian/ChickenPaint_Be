@@ -44,12 +44,11 @@ export default function CPchromaticAberration(parent, controller) {
                         </div>
                     </form>
                     <div class="form-check mt-3">
-                    <input class="form-check-input" type="checkbox" id="currentLayerCheckbox">
-                    <label class="form-check-label" for="currentLayerCheckbox">
-                    ${_("Current layer only")}
+                    <input class="form-check-input" type="checkbox" id="createMergedLayer" checked="checked">
+                    <label class="form-check-label" for="createMergedLayer">
+                    ${_("Apply to all (create merged layer)")}
                     </label>
                     </div>
-                    
                     </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_(
@@ -100,10 +99,9 @@ export default function CPchromaticAberration(parent, controller) {
     applyButton?.addEventListener("click", () => {
         const offset = parseInt(aberrationSizeElem?.value, 10);
         // チェックONなら現在のレイヤーのみ
-        const currentLayerOnly = dialog.querySelector(
-            "#currentLayerCheckbox"
-        )?.checked;
-        controller.getArtwork().chromaticAberration(offset, currentLayerOnly);
+        const createMergedLayer =
+            dialog.querySelector("#createMergedLayer")?.checked;
+        controller.getArtwork().chromaticAberration(offset, createMergedLayer);
         controller.setModalShown(false);
         modal.hide(); // モーダルを手動で閉じる
     });
