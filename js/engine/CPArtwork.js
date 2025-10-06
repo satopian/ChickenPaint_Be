@@ -1749,6 +1749,7 @@ export default function CPArtwork(_width, _height) {
             // マスク編集中は処理しない
             return;
         }
+        this.mergeAllLayers(true);//結合レイヤーを自動的に追加。
         let r = this.getSelectionAutoSelect(),
             target = getActiveImage();
 
