@@ -1745,7 +1745,22 @@ export default function CPArtwork(_width, _height) {
      * @param {boolean} [createMergedLayer=false] - 結合レイヤーを作成するか
      */
     this.chromaticAberration = function (offset, createMergedLayer = false) {
-        addUndo(new CPChromaticAberration(offset, createMergedLayer));
+        if (createMergedLayer) {
+            addUndo(new CPChromaticAberrationCreateMergedLayer(offset));
+        } else {
+            let r = this.getSelectionAutoSelect(),
+                target = getActiveImage();
+
+            if (target) {
+                prepareForLayerPaintUndo();
+                paintUndoArea = r.clone();
+
+                target.chromaticAberration(r, offset);
+
+                addUndo(new CPUndoPaint());
+                invalidateLayerPaint(curLayer, r);
+            }
+        }
     };
 
     this.rectangleSelection = function (r) {
@@ -2670,15 +2685,15 @@ export default function CPArtwork(_width, _height) {
     CPActionMergeAllLayers.prototype.constructor = CPActionMergeAllLayers;
 
     /**
-     * 現在のレイヤーに色収差（RGBずらし）を適用するアクション。
-     * Undo/Redo に対応しており、オプションで結合レイヤーを作成可能。
+     * 現在のレイヤーに色収差（RGBずらし）を適用し、
+     * オプションで結合レイヤーを作成するアクション。
+     * Undo/Redo に対応。
      *
-     * @class
+     * @constructor
      * @extends CPUndo
      * @param {number} offset - 色ずれの強さ（ピクセル単位）
-     * @param {boolean} [createMergedLayer=false] - 結合レイヤーを作成するか
      */
-    function CPChromaticAberration(offset, createMergedLayer = false) {
+    function CPChromaticAberrationCreateMergedLayer(offset) {
         if (maskEditingMode) {
             // マスク編集中は処理しない
             return;
@@ -2688,27 +2703,23 @@ export default function CPArtwork(_width, _height) {
             oldRootLayers = layersRoot.layers.slice(0), // 元のレイヤー構造を保存
             flattenedLayer = new CPImageLayer(that.width, that.height, "");
 
-        if (createMergedLayer) {
-            this.undo = function () {
-                layersRoot.layers = oldRootLayers.slice(0);
-                artworkStructureChanged();
-                that.setActiveLayer(oldActiveLayer, false);
-            };
-        }
+        this.undo = function () {
+            layersRoot.layers = oldRootLayers.slice(0);
+            artworkStructureChanged();
+            that.setActiveLayer(oldActiveLayer, false);
+        };
 
         this.redo = function () {
-            if (createMergedLayer) {
-                let mergedImage = that.fusionLayers();
-                flattenedLayer.copyImageFrom(mergedImage);
-                // Generate the name after the document is empty (so it can be "Layer 1")
-                flattenedLayer.setName(that.getDefaultLayerName(false));
+            let mergedImage = that.fusionLayers();
+            flattenedLayer.copyImageFrom(mergedImage);
+            // Generate the name after the document is empty (so it can be "Layer 1")
+            flattenedLayer.setName(that.getDefaultLayerName(false));
 
-                // 元のレイヤーは残して、flattenedLayer を上に追加
-                layersRoot.layers = oldRootLayers.slice(0); // 念のため復元
-                layersRoot.addLayer(flattenedLayer);
-                artworkStructureChanged();
-                that.setActiveLayer(flattenedLayer, false);
-            }
+            // 元のレイヤーは残して、flattenedLayer を上に追加
+            layersRoot.layers = oldRootLayers.slice(0); // 念のため復元
+            layersRoot.addLayer(flattenedLayer);
+            artworkStructureChanged();
+            that.setActiveLayer(flattenedLayer, false);
             let r = that.getSelectionAutoSelect(),
                 target = getActiveImage();
 
@@ -2718,14 +2729,16 @@ export default function CPArtwork(_width, _height) {
 
                 target.chromaticAberration(r, offset);
 
-                addUndo(new CPUndoPaint());
                 invalidateLayerPaint(curLayer, r);
             }
         };
         this.redo();
     }
-    CPChromaticAberration.prototype = Object.create(CPUndo.prototype);
-    CPChromaticAberration.prototype.constructor = CPChromaticAberration;
+    CPChromaticAberrationCreateMergedLayer.prototype = Object.create(
+        CPUndo.prototype
+    );
+    CPChromaticAberrationCreateMergedLayer.prototype.constructor =
+        CPChromaticAberrationCreateMergedLayer;
 
     /**
      * Move the layer to the given position in the layer tree.
