@@ -44,10 +44,10 @@
     "Box blur...": "ぼかし",
     "Box blur": "ぼかし",
     "Blur amount (pixels)": "ぼかし量 (ピクセル単位)",
-    "Iterations (1-8, larger gives smoother blur)": "反復(1-8,大きいほどぼかしが滑らか)",
+    "Iterations (1-8, larger gives smoother blur)": "反復 (1-8,大きいほどぼかしが滑らか)",
     "Chromatic aberration": "色収差 (RGBずらし)",
     "Offset (pixels)": "オフセット (ピクセル単位)",
-    "Apply to all (create merged layer)": "全体に適用(結合レイヤーを追加)",
+    "Apply to all (create merged layer)": "全体に適用 (結合レイヤーを追加)",
     "Monochromatic noise": "単色ノイズ",
     "Color noise": "カラーノイズ",
 
