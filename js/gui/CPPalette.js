@@ -276,7 +276,9 @@ export default function CPPalette(cpController, className, title, options) {
     }
 
     function vertHandlePointerMove(e) {
+        e.stopPropagation();
         e.preventDefault();
+
         if (dragAction !== "vertResize") {
             return;
         }
@@ -284,13 +286,15 @@ export default function CPPalette(cpController, className, title, options) {
     }
 
     function vertHandlePointerUp(e) {
-        vertHandle.releasePointerCapture(e.pointerId);
+        vertHandle?.releasePointerCapture(e.pointerId);
         dragAction = false;
         vertHandle.removeEventListener("pointermove", vertHandlePointerMove);
         vertHandle.removeEventListener("pointerup", vertHandlePointerUp);
     }
 
     function vertHandlePointerDown(e) {
+        e.stopPropagation();
+        e.preventDefault();
         dragAction = "vertResize";
         vertDragOffsetY =
             e.pageY -
@@ -307,12 +311,13 @@ export default function CPPalette(cpController, className, title, options) {
         vertHandle.className = "chickenpaint-resize-handle-vert";
 
         vertHandle.addEventListener("pointerdown", vertHandlePointerDown);
-      
+
         containerElement.appendChild(vertHandle);
     }
 
-    
     function horzHandlePointerMove(e) {
+        e.stopPropagation();
+        e.preventDefault();
         if (dragAction == "horzResize") {
             that.setWidth(e.pageX - containerElement.offsetLeft);
         }
@@ -321,11 +326,19 @@ export default function CPPalette(cpController, className, title, options) {
     function horzHandlePointerUp(e) {
         horzHandle.releasePointerCapture(e.pointerId);
         dragAction = false;
+        horzHandle.removeEventListener("pointermove", horzHandlePointerMove);
+        horzHandle.removeEventListener("pointerup", horzHandlePointerUp);
     }
 
     function horzHandlePointerDown(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
         dragAction = "horzResize";
         horzHandle.setPointerCapture(e.pointerId);
+        horzHandle.addEventListener("pointermove", horzHandlePointerMove);
+        horzHandle.addEventListener("pointerup", horzHandlePointerUp);
+
     }
 
     function addHorzResizeHandle() {
@@ -334,8 +347,6 @@ export default function CPPalette(cpController, className, title, options) {
         horzHandle.className = "chickenpaint-resize-handle-horz";
 
         horzHandle.addEventListener("pointerdown", horzHandlePointerDown);
-        horzHandle.addEventListener("pointermove", horzHandlePointerMove);
-        horzHandle.addEventListener("pointerup", horzHandlePointerUp);
 
         containerElement.appendChild(horzHandle);
     }
@@ -382,6 +393,5 @@ export default function CPPalette(cpController, className, title, options) {
 
     headElement.addEventListener("pointerdown", paletteHeaderPointerDown);
 }
-
 CPPalette.prototype = Object.create(EventEmitter.prototype);
 CPPalette.prototype.constructor = EventEmitter;

@@ -14593,3 +14593,8 @@ fieldset:disabled .btn {
     background-repeat: no-repeat;
     background-position: center;
 }
+/* パレットリサイズ時のスクロールを無効化 */
+.chickenpaint-resize-handle-horz,
+.chickenpaint-resize-handle-vert {
+    touch-action: none; /* 横/縦リサイズハンドルでスクロールを無効化 */
+}
