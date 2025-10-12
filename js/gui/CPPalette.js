@@ -70,6 +70,7 @@ export default function CPPalette(cpController, className, title, options) {
         dragStartPos,
         dragAction,
         dragOffset,
+        vertDragOffsetY = 0,
         that = this;
 
     this.getElement = function () {
@@ -118,57 +119,61 @@ export default function CPPalette(cpController, className, title, options) {
         options.collapseDownwards = collapseDownwards;
     };
 
-/**
- * @param {boolean} [collapse] True to collapse, false to uncollapse, omit to toggle state
- */
-this.toggleCollapse = function (collapse) {
-    if (collapse === undefined) {
-        collapse = !containerElement.classList.contains("collapsed");
-    } else {
-        if (containerElement.classList.contains("collapsed") === collapse) {
-            return;
-        }
-    }
-
-    let chickenpaintCanvas = containerElement.closest(".chickenpaint")?.querySelector(".chickenpaint-canvas"),
-        windowHeight = chickenpaintCanvas ? chickenpaintCanvas.clientHeight : window.innerHeight,
-        oldHeight = this.getHeight(),
-        oldBottom = this.getY() + oldHeight;
-
-    // collapseがtrueなら「collapsed」クラスが追加され、falseなら削除される
-    containerElement.classList.toggle("collapsed", collapse);
-    // angle-downアイコンの表示/非表示を切り替える
-    collapseIcon.classList.toggle("icon-angle-down", !collapse);
-    // angle-upアイコンの表示/非表示を切り替える
-    collapseIcon.classList.toggle("icon-angle-up", collapse);
-
-    if (collapse) {
-        // Move the header down to the old base position
-        if (options.collapseDownwards) {
-            this.setLocation(
-                this.getX(),
-                Math.min(oldBottom, windowHeight) - this.getHeight()
-            );
-        }
-    } else {
-        let thisHeight = this.getHeight();
-
-        if (options.collapseDownwards) {
-            this.setLocation(
-                this.getX(),
-                Math.max(oldBottom - thisHeight, 0)
-            );
+    /**
+     * @param {boolean} [collapse] True to collapse, false to uncollapse, omit to toggle state
+     */
+    this.toggleCollapse = function (collapse) {
+        if (collapse === undefined) {
+            collapse = !containerElement.classList.contains("collapsed");
         } else {
-            // Keep palettes inside the window when uncollapsing
-            if (this.getY() + thisHeight > windowHeight) {
-                this.setLocation(
-                    this.getX(),
-                    Math.max(windowHeight - thisHeight, 0)
-                );
+            if (containerElement.classList.contains("collapsed") === collapse) {
+                return;
             }
         }
-    }
-};
+
+        let chickenpaintCanvas = containerElement
+                .closest(".chickenpaint")
+                ?.querySelector(".chickenpaint-canvas"),
+            windowHeight = chickenpaintCanvas
+                ? chickenpaintCanvas.clientHeight
+                : window.innerHeight,
+            oldHeight = this.getHeight(),
+            oldBottom = this.getY() + oldHeight;
+
+        // collapseがtrueなら「collapsed」クラスが追加され、falseなら削除される
+        containerElement.classList.toggle("collapsed", collapse);
+        // angle-downアイコンの表示/非表示を切り替える
+        collapseIcon.classList.toggle("icon-angle-down", !collapse);
+        // angle-upアイコンの表示/非表示を切り替える
+        collapseIcon.classList.toggle("icon-angle-up", collapse);
+
+        if (collapse) {
+            // Move the header down to the old base position
+            if (options.collapseDownwards) {
+                this.setLocation(
+                    this.getX(),
+                    Math.min(oldBottom, windowHeight) - this.getHeight()
+                );
+            }
+        } else {
+            let thisHeight = this.getHeight();
+
+            if (options.collapseDownwards) {
+                this.setLocation(
+                    this.getX(),
+                    Math.max(oldBottom - thisHeight, 0)
+                );
+            } else {
+                // Keep palettes inside the window when uncollapsing
+                if (this.getY() + thisHeight > windowHeight) {
+                    this.setLocation(
+                        this.getX(),
+                        Math.max(windowHeight - thisHeight, 0)
+                    );
+                }
+            }
+        }
+    };
 
     this.userIsDoneWithUs = function () {
         if (cpController.getSmallScreenMode()) {
@@ -230,6 +235,11 @@ this.toggleCollapse = function (collapse) {
 
                 e.target.setPointerCapture(e.pointerId);
             }
+            headElement.addEventListener(
+                "pointermove",
+                paletteHeaderPointerMove
+            );
+            headElement.addEventListener("pointerup", paletteHeaderPointerUp);
         }
     }
 
@@ -258,22 +268,37 @@ this.toggleCollapse = function (collapse) {
                 console.error(e);
             }
         }
+        headElement.removeEventListener(
+            "pointermove",
+            paletteHeaderPointerMove
+        );
+        headElement.removeEventListener("pointerup", paletteHeaderPointerUp);
     }
 
     function vertHandlePointerMove(e) {
-        if (dragAction == "vertResize") {
-            that.setHeight(e.pageY - containerElement.offsetTop);
+        e.preventDefault();
+        if (dragAction !== "vertResize") {
+            return;
         }
+        that.setHeight(e.pageY - containerElement.offsetTop - vertDragOffsetY);
     }
 
     function vertHandlePointerUp(e) {
         vertHandle.releasePointerCapture(e.pointerId);
         dragAction = false;
+        vertHandle.removeEventListener("pointermove", vertHandlePointerMove);
+        vertHandle.removeEventListener("pointerup", vertHandlePointerUp);
     }
 
     function vertHandlePointerDown(e) {
         dragAction = "vertResize";
+        vertDragOffsetY =
+            e.pageY -
+            containerElement.offsetTop -
+            containerElement.offsetHeight;
         vertHandle.setPointerCapture(e.pointerId);
+        vertHandle.addEventListener("pointermove", vertHandlePointerMove);
+        vertHandle.addEventListener("pointerup", vertHandlePointerUp);
     }
 
     function addVertResizeHandle() {
@@ -282,12 +307,11 @@ this.toggleCollapse = function (collapse) {
         vertHandle.className = "chickenpaint-resize-handle-vert";
 
         vertHandle.addEventListener("pointerdown", vertHandlePointerDown);
-        vertHandle.addEventListener("pointermove", vertHandlePointerMove);
-        vertHandle.addEventListener("pointerup", vertHandlePointerUp);
-
+      
         containerElement.appendChild(vertHandle);
     }
 
+    
     function horzHandlePointerMove(e) {
         if (dragAction == "horzResize") {
             that.setWidth(e.pageX - containerElement.offsetLeft);
@@ -357,8 +381,6 @@ this.toggleCollapse = function (collapse) {
     }
 
     headElement.addEventListener("pointerdown", paletteHeaderPointerDown);
-    headElement.addEventListener("pointermove", paletteHeaderPointerMove);
-    headElement.addEventListener("pointerup", paletteHeaderPointerUp);
 }
 
 CPPalette.prototype = Object.create(EventEmitter.prototype);
