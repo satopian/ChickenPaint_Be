@@ -2685,8 +2685,8 @@ export default function CPArtwork(_width, _height) {
     CPActionMergeAllLayers.prototype.constructor = CPActionMergeAllLayers;
 
     /**
-     * 現在のレイヤーに色収差（RGBずらし）を適用し、
-     * オプションで結合レイヤーを作成するアクション。
+     * 結合レイヤーを追加し、
+     * 色収差（RGBずらし）を適用するアクション。
      * Undo/Redo に対応。
      *
      * @constructor
