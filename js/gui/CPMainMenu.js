@@ -368,6 +368,13 @@ const MENU_ENTRIES = [
                 name: "-",
             },
             {
+                name: "Mobile mode",
+                action: "CPToggleSetSmallScreenMode",
+            },
+            {
+                name: "-",
+            },
+            {
                 name: "Show tools",
                 action: "CPPalTool",
                 mnemonic: "T",

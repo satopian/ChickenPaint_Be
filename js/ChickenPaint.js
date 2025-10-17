@@ -960,6 +960,13 @@ export default function ChickenPaint(options) {
                 },
                 modifies: { gui: true },
             },
+            CPToggleSetSmallScreenMode: {
+                action: function () {
+                    that.setSmallScreenMode(!smallScreenMode);
+                    mainGUI.arrangePalettes();
+                },
+                modifies: { gui: true },
+            },
 
             // Saving
 
@@ -1561,6 +1568,7 @@ export default function ChickenPaint(options) {
         that.artwork.on("editModeChanged", onEditModeChanged);
 
         mainGUI = new CPMainGUI(that, uiElem);
+        that.mainGUI = mainGUI;
 
         that.emitEvent("fullScreen", [isFullScreen]);
         that.emitEvent("smallScreen", [smallScreenMode]);

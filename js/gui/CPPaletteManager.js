@@ -97,9 +97,7 @@ export default function CPPaletteManager(cpController) {
 
     this.togglePalettes = function () {
         if (hiddenFrames.length === 0) {
-            let palettes = parentElem.querySelectorAll(
-                ".chickenpaint-palette"
-            );
+            let palettes = parentElem.querySelectorAll(".chickenpaint-palette");
             palettes.forEach(function (palette) {
                 that.showPaletteByName(
                     palette.getAttribute("data-paletteName"),
@@ -188,6 +186,21 @@ export default function CPPaletteManager(cpController) {
     this.arrangePalettes = function () {
         let windowDim = getPaletteDisplayArea(),
             haveWidthToSpare;
+        const smallScreenMode = cpController.getSmallScreenMode();
+        const mainGUI = cpController.mainGUI;
+        const mainMenu = mainGUI.getMainMenu();
+        const menuElement = mainMenu.getElement();
+        const smallScreenItem = menuElement.querySelector(
+            '[data-action="CPToggleSetSmallScreenMode"]'
+        );
+        //モバイルモード時には、メニューにチェックマークを付ける
+        if (smallScreenItem) {
+            if (smallScreenMode) {
+                smallScreenItem.classList.add("selected");
+            } else {
+                smallScreenItem.classList.remove("selected");
+            }
+        }
 
         if (cpController.getSmallScreenMode()) {
             palettes.tool.setLocation(0, 0);
@@ -325,17 +338,20 @@ export default function CPPaletteManager(cpController) {
         );
     };
 
+    /**
+     * パレット名ごとのデフォルト折りたたみ状態
+     * @type {Object.<string, boolean>}
+     */
     cpController.on("smallScreen", function (smallScreenMode) {
-        if (smallScreenMode) {
-            for (let paletteName in palettes) {
-                let palette = palettes[paletteName];
+        for (let paletteName in palettes) {
+            let palette = palettes[paletteName];
 
-                palette.toggleCollapse(
-                    smallScreenMode &&
-                        (!(paletteName in defaultCollapse) ||
-                            defaultCollapse[paletteName])
-                );
-            }
+            const shouldCollapse =
+                smallScreenMode &&
+                (!(paletteName in defaultCollapse) ||
+                    defaultCollapse[paletteName]);
+
+            palette.toggleCollapse(shouldCollapse);
         }
     });
 
