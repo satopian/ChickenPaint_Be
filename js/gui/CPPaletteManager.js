@@ -201,6 +201,18 @@ export default function CPPaletteManager(cpController) {
                 smallScreenItem.classList.remove("selected");
             }
         }
+        const widgetTrayItem = document.querySelector(
+            '.widget-nav [data-action="CPToggleSetSmallScreenMode"]'
+        );
+        if (widgetTrayItem) {
+            if (smallScreenMode) {
+                widgetTrayItem.classList.add("selected");
+                widgetTrayItem.dataset.selected = "true";
+            } else {
+                widgetTrayItem.classList.remove("selected");
+                widgetTrayItem.dataset.selected = "false";
+            }
+        }
 
         if (cpController.getSmallScreenMode()) {
             palettes.tool.setLocation(0, 0);

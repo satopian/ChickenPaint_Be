@@ -358,18 +358,15 @@ const MENU_ENTRIES = [
                 title: _("Rearrange the palette windows"),
             },
             {
+                name: "Mobile mode",
+                action: "CPToggleSetSmallScreenMode",
+            },
+            {
                 name: "Toggle palettes",
                 action: "CPTogglePalettes",
                 mnemonic: "P",
                 shortcut: "tab",
                 title: _("Hides or shows all palettes"),
-            },
-            {
-                name: "-",
-            },
-            {
-                name: "Mobile mode",
-                action: "CPToggleSetSmallScreenMode",
             },
             {
                 name: "-",
@@ -654,6 +651,7 @@ export default function CPMainMenu(controller, mainGUI) {
     }
 
     function fillWidgetTray(menuElem, entries) {
+         const mobileEntry = entries.find(e => e.action === "CPToggleSetSmallScreenMode");
         entries
             .filter((e) => e.mnemonic && controller.isActionSupported(e.action))
             .forEach((entry) => {
@@ -672,6 +670,20 @@ export default function CPMainMenu(controller, mainGUI) {
 
                 menuElem.appendChild(btn);
             });
+    if (mobileEntry) {
+        const mobileBtn = document.createElement("button");
+        mobileBtn.className = "widget-toggler mobile";
+        mobileBtn.type = "button";
+        mobileBtn.innerHTML = `<span>${_("Mobile mode")}</span>`;
+        mobileBtn.dataset.action = mobileEntry.action;
+
+        mobileBtn.addEventListener("click", (e) => {
+            menuItemClicked(mobileBtn);
+            e.preventDefault();
+        });
+
+        menuElem.appendChild(mobileBtn);
+    }
     }
 
     bar.addEventListener("click", (e) => {
