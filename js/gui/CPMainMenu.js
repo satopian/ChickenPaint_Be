@@ -358,15 +358,18 @@ const MENU_ENTRIES = [
                 title: _("Rearrange the palette windows"),
             },
             {
-                name: "Mobile mode",
-                action: "CPToggleSetSmallScreenMode",
-            },
-            {
                 name: "Toggle palettes",
                 action: "CPTogglePalettes",
                 mnemonic: "P",
                 shortcut: "tab",
                 title: _("Hides or shows all palettes"),
+            },
+            {
+                name: "-",
+            },
+            {
+                name: "Mobile mode",
+                action: "CPToggleSetSmallScreenMode",
             },
             {
                 name: "-",

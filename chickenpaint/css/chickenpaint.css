@@ -1688,9 +1688,6 @@ body.chickenpaint-full-screen {
     .chickenpaint-palette-brush {
         min-width: 160px;
     }
-    .chickenpaint button.widget-toggler.mobile{
-        display: none;
-    }
 }
 /* モバイルモードボタン非表示 */
 @media (max-width: 549px) {
