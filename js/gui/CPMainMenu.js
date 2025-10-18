@@ -680,6 +680,7 @@ export default function CPMainMenu(controller, mainGUI) {
         mobileBtn.dataset.checkbox = "true";
         mobileBtn.type = "button";
         mobileBtn.dataset.selected = "true";
+        mobileBtn.style.minWidth = "110px";
 
         // CPPaletteManagerでも同様の変更
         if (smallScreenMode) {
