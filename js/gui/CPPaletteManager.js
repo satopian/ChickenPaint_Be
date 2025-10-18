@@ -30,6 +30,7 @@ import CPBrushPalette from "./CPBrushPalette.js";
 import CPLayersPalette from "./CPLayersPalette.js";
 import CPTexturePalette from "./CPTexturePalette.js";
 import CPSwatchesPalette from "./CPSwatchesPalette.js";
+import { _ } from "../languages/lang.js";
 
 export default function CPPaletteManager(cpController) {
     const palettes = {
@@ -201,20 +202,23 @@ export default function CPPaletteManager(cpController) {
                 smallScreenItem.classList.remove("selected");
             }
         }
-        const widgetTrayItem = document.querySelector(
+        const mobileBtn = document.querySelector(
             '.widget-nav [data-action="CPToggleSetSmallScreenMode"]'
         );
-        if (widgetTrayItem) {
+        if (mobileBtn) {
+            mobileBtn.className = "widget-toggler mobile selected";
+            mobileBtn.dataset.checkbox = "true";
+            mobileBtn.type = "button";
+            mobileBtn.classList.add("selected");
+            mobileBtn.dataset.selected = "true";
             if (smallScreenMode) {
-                widgetTrayItem.classList.add("selected");
-                widgetTrayItem.dataset.selected = "true";
+                mobileBtn.innerHTML = `<span>${_("PC mode")}</span>`;
             } else {
-                widgetTrayItem.classList.remove("selected");
-                widgetTrayItem.dataset.selected = "false";
+                mobileBtn.innerHTML = `<span>${_("Mobile mode")}</span>`;
             }
         }
 
-        if (cpController.getSmallScreenMode()) {
+        if (smallScreenMode) {
             palettes.tool.setLocation(0, 0);
             palettes.misc.setLocation(
                 palettes.tool.getX() + palettes.tool.getWidth() + 1,

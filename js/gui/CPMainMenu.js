@@ -674,10 +674,19 @@ export default function CPMainMenu(controller, mainGUI) {
                 menuElem.appendChild(btn);
             });
     if (mobileEntry) {
+        const smallScreenMode = controller.getSmallScreenMode()
         const mobileBtn = document.createElement("button");
-        mobileBtn.className = "widget-toggler mobile";
+        mobileBtn.className = "widget-toggler mobile selected";
+        mobileBtn.dataset.checkbox = "true";
         mobileBtn.type = "button";
+        mobileBtn.dataset.selected = "true";
+
+        // CPPaletteManagerでも同様の変更
+        if (smallScreenMode) {
+        mobileBtn.innerHTML = `<span>${_("PC mode")}</span>`;
+        } else {
         mobileBtn.innerHTML = `<span>${_("Mobile mode")}</span>`;
+        }
         mobileBtn.dataset.action = mobileEntry.action;
 
         mobileBtn.addEventListener("click", (e) => {
