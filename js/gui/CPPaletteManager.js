@@ -35,13 +35,13 @@ import { _ } from "../languages/lang.js";
 export default function CPPaletteManager(cpController) {
     const palettes = {
             tool: new CPToolPalette(cpController),
-            misc: new CPMiscPalette(cpController),
-            stroke: new CPStrokePalette(cpController),
             color: new CPColorPalette(cpController),
+            swatches: new CPSwatchesPalette(cpController),
+            stroke: new CPStrokePalette(cpController),
             brush: new CPBrushPalette(cpController),
             layers: new CPLayersPalette(cpController),
+            misc: new CPMiscPalette(cpController),
             textures: new CPTexturePalette(cpController),
-            swatches: new CPSwatchesPalette(cpController),
         },
         defaultCollapse = {
             tool: false,
