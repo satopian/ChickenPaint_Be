@@ -45,13 +45,13 @@ export default function CPConfirmTransformDialog(parent, controller) {
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light chickenpaint-cancel-transform" data-bs-dismiss="modal">${_(
+                    <button type="button" class="btn btn-light chickenpaint-cancel-transform">${_(
                         "Cancel"
                     )}</button>
-                    <button type="button" class="btn btn-light chickenpaint-reject-transform" data-bs-dismiss="modal">${_(
+                    <button type="button" class="btn btn-light chickenpaint-reject-transform">${_(
                         "Undo transform"
                     )}</button>
-                    <button type="button" class="btn btn-primary chickenpaint-accept-transform" data-bs-dismiss="modal">${_(
+                    <button type="button" class="btn btn-primary chickenpaint-accept-transform">${_(
                         "Apply transform"
                     )}</button>
                 </div>
@@ -65,25 +65,25 @@ export default function CPConfirmTransformDialog(parent, controller) {
     const rejectButton = dialog.querySelector(".chickenpaint-reject-transform");
     const cancelButton = dialog.querySelector(".chickenpaint-cancel-transform");
 
+    // Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
+    const modal = new bootstrap.Modal(dialog);
     // イベントリスナーを追加
     applyButton?.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPTransformAccept" });
         that.emitEvent("accept");
-        modal.hide();
+        // "accept"イベント内で閉じる
     });
 
     rejectButton?.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPTransformReject" });
         that.emitEvent("reject");
-        modal.hide();
+        // "reject"イベント内で閉じる
     });
 
     cancelButton?.addEventListener("click", function (e) {
         modal.hide();
     });
 
-    // Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
-    const modal = new bootstrap.Modal(dialog);
 
     // モーダル表示用のメソッド
     this.show = function () {
