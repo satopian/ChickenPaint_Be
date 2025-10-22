@@ -194,7 +194,7 @@ export default function CPPaletteManager(cpController) {
         const smallScreenItem = menuElement.querySelector(
             '[data-action="CPToggleSetSmallScreenMode"]'
         );
-        //モバイルモード時には、メニューにチェックマークを付ける
+        //モバイルモード時は、メニューにチェックマークを付ける
         if (smallScreenItem) {
             if (smallScreenMode) {
                 smallScreenItem.classList.add("selected");
@@ -211,11 +211,16 @@ export default function CPPaletteManager(cpController) {
             mobileBtn.type = "button";
             mobileBtn.classList.add("selected");
             mobileBtn.dataset.selected = "true";
-            if (smallScreenMode) {
-                mobileBtn.innerHTML = `<span>${_("PC mode")}</span>`;
-            } else {
-                mobileBtn.innerHTML = `<span>${_("Mobile mode")}</span>`;
-            }
+            // まず既存の内容をクリア
+            mobileBtn.textContent = "";
+            // span要素を作成
+            const span = document.createElement("span");
+            span.textContent = smallScreenMode
+                ? _("PC mode")
+                : _("Mobile mode");
+
+            // ボタンに追加
+            mobileBtn.appendChild(span);
         }
 
         if (smallScreenMode) {

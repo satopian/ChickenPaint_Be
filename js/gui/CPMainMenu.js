@@ -654,7 +654,6 @@ export default function CPMainMenu(controller, mainGUI) {
     }
 
     function fillWidgetTray(menuElem, entries) {
-         const mobileEntry = entries.find(e => e.action === "CPToggleSetSmallScreenMode");
         entries
             .filter((e) => e.mnemonic && controller.isActionSupported(e.action))
             .forEach((entry) => {
@@ -664,7 +663,10 @@ export default function CPMainMenu(controller, mainGUI) {
                 btn.dataset.action = entry.action;
                 btn.dataset.checkbox = "true";
                 btn.dataset.selected = (!entry.checked).toString();
-                btn.innerHTML = `<span>${entry.mnemonic}</span>`;
+                // spanを作って textContent を設定
+                const span = document.createElement("span");
+                span.textContent = entry.mnemonic;
+                btn.appendChild(span);
 
                 btn.addEventListener("click", (e) => {
                     menuItemClicked(btn);
@@ -673,30 +675,41 @@ export default function CPMainMenu(controller, mainGUI) {
 
                 menuElem.appendChild(btn);
             });
-    if (mobileEntry) {
-        const smallScreenMode = controller.getSmallScreenMode()
-        const mobileBtn = document.createElement("button");
-        mobileBtn.className = "widget-toggler mobile selected";
-        mobileBtn.dataset.checkbox = "true";
-        mobileBtn.type = "button";
-        mobileBtn.dataset.selected = "true";
-        mobileBtn.style.minWidth = "110px";
 
-        // CPPaletteManagerでも同様の変更
-        if (smallScreenMode) {
-        mobileBtn.innerHTML = `<span>${_("PC mode")}</span>`;
-        } else {
-        mobileBtn.innerHTML = `<span>${_("Mobile mode")}</span>`;
+        const mobileEntry = entries.find(
+            (e) => e.action === "CPToggleSetSmallScreenMode"
+        );
+
+        if (mobileEntry) {
+            const smallScreenMode = controller.getSmallScreenMode();
+            const mobileBtn = document.createElement("button");
+            mobileBtn.className = "widget-toggler mobile selected";
+            mobileBtn.dataset.checkbox = "true";
+            mobileBtn.type = "button";
+            mobileBtn.dataset.selected = "true";
+            mobileBtn.style.minWidth = "110px";
+
+            // CPPaletteManagerでも同様の変更
+            // まず既存の内容をクリア
+            mobileBtn.textContent = "";
+
+            // span要素を作成
+            const span = document.createElement("span");
+            span.textContent = smallScreenMode
+                ? _("PC mode")
+                : _("Mobile mode");
+
+            // ボタンに追加
+            mobileBtn.appendChild(span);
+            mobileBtn.dataset.action = mobileEntry.action;
+
+            mobileBtn.addEventListener("click", (e) => {
+                menuItemClicked(mobileBtn);
+                e.preventDefault();
+            });
+
+            menuElem.appendChild(mobileBtn);
         }
-        mobileBtn.dataset.action = mobileEntry.action;
-
-        mobileBtn.addEventListener("click", (e) => {
-            menuItemClicked(mobileBtn);
-            e.preventDefault();
-        });
-
-        menuElem.appendChild(mobileBtn);
-    }
     }
 
     bar.addEventListener("click", (e) => {
