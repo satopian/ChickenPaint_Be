@@ -193,7 +193,6 @@ export default function CPCanvas(controller) {
         MAX_ZOOM = 8.0,
         CURSOR_DEFAULT = "default",
         CURSOR_PANNABLE = "grab",
-        CURSOR_PANNING = "grabbing",
         CURSOR_CROSSHAIR = "crosshair",
         CURSOR_MOVE = "move",
         CURSOR_NESW_RESIZE = "nesw-resize",
@@ -1072,7 +1071,7 @@ export default function CPCanvas(controller) {
                 panningX = e.pageX;
                 panningY = e.pageY;
                 panningOffset = that.getOffset();
-                setCursor(CURSOR_PANNING);
+                setCursor(CURSOR_PANNABLE);
 
                 return true;
             } else if (this.transient) {
@@ -1500,7 +1499,7 @@ export default function CPCanvas(controller) {
                     break;
                 case DRAG_ROTATE:
                     if (!key.isPressed("r") && !key.isPressed("space")) {
-                        setCursor(CURSOR_DEFAULT); // TODO add a custom rotation cursor
+                        setCursor(CURSOR_PANNABLE);
                     }
                     break;
                 default:
@@ -2009,26 +2008,28 @@ export default function CPCanvas(controller) {
                     button == BUTTON_PRIMARY &&
                     !e.altKey &&
                     !key.isPressed("space")) ||
-                (button == BUTTON_PRIMARY &&
-                    !e.altKey &&
-                    !key.isPressed("space") &&
-                    key.isPressed("r"))
-            ) {
-                firstClick = { x: mouseX, y: mouseY };
-
-                initAngle = that.getRotation();
-
-                // もし一時的に反転している状態ならば、
-                // cloneしたtransformに反転変換を適用して
-                // 反転状態を反映させる
-                initTransform = transform.clone();
-                if (isViewFlipped) {
+                    (button == BUTTON_PRIMARY &&
+                        !e.altKey &&
+                        !key.isPressed("space") &&
+                        key.isPressed("r"))
+                    ) {
+                        firstClick = { x: mouseX, y: mouseY };
+                        
+                        initAngle = that.getRotation();
+                        
+                        // もし一時的に反転している状態ならば、
+                        // cloneしたtransformに反転変換を適用して
+                        // 反転状態を反映させる
+                        initTransform = transform.clone();
+                        if (isViewFlipped) {
                     viewFlip(initTransform);
                 }
                 dragged = false;
-
+                
                 this.capture = true;
                 rotateButton = button;
+
+                setCursor(CURSOR_PANNABLE);
 
                 return true;
             } else if (this.transient) {
@@ -2077,6 +2078,9 @@ export default function CPCanvas(controller) {
                 return true;
             }
         };
+        this.enter = function () {
+            setCursor(CURSOR_PANNABLE);
+        };
 
         /**
          * When the mouse is released after rotation, we might want to snap our angle to the nearest 90 degree mark.
@@ -2122,7 +2126,11 @@ export default function CPCanvas(controller) {
                 this.capture = false;
 
                 if (this.transient && !key.isPressed("r")) {
+                    setCursor(CURSOR_DEFAULT);
+
                     modeStack.pop();
+                } else {
+                    setCursor(CURSOR_PANNABLE);
                 }
 
                 return true;
@@ -2133,7 +2141,7 @@ export default function CPCanvas(controller) {
             if (
                 this.transient &&
                 rotateButton != BUTTON_WHEEL &&
-                e.key === " "
+                e.key.toLowerCase() === "r"
             ) {
                 setCursor(CURSOR_DEFAULT);
 
