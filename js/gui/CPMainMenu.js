@@ -737,17 +737,8 @@ export default function CPMainMenu(controller, mainGUI) {
             paletteName.charAt(0).toUpperCase() +
             paletteName.slice(1);
 
-        const palette_toggler_content = document.getElementById(
-            "chickenpaint-palette-toggler-content"
-        ); //'button'
-
-        const buttons =
-            palette_toggler_content?.querySelectorAll(
-                `[data-action="${key}"]`
-            ) || [];
         const menus = bar?.querySelectorAll(`[data-action="${key}"]`) || [];
-        // 両方を一つにまとめて処理
-        [...buttons, ...menus].forEach((element) => {
+        [...menus].forEach((element) => {// button and menu item
             element.classList.toggle("selected", show);
         });
     }

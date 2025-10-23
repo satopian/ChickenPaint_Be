@@ -97,6 +97,12 @@ export default function CPPaletteManager(cpController) {
     };
 
     this.togglePalettes = function () {
+        const mainMenu = cpController.mainGUI.getMainMenu();
+        const menuElement = mainMenu.getElement();
+        const togglePalettesBtn = menuElement.querySelector(
+            '.widget-nav [data-action="CPTogglePalettes"]'
+        );
+
         if (hiddenFrames.length === 0) {
             let palettes = parentElem.querySelectorAll(".chickenpaint-palette");
             palettes.forEach(function (palette) {
@@ -106,6 +112,7 @@ export default function CPPaletteManager(cpController) {
                 );
                 hiddenFrames.push(palette);
             });
+            togglePalettesBtn.classList.remove("selected");
         } else {
             for (let i = 0; i < hiddenFrames.length; i++) {
                 let frame = hiddenFrames[i];
@@ -115,6 +122,7 @@ export default function CPPaletteManager(cpController) {
                 );
             }
             hiddenFrames = [];
+            togglePalettesBtn.classList.add("selected");
         }
     };
 
@@ -192,7 +200,7 @@ export default function CPPaletteManager(cpController) {
         const mainMenu = mainGUI.getMainMenu();
         const menuElement = mainMenu.getElement();
         const smallScreenItem = menuElement.querySelector(
-            '[data-action="CPToggleSetSmallScreenMode"]'
+            '.dropdown-item[data-action="CPToggleSetSmallScreenMode"]'
         );
         //モバイルモード時は、メニューにチェックマークを付ける
         if (smallScreenItem) {
@@ -202,7 +210,7 @@ export default function CPPaletteManager(cpController) {
                 smallScreenItem.classList.remove("selected");
             }
         }
-        const mobileBtn = document.querySelector(
+        const mobileBtn = menuElement.querySelector(
             '.widget-nav [data-action="CPToggleSetSmallScreenMode"]'
         );
         if (mobileBtn) {
