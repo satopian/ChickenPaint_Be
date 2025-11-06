@@ -1510,8 +1510,12 @@ export default function CPCanvas(controller) {
 
         let maintainAspectCheckd = false;
         this.mouseDown = function (e, button, pressure) {
-            const maintainAspectCheckbox = document.getElementById(
-                "chickenpaint-t-maintainAspectCheckbox"
+            const paletteManager = controller.mainGUI.getPaletteManager();
+            //ブラシパレットの要素を取得
+            const brushpalette = paletteManager.palettes.brush.getElement();
+            //縦横比固定のチェックボックスの要素を取得
+            const maintainAspectCheckbox = brushpalette.querySelector(
+                "#chickenpaint-t-maintainAspectCheckbox"
             );
 
             if (
@@ -2008,24 +2012,24 @@ export default function CPCanvas(controller) {
                     button == BUTTON_PRIMARY &&
                     !e.altKey &&
                     !key.isPressed("space")) ||
-                    (button == BUTTON_PRIMARY &&
-                        !e.altKey &&
-                        !key.isPressed("space") &&
-                        key.isPressed("r"))
-                    ) {
-                        firstClick = { x: mouseX, y: mouseY };
-                        
-                        initAngle = that.getRotation();
-                        
-                        // もし一時的に反転している状態ならば、
-                        // cloneしたtransformに反転変換を適用して
-                        // 反転状態を反映させる
-                        initTransform = transform.clone();
-                        if (isViewFlipped) {
+                (button == BUTTON_PRIMARY &&
+                    !e.altKey &&
+                    !key.isPressed("space") &&
+                    key.isPressed("r"))
+            ) {
+                firstClick = { x: mouseX, y: mouseY };
+
+                initAngle = that.getRotation();
+
+                // もし一時的に反転している状態ならば、
+                // cloneしたtransformに反転変換を適用して
+                // 反転状態を反映させる
+                initTransform = transform.clone();
+                if (isViewFlipped) {
                     viewFlip(initTransform);
                 }
                 dragged = false;
-                
+
                 this.capture = true;
                 rotateButton = button;
 
