@@ -273,8 +273,7 @@ export default function CPCanvas(controller) {
         desableEnterKey = null,
         fillExpandPixels = 0,
         foodFillAlpha = 255,
-        floodFillReferAllLayers = true,
-        maintainAspectCheckbox = false;
+        floodFillReferAllLayers = true;
     Math.sign =
         Math.sign ||
         function (x) {
@@ -1172,9 +1171,6 @@ export default function CPCanvas(controller) {
         }
     };
 
-    this.setMaintainAspectCheckbox = function (checked) {
-        maintainAspectCheckbox = checked;
-    };
     function CPRectSelectionMode() {
         var firstClick,
             curRect = new CPRect(0, 0, 0, 0),
@@ -1182,6 +1178,14 @@ export default function CPCanvas(controller) {
 
         let maintainAspectCheckd = false;
         this.mouseDown = function (e, button, pressure) {
+            const paletteManager = controller.mainGUI.getPaletteManager();
+            //ブラシパレットの要素を取得
+            const brushpalette = paletteManager.palettes.brush.getElement();
+            //縦横比固定のチェックボックスの要素を取得
+            const maintainAspectCheckbox = brushpalette.querySelector(
+                "#chickenpaint-s-maintainAspectCheckbox"
+            );
+
             if (
                 maintainAspectCheckbox &&
                 maintainAspectCheckbox instanceof HTMLInputElement

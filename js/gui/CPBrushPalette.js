@@ -761,12 +761,6 @@ function CPSelectionPanel(controller) {
 
     panel.appendChild(maintainAspectGroup);
     // パネルに追加
-
-    // ローカル変数から直接リスナーを追加
-    maintainAspectCheckbox.addEventListener("change", () => {
-        maintainAspectCheckbox.blur(); // フォーカス解除
-        controller.setMaintainAspectCheckbox(maintainAspectCheckbox.checked);
-    });
 }
 //Bootstrapのチェックボックスを作成
 function createBootstrapCheckbox(id, title, checked = false) {

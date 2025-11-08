@@ -1273,15 +1273,6 @@ export default function ChickenPaint(options) {
     };
 
     /**
-     * 「縦横比を維持」チェックボックスの状態を設定します。
-     * - checked: true の場合は縦横比を固定
-     * - 内部的には canvas.setMaintainAspectCheckbox() を呼び出します
-     */
-    this.setMaintainAspectCheckbox = function (checked) {
-        canvas.setMaintainAspectCheckbox(checked);
-    };
-
-    /**
      * モーダルの表示状態を設定します。
      * - 内部フラグを更新し、必要に応じて Enter キーの一時無効化処理を行います。
      * @param {boolean} shown true の場合モーダルを表示、false の場合非表示
