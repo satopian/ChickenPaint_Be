@@ -2862,8 +2862,7 @@ export default function CPArtwork(_width, _height) {
     /**
      * @param {string} propertyName
      * @param {boolean} invalidatesLayer
-     *
-     * @returns {typeof CPUndo}
+     * @returns {new (layers: CPLayer|CPLayer[], newValue: any) => CPUndo}
      */
     function generateLayerPropertyChangeAction(propertyName, invalidatesLayer) {
         let capitalPropertyName = capitalizeFirst(propertyName),

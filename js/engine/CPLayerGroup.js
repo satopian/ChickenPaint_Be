@@ -50,7 +50,7 @@ CPLayerGroup.prototype.constructor = CPLayerGroup;
  * @param {CPLayer[]} list
  * @returns {CPLayer[]}
  */
-CPLayerGroup.prototype.getLinearizedLayerList = function(respectCollapse, list) {
+CPLayerGroup.prototype.getLinearizedLayerList = function(respectCollapse, list=[]) {
 	list = list || [];
 
 	for (let layer of this.layers) {
