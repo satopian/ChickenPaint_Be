@@ -1,6 +1,7 @@
 {
     "File": "ファイル",
-    "Save to my computer": "PCに保存",
+    "Export as png": "PNGファイルをエクスポート",
+    "Export as zip": "ZIPファイルをエクスポート",
     "Post Oekaki": "画像を投稿",
 
     "Edit": "編集",

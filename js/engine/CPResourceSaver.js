@@ -2,6 +2,7 @@ import { save as chiSave } from "./CPChibiFile.js";
 import AdobeColorTable from "../util/AdobeColorTable.js";
 import EventEmitter from "wolfy87-eventemitter";
 import FileSaver from "file-saver";
+import JSZip from "jszip";
 
 import { _ } from "../languages/lang.js";
 
@@ -228,7 +229,8 @@ export default function CPResourceSaver(options) {
      * savingFailure(error)     - When saving fails, along with a string error message to display to the user.
      * savingComplete()         - When saving completes succesfully
      */
-    this.save = function () {
+    this.save = function (save_options = {}) {
+        const zip = save_options.zip ?? false;
         var flat, flatBlob, swatchesBlob;
 
         flat = binaryStringToByteArray(
@@ -306,16 +308,30 @@ export default function CPResourceSaver(options) {
                             .split(".")[0]
                             .replace(/[^0-9]/g, "_");
 
-                    FileSaver.saveAs(flatBlob, saveFilename + ".png");
-
-                    if (chibiResult) {
-                        FileSaver.saveAs(
-                            chibiResult.bytes,
-                            saveFilename + ".chi"
+                    if (zip) {
+                        saveFilesAsZip(
+                            saveFilename,
+                            flatBlob,
+                            chibiResult,
+                            swatchesBlob
                         );
-                    }
-                    if (swatchesBlob) {
-                        FileSaver.saveAs(swatchesBlob, saveFilename + ".aco");
+                    } else {
+                        FileSaver.saveAs(flatBlob, saveFilename + ".png");
+
+                        //複数ファイル自動ダウンロードはブロックされる事があるため、コメントアウト。
+                        //.chiが必要な時はZIPでダウンロード。
+                        // if (chibiResult) {
+                        //     FileSaver.saveAs(
+                        //         chibiResult.bytes,
+                        //         saveFilename + ".chi"
+                        //     );
+                        // }
+                        // if (swatchesBlob) {
+                        //     FileSaver.saveAs(
+                        //         swatchesBlob,
+                        //         saveFilename + ".aco"
+                        //     );
+                        // }
                     }
                 }
             })
@@ -323,6 +339,32 @@ export default function CPResourceSaver(options) {
                 that.emitEvent("savingFailure");
             });
     };
+
+    /**
+     * 複数のファイル（PNG、chi、スウォッチ）を ZIP にまとめて保存します。
+     *
+     * @async
+     * @param {string} saveFilename - 保存時の基本ファイル名（拡張子なし）。
+     * @param {Blob} flatBlob - 平坦化された PNG データの Blob。
+     * @param {{ bytes: Blob, version: string } | null} chibiResult - chi ファイルデータとバージョン情報。存在しない場合は null。
+     * @param {Blob | null} swatchesBlob - スウォッチデータ（.aco）の Blob。存在しない場合は null。
+     * @returns {Promise<void>} ZIP ファイルの生成と保存が完了する Promise。
+     */
+    async function saveFilesAsZip(
+        saveFilename,
+        flatBlob,
+        chibiResult,
+        swatchesBlob
+    ) {
+        const zip = new JSZip();
+
+        zip.file(`${saveFilename}.png`, flatBlob);
+        if (chibiResult) zip.file(`${saveFilename}.chi`, chibiResult.bytes);
+        if (swatchesBlob) zip.file(`${saveFilename}.aco`, swatchesBlob);
+
+        const content = await zip.generateAsync({ type: "blob" });
+        FileSaver.saveAs(content, `${saveFilename}.zip`);
+    }
 
     this.cancel = function () {
         cancelled = true;

@@ -970,9 +970,18 @@ export default function ChickenPaint(options) {
 
             // Saving
 
-            CPSave: {
+            CPExportAsPNG: {
                 action: function () {
                     saveDrawing();
+                },
+                isSupported: function () {
+                    return options.allowDownload !== false;
+                },
+                modifies: { document: true },
+            },
+            CPExportAsZIP: {
+                action: function () {
+                    saveDrawing({zip:true});
                 },
                 isSupported: function () {
                     return options.allowDownload !== false;
@@ -1310,7 +1319,7 @@ export default function ChickenPaint(options) {
         return tools[curBrush];
     };
 
-    function saveDrawing() {
+    function saveDrawing(save_options={}) {
         let saver = new CPResourceSaver({
             artwork: that.getArtwork(),
             rotation: canvas.getRotation90(),
@@ -1329,7 +1338,7 @@ export default function ChickenPaint(options) {
             );
         });
 
-        saver.save();
+        saver.save({zip: save_options.zip ?? false});
     }
 
     function sendDrawing() {

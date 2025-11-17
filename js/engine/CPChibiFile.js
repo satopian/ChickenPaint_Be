@@ -754,7 +754,7 @@ function hasChibiMagicMarker(array) {
  *
  * @returns {Promise.<SerializeResult>}
  */
-export function save(artwork, options) {
+export function save(artwork, options={}) {
     options = options || {};
 
     return Promise.resolve().then(() => {

@@ -19,14 +19,14 @@
     You should have received a copy of the GNU General Public License
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
-import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 export default function CPAboutDialog(parent) {
     // ダイアログのHTML構造
-    var dialog = document.createElement('div');
-    dialog.classList.add('modal', 'fade', 'chickenpaint-about-dialog');
-    dialog.setAttribute('tabindex', '-1');
-    dialog.setAttribute('role', 'dialog');
+    var dialog = document.createElement("div");
+    dialog.classList.add("modal", "fade", "chickenpaint-about-dialog");
+    dialog.setAttribute("tabindex", "-1");
+    dialog.setAttribute("role", "dialog");
 
     dialog.innerHTML = `
         <div class="modal-dialog">
@@ -86,6 +86,13 @@ Includes these MIT-licensed libraries:
     Includes the <a target="_blank" href="https://benalman.com/projects/jquery-throttle-debounce-plugin/" rel="noopener">jQuery throttle-debounce</a> library
     Copyright (c) 2010 "Cowboy" Ben Alman
     
+    Includes the <a target="_blank" href="https://github.com/Stuk/jszip/" rel="noopener">JSZip</a> library
+    Copyright (c) 2009-2016
+    Stuart Knightley,
+    David Duponchel,
+    Franz Buchinger,
+    António Afonso
+
     Includes the <a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap</a> 
     Copyright (c) 2011-2025 <a href="https://github.com/twbs/bootstrap/blob/main/LICENSE" target="_blank" rel="noopener">The Bootstrap Authors</a>
 
@@ -126,7 +133,7 @@ Includes Material Design icons by Google - <a href="https://fonts.google.com/" t
     var modalInstance = new bootstrap.Modal(dialog);
 
     // モーダルのクローズ時にダイアログを削除
-    dialog.addEventListener('hidden.bs.modal', () => {
+    dialog.addEventListener("hidden.bs.modal", () => {
         dialog.remove();
     });
 
@@ -134,6 +141,6 @@ Includes Material Design icons by Google - <a href="https://fonts.google.com/" t
     return {
         show: function () {
             modalInstance.show();
-        }
+        },
     };
 }

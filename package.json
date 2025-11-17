@@ -17,12 +17,14 @@
     "canvas": "^3.0.0",
     "google-closure-compiler": "^20250915.0.0",
     "multipipe": "^2.0.3",
-    "parcel": "^2.13.2"
+    "parcel": "^2.13.2",
+    "process": "^0.11.10"
   },
   "dependencies": {
     "@parcel/watcher": "^2.5.0",
     "bootstrap": "^5.3.3",
     "file-saver": "^2.0.5",
+    "jszip": "^3.10.1",
     "pako": "^1.0.11",
     "random-js": "^2.1.0",
     "uuid": "^9.0.1",

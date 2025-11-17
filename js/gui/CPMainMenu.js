@@ -29,16 +29,22 @@ const MENU_ENTRIES = [
         mnemonic: "F",
         children: [
             {
-                name: "Save to my computer",
-                action: "CPSave",
+                name: "Export as png",
+                action: "CPExportAsPNG",
                 mnemonic: "S",
                 shortcut: "ctrl+s",
             },
             {
+                name: "Export as zip",
+                action: "CPExportAsZIP",
+                 mnemonic: "S",
+                shortcut: "shift+alt+s",
+            },
+            {
                 name: "Save Oekaki",
                 action: "CPSend",
-                mnemonic: "S",
-                shortcut: "ctrl+s",
+                 mnemonic: "S",
+               shortcut: "ctrl+s",
             },
         ],
     },
