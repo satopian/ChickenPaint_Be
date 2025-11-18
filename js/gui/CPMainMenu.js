@@ -37,14 +37,17 @@ const MENU_ENTRIES = [
             {
                 name: "Export as zip",
                 action: "CPExportAsZIP",
-                 mnemonic: "S",
+                title: _(
+                    "Save the PNG image, CHI project file, and swatches file together as a ZIP package"
+                ),
+                mnemonic: "S",
                 shortcut: "shift+alt+s",
             },
             {
                 name: "Save Oekaki",
                 action: "CPSend",
-                 mnemonic: "S",
-               shortcut: "ctrl+s",
+                mnemonic: "S",
+                shortcut: "ctrl+s",
             },
         ],
     },
@@ -744,7 +747,8 @@ export default function CPMainMenu(controller, mainGUI) {
             paletteName.slice(1);
 
         const menus = bar?.querySelectorAll(`[data-action="${key}"]`) || [];
-        [...menus].forEach((element) => {// button and menu item
+        [...menus].forEach((element) => {
+            // button and menu item
             element.classList.toggle("selected", show);
         });
     }

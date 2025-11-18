@@ -1,7 +1,8 @@
 {
     "File": "ファイル",
-    "Export as png": "PNGファイルをエクスポート",
-    "Export as zip": "ZIPファイルをエクスポート",
+    "Export as png": "PNGで保存",
+    "Save the PNG image, CHI project file, and swatches file together as a ZIP package": "画像と固有形式ファイルをZIPで保存します",
+    "Export as zip": "ZIPで保存",
     "Post Oekaki": "画像を投稿",
 
     "Edit": "編集",
