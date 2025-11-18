@@ -32,15 +32,15 @@ export default function CPAboutDialog(parent) {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">About ChickenPaint Be</h5>
+                    <h5 class="modal-title">About litaChit</h5>
                     <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <a class="chickenpaint-on-github" target="_blank" href="https://github.com/satopian/ChickenPaint_Be" rel="noopener">
-                        <span class="icon-github"></span> ChickenPaint Be on GitHub
+                        <span class="icon-github"></span> litaChit on GitHub
                     </a>
                     <p>
-                        ChickenPaint Be is a customized version of <a href="https://github.com/thenickdude/chickenpaint" target="_blank" rel="noopener">ChickenPaint</a> by satopian.
+                        litaChit is a customized version of <a href="https://github.com/thenickdude/chickenpaint" target="_blank" rel="noopener">ChickenPaint</a> by satopian.
                     </p>
                     <p>
                         Built on: ${process.env.BUILD_TIME}<br>
