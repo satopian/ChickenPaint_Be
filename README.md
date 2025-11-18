@@ -238,7 +238,7 @@ https://github.com/satopian/Petit_Note/assets/44894014/a79c6e5d-1a9d-4520-8a83-f
 これまではキーボードがないデバイスはメニューから左右反転を選択する必要がありました。  
 左右反転アイコンの追加により、ワンタップで左右反転できるようになりました。  
 
- [ChickenPaint Beの操作パレットに左右反転アイコンを追加｜さとぴあ](https://note.com/satopian/n/nb14b357f5ccd)
+ [litaChitの操作パレットに左右反転アイコンを追加｜さとぴあ](https://note.com/satopian/n/nb14b357f5ccd)
  
 ### クリッピングの結果を維持したまま下のレイヤーと結合
 - これまでは、下のレイヤーと結合するとクリッピングマスクが無効になっていました。
