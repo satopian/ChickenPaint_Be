@@ -17,7 +17,7 @@ Bootstrap4のコードを含む｢ChickenPaint｣のビルドを行ったあと�
 
 noteにも、概要をまとめましたのでご一読いただければ幸いです。
 
-[ChickenPaintを改良したChickenPaint Beの新機能｜さとぴあ](https://note.com/satopian/n/ne3958c47464d)
+[ChickenPaintを改良したlitaChitの新機能｜さとぴあ](https://note.com/satopian/n/ne3958c47464d)
 
 ### Bootstrap4にXSSの脆弱性  
 
@@ -27,24 +27,24 @@ Bootstrap4はサポートが終了しているため、セキュリティパッ�
 
 [npm audit reports moderate XSS vulnerability with bootstrap 4.6.2 · Issue #40685 · twbs/bootstrap](https://github.com/twbs/bootstrap/issues/40685)  
 
-｢ChickenPaint Be｣は、Bootstrap5に移行しました。    
+｢litaChit｣は、Bootstrap5に移行しました。    
 Bootstrap5は現行サポートバージョンであるため、新しい問題が見つかっても修正されることが期待できます。
 
 ### 脱jQuery
 Bootstrap4はjQueryを必要としていましたが、Bootstrap5はJavaScriptのみで動作します。  
 もはや必須ではなくなったjQueryで書かれた大量のコードをjQueryのまま保守するのではなくJavaScriptに書き換える事にしました。  
 jQueryのコードは大量に存在し、JavaScriptへの書き換えと動作確認に時間がかかりましたがJavaScriptへの書き換えに成功し脱jQueryを実現する事ができました。    
-ChickenPaint BeはjQueryの開発状況に左右されなくなりました。  
+litaChitはjQueryの開発状況に左右されなくなりました。  
 仮にjQueryの開発が終了したとしても、影響を受けません。  
 
 ## デモ
 
 [https://paintbbs.sakura.ne.jp/localPaintBBS/chickenpaint/](https://paintbbs.sakura.ne.jp/localPaintBBS/chickenpaint/)
 
-## ChickenPaint Beが使えるお絵かき掲示板PHPスクリプトと交流サイト
+## litaChitが使えるお絵かき掲示板PHPスクリプトと交流サイト
 
 [お絵かき掲示板PHPスクリプトPetit Note](https://github.com/satopian/Petit_Note)を開発しています。  
-このPetit Noteを使った[お絵かき掲示板交流サイトPetit Note](https://paintbbs.sakura.ne.jp/)でChickenPaint Beを使う事もできます。  
+このPetit Noteを使った[お絵かき掲示板交流サイトPetit Note](https://paintbbs.sakura.ne.jp/)でlitaChitを使う事もできます。  
 
 ## 変更点
 
@@ -59,7 +59,7 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 - キャンバスを移動する｢手のひらツール｣｢回転ツール｣選択時にピンチズームが使えるようになりました。  
 これまではスマホ･タブレットでは虫眼鏡アイコンをタップして、0.7092倍1.41倍等の倍率を選択する事しかできませんでしたがピンチズームにより無段階ズームを使う事ができるようになりました。  
   
-[ChickenPaint Beにピンチズームを実装 - YouTube](https://www.youtube.com/shorts/Vj1nf5S9JVA)  
+[litaChitにピンチズームを実装 - YouTube](https://www.youtube.com/shorts/Vj1nf5S9JVA)  
 
 ### ペン(マウス)の左右ドラッグで拡大縮小するズーム
 - [CRTL+スペース]キーまたは[Z]キーを押下するとズームモードに入りズームカーソルに変わります。  
@@ -69,16 +69,16 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 ### 選択範囲内の画像を1ピクセル単位で移動
 - ←↓↑→キーで選択範囲内の画像を移動できるようになりました。これにより、確実に1ピクセルずつ移動できるようになりました。
 
-[ChickenPaint Beの新機能 新しくなったズームと移動 - YouTube](https://www.youtube.com/watch?v=PPjAfSb5IYA)
+[litaChitの新機能 新しくなったズームと移動 - YouTube](https://www.youtube.com/watch?v=PPjAfSb5IYA)
 
 ### 表示の左右反転
 - レイヤーが50枚存在する画像の表示を反転するために、50枚のレイヤーを左右反転して、さらにもとに戻すために50枚のレイヤーを左右反転する無駄な作業が発生する事がありました。  
 新しく追加された｢表示の左右反転｣を使用すれば、レイヤーが何枚あってもワンタップで表示を左右反転できます。  
 この操作は実際の画像を変更しないため、アンドゥの履歴にも残りません。    
   
-[ChickenPaint Beの新機能 表示の左右反転 - YouTube](https://www.youtube.com/watch?v=ATRIBAJKq5c)   
+[litaChitの新機能 表示の左右反転 - YouTube](https://www.youtube.com/watch?v=ATRIBAJKq5c)   
   
-[表示の左右反転!ChickenPaint Beの大進化｜さとぴあ](https://note.com/satopian/n/n3c91b1b1dda6)
+[表示の左右反転!litaChitの大進化｜さとぴあ](https://note.com/satopian/n/n3c91b1b1dda6)
 
 ### 選択範囲のワークフローを改善
 
@@ -86,7 +86,7 @@ ChickenPaint BeはjQueryの開発状況に左右されなくなりました。
 
 <img width="209" height="259" alt="image" src="https://github.com/user-attachments/assets/9827ac2b-bb20-4ab7-b50f-3f641a42fdd6" /><br>
 
-[ChickenPaint Beの新機能 選択範囲パネル･ズームと回転パネル - YouTube](https://www.youtube.com/watch?v=0fipzBPHCRk)
+[litaChitの新機能 選択範囲パネル･ズームと回転パネル - YouTube](https://www.youtube.com/watch?v=0fipzBPHCRk)
 
 ### ズームと回転
 - ツールオプションパレットに｢ズームと回転｣が追加されました。  
@@ -113,7 +113,7 @@ https://github.com/user-attachments/assets/0e619262-2e24-49db-8882-dccf7fcb48bb
 https://github.com/user-attachments/assets/ddf63802-8a32-4acf-92b2-8fcab09503c9
 
 ### バケツ塗りを改善
-- ChickenPaint Beで別のレイヤーの画像を参照して｢バケツ塗り｣ができるようになりました。  
+- litaChitで別のレイヤーの画像を参照して｢バケツ塗り｣ができるようになりました。  
 線画のレイヤーとバケツ塗りするレイヤーを分ける事が可能になりました。  
 これまでは線画の領域を塗り潰す時に、同一レイヤー内でしか塗り潰せませんでしたが、｢全レイヤー参照｣にチェックが入っていれば、｢全レイヤー｣の画像を統合した画像を元に塗り潰しの領域を判定します。  
 また｢領域拡張｣機能が追加され、アンチエイリアスの境界を塗り潰せるようになりました。  
@@ -122,9 +122,9 @@ https://github.com/user-attachments/assets/ddf63802-8a32-4acf-92b2-8fcab09503c9
 
 <img width="209" height="261" alt="image" src="https://github.com/user-attachments/assets/e07a5aad-94b7-40af-bb7d-8e539dac5ede" /><br>
   
-[ChickenPaint Beの新機能 バケツ塗りの全レイヤー参照･領域拡張 - YouTube](https://www.youtube.com/watch?v=sBvNNA_Ne_c)  
+[litaChitの新機能 バケツ塗りの全レイヤー参照･領域拡張 - YouTube](https://www.youtube.com/watch?v=sBvNNA_Ne_c)  
   
-[ChickenPaint Beの2025年9月の新機能｜さとぴあ](https://note.com/satopian/n/n19546604422b)  
+[litaChitの2025年9月の新機能｜さとぴあ](https://note.com/satopian/n/n19546604422b)  
   
 ### 水彩ブラシを改善
 - 描き始めの時にレイヤーの透明部分の白を引きずり白く浮き上がる問題を修正しました。
