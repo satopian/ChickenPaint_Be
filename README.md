@@ -1,4 +1,4 @@
-# ペイントツール litaChit (リタチ)
+# ペイントツール litaChit (リタチット)
 
 ## サポートが終了したBootstrap4からBootstrap5へ移行
 ｢ChickenPaint｣は、Nicholas Sherlock氏が開発したペイントソフトです。  
