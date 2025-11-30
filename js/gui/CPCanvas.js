@@ -3145,7 +3145,7 @@ export default function CPCanvas(controller) {
 
                 canvasContext.save();
                 canvasContext.globalCompositeOperation = "source-over";
-                canvasContext.fillStyle = "rgba(96, 96, 96, 0.1)";
+                canvasContext.fillStyle = "rgba(96, 96, 96, 0.035)";
                 canvasContext.beginPath();
 
                 // キャンバス全体を矩形として塗る
