@@ -3118,13 +3118,55 @@ export default function CPCanvas(controller) {
                 modeStack.peek().capture
             )
         ) {
+            const modes = [
+                floodFillMode,
+                gradientFillMode,
+                panMode,
+                rotateCanvasMode,
+                // rectSelectionMode,
+                // moveToolMode,
+                transformMode,
+                colorPickerMode,
+            ];
+            // === 選択範囲の外側を半透明で覆う ===
+            if (!modes.includes(modeStack.peek())) {
+                // 4点配列から矩形を計算
+                const pts = rectToDisplay(artwork.getSelection());
+
+                const x0 = Math.min(pts[0].x, pts[1].x, pts[2].x, pts[3].x);
+                const y0 = Math.min(pts[0].y, pts[1].y, pts[2].y, pts[3].y);
+                const x1 = Math.max(pts[0].x, pts[1].x, pts[2].x, pts[3].x);
+                const y1 = Math.max(pts[0].y, pts[1].y, pts[2].y, pts[3].y);
+
+                const x = Math.floor(x0);
+                const y = Math.floor(y0);
+                const w = Math.ceil(x1 - x0);
+                const h = Math.ceil(y1 - y0);
+
+                canvasContext.save();
+                canvasContext.globalCompositeOperation = "source-over";
+                canvasContext.fillStyle = "rgba(96, 96, 96, 0.1)";
+                canvasContext.beginPath();
+
+                // キャンバス全体を矩形として塗る
+                canvasContext.rect(0, 0, canvas.width, canvas.height);
+
+                // 順番に点を結ぶ
+                canvasContext.moveTo(pts[0].x, pts[0].y);
+                for (let i = 1; i < pts.length; i++) {
+                    canvasContext.lineTo(pts[i].x, pts[i].y);
+                }
+                canvasContext.closePath(); // 最後の点と最初を結ぶ
+
+                // even-odd で外側だけ塗る
+                canvasContext.fill("evenodd");
+                canvasContext.restore();
+            }
+            // === 点線枠の描画 ===
             canvasContext.setLineDash([3, 2]);
-
             plotSelectionRect(canvasContext, artwork.getSelection());
-
             canvasContext.setLineDash([]);
         }
-
         // Draw grid
         if (showGrid) {
             var bounds = artwork.getBounds(),
@@ -3272,6 +3314,7 @@ export default function CPCanvas(controller) {
             mode === ChickenPaint.M_ROTATE_CANVAS ||
             mode === ChickenPaint.M_PAN_CANVAS;
         modeStack.setUserMode(newMode);
+        that.repaintAll();
     });
 
     function onMaskViewChangeLayer() {
