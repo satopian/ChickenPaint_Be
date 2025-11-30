@@ -3118,15 +3118,15 @@ export default function CPCanvas(controller) {
                 modeStack.peek().capture
             )
         ) {
-            const modes = [
+            const modes = [//選択範囲外を覆わないモード
                 floodFillMode,
-                gradientFillMode,
                 panMode,
                 rotateCanvasMode,
-                // rectSelectionMode,
-                // moveToolMode,
                 transformMode,
                 colorPickerMode,
+                // gradientFillMode,
+                // rectSelectionMode,
+                // moveToolMode,
             ];
             // === 選択範囲の外側を半透明で覆う ===
             if (!modes.includes(modeStack.peek())) {
