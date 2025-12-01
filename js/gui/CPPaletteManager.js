@@ -130,15 +130,21 @@ export default function CPPaletteManager(cpController) {
         const mainMenu = cpController.mainGUI.getMainMenu();
 
         const menuElement = mainMenu.getElement();
-        const deselectIcon = menuElement.querySelector(".deselectIcon");
+        const menuDeselectIcon = menuElement.querySelector(".deselectIcon");
         // console.log("updateDeselectIcon called",deselectIcon);
-        if (!deselectIcon) {
+        const paletteElement = palettes.brush.getElement();
+        const paletteDeselectIcon =
+            paletteElement.querySelector(".icon-md-deselect");
+        const iconColor = "rgb(228,18,18)";
+        if (!(menuDeselectIcon && paletteDeselectIcon)) {
             return;
         }
         if (!cpController.artwork.getSelection().isEmpty()) {
-            deselectIcon.style.color = "rgb(228,18,18)";
+            menuDeselectIcon.style.color = iconColor;
+            paletteDeselectIcon.style.color = iconColor;
         } else {
-            deselectIcon.style.color = "";
+            menuDeselectIcon.style.color = "";
+            paletteDeselectIcon.style.color = "";
         }
     };
 

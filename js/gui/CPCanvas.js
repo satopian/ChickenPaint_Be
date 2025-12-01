@@ -273,7 +273,8 @@ export default function CPCanvas(controller) {
         desableEnterKey = null,
         fillExpandPixels = 0,
         foodFillAlpha = 255,
-        floodFillReferAllLayers = true;
+        floodFillReferAllLayers = true,
+        currentSelection = true;
     Math.sign =
         Math.sign ||
         function (x) {
@@ -3109,18 +3110,24 @@ export default function CPCanvas(controller) {
         setContrastingDrawStyle(canvasContext, "stroke");
 
         canvasContext.lineWidth = 1.0;
-        
-        const paletteManager = controller.mainGUI.getPaletteManager();
-        paletteManager.updateDeselectIcon();
+
+        const isEmpty = artwork.getSelection().isEmpty();
+        //選択範囲かかった時と空になった時だけ選択解除アイコンの色を更新
+        if (currentSelection !== isEmpty) {
+            const paletteManager = controller.mainGUI.getPaletteManager();
+            paletteManager.updateDeselectIcon();
+        }
+        currentSelection = isEmpty;
         // Draw the artwork selection so long as we're not in the middle of selecting a new rectangle
         if (
-            !artwork.getSelection().isEmpty() &&
+            !isEmpty &&
             !(
                 modeStack.peek() instanceof CPRectSelectionMode &&
                 modeStack.peek().capture
             )
         ) {
-            const modes = [//選択範囲外を覆わないモード
+            const modes = [
+                //選択範囲外を覆わないモード
                 floodFillMode,
                 panMode,
                 rotateCanvasMode,
