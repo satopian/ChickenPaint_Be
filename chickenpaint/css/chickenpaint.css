@@ -1630,6 +1630,7 @@ body.chickenpaint-full-screen {
 /* 選択解除･変形アイコン */
 .chickenpaint .widget-nav span.upperIcon {
     margin-right: 6px;
+    cursor: pointer;
 }
 /* 選択解除･変形アイコン */
 .chickenpaint .widget-nav span.clear {
