@@ -112,10 +112,10 @@
 
 @font-face {
     font-family: "icomoon-md";
-    src: url("../fonts/icomoon-md/fonts/icomoon-md.ttf?bys7qj")
+    src: url("../fonts/icomoon-md/fonts/icomoon-md.ttf?qrihru")
             format("truetype"),
-        url("../fonts/icomoon-md/fonts/icomoon-md.woff?bys7qj") format("woff"),
-        url("../fonts/icomoon-md/fonts/icomoon-md.svg?bys7qj#icomoon-md")
+        url("../fonts/icomoon-md/fonts/icomoon-md.woff?qrihru") format("woff"),
+        url("../fonts/icomoon-md/fonts/icomoon-md.svg?qrihru#icomoon-md")
             format("svg");
     font-weight: normal;
     font-style: normal;
@@ -170,6 +170,9 @@
 }
 .icon-md-download:before {
     content: "\e90a";
+}
+.icon-md-remove_selection:before {
+    content: "\e90b";
 }
 
 .chickenpaint {
@@ -1625,12 +1628,12 @@ body.chickenpaint-full-screen {
     margin-top: 3px;
 }
 /* 選択解除･変形アイコン */
-.chickenpaint .widget-nav span.upperIcon{
-    margin-right: 5px;
+.chickenpaint .widget-nav span.upperIcon {
+    margin-right: 6px;
 }
 /* 選択解除･変形アイコン */
-.chickenpaint .widget-nav span.transform{
-    margin-left: 5px;
+.chickenpaint .widget-nav span.clear {
+    margin-left: 6px;
 }
 
 /* More compact styles for small screens */
@@ -1687,29 +1690,30 @@ body.chickenpaint-full-screen {
         max-height: 200px;
     }
 }
+/* Mobileモード切り替えボタン非表示 */
+@media (max-width: 669px) {
+    .chickenpaint button.widget-toggler.mobile {
+        display: none;
+    }
+}
+
 @media (max-width: 599px) {
     /* ツールオプションパレットの幅 */
     .chickenpaint-palette-brush {
         min-width: 160px;
     }
-    /* Mobileモード切り替えボタン非表示 */
-    .chickenpaint button.widget-toggler.mobile{
+}
+@media (max-width: 539px) {
+    /* 選択解除･変形アイコン */
+    .chickenpaint .widget-nav span.upperIcon {
         display: none;
     }
-}
-
-
-/* パレット表示非表示のショートカットメニュー */
-@media (max-width: 519px) {
+    /* パレット表示非表示のショートカットメニュー */
     .chickenpaint .widget-nav {
         display: contents;
     }
     .chickenpaint .widget-nav .widget-toggler {
         margin: 0;
-    }
-    /* 選択解除･変形アイコン */
-    .chickenpaint .widget-nav span.upperIcon{
-        display: none;
     }
 }
 /* High resolution alternatives */
@@ -14544,7 +14548,7 @@ fieldset:disabled .btn {
 .chickenpaint .dropdown-item:any-link {
     color: var(--bs-dropdown-link-color);
 }
-.chickenpaint .modal-body a:any-link{
+.chickenpaint .modal-body a:any-link {
     color: var(--bs-dropdown-link-color);
 }
 
@@ -14576,8 +14580,9 @@ fieldset:disabled .btn {
     float: left;
     margin-left: -1.5em;
 }
-.modal-dialog .modal-content .form-group label,.modal-dialog .modal-content .form-check-label{
-    font-size:14px;
+.modal-dialog .modal-content .form-group label,
+.modal-dialog .modal-content .form-check-label {
+    font-size: 14px;
 }
 .chickenpaint button.btn.btn-light.btn-sm {
     background-color: #fcfcfc;

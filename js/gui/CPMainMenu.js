@@ -719,6 +719,38 @@ export default function CPMainMenu(controller, mainGUI) {
 
             menuElem.appendChild(mobileBtn);
         }
+        //消去アイコンを追加
+        const clearIcon = document.createElement("span");
+        // まず既存の内容をクリア
+        clearIcon.textContent = "";
+        clearIcon.className = "upperIcon clear icon-md-remove_selection";
+        clearIcon.style.fontSize = "25px";
+        clearIcon.style.verticalAlign = "bottom";
+        clearIcon.title = _("Clear");
+        clearIcon.dataset.action = "CPClear";
+
+        clearIcon.addEventListener("click", (e) => {
+            menuItemClicked(clearIcon);
+            e.preventDefault();
+        });
+
+        menuElem.appendChild(clearIcon);
+        //塗り潰しアイコンを追加
+        const fillIcon = document.createElement("span");
+        // まず既存の内容をクリア
+        fillIcon.textContent = "";
+        fillIcon.className = "upperIcon fill icon-md-ink_selection";
+        fillIcon.style.fontSize = "25px";
+        fillIcon.style.verticalAlign = "bottom";
+        fillIcon.title = _("Fill");
+        fillIcon.dataset.action = "CPFill";
+
+        fillIcon.addEventListener("click", (e) => {
+            menuItemClicked(fillIcon);
+            e.preventDefault();
+        });
+
+        menuElem.appendChild(fillIcon);
         //変形アイコンを追加
         const transFormIcon = document.createElement("span");
         // まず既存の内容をクリア
