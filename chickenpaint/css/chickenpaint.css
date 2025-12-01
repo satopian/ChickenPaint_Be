@@ -1628,6 +1628,10 @@ body.chickenpaint-full-screen {
 .chickenpaint .widget-nav span.upperIcon{
     margin-right: 5px;
 }
+/* 変形アイコン */
+.chickenpaint .widget-nav span.transform{
+    margin-left: 5px;
+}
 
 /* More compact styles for small screens */
 @media (max-width: 767px) {
@@ -1636,10 +1640,6 @@ body.chickenpaint-full-screen {
         padding: 0.1rem 0.9rem 0.6rem 0.9rem;
         /* margin: 0.1rem 0.4rem; */
     }
-    .chickenpaint .widget-nav .widget-toggler {
-        margin: 0 1rem 0 0;
-    }
-
     .chickenpaint .navbar-toggler {
         padding: 0;
         /* ハンバガーメニューを左に出す */
