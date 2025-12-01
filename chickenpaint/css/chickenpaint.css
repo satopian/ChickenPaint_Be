@@ -1628,7 +1628,7 @@ body.chickenpaint-full-screen {
 .chickenpaint .widget-nav span.upperIcon{
     margin-right: 5px;
 }
-/* 変形アイコン */
+/* 選択解除･変形アイコン */
 .chickenpaint .widget-nav span.transform{
     margin-left: 5px;
 }

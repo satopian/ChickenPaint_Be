@@ -1,5 +1,5 @@
 /*
-    litaChit
+    litaChix
     https://github.com/satopian/ChickenPaint_Be
     by satopian
     Customized from ChickenPaint by Nicholas Sherlock.
