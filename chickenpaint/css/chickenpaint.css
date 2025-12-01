@@ -1624,6 +1624,10 @@ body.chickenpaint-full-screen {
 .chickenpaint-small-screen canvas.chickenpaint-slider {
     margin-top: 3px;
 }
+/* 選択解除･変形アイコン */
+.chickenpaint .widget-nav span.upperIcon{
+    margin-right: 5px;
+}
 
 /* More compact styles for small screens */
 @media (max-width: 767px) {
@@ -1683,18 +1687,18 @@ body.chickenpaint-full-screen {
         max-height: 200px;
     }
 }
-/* ツールオプションパレットの幅 */
 @media (max-width: 599px) {
+    /* ツールオプションパレットの幅 */
     .chickenpaint-palette-brush {
         min-width: 160px;
     }
-}
-/* モバイルモードボタン非表示 */
-@media (max-width: 549px) {
+    /* Mobileモード切り替えボタン非表示 */
     .chickenpaint button.widget-toggler.mobile{
         display: none;
     }
 }
+
+
 /* パレット表示非表示のショートカットメニュー */
 @media (max-width: 519px) {
     .chickenpaint .widget-nav {
@@ -1702,6 +1706,10 @@ body.chickenpaint-full-screen {
     }
     .chickenpaint .widget-nav .widget-toggler {
         margin: 0;
+    }
+    /* 選択解除･変形アイコン */
+    .chickenpaint .widget-nav span.upperIcon{
+        display: none;
     }
 }
 /* High resolution alternatives */

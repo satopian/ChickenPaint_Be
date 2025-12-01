@@ -3109,7 +3109,9 @@ export default function CPCanvas(controller) {
         setContrastingDrawStyle(canvasContext, "stroke");
 
         canvasContext.lineWidth = 1.0;
-
+        
+        const paletteManager = controller.mainGUI.getPaletteManager();
+        paletteManager.updateDeselectIcon();
         // Draw the artwork selection so long as we're not in the middle of selecting a new rectangle
         if (
             !artwork.getSelection().isEmpty() &&

@@ -719,6 +719,38 @@ export default function CPMainMenu(controller, mainGUI) {
 
             menuElem.appendChild(mobileBtn);
         }
+        //変形アイコンを追加
+        const transFormIcon = document.createElement("span");
+        // まず既存の内容をクリア
+        transFormIcon.textContent = "";
+        transFormIcon.className = "upperIcon transform icon-md-resize";
+        transFormIcon.style.fontSize = "25px";
+        transFormIcon.style.verticalAlign = "bottom";
+        transFormIcon.title = _("Transform");
+        transFormIcon.dataset.action = "CPTransform";
+
+        transFormIcon.addEventListener("click", (e) => {
+            menuItemClicked(transFormIcon);
+            e.preventDefault();
+        });
+
+        menuElem.appendChild(transFormIcon);
+        //選択解除アイコンを追加
+        const deselectIcon = document.createElement("span");
+        // まず既存の内容をクリア
+        deselectIcon.textContent = "";
+        deselectIcon.className = "upperIcon deselectIcon icon-md-deselect";
+        deselectIcon.style.fontSize = "25px";
+        deselectIcon.style.verticalAlign = "bottom";
+        deselectIcon.dataset.action = "CPDeselectAll";
+        deselectIcon.title = _("Deselect");
+        deselectIcon.addEventListener("click", (e) => {
+            menuItemClicked(deselectIcon);
+            e.preventDefault();
+        });
+
+        menuElem.appendChild(deselectIcon);
+
     }
 
     bar.addEventListener("click", (e) => {

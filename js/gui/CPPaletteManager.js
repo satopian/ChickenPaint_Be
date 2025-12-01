@@ -125,6 +125,22 @@ export default function CPPaletteManager(cpController) {
             togglePalettesBtn.classList.add("selected");
         }
     };
+    //選択範囲がある時は選択解除アイコンを赤色で表示する
+    this.updateDeselectIcon = function () {
+        const mainMenu = cpController.mainGUI.getMainMenu();
+
+        const menuElement = mainMenu.getElement();
+        const deselectIcon = menuElement.querySelector(".deselectIcon");
+        // console.log("updateDeselectIcon called",deselectIcon);
+        if (!deselectIcon) {
+            return;
+        }
+        if (!cpController.artwork.getSelection().isEmpty()) {
+            deselectIcon.style.color = "rgb(228,18,18)";
+        } else {
+            deselectIcon.style.color = "";
+        }
+    };
 
     /**
      * Pop palettes that are currently outside the visible area back into view.
