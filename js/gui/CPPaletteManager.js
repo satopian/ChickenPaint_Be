@@ -125,7 +125,7 @@ export default function CPPaletteManager(cpController) {
             togglePalettesBtn.classList.add("selected");
         }
     };
-    //選択範囲がある時は選択解除アイコンを赤色で表示する
+    //選択範囲がある時は選択解除アイコンを青色で表示する
     this.updateDeselectIcon = function () {
         const mainMenu = cpController.mainGUI.getMainMenu();
 
@@ -135,7 +135,7 @@ export default function CPPaletteManager(cpController) {
         const paletteElement = palettes.brush.getElement();
         const paletteDeselectIcon =
             paletteElement.querySelector(".icon-md-deselect");
-        const iconColor = "rgb(228,18,18)";
+        const iconColor = "rgb(49, 130, 216)";
         if (!(menuDeselectIcon && paletteDeselectIcon)) {
             return;
         }
