@@ -728,7 +728,7 @@ function CPSelectionPanel(controller) {
 
     // 「選択解除」ボタン
     deselectButton.type = "button";
-    deselectButton.className = "btn btn-light btn-block";
+    deselectButton.className = "btn btn-light btn-block deselectButton";
     deselectButton.textContent = _("Deselect");
     deselectButton.addEventListener("click", function (e) {
         controller.actionPerformed({ action: "CPDeselectAll" });
