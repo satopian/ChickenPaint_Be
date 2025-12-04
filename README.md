@@ -160,15 +160,15 @@ https://github.com/user-attachments/assets/ddf63802-8a32-4acf-92b2-8fcab09503c9
  - そのため選択範囲の外側に半透明のグレーを乗せて暗くし、その範囲には描画できない事を明確にしました。  
  選択範囲がかかっている時は｢選択解除アイコン｣を青色で表示し｢選択解除ボタン｣に青色の枠を付けます。    
  これにより、選択範囲がかかっている事がわかりやすくなります。 
-
-<img width="677" height="720" alt="image" src="https://github.com/user-attachments/assets/a138c62a-a91a-4bd9-9536-99672ca078c3" /><br>
+  
+<img width="794" height="810" alt="image" src="https://github.com/user-attachments/assets/c1c70fe6-555c-4b1c-8a36-5ee5c6ad605e" /><br>
   
 - また｢消去｣｢塗り潰し｣｢変形｣｢選択解除｣アイコンを上部に追加しました。     
 これにより、使用頻度の高い操作をすばやく行う事ができるようになります。    
 スマホのような画面の小さな端末には表示されない補助的的なUIです。
   
-<img width="163" height="71" alt="image" src="https://github.com/user-attachments/assets/20f7ebe6-8816-4526-8773-71a52c5fb0c6" /><br>
-
+<img width="138" height="72" alt="image" src="https://github.com/user-attachments/assets/c3841f5f-60b9-4dfa-aa38-39455caaa444" /><br>
+  
 ### 変形確定前に別のレイヤーを選択、または新規レイヤーを追加しようとした時に表示されるダイヤログの動作を改良
 
 - 変形確定前にレイヤーを追加しようとすると変形を確定する取り消すなどの操作を促すダイヤログが表示されますが、従来の動作では、変形確定のエンターキーの押下で変形は確定されるものの、ダイヤログはすぐには消えず、レイヤーの追加も行われませんでした。  
