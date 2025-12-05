@@ -1500,6 +1500,9 @@ export default function ChickenPaint(options) {
         return smallScreenMode;
     };
 
+    this.fullScreenModeOptions = function (){
+        return options.fullScreenMode;
+    }
     this.setFullScreen = function (newVal) {
         if (isFullScreen !== newVal) {
             isFullScreen = newVal;

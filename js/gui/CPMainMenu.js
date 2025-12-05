@@ -684,6 +684,45 @@ export default function CPMainMenu(controller, mainGUI) {
 
                 menuElem.appendChild(btn);
             });
+        //全画面モードのオプションがforceの時は
+        if (controller.fullScreenModeOptions() === "force") {
+            //全画面アイコンを追加
+            const fullScreenIcon = document.createElement("span");
+            // まず既存の内容をクリア
+            fullScreenIcon.textContent = "";
+            fullScreenIcon.className = "upperIcon clear icon-md-crop_free";
+            fullScreenIcon.style.fontSize = "25px";
+            fullScreenIcon.style.verticalAlign = "bottom";
+            fullScreenIcon.title = _("Full-screen mode");
+            fullScreenIcon.dataset.action = "CPArrangePalettes";
+
+            fullScreenIcon.addEventListener("click", (e) => {
+                if (document.fullscreenElement) {
+                    // 今フルスクリーンなので解除
+                    document.exitFullscreen();
+                } else {
+                    // フルスクリーンに入る
+                    document.documentElement.requestFullscreen();
+                }
+            });
+
+            menuElem.appendChild(fullScreenIcon);
+
+            document.addEventListener("fullscreenchange", () => {
+                mainGUI.resize();
+                requestAnimationFrame(() => {
+                    //3フレーム待機
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            //一回では並び変わらないため3回リアレンジ
+                            menuItemClicked(fullScreenIcon);
+                            menuItemClicked(fullScreenIcon);
+                            menuItemClicked(fullScreenIcon);
+                        });
+                    });
+                });
+            });
+        }
 
         const mobileEntry = entries.find(
             (e) => e.action === "CPToggleSetSmallScreenMode"
@@ -782,7 +821,6 @@ export default function CPMainMenu(controller, mainGUI) {
         });
 
         menuElem.appendChild(deselectIcon);
-
     }
 
     bar.addEventListener("click", (e) => {

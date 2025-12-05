@@ -99,7 +99,8 @@ export default function CPMainGUI(controller, uiElem) {
         }
 
         canvas.resize(newHeight, false);
-        if( doConstrain ) {// パレットの再配置を行う
+        if (doConstrain) {
+            // パレットの再配置を行う
             that.constrainPalettes();
         }
     };
@@ -127,23 +128,42 @@ export default function CPMainGUI(controller, uiElem) {
     if (screen.orientation) {
         //非対応ブラウザ対策
         screen.orientation.addEventListener("change", (e) => {
-            //何通りも、試してどれかが有効になる事を期待
             this.resize();
-            // パレット初期化
-            controller.actionPerformed({ action: "CPArrangePalettes" });
-            setTimeout(() => {
-                this.resize();
-                // パレット初期化
-                controller.actionPerformed({ action: "CPArrangePalettes" });
-            }, 10);
-            Promise.resolve()
-                .then(() => {
-                    this.resize();
-                })
-                .then(() => {
-                    // パレット初期化
-                    controller.actionPerformed({ action: "CPArrangePalettes" });
+            requestAnimationFrame(() => {
+                //3フレーム待機
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        //一回では並び変わらないため3回リアレンジ
+                        controller.actionPerformed({
+                            action: "CPArrangePalettes",
+                        });
+                        controller.actionPerformed({
+                            action: "CPArrangePalettes",
+                        });
+                        controller.actionPerformed({
+                            action: "CPArrangePalettes",
+                        });
+                    });
                 });
+            });
+
+            //     //何通りも、試してどれかが有効になる事を期待
+            //     this.resize();
+            //     // パレット初期化
+            //     controller.actionPerformed({ action: "CPArrangePalettes" });
+            //     setTimeout(() => {
+            //         this.resize();
+            //         // パレット初期化
+            //         controller.actionPerformed({ action: "CPArrangePalettes" });
+            //     }, 10);
+            //     Promise.resolve()
+            //         .then(() => {
+            //             this.resize();
+            //         })
+            //         .then(() => {
+            //             // パレット初期化
+            //             controller.actionPerformed({ action: "CPArrangePalettes" });
+            //         });
         });
     }
     // ハンバガーメニューとモーダルの二重表示防止
@@ -188,7 +208,8 @@ export default function CPMainGUI(controller, uiElem) {
 
     //縦スクロールバーの表示を監視してリサイズする
     const observer = new ResizeObserver(() => {
-        const scrollbarVisible = window.innerWidth > document.documentElement.clientWidth;
+        const scrollbarVisible =
+            window.innerWidth > document.documentElement.clientWidth;
 
         if (scrollbarVisible !== lastScrollbarVisible) {
             lastScrollbarVisible = scrollbarVisible;
