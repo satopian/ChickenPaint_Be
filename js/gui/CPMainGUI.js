@@ -146,24 +146,6 @@ export default function CPMainGUI(controller, uiElem) {
                     });
                 });
             });
-
-            //     //何通りも、試してどれかが有効になる事を期待
-            //     this.resize();
-            //     // パレット初期化
-            //     controller.actionPerformed({ action: "CPArrangePalettes" });
-            //     setTimeout(() => {
-            //         this.resize();
-            //         // パレット初期化
-            //         controller.actionPerformed({ action: "CPArrangePalettes" });
-            //     }, 10);
-            //     Promise.resolve()
-            //         .then(() => {
-            //             this.resize();
-            //         })
-            //         .then(() => {
-            //             // パレット初期化
-            //             controller.actionPerformed({ action: "CPArrangePalettes" });
-            //         });
         });
     }
     // ハンバガーメニューとモーダルの二重表示防止
