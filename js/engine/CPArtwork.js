@@ -3410,9 +3410,9 @@ export default function CPArtwork(_width, _height) {
                 if (ctx) {
                     ctx.imageSmoothingEnabled = is_smooth;
                     // 品質を指定（対応ブラウザのみ有効）
-                    if (is_smooth && "imageSmoothingQuality" in ctx) {
-                        ctx.imageSmoothingQuality = "high";
-                    }
+                    // if (is_smooth && "imageSmoothingQuality" in ctx) {
+                    //     ctx.imageSmoothingQuality = "high";
+                    // }
                 }
 
                 /* Calling getImageData on the canvas forces Chrome to disable hardware acceleration for it, see
@@ -3704,9 +3704,9 @@ export default function CPArtwork(_width, _height) {
                     ctx.imageSmoothingEnabled = is_smooth;
 
                     // 品質を指定（対応ブラウザのみ有効）
-                    if (is_smooth && "imageSmoothingQuality" in ctx) {
-                        ctx.imageSmoothingQuality = "high";
-                    }
+                    // if (is_smooth && "imageSmoothingQuality" in ctx) {
+                    //     ctx.imageSmoothingQuality = "high";
+                    // }
                 }
 
                 this.undo();
