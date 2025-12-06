@@ -2466,9 +2466,14 @@ export default function CPCanvas(controller) {
 
     this.setInterpolation = function (enabled) {
         interpolation = enabled;
-
-        canvasContext.imageSmoothingEnabled = enabled;
-
+        const ctx = canvasContext;
+        if (ctx) {
+            // 品質を指定（対応ブラウザのみ有効）
+            ctx.imageSmoothingEnabled = enabled;
+            if (enabled && "imageSmoothingQuality" in ctx) {
+                ctx.imageSmoothingQuality = "high";
+            }
+        }
         this.repaintAll();
     };
 

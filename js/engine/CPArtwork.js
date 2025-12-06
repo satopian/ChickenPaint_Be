@@ -3405,8 +3405,15 @@ export default function CPArtwork(_width, _height) {
                         willReadFrequently: true,
                     }
                 );
-                this.composeCanvasContext.imageSmoothingEnabled =
-                    this.interpolation === "smooth";
+                const is_smooth = this.interpolation === "smooth";
+                const ctx = this.composeCanvasContext;
+                if (ctx) {
+                    ctx.imageSmoothingEnabled = is_smooth;
+                    // 品質を指定（対応ブラウザのみ有効）
+                    if (is_smooth && "imageSmoothingQuality" in ctx) {
+                        ctx.imageSmoothingQuality = "high";
+                    }
+                }
 
                 /* Calling getImageData on the canvas forces Chrome to disable hardware acceleration for it, see
                  * GetImageDataForcesNoAcceleration in https://cs.chromium.org/chromium/src/third_party/WebKit/Source/platform/graphics/ExpensiveCanvasHeuristicParameters.h
@@ -3691,9 +3698,15 @@ export default function CPArtwork(_width, _height) {
             if (newInterpolation != this.interpolation) {
                 this.interpolation = newInterpolation;
 
-                if (this.composeCanvasContext) {
-                    this.composeCanvasContext.imageSmoothingEnabled =
-                        this.interpolation == "smooth";
+                const is_smooth = this.interpolation === "smooth";
+                const ctx = this.composeCanvasContext;
+                if (ctx) {
+                    ctx.imageSmoothingEnabled = is_smooth;
+
+                    // 品質を指定（対応ブラウザのみ有効）
+                    if (is_smooth && "imageSmoothingQuality" in ctx) {
+                        ctx.imageSmoothingQuality = "high";
+                    }
                 }
 
                 this.undo();
