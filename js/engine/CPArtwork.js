@@ -927,7 +927,7 @@ export default function CPArtwork(_width, _height) {
             }
 
             strokedRegion.makeEmpty();
-        }
+         }
     }
 
     function prepareForFusion() {

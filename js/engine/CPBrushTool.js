@@ -86,6 +86,28 @@ export class CPBrushTool {
     }
 
     /**
+     * 設定アルファ値（0〜255）に応じて、描画時のアルファスケールを返す。
+     *
+     * 仕様:
+     * - 1〜100 の範囲ではスケールは常に 0.5（半分の濃さ）
+     * - 101〜255 の範囲では、線形に 0.5 → 1.0 へ増加する
+     *   ・101 のとき ≈ 0.503
+     *   ・255 のとき 1.0
+     *
+     * @param {number} alphaByte - ブラシ設定のアルファ値（0〜255）
+     * @returns {number} アルファスケール（0.5〜1.0）
+     */
+    calcAlphaScale(alphaByte) {
+        // 1..100 => 0.5 固定
+        if (alphaByte <= 100) return 0.5;
+
+        // 101..255 => 0.5 -> 1.0 を線形補間
+        // (alpha - 100) / (255 - 100) の範囲は (1..155)/155
+        const t = (alphaByte - 100) / (255 - 100); // 0..1 範囲（ただし alphaByte=101 の場合は ~0.00645）
+        return 0.5 + t * 0.5;
+    }
+
+    /**
      * @param {CPColorBmp|CPGreyBmp} destImage - Image to paint to (for those brushes not using the strokeBuffer)
      * @param {CPRect} imageRect - The area on the canvas that will be painted to
      * @param {CPBrushInfo} brushConfig - The current brush tip configuration
@@ -106,7 +128,15 @@ export class CPBrushTool {
     ) {
         // dab.alpha (1-255) → 5～255 に変換
         dab.alpha = Math.round((dab.alpha - 1) * (250 / 254) + 5);
-        let alpha = Math.max(1, Math.ceil(dab.alpha * brushConfig.alphaScale));
+
+        // brushConfig.alpha を基準にスケールを決める（UI の 0..255）
+        //ブラシがペンの時は、不透明度の係数をcalcAlphaScale()で計算して、255に近づくにつれてAlphaスケールが1に近づくようにする。
+        //255でAlphaスケール1で完全に不透明になる。
+        const alphaScale =
+            brushConfig.toolNb === 2 //ツールがペンの時
+                ? this.calcAlphaScale(dab.alpha)
+                : brushConfig.alphaScale;
+        const alpha = Math.max(1, Math.ceil(dab.alpha * alphaScale));
 
         switch (brushConfig.paintMode) {
             case CPBrushInfo.PAINT_MODE_FLOW:
