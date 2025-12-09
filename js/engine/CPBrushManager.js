@@ -31,8 +31,9 @@ const MAX_SQUEEZE = 10;
  */
 function buildBrush(brush, brushInfo) {
     brushInfo.curSize = brushInfo.curSize < 2 ? 1 : brushInfo.curSize;
-    brushInfo.curSize = Math.ceil(brushInfo.curSize);
-    let intSize = Math.ceil(brushInfo.curSize),
+
+    // let intSize = Math.ceil(brushInfo.curSize),
+    let intSize = brushInfo.curSize,
         center = intSize / 2.0,
         sqrRadius = (brushInfo.curSize / 2) * (brushInfo.curSize / 2),
         xFactor = 1.0 + brushInfo.curSqueeze * MAX_SQUEEZE,
@@ -113,9 +114,12 @@ function buildBrushAA(brush, brushInfo) {
  * @param {CPBrushInfo} brushInfo
  */
 function buildBrushSquare(brush, brushInfo) {
-    brushInfo.curSize = brushInfo.curSize < 2 ? 1 : brushInfo.curSize;
-    brushInfo.curSize = Math.ceil(brushInfo.curSize);
-    let intSize = Math.ceil(brushInfo.curSize),
+     if (brushInfo.curSize < 2) {
+        brush[0] = 255;   // 1pxブラシは無条件のハード1px
+        return;
+    }
+    // let intSize = Math.ceil(brushInfo.curSize),
+    let intSize = brushInfo.curSize,
         center = intSize / 2.0,
         size = brushInfo.curSize * Math.sin(Math.PI / 4),
         sizeX = size / 2 / (1.0 + brushInfo.curSqueeze * MAX_SQUEEZE),
@@ -145,7 +149,12 @@ function buildBrushSquare(brush, brushInfo) {
  * @param {CPBrushInfo} brushInfo
  */
 function buildBrushSquareAA(brush, brushInfo) {
-    let intSize = Math.ceil(brushInfo.curSize),
+    if (brushInfo.curSize < 2) {
+        brush[0] = 255;
+        return;
+    }
+    // let intSize = Math.ceil(brushInfo.curSize),
+    let intSize = brushInfo.curSize,
         center = intSize / 2.0,
         size = brushInfo.curSize * Math.sin(Math.PI / 4),
         sizeX = size / 2 / (1.0 + brushInfo.curSqueeze * MAX_SQUEEZE),
@@ -196,9 +205,12 @@ function buildBrushSquareAA(brush, brushInfo) {
  * @param {CPBrushInfo} brushInfo
  */
 function buildBrushSoft(brush, brushInfo) {
-    brushInfo.curSize = brushInfo.curSize < 2 ? 1 : brushInfo.curSize;
-    brushInfo.curSize = Math.ceil(brushInfo.curSize);
-    let intSize = Math.ceil(brushInfo.curSize),
+    if (brushInfo.curSize < 2) {
+        brush[0] = 255;
+        return;
+    }
+    // let intSize = Math.ceil(brushInfo.curSize),
+    let intSize = brushInfo.curSize,
         center = intSize / 2.0,
         sqrRadius = (brushInfo.curSize / 2) * (brushInfo.curSize / 2),
         xFactor = 1.0 + brushInfo.curSqueeze * MAX_SQUEEZE,
@@ -271,7 +283,8 @@ export default function CPBrushManager() {
      */
     function createSubpixelShiftedBrush(brushInfo, dx, dy) {
         let nonAABrush = getBrush(brushInfo),
-            intSize = Math.ceil(brushInfo.curSize),
+            // intSize = Math.ceil(brushInfo.curSize),
+            intSize = brushInfo.curSize,
             intSizeAA = Math.ceil(brushInfo.curSize) + 1;
 
         let invdx_invdy = (1 - dx) * (1 - dy),
