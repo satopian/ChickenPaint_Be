@@ -86,25 +86,28 @@ export class CPBrushTool {
     }
 
     /**
-     * 設定アルファ値（0〜255）に応じて、描画時のアルファスケールを返す。
+     * UI 不透明度 (1〜255) に対して描画用アルファスケールを返す。
      *
-     * 仕様:
-     * - 1〜100 の範囲ではスケールは常に 0.5（半分の濃さ）
-     * - 101〜255 の範囲では、線形に 0.5 → 1.0 へ増加する
-     *   ・101 のとき ≈ 0.503
-     *   ・255 のとき 1.0
-     *
-     * @param {number} alphaByte - ブラシ設定のアルファ値（0〜255）
-     * @returns {number} アルファスケール（0.5〜1.0）
+     * 挙動:
+     * - FIXED_THRESHOLD 以下は常に 0.5
+     * - FIXED_THRESHOLD を超えた範囲は INPUT_MAX まで線形補間し、
+     *   INPUT_MAX を与えた時に最終 alpha が CLAMP_TARGET_ALPHA になるように調整される。
      */
     calcAlphaScale(alphaByte) {
-        // 1..100 => 0.5 固定
-        if (alphaByte <= 100) return 0.5;
+        const FIXED_THRESHOLD = 192; // ここまでの値は 0.5 固定
+        const CLAMP_TARGET_ALPHA = 220; // 最終 alpha の上限
+        const INPUT_MAX = 255; // UI の最大値
 
-        // 101..255 => 0.5 -> 1.0 を線形補間
-        // (alpha - 100) / (255 - 100) の範囲は (1..155)/155
-        const t = (alphaByte - 100) / (255 - 100); // 0..1 範囲（ただし alphaByte=101 の場合は ~0.00645）
-        return 0.5 + t * 0.5;
+        // maxScale は、入力が INPUT_MAX の場合に alpha が CLAMP_TARGET_ALPHA となる係数
+        const maxScale = CLAMP_TARGET_ALPHA / INPUT_MAX;
+
+        // FIXED_THRESHOLD 以下はスケール固定
+        if (alphaByte <= FIXED_THRESHOLD) return 0.5;
+
+        // FIXED_THRESHOLD+1 〜 INPUT_MAX の範囲を線形補間
+        const t = (alphaByte - FIXED_THRESHOLD) / (INPUT_MAX - FIXED_THRESHOLD);
+
+        return 0.5 + t * (maxScale - 0.5);
     }
 
     /**
@@ -130,14 +133,13 @@ export class CPBrushTool {
         dab.alpha = Math.round((dab.alpha - 1) * (250 / 254) + 5);
 
         // brushConfig.alpha を基準にスケールを決める（UI の 0..255）
-        //ブラシがペンの時は、不透明度の係数をcalcAlphaScale()で計算して、255に近づくにつれてAlphaスケールが1に近づくようにする。
-        //255でAlphaスケール1で完全に不透明になる。
+        //ブラシがペンの時は、不透明度の係数をcalcAlphaScale()で計算してAlphaスケールが段階的に変化するようにする。
         const alphaScale =
             brushConfig.toolNb === 2 //ツールがペンの時
                 ? this.calcAlphaScale(dab.alpha)
                 : brushConfig.alphaScale;
         const alpha = Math.max(1, Math.ceil(dab.alpha * alphaScale));
-
+        // console.log("alpha", alpha);
         switch (brushConfig.paintMode) {
             case CPBrushInfo.PAINT_MODE_FLOW:
                 this._paintFlow(
