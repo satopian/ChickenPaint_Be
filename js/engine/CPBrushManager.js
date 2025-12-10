@@ -30,9 +30,8 @@ const MAX_SQUEEZE = 10;
  * @param {CPBrushInfo} brushInfo
  */
 function buildBrush(brush, brushInfo) {
-    brushInfo.curSize = brushInfo.curSize < 2 ? 1 : brushInfo.curSize;
     // let intSize = Math.ceil(brushInfo.curSize),
-    let intSize = brushInfo.curSize,
+    let intSize = Math.max(brushInfo.curSize,1),
         center = intSize / 2.0,
         sqrRadius = (brushInfo.curSize / 2) * (brushInfo.curSize / 2),
         xFactor = 1.0 + brushInfo.curSqueeze * MAX_SQUEEZE,
