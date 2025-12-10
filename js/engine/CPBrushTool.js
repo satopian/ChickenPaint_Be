@@ -95,7 +95,7 @@ export class CPBrushTool {
      */
     calcAlphaScale(alphaByte) {
         const FIXED_THRESHOLD = 230; // ここまでの値は 0.5 固定
-        const CLAMP_TARGET_ALPHA = 160; // 最終 alpha の上限
+        const CLAMP_TARGET_ALPHA = 180; // 最終 alpha の上限
         const INPUT_MAX = 255; // UI の最大値
 
         // maxScale は、入力が INPUT_MAX の場合に alpha が CLAMP_TARGET_ALPHA となる係数

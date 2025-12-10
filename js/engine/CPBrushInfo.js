@@ -121,9 +121,9 @@ CPBrushInfo.DEFAULTS = {
 CPBrushInfo.prototype.applyPressure = function(pressure) {
     // FIXME: no variable size for smudge and oil :(
     if (this.pressureSize && this.brushMode != CPBrushInfo.BRUSH_MODE_SMUDGE && this.brushMode != CPBrushInfo.BRUSH_MODE_OIL) {
-        this.curSize = Math.max(0.6, this.size * pressure);
+        this.curSize = Math.max(0.1, this.size * pressure);
     } else {
-        this.curSize = Math.max(0.6, this.size);
+        this.curSize = Math.max(0.1, this.size);
     }
 
     // FIXME: what is the point of doing that?
