@@ -112,7 +112,7 @@ function buildBrushAA(brush, brushInfo) {
  * @param {CPBrushInfo} brushInfo
  */
 function buildBrushSquare(brush, brushInfo) {
-    if (brushInfo.curSize < 1) {
+    if (brushInfo.curSize < 2) {
         const size = brushInfo.curSize;
         const r = size / 2; // 半径
         const area = Math.PI * r * r; // 実質カバー率
