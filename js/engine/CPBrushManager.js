@@ -31,7 +31,7 @@ const MAX_SQUEEZE = 10;
  */
 function buildBrush(brush, brushInfo) {
     // let intSize = Math.ceil(brushInfo.curSize),
-    let intSize = Math.max(brushInfo.curSize,1),
+    let intSize = Math.max(brushInfo.curSize, 1),
         center = intSize / 2.0,
         sqrRadius = (brushInfo.curSize / 2) * (brushInfo.curSize / 2),
         xFactor = 1.0 + brushInfo.curSqueeze * MAX_SQUEEZE,
@@ -113,15 +113,9 @@ function buildBrushAA(brush, brushInfo) {
  */
 function buildBrushSquare(brush, brushInfo) {
     if (brushInfo.curSize < 2) {
-        const size = brushInfo.curSize;
-        const r = size / 2; // 半径
-        const area = Math.PI * r * r; // 実質カバー率
-        const alpha = Math.min(255, area * 255);
-
-        brush[0] = alpha | 0; // 中心だけ描く
+        brush[0] = 255; // 1pxブラシは無条件のハード1px
         return;
     }
-    // let intSize = Math.ceil(brushInfo.curSize),
     let intSize = brushInfo.curSize,
         center = intSize / 2.0,
         size = brushInfo.curSize * Math.sin(Math.PI / 4),
