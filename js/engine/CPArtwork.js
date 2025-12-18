@@ -927,7 +927,7 @@ export default function CPArtwork(_width, _height) {
             }
 
             strokedRegion.makeEmpty();
-         }
+        }
     }
 
     function prepareForFusion() {
@@ -1722,7 +1722,22 @@ export default function CPArtwork(_width, _height) {
      * @param {number} radiusY
      * @param {number} iterations
      */
-    this.boxBlur = function (radiusX, radiusY, iterations) {
+    this.boxBlur = function (
+        radiusX,
+        radiusY,
+        iterations,
+        createMergedLayer = false
+    ) {
+        if (createMergedLayer) {
+            addUndo(
+                new CPCreateMergedLayerWithFilter(function (target, r) {
+                    for (let i = 0; i < iterations; i++) {
+                        target.boxBlur(r, radiusX, radiusY);
+                    }
+                })
+            );
+            return;
+        }
         let r = this.getSelectionAutoSelect(),
             target = getActiveImage();
 
@@ -1739,27 +1754,61 @@ export default function CPArtwork(_width, _height) {
         }
     };
     /**
-     * 現在のレイヤーに色収差 （RGBずらし） を適用する。
+     * 現在のレイヤーに色収差（RGBずらし）を適用する。
      *
-     * @param {number} offset - 色ずれの強さ（ピクセル単位）
-     * @param {boolean} [createMergedLayer=false] - 結合レイヤーを作成するか
+     * @param {number} offset
+     * @param {boolean} [createMergedLayer=false]
      */
     this.chromaticAberration = function (offset, createMergedLayer = false) {
         if (createMergedLayer) {
-            addUndo(new CPChromaticAberrationCreateMergedLayer(offset));
-        } else {
-            let r = this.getSelectionAutoSelect(),
-                target = getActiveImage();
+            addUndo(
+                new CPCreateMergedLayerWithFilter(function (target, r) {
+                    target.chromaticAberration(r, offset);
+                })
+            );
+            return;
+        }
 
-            if (target) {
-                prepareForLayerPaintUndo();
-                paintUndoArea = r.clone();
+        let r = this.getSelectionAutoSelect(),
+            target = getActiveImage();
 
-                target.chromaticAberration(r, offset);
+        if (target) {
+            prepareForLayerPaintUndo();
+            paintUndoArea = r.clone();
 
-                addUndo(new CPUndoPaint());
-                invalidateLayerPaint(curLayer, r);
-            }
+            target.chromaticAberration(r, offset);
+
+            addUndo(new CPUndoPaint());
+            invalidateLayerPaint(curLayer, r);
+        }
+    };
+    /**
+     * 現在のレイヤーにモザイクを適用する。
+     *
+     * @param {number} blockSize
+     * @param {boolean} [createMergedLayer=false]
+     */
+    this.mosaic = function (blockSize, createMergedLayer = false) {
+        if (createMergedLayer) {
+            addUndo(
+                new CPCreateMergedLayerWithFilter(function (target, r) {
+                    target.mosaic(r, blockSize);
+                })
+            );
+            return;
+        }
+
+        let r = this.getSelectionAutoSelect(),
+            target = getActiveImage();
+
+        if (target) {
+            prepareForLayerPaintUndo();
+            paintUndoArea = r.clone();
+
+            target.mosaic(r, blockSize);
+
+            addUndo(new CPUndoPaint());
+            invalidateLayerPaint(curLayer, r);
         }
     };
 
@@ -2685,22 +2734,17 @@ export default function CPArtwork(_width, _height) {
     CPActionMergeAllLayers.prototype.constructor = CPActionMergeAllLayers;
 
     /**
-     * 結合レイヤーを追加し、
-     * 色収差（RGBずらし）を適用するアクション。
-     * Undo/Redo に対応。
+     * 結合レイヤーを追加し、任意のフィルタを適用する Undo。
      *
      * @constructor
      * @extends CPUndo
-     * @param {number} offset - 色ずれの強さ（ピクセル単位）
+     * @param {Function} applyFilterFn - (target, r) => void
      */
-    function CPChromaticAberrationCreateMergedLayer(offset) {
-        if (maskEditingMode) {
-            // マスク編集中は処理しない
-            return;
-        }
+    function CPCreateMergedLayerWithFilter(applyFilterFn) {
+        if (maskEditingMode) return;
 
         let oldActiveLayer = that.getActiveLayer(),
-            oldRootLayers = layersRoot.layers.slice(0), // 元のレイヤー構造を保存
+            oldRootLayers = layersRoot.layers.slice(0),
             flattenedLayer = new CPImageLayer(that.width, that.height, "");
 
         this.undo = function () {
@@ -2712,14 +2756,13 @@ export default function CPArtwork(_width, _height) {
         this.redo = function () {
             let mergedImage = that.fusionLayers();
             flattenedLayer.copyImageFrom(mergedImage);
-            // Generate the name after the document is empty (so it can be "Layer 1")
             flattenedLayer.setName(that.getDefaultLayerName(false));
 
-            // 元のレイヤーは残して、flattenedLayer を上に追加
-            layersRoot.layers = oldRootLayers.slice(0); // 念のため復元
+            layersRoot.layers = oldRootLayers.slice(0);
             layersRoot.addLayer(flattenedLayer);
             artworkStructureChanged();
             that.setActiveLayer(flattenedLayer, false);
+
             let r = that.getSelectionAutoSelect(),
                 target = getActiveImage();
 
@@ -2727,18 +2770,18 @@ export default function CPArtwork(_width, _height) {
                 prepareForLayerPaintUndo();
                 paintUndoArea = r.clone();
 
-                target.chromaticAberration(r, offset);
+                applyFilterFn(target, r);
 
                 invalidateLayerPaint(curLayer, r);
             }
         };
+
         this.redo();
     }
-    CPChromaticAberrationCreateMergedLayer.prototype = Object.create(
-        CPUndo.prototype
-    );
-    CPChromaticAberrationCreateMergedLayer.prototype.constructor =
-        CPChromaticAberrationCreateMergedLayer;
+
+    CPCreateMergedLayerWithFilter.prototype = Object.create(CPUndo.prototype);
+    CPCreateMergedLayerWithFilter.prototype.constructor =
+        CPCreateMergedLayerWithFilter;
 
     /**
      * Move the layer to the given position in the layer tree.

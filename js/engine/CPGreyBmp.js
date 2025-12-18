@@ -181,11 +181,9 @@ CPGreyBmp.prototype.floodFillWithBorder = function (
     expandBy = 2,
     alpha255 = 255
 ) {
-
-
     if (!this.isInside(x, y)) return;
 
-    const gray = color & 0xFF;
+    const gray = color & 0xff;
 
     const w = this.width;
     const h = this.height;
@@ -691,6 +689,50 @@ CPGreyBmp.prototype.boxBlur = function (rect, radiusX, radiusY) {
 
 CPGreyBmp.prototype.offsetOfPixel = function (x, y) {
     return y * this.width + x;
+};
+
+/**
+ * 指定矩形内のピクセルに対してモザイクを適用する（グレースケール用）
+ *
+ * @param rect - モザイクを適用する範囲
+ * @param {number} blockSize - ブロックサイズ（ピクセル）
+ */
+CPGreyBmp.prototype.mosaic = function (rect, blockSize) {
+    rect = this.getBounds().clipTo(rect);
+    blockSize = Math.max(1, blockSize | 0);
+
+    const width = this.width;
+    const data = this.data;
+
+    for (let by = rect.top; by < rect.bottom; by += blockSize) {
+        const yEnd = Math.min(by + blockSize, rect.bottom);
+
+        for (let bx = rect.left; bx < rect.right; bx += blockSize) {
+            const xEnd = Math.min(bx + blockSize, rect.right);
+
+            let sum = 0;
+            let count = 0;
+
+            // --- ブロック内の平均輝度 ---
+            for (let y = by; y < yEnd; y++) {
+                let idx = y * width + bx;
+                for (let x = bx; x < xEnd; x++) {
+                    sum += data[idx++];
+                    count++;
+                }
+            }
+
+            const avg = (sum / count) | 0;
+
+            // --- ブロック全体を同一輝度で塗る ---
+            for (let y = by; y < yEnd; y++) {
+                let idx = y * width + bx;
+                for (let x = bx; x < xEnd; x++) {
+                    data[idx++] = avg;
+                }
+            }
+        }
+    }
 };
 
 /**

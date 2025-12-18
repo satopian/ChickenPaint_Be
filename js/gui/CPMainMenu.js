@@ -255,6 +255,11 @@ const MENU_ENTRIES = [
                 mnemonic: "B",
             },
             {
+                name: "Mosaic",
+                action: "CPFXMosaic",
+                mnemonic: "M",
+            },
+            {
                 name: "Chromatic aberration",
                 action: "CPChromaticAberration",
                 mnemonic: "C",

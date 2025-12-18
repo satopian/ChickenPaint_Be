@@ -44,7 +44,8 @@ import CPShortcutsDialog from "./gui/CPShortcutsDialog.js";
 import CPBoxBlurDialog from "./gui/CPBoxBlurDialog.js";
 import CPTabletDialog from "./gui/CPTabletDialog.js";
 import CPGridDialog from "./gui/CPGridDialog.js";
-import CPChromaticAberrationDialog from "./gui/ChromaticAberrationDialog.js";
+import CPChromaticAberrationDialog from "./gui/CPChromaticAberrationDialog.js";
+import CPMosaicDialog from "./gui/CPMosaicDialog.js";
 import CPSendDialog from "./gui/CPSendDialog.js";
 
 import CPColor from "./util/CPColor.js";
@@ -351,6 +352,7 @@ export default function ChickenPaint(options) {
         preferences = new CPUserPreferences(),
         boxBlurDialog,
         gridDialog,
+        mosaicDialog,
         chromaticAberrationDialog,
         actions = {
             // GUI actions
@@ -730,6 +732,12 @@ export default function ChickenPaint(options) {
                 modifies: { document: true },
                 requiresDrawable: true,
             },
+            CPFXMosaic: {
+                action: function () {
+                    showMosaicDialog();
+                },
+                modifies: { gui: true },
+            },
             CPChromaticAberration: {
                 action: function () {
                     showChromaticAberrationDialog();
@@ -1093,6 +1101,16 @@ export default function ChickenPaint(options) {
         boxBlurDialog.show();
     }
 
+    function showMosaicDialog() {
+        if (!mosaicDialog) {
+            mosaicDialog = new CPMosaicDialog(
+                uiElem,
+                that
+            );
+        }
+
+        mosaicDialog.show();
+    }
     function showChromaticAberrationDialog() {
         if (!chromaticAberrationDialog) {
             chromaticAberrationDialog = new CPChromaticAberrationDialog(

@@ -23,7 +23,7 @@
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
-export default function CPchromaticAberration(parent, controller) {
+export default function CPMosaicDialog(parent, controller) {
     // ダイアログ要素を作成
     const dialog = document.createElement("div");
     dialog.classList.add("modal", "fade");
@@ -33,18 +33,18 @@ export default function CPchromaticAberration(parent, controller) {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">${_("Chromatic aberration")}</h5>
+                    <h5 class="modal-title">${_("Mosaic")}</h5>
                     <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label>${_("Offset (pixels)")}</label>
-                            <input type="number" class="form-control chickenpaint-aberration-offset" value="" min="1", max="32">
+                            <label>${_("Block size (pixels)")}</label>
+                            <input type="number" class="form-control chickenpaint-block-size" value="" min="2", max="280">
                         </div>
                     </form>
                     <div class="form-check mt-3">
-                    <input class="form-check-input" type="checkbox" id="createMergedLayer" checked="checked">
+                    <input class="form-check-input" type="checkbox" id="createMergedLayer">
                     <label class="form-check-label" for="createMergedLayer">
                     ${_("Apply to all (create merged layer)")}
                     </label>
@@ -62,9 +62,7 @@ export default function CPchromaticAberration(parent, controller) {
         </div>
     `;
 
-    const aberrationSizeElem = dialog.querySelector(
-        ".chickenpaint-aberration-offset"
-    );
+    const blockSizeElem = dialog.querySelector(".chickenpaint-block-size");
     const applyButton = dialog.querySelector(
         ".chickenpaint-apply-aberration-settings"
     );
@@ -88,7 +86,7 @@ export default function CPchromaticAberration(parent, controller) {
     };
 
     // グリッドサイズの初期値を設定
-    aberrationSizeElem.value = 3;
+    blockSizeElem.value = 6;
 
     // モーダルが閉じられた後にダイアログを削除
     dialog.addEventListener("hidden.bs.modal", () => {
@@ -97,19 +95,19 @@ export default function CPchromaticAberration(parent, controller) {
 
     // 「OK」ボタンのクリックイベント
     applyButton?.addEventListener("click", () => {
-        const offset = parseInt(aberrationSizeElem?.value, 10);
+        const blocksize = parseInt(blockSizeElem?.value, 10);
         // チェックONなら現在のレイヤーのみ
         const createMergedLayer =
             dialog.querySelector("#createMergedLayer")?.checked;
-        controller.getArtwork().chromaticAberration(offset, createMergedLayer);
+        controller.getArtwork().mosaic(blocksize, createMergedLayer);
         controller.setModalShown(false);
         modal.hide(); // モーダルを手動で閉じる
     });
 
-    // モーダルが表示されたときに、グリッドサイズの入力フィールドにフォーカス
+    // モーダルが表示されたときに、入力フィールドにフォーカス
     dialog.addEventListener("shown.bs.modal", () => {
         controller.setModalShown(true);
-        aberrationSizeElem?.focus();
+        blockSizeElem?.focus();
     });
 
     // Enterキーが押されたときの処理

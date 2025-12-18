@@ -768,6 +768,65 @@ CPColorBmp.prototype.boxBlur = function (rect, radiusX, radiusY) {
 };
 
 /**
+ * 指定矩形内のピクセルに対してモザイクを適用する。
+ *
+ * @param rect - モザイクを適用する範囲
+ * @param {number} blockSize - ブロックサイズ（ピクセル）
+ */
+CPColorBmp.prototype.mosaic = function (rect, blockSize) {
+    rect = this.getBounds().clipTo(rect);
+    blockSize = Math.max(1, blockSize | 0);
+
+    const bpp = CPColorBmp.BYTES_PER_PIXEL;
+    const width = this.width;
+    const data = this.data;
+
+    for (let by = rect.top; by < rect.bottom; by += blockSize) {
+        const yEnd = Math.min(by + blockSize, rect.bottom);
+
+        for (let bx = rect.left; bx < rect.right; bx += blockSize) {
+            const xEnd = Math.min(bx + blockSize, rect.right);
+
+            let rSum = 0,
+                gSum = 0,
+                bSum = 0,
+                aSum = 0;
+            let count = 0;
+
+            // --- ブロック内の平均色を計算 ---
+            for (let y = by; y < yEnd; y++) {
+                let idx = (y * width + bx) * bpp;
+                for (let x = bx; x < xEnd; x++) {
+                    rSum += data[idx];
+                    gSum += data[idx + 1];
+                    bSum += data[idx + 2];
+                    aSum += data[idx + 3];
+                    count++;
+                    idx += bpp;
+                }
+            }
+
+            const rAvg = (rSum / count) | 0;
+            const gAvg = (gSum / count) | 0;
+            const bAvg = (bSum / count) | 0;
+            const aAvg = (aSum / count) | 0;
+
+            // --- ブロック全体を同一色で塗る ---
+            for (let y = by; y < yEnd; y++) {
+                let idx = (y * width + bx) * bpp;
+                for (let x = bx; x < xEnd; x++) {
+                    data[idx] = rAvg;
+                    data[idx + 1] = gAvg;
+                    data[idx + 2] = bAvg;
+                    data[idx + 3] = aAvg;
+                    idx += bpp;
+                }
+            }
+        }
+    }
+};
+
+/**
  * 指定矩形内のピクセルに対して色収差 （RGBずらし） を適用する。
  * 赤チャンネルは右方向、緑チャンネルは下方向、青チャンネルは左上方向にずらす。
  * アルファ値が0の完全透明ピクセルは処理しない。
@@ -776,7 +835,6 @@ CPColorBmp.prototype.boxBlur = function (rect, radiusX, radiusY) {
  * @param {number} offset - チャンネルごとのずれ量（ピクセル単位）。
  */
 CPColorBmp.prototype.chromaticAberration = function (rect, offset) {
-
     offset = Math.max(1, Math.min(32, offset));
     rect = this.getBounds().clipTo(rect);
 
