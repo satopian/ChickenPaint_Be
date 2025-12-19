@@ -40,7 +40,7 @@ export default function CPMosaicDialog(parent, controller) {
                     <form>
                         <div class="form-group">
                             <label>${_("Block size (pixels)")}</label>
-                            <input type="number" class="form-control chickenpaint-block-size" value="" min="2", max="280">
+                            <input type="number" class="form-control chickenpaint-block-size" value="" min="2", max="2000">
                         </div>
                     </form>
                     <div class="form-check mt-3">
@@ -95,8 +95,9 @@ export default function CPMosaicDialog(parent, controller) {
 
     // 「OK」ボタンのクリックイベント
     applyButton?.addEventListener("click", () => {
-        const blocksize = parseInt(blockSizeElem?.value, 10);
-        // チェックONなら現在のレイヤーのみ
+        let blocksize = parseInt(blockSizeElem?.value, 10);
+        blocksize = Math.max(2, Math.min(2000, blocksize)); // 2から2000の範囲に制限
+        // チェックONなら結合レイヤーを追加して全体に適用
         const createMergedLayer =
             dialog.querySelector("#createMergedLayer")?.checked;
         controller.getArtwork().mosaic(blocksize, createMergedLayer);

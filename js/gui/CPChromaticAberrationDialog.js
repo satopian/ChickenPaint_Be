@@ -98,7 +98,7 @@ export default function CPchromaticAberration(parent, controller) {
     // 「OK」ボタンのクリックイベント
     applyButton?.addEventListener("click", () => {
         const offset = parseInt(aberrationSizeElem?.value, 10);
-        // チェックONなら現在のレイヤーのみ
+        // チェックONなら結合レイヤーを追加して全体に適用
         const createMergedLayer =
             dialog.querySelector("#createMergedLayer")?.checked;
         controller.getArtwork().chromaticAberration(offset, createMergedLayer);

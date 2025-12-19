@@ -94,13 +94,14 @@ export default function CPBoxBlurDialog(parent, controller) {
         modal.show();
     };
 
-    // モーダル内でOKボタンがクリックされた時の処理
+    // 「OK」ボタンのクリックイベント
     applyButton.addEventListener("click", (e) => {
         let blur = Math.max(parseInt(blurAmountElem.value, 10), 1),
             iterations = Math.min(
                 Math.max(parseInt(blurIterationsElem.value, 10), 1),
                 8
             );
+        // チェックONなら結合レイヤーを追加して全体に適用
         const createMergedLayer =
             dialog.querySelector("#createMergedLayer")?.checked;
 
