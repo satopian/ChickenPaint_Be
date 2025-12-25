@@ -251,7 +251,7 @@ export default function CPLayersPalette(controller) {
         }
 
         function getDisplayIndexFromElem(elem) {
-            if(!elem){
+            if (!elem) {
                 return -1;
             }
             let layer = elem.closest(".chickenpaint-layer");
@@ -1708,7 +1708,10 @@ export default function CPLayersPalette(controller) {
         });
         blendCombo.blur();
     });
-
+    //キーボード操作時にフォーカスを外して、ショートカットキーが使えるようにする
+    window.addEventListener("keydown", (e) => {
+        blendCombo.blur();
+    });
     body.appendChild(blendCombo);
 
     // 不透明度のスライダー

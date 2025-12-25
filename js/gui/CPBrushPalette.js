@@ -340,10 +340,10 @@ function CPBrushPanel(controller) {
         controller.getBrushInfo().tip = parseInt(tipCombo.value, 10);
         tipCombo.blur();
     });
-    // tipCombo.onfocus = ()=>{//フォーカスを検出したら
-    // 	document.activeElement.blur();//フォーカスを外す
-
-    // };
+    //キーボード操作時にフォーカスを外して、ショートカットキーが使えるようにする
+    window.addEventListener("keydown", (e) => {
+        tipCombo.blur();
+    });
 
     tipCombo.className = "form-control form-control-sm";
     tipCombo.tabIndex = -1;
