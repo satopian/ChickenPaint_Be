@@ -877,17 +877,19 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
             if (a0 === 0) continue;
 
             // === BLUE（左側）===
-            let bx = Math.min(w - 1, Math.max(0, x - offsetX));
-            let by = Math.min(h - 1, Math.max(0, y - offsetY));
+            let bx = Math.min(w - 1, Math.max(0, x + offsetX));
+            let by = Math.min(h - 1, Math.max(0, y + offsetY));
             let bIdx = (by * w + bx) * BYTES;
             dst[bIdx + CPColorBmp.BLUE_BYTE_OFFSET] = Math.round(
                 src[idx + CPColorBmp.BLUE_BYTE_OFFSET] * a0 +
                     dst[bIdx + CPColorBmp.BLUE_BYTE_OFFSET] * (1 - a0)
             );
 
+
+
             // === RED（右側）===
-            let rx = Math.min(w - 1, Math.max(0, x + offsetX));
-            let ry = Math.min(h - 1, Math.max(0, y + offsetY));
+            let rx = Math.min(w - 1, Math.max(0, x - offsetX));
+            let ry = Math.min(h - 1, Math.max(0, y - offsetY));
             let rIdx = (ry * w + rx) * BYTES;
             dst[rIdx + CPColorBmp.RED_BYTE_OFFSET] = Math.round(
                 src[idx + CPColorBmp.RED_BYTE_OFFSET] * a0 +
