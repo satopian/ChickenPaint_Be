@@ -39,7 +39,7 @@ export default function CPBoxBlurDialog(parent, controller) {
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label>${_("Blur amount")} 1px~200px</label>
+                            <label>${_("Blur amount")} (1px~200px)</label>
                             <input type="number" class="form-control chickenpaint-blur-amount" value="3" min="1" max="200">
                         </div>
                         <div class="form-group">
