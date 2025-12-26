@@ -39,8 +39,12 @@ export default function CPchromaticAberration(parent, controller) {
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label>${_("Offset (pixels)")}</label>
-                            <input type="number" class="form-control chickenpaint-aberration-offset" value="" min="1", max="32">
+                            <label>${_("Offset X (pixels)")}</label>
+                            <input type="number" class="form-control chickenpaint-aberration-offset-x" value="" min="-64", max="64">
+                        </div>
+                        <div class="form-group">
+                            <label>${_("Offset Y (pixels)")}</label>
+                            <input type="number" class="form-control chickenpaint-aberration-offset-y" value="" min="-64", max="64">
                         </div>
                     </form>
                     <div class="form-check mt-3">
@@ -62,8 +66,11 @@ export default function CPchromaticAberration(parent, controller) {
         </div>
     `;
 
-    const aberrationSizeElem = dialog.querySelector(
-        ".chickenpaint-aberration-offset"
+    const aberrationSizeXElem = dialog.querySelector(
+        ".chickenpaint-aberration-offset-x"
+    );
+    const aberrationSizeYElem = dialog.querySelector(
+        ".chickenpaint-aberration-offset-y"
     );
     const applyButton = dialog.querySelector(
         ".chickenpaint-apply-aberration-settings"
@@ -88,7 +95,8 @@ export default function CPchromaticAberration(parent, controller) {
     };
 
     // グリッドサイズの初期値を設定
-    aberrationSizeElem.value = 3;
+    aberrationSizeXElem.value = 3;
+    aberrationSizeYElem.value = 3;
 
     // モーダルが閉じられた後にダイアログを削除
     dialog.addEventListener("hidden.bs.modal", () => {
@@ -97,11 +105,21 @@ export default function CPchromaticAberration(parent, controller) {
 
     // 「OK」ボタンのクリックイベント
     applyButton?.addEventListener("click", () => {
-        const offset = parseInt(aberrationSizeElem?.value, 10);
+        const offsetX = Math.max(
+            -64,
+            Math.min(64, parseInt(aberrationSizeXElem?.value, 10) || 0)
+        );
+
+        const offsetY = Math.max(
+            -64,
+            Math.min(64, parseInt(aberrationSizeYElem?.value, 10) || 0)
+        );
         // チェックONなら結合レイヤーを追加して全体に適用
         const createMergedLayer =
             dialog.querySelector("#createMergedLayer")?.checked;
-        controller.getArtwork().chromaticAberration(offset, createMergedLayer);
+        controller
+            .getArtwork()
+            .chromaticAberration(offsetX, offsetY, createMergedLayer);
         controller.setModalShown(false);
         modal.hide(); // モーダルを手動で閉じる
     });

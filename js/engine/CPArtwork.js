@@ -1754,16 +1754,19 @@ export default function CPArtwork(_width, _height) {
         }
     };
     /**
-     * 現在のレイヤーに色収差（RGBずらし）を適用する。
-     *
-     * @param {number} offset
+     * @param {number} offsetX
+     * @param {number} offsetY
      * @param {boolean} [createMergedLayer=false]
      */
-    this.chromaticAberration = function (offset, createMergedLayer = false) {
+    this.chromaticAberration = function (
+        offsetX,
+        offsetY,
+        createMergedLayer = false
+    ) {
         if (createMergedLayer) {
             addUndo(
                 new CPCreateMergedLayerWithFilter(function (target, r) {
-                    target.chromaticAberration(r, offset);
+                    target.chromaticAberration(r, offsetX, offsetY);
                 })
             );
             return;
@@ -1776,7 +1779,7 @@ export default function CPArtwork(_width, _height) {
             prepareForLayerPaintUndo();
             paintUndoArea = r.clone();
 
-            target.chromaticAberration(r, offset);
+            target.chromaticAberration(r, offsetX, offsetY);
 
             addUndo(new CPUndoPaint());
             invalidateLayerPaint(curLayer, r);

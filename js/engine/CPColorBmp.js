@@ -827,15 +827,39 @@ CPColorBmp.prototype.mosaic = function (rect, blockSize) {
 };
 
 /**
- * 指定矩形内のピクセルに対して色収差 （RGBずらし） を適用する。
- * 赤チャンネルは右方向、緑チャンネルは下方向、青チャンネルは左上方向にずらす。
- * アルファ値が0の完全透明ピクセルは処理しない。
+ * 指定した矩形範囲に対して色収差（RGBずらし）を適用する。
  *
- * @param rect - 色収差を適用する範囲。
- * @param {number} offset - チャンネルごとのずれ量（ピクセル単位）。
+ * X・Y方向のオフセットを指定することで、
+ * RGB各チャンネルを同じ軸上で分離する。
+ *
+ * チャンネルごとの移動量：
+ * - RED   : (+offsetX, +offsetY)
+ * - GREEN: (0, 0)
+ * - BLUE : (-offsetX, -offsetY)
+ *
+ * offsetX を指定すると横方向のみの色収差が発生し、
+ * offsetY を指定すると縦方向のみの色収差が発生する。
+ * 両方指定した場合は斜め方向の色収差となる。
+ *
+ * オフセット値は -64 ～ 64 ピクセルの範囲に制限される。
+ * アルファ値が 0（完全透明）のピクセルは処理されない。
+ *
+ * @param {CPRect} rect
+ *        色収差を適用する矩形範囲。
+ *        ビットマップ範囲外は自動的にクリップされる。
+ *
+ * @param {number} offsetX
+ *        X方向のずれ量（ピクセル単位）。
+ *        正の値で右、負の値で左にずれる。
+ *
+ * @param {number} offsetY
+ *        Y方向のずれ量（ピクセル単位）。
+ *        正の値で下、負の値で上にずれる。
  */
-CPColorBmp.prototype.chromaticAberration = function (rect, offset) {
-    offset = Math.max(1, Math.min(32, offset));
+CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
+    offsetX = Math.max(-64, Math.min(64, offsetX | 0));
+    offsetY = Math.max(-64, Math.min(64, offsetY | 0));
+
     rect = this.getBounds().clipTo(rect);
 
     const w = this.width;
@@ -849,39 +873,32 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offset) {
     for (let y = rect.top; y < rect.bottom; y++) {
         for (let x = rect.left; x < rect.right; x++) {
             const idx = (y * w + x) * BYTES;
-            const r0 = src[idx + CPColorBmp.RED_BYTE_OFFSET];
-            const g0 = src[idx + CPColorBmp.GREEN_BYTE_OFFSET];
-            const b0 = src[idx + CPColorBmp.BLUE_BYTE_OFFSET];
             const a0 = src[idx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
+            if (a0 === 0) continue;
 
-            if (a0 === 0) continue; // 完全透明なら処理不要
-
-            // --- 赤チャンネル：右方向に offset ---
-            let nx = Math.min(w - 1, x + offset);
-            let nidx = (y * w + nx) * BYTES;
-            let na = dst[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
-            dst[nidx + CPColorBmp.RED_BYTE_OFFSET] = Math.round(
-                r0 * a0 + dst[nidx + CPColorBmp.RED_BYTE_OFFSET] * (1 - a0)
+            // === BLUE（左）===
+            let bx = Math.min(w - 1, Math.max(0, x - offsetX));
+            let by = Math.min(h - 1, Math.max(0, y - offsetY));
+            let bIdx = (by * w + bx) * BYTES;
+            dst[bIdx + CPColorBmp.BLUE_BYTE_OFFSET] = Math.round(
+                src[idx + CPColorBmp.BLUE_BYTE_OFFSET] * a0 +
+                    dst[bIdx + CPColorBmp.BLUE_BYTE_OFFSET] * (1 - a0)
             );
 
-            // --- 緑チャンネル：下方向に offset ---
-            let ny = Math.min(h - 1, y + offset);
-            nidx = (ny * w + x) * BYTES;
-            na = dst[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
-            dst[nidx + CPColorBmp.GREEN_BYTE_OFFSET] = Math.round(
-                g0 * a0 + dst[nidx + CPColorBmp.GREEN_BYTE_OFFSET] * (1 - a0)
+            // === RED（中央）===
+            dst[idx + CPColorBmp.RED_BYTE_OFFSET] = Math.round(
+                src[idx + CPColorBmp.RED_BYTE_OFFSET] * a0 +
+                    dst[idx + CPColorBmp.RED_BYTE_OFFSET] * (1 - a0)
             );
 
-            // --- 青チャンネル：左上方向に offset ---
-            nx = Math.max(0, x - offset);
-            ny = Math.max(0, y - offset);
-            nidx = (ny * w + nx) * BYTES;
-            na = dst[nidx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
-            dst[nidx + CPColorBmp.BLUE_BYTE_OFFSET] = Math.round(
-                b0 * a0 + dst[nidx + CPColorBmp.BLUE_BYTE_OFFSET] * (1 - a0)
+            // === GREEN（右 → 黄を作る）===
+            let gx = Math.min(w - 1, Math.max(0, x + offsetX));
+            let gy = Math.min(h - 1, Math.max(0, y + offsetY));
+            let gIdx = (gy * w + gx) * BYTES;
+            dst[gIdx + CPColorBmp.GREEN_BYTE_OFFSET] = Math.round(
+                src[idx + CPColorBmp.GREEN_BYTE_OFFSET] * a0 +
+                    dst[gIdx + CPColorBmp.GREEN_BYTE_OFFSET] * (1 - a0)
             );
-
-            // アルファは変更しない
         }
     }
 
