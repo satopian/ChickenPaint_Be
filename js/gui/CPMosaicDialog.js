@@ -39,7 +39,7 @@ export default function CPMosaicDialog(parent, controller) {
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label>${_("Block size (pixels)")}</label>
+                            <label>${_("Block size")} (2px~2000px)</label>
                             <input type="number" class="form-control chickenpaint-block-size" value="" min="2", max="2000">
                         </div>
                     </form>
@@ -96,7 +96,7 @@ export default function CPMosaicDialog(parent, controller) {
     // 「OK」ボタンのクリックイベント
     applyButton?.addEventListener("click", () => {
         let blocksize = parseInt(blockSizeElem?.value, 10);
-        blocksize = Math.max(2, Math.min(2000, blocksize)); // 2から2000の範囲に制限
+        blocksize = Math.max(2, Math.min(2000, blocksize||1)); // 2から2000の範囲に制限
         // チェックONなら結合レイヤーを追加して全体に適用
         const createMergedLayer =
             dialog.querySelector("#createMergedLayer")?.checked;

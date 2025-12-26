@@ -39,12 +39,12 @@ export default function CPBoxBlurDialog(parent, controller) {
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label>${_("Blur amount (pixels)")}</label>
-                            <input type="number" class="form-control chickenpaint-blur-amount" value="3" min="1">
+                            <label>${_("Blur amount")} 1px~200px</label>
+                            <input type="number" class="form-control chickenpaint-blur-amount" value="3" min="1" max="200">
                         </div>
                         <div class="form-group">
                             <label>${_(
-                                "Iterations (1-8, larger gives smoother blur)"
+                                "Iterations (1~8, larger gives smoother blur)"
                             )}</label>
                             <input type="number" class="form-control chickenpaint-blur-iterations" value="1" min="1" max="8">
                         </div>
@@ -96,11 +96,14 @@ export default function CPBoxBlurDialog(parent, controller) {
 
     // 「OK」ボタンのクリックイベント
     applyButton.addEventListener("click", (e) => {
-        let blur = Math.max(parseInt(blurAmountElem.value, 10), 1),
-            iterations = Math.min(
-                Math.max(parseInt(blurIterationsElem.value, 10), 1),
-                8
-            );
+        const blur = Math.min(
+            200,
+            Math.max(1, parseInt(blurAmountElem?.value, 10) || 1)
+        );
+        const iterations = Math.min(
+            Math.max(parseInt(blurIterationsElem?.value, 10), 1),
+            8
+        );
         // チェックONなら結合レイヤーを追加して全体に適用
         const createMergedLayer =
             dialog.querySelector("#createMergedLayer")?.checked;

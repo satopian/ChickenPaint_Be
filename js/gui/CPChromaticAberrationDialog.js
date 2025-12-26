@@ -39,11 +39,11 @@ export default function CPchromaticAberration(parent, controller) {
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label>${_("Offset X (pixels)")}</label>
+                            <label>${_("Offset X")} (-64px ~ 64px)</label>
                             <input type="number" class="form-control chickenpaint-aberration-offset-x" value="" min="-64", max="64">
                         </div>
                         <div class="form-group">
-                            <label>${_("Offset Y (pixels)")}</label>
+                            <label>${_("Offset Y")} (-64px ~ 64px)</label>
                             <input type="number" class="form-control chickenpaint-aberration-offset-y" value="" min="-64", max="64">
                         </div>
                     </form>
@@ -127,7 +127,7 @@ export default function CPchromaticAberration(parent, controller) {
     // モーダルが表示されたときに、入力フィールドにフォーカス
     dialog.addEventListener("shown.bs.modal", () => {
         controller.setModalShown(true);
-        aberrationSizeElem?.focus();
+        aberrationSizeXElem?.focus();
     });
 
     // Enterキーが押されたときの処理

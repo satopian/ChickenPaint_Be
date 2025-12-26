@@ -876,7 +876,7 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
             const a0 = src[idx + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
             if (a0 === 0) continue;
 
-            // === BLUE（左）===
+            // === BLUE（左側）===
             let bx = Math.min(w - 1, Math.max(0, x - offsetX));
             let by = Math.min(h - 1, Math.max(0, y - offsetY));
             let bIdx = (by * w + bx) * BYTES;
@@ -885,20 +885,16 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
                     dst[bIdx + CPColorBmp.BLUE_BYTE_OFFSET] * (1 - a0)
             );
 
-            // === RED（中央）===
-            dst[idx + CPColorBmp.RED_BYTE_OFFSET] = Math.round(
+            // === RED（右側）===
+            let rx = Math.min(w - 1, Math.max(0, x + offsetX));
+            let ry = Math.min(h - 1, Math.max(0, y + offsetY));
+            let rIdx = (ry * w + rx) * BYTES;
+            dst[rIdx + CPColorBmp.RED_BYTE_OFFSET] = Math.round(
                 src[idx + CPColorBmp.RED_BYTE_OFFSET] * a0 +
-                    dst[idx + CPColorBmp.RED_BYTE_OFFSET] * (1 - a0)
+                    dst[rIdx + CPColorBmp.RED_BYTE_OFFSET] * (1 - a0)
             );
 
-            // === GREEN（右 → 黄を作る）===
-            let gx = Math.min(w - 1, Math.max(0, x + offsetX));
-            let gy = Math.min(h - 1, Math.max(0, y + offsetY));
-            let gIdx = (gy * w + gx) * BYTES;
-            dst[gIdx + CPColorBmp.GREEN_BYTE_OFFSET] = Math.round(
-                src[idx + CPColorBmp.GREEN_BYTE_OFFSET] * a0 +
-                    dst[gIdx + CPColorBmp.GREEN_BYTE_OFFSET] * (1 - a0)
-            );
+            // GREEN は中央（元のまま）
         }
     }
 
