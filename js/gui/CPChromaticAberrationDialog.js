@@ -95,8 +95,8 @@ export default function CPchromaticAberration(parent, controller) {
     };
 
     // グリッドサイズの初期値を設定
-    aberrationSizeXElem.value = 3;
-    aberrationSizeYElem.value = 3;
+    aberrationSizeXElem.value = 2;
+    aberrationSizeYElem.value = 2;
 
     // モーダルが閉じられた後にダイアログを削除
     dialog.addEventListener("hidden.bs.modal", () => {
