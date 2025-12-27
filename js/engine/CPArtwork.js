@@ -1754,6 +1754,8 @@ export default function CPArtwork(_width, _height) {
         }
     };
     /**
+     * 現在のレイヤーに色収差を適用する。
+     *
      * @param {number} offsetX
      * @param {number} offsetY
      * @param {boolean} [createMergedLayer=false]
@@ -1763,6 +1765,7 @@ export default function CPArtwork(_width, _height) {
         offsetY,
         createMergedLayer = false
     ) {
+        if (maskEditingMode) return;
         if (createMergedLayer) {
             addUndo(
                 new CPCreateMergedLayerWithFilter(function (target, r) {
