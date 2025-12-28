@@ -49,6 +49,8 @@
     "Iterations (1~8, larger gives smoother blur)": "反復 (1~8,大きいほどぼかしが滑らか)",
     "Mosaic": "モザイク",
     "Block size": "ブロックサイズ",
+    "Color halftone": "カラーハーフトーン",
+    "Dot size": "ドットサイズ",
     "Chromatic aberration": "色収差 (RGBずらし)",
     "Offset X": "横方向 X",
     "Offset Y": "縦方向 Y",

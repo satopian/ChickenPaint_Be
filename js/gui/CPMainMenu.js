@@ -265,6 +265,11 @@ const MENU_ENTRIES = [
                 mnemonic: "C",
             },
             {
+                name: "Color halftone",
+                action: "CPColorHalftone",
+                mnemonic: "C",
+            },
+            {
                 name: "-",
             },
             {

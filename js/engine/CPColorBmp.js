@@ -903,6 +903,90 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
     this.data.set(dst);
 };
 
+
+/**
+ * カラーハーフトーン処理（1ドット＝1色、混色なし）
+ *
+ * 指定矩形を dotSize ピクセル単位のグリッドに分割し、
+ * 各グリッドの中心ピクセルの色を基準として、
+ * CMY のうち最も強い 1 色のみを選択して円形ドットとして描画する。
+ *
+ * - 各ドットはシアン／マゼンタ／イエローのいずれか単色
+ * - 混色は行わない
+ * - 半径は選択された色成分の強度に比例する
+ * - アルファ 0 のピクセルは無視される
+ *
+ * 注意:
+ * - この処理は this.data を破壊的に変更する
+ * - 出力は完全な白背景ではなく、未描画部分は透明になる
+ *
+ * @param {CPRect} rect
+ *        処理対象となる矩形領域
+ * @param {number} dotSize
+ *        ドットの基準サイズ（2〜64にクランプされる）
+ */
+CPColorBmp.prototype.colorHalftone = function (rect, dotSize) {
+    dotSize = Math.max(2, Math.min(512, dotSize | 0));
+    rect = this.getBounds().clipTo(rect);
+
+    const w = this.width;
+    const h = this.height;
+    const B = CPColorBmp.BYTES_PER_PIXEL;
+
+    const src = new Uint8ClampedArray(this.data);
+    const dst = new Uint8ClampedArray(this.data.length);
+    dst.fill(0);
+
+    for (let y = rect.top; y < rect.bottom; y += dotSize) {
+        for (let x = rect.left; x < rect.right; x += dotSize) {
+
+            const cx = x + dotSize * 0.5;
+            const cy = y + dotSize * 0.5;
+            if (cx < 0 || cy < 0 || cx >= w || cy >= h) continue;
+
+            const i = ((cy | 0) * w + (cx | 0)) * B;
+            if (src[i + 3] === 0) continue;
+
+            // CMY量
+            const c = 1 - src[i]     / 255;
+            const m = 1 - src[i + 1] / 255;
+            const yv = 1 - src[i + 2] / 255;
+
+            // 一番強い色だけ選ぶ
+            let r = 0, g = 0, b = 0;
+            let v = c;
+
+            if (m > v) { v = m; r = 255; g = 0;   b = 255; }
+            else       { r = 0;   g = 255; b = 255; }
+
+            if (yv > v) { r = 255; g = 255; b = 0; v = yv; }
+
+            const radius = v * (dotSize * 0.5);
+            if (radius < 0.5) continue;
+
+            const r2 = radius * radius;
+
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    if (dx * dx + dy * dy > r2) continue;
+
+                    const px = (cx + dx) | 0;
+                    const py = (cy + dy) | 0;
+                    if (px < 0 || py < 0 || px >= w || py >= h) continue;
+
+                    const p = (py * w + px) * B;
+                    dst[p]     = r;
+                    dst[p + 1] = g;
+                    dst[p + 2] = b;
+                    dst[p + 3] = 255;
+                }
+            }
+        }
+    }
+
+    this.data.set(dst);
+};
+
 CPColorBmp.prototype.offsetOfPixel = function (x, y) {
     return ((y * this.width + x) * 4) | 0;
 };

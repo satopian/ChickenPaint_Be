@@ -1789,6 +1789,40 @@ export default function CPArtwork(_width, _height) {
         }
     };
     /**
+     * 現在のレイヤーにカラーハーフトーンを適用する。
+     *
+     * @param {number} dotSize
+     * @param {boolean} [createMergedLayer=false]
+     */
+    this.colorHalftone = function (
+        dotSize,
+        createMergedLayer = false
+    ) {
+        if (maskEditingMode) return;
+        if (createMergedLayer) {
+            addUndo(
+                new CPCreateMergedLayerWithFilter(function (target, r) {
+                    target.colorHalftone(r, dotSize);
+                })
+            );
+            return;
+        }
+
+        let r = this.getSelectionAutoSelect(),
+            target = getActiveImage();
+
+        if (target) {
+            prepareForLayerPaintUndo();
+            paintUndoArea = r.clone();
+
+            target.colorHalftone(r, dotSize);
+
+            addUndo(new CPUndoPaint());
+            invalidateLayerPaint(curLayer, r);
+        }
+    };
+ 
+    /**
      * 現在のレイヤーにモザイクを適用する。
      *
      * @param {number} blockSize
