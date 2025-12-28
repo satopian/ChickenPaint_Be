@@ -115,7 +115,7 @@ export default function CPchromaticAberration(parent, controller) {
     // モーダルが表示されたときに、入力フィールドにフォーカス
     dialog.addEventListener("shown.bs.modal", () => {
         controller.setModalShown(true);
-        aberrationSizeXElem?.focus();
+        dotSizeElem?.focus();
     });
 
     // Enterキーが押されたときの処理

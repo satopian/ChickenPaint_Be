@@ -885,8 +885,6 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
                     dst[bIdx + CPColorBmp.BLUE_BYTE_OFFSET] * (1 - a0)
             );
 
-
-
             // === RED（右側）===
             let rx = Math.min(w - 1, Math.max(0, x - offsetX));
             let ry = Math.min(h - 1, Math.max(0, y - offsetY));
@@ -902,7 +900,6 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
 
     this.data.set(dst);
 };
-
 
 /**
  * カラーハーフトーン処理（1ドット＝1色、混色なし）
@@ -937,9 +934,10 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize) {
     const dst = new Uint8ClampedArray(this.data.length);
     dst.fill(0);
 
-    for (let y = rect.top; y < rect.bottom; y += dotSize) {
-        for (let x = rect.left; x < rect.right; x += dotSize) {
+    const step = dotSize * 0.8;
 
+    for (let y = rect.top; y < rect.bottom; y += step) {
+        for (let x = rect.left; x < rect.right; x += step) {
             const cx = x + dotSize * 0.5;
             const cy = y + dotSize * 0.5;
             if (cx < 0 || cy < 0 || cx >= w || cy >= h) continue;
@@ -948,18 +946,33 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize) {
             if (src[i + 3] === 0) continue;
 
             // CMY量
-            const c = 1 - src[i]     / 255;
+            const c = 1 - src[i] / 255;
             const m = 1 - src[i + 1] / 255;
             const yv = 1 - src[i + 2] / 255;
 
             // 一番強い色だけ選ぶ
-            let r = 0, g = 0, b = 0;
+            let r = 0,
+                g = 0,
+                b = 0;
             let v = c;
 
-            if (m > v) { v = m; r = 255; g = 0;   b = 255; }
-            else       { r = 0;   g = 255; b = 255; }
+            if (m > v) {
+                v = m;
+                r = 255;
+                g = 0;
+                b = 255;
+            } else {
+                r = 0;
+                g = 255;
+                b = 255;
+            }
 
-            if (yv > v) { r = 255; g = 255; b = 0; v = yv; }
+            if (yv > v) {
+                r = 255;
+                g = 255;
+                b = 0;
+                v = yv;
+            }
 
             const radius = v * (dotSize * 0.5);
             if (radius < 0.5) continue;
@@ -975,7 +988,7 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize) {
                     if (px < 0 || py < 0 || px >= w || py >= h) continue;
 
                     const p = (py * w + px) * B;
-                    dst[p]     = r;
+                    dst[p] = r;
                     dst[p + 1] = g;
                     dst[p + 2] = b;
                     dst[p + 3] = 255;
