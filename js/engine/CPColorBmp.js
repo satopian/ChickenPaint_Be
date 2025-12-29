@@ -996,7 +996,7 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
             drawDot(cx, cy, yv, baseOffs.y, radiusScale, 255, 255, 0);
 
             // 薄い部分は補助ドットを少し大きめ
-            if (brightness > 0.7) {
+            if (brightness > 0.8) {
                 drawDot(cx, cy, c * 0.5, baseOffs.c, 0.3, 0, 255, 255);
                 drawDot(cx, cy, m * 0.5, baseOffs.m, 0.3, 255, 0, 255);
                 drawDot(cx, cy, yv * 0.5, baseOffs.y, 0.3, 255, 255, 0);
@@ -1027,7 +1027,7 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
         const a = Math.round(v * (radiusScale < 0.3 ? 200 : 230));
 
         // 小さいドットは完全均一、大きいドットだけ少しランダム
-        const jitterFactor = radiusScale < 1.0 ? 0.0 : 0.15; // 小さいドットは0、大きいドットは0.15
+        const jitterFactor = radiusScale < 1.2 ? 0.0 : 0.15; // 小さいドットは0、大きいドットは0.15
         const jitterX = (Math.random() - 0.5) * dotSize * jitterFactor;
         const jitterY = (Math.random() - 0.5) * dotSize * jitterFactor;
 
