@@ -1794,16 +1794,13 @@ export default function CPArtwork(_width, _height) {
      * @param {number} dotSize
      * @param {boolean} [createMergedLayer=false]
      */
-    this.colorHalftone = function (
-        dotSize,
-        createMergedLayer = false
-    ) {
+    this.colorHalftone = function (dotSize, createMergedLayer = false) {
         if (maskEditingMode) return;
         if (createMergedLayer) {
             addUndo(
                 new CPCreateMergedLayerWithFilter(function (target, r) {
                     target.colorHalftone(r, dotSize);
-                })
+                }, CPBlend.LM_MULTIPLY2)
             );
             return;
         }
@@ -1821,7 +1818,7 @@ export default function CPArtwork(_width, _height) {
             invalidateLayerPaint(curLayer, r);
         }
     };
- 
+
     /**
      * 現在のレイヤーにモザイクを適用する。
      *
@@ -2780,7 +2777,7 @@ export default function CPArtwork(_width, _height) {
      * @extends CPUndo
      * @param {Function} applyFilterFn - (target, r) => void
      */
-    function CPCreateMergedLayerWithFilter(applyFilterFn) {
+    function CPCreateMergedLayerWithFilter(applyFilterFn, blendMode = CPBlend.LM_NORMAL) {
         if (maskEditingMode) return;
 
         let oldActiveLayer = that.getActiveLayer(),
@@ -2797,7 +2794,7 @@ export default function CPArtwork(_width, _height) {
             let mergedImage = that.fusionLayers();
             flattenedLayer.copyImageFrom(mergedImage);
             flattenedLayer.setName(that.getDefaultLayerName(false));
-
+            flattenedLayer.setBlendMode(blendMode);
             layersRoot.layers = oldRootLayers.slice(0);
             layersRoot.addLayer(flattenedLayer);
             artworkStructureChanged();

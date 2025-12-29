@@ -1027,7 +1027,7 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
         const a = Math.round(v * (radiusScale < 0.3 ? 200 : 230));
 
         // 小さいドットは完全均一、大きいドットだけ少しランダム
-        const jitterFactor = radiusScale < 1.2 ? 0.0 : 0.15; // 小さいドットは0、大きいドットは0.15
+        const jitterFactor = radiusScale < 0.8 ? 0.0 : 0.1; // 小さいドットは0、大きいドットは0.15
         const jitterX = (Math.random() - 0.5) * dotSize * jitterFactor;
         const jitterY = (Math.random() - 0.5) * dotSize * jitterFactor;
 
