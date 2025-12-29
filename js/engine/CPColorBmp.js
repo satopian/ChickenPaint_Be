@@ -902,27 +902,18 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
 };
 
 /**
- * カラーハーフトーン処理（1ドット＝1色、混色なし）
+ * カラーハーフトーン（CMY方式）処理
  *
- * 指定矩形を dotSize ピクセル単位のグリッドに分割し、
- * 各グリッドの中心ピクセルの色を基準として、
- * CMY のうち最も強い 1 色のみを選択して円形ドットとして描画する。
+ * 指定範囲のピクセルを CMY に変換し、明度に応じてドットを描画します。
+ * 濃い部分は大きく重なったドットで黒に近づき、薄い部分は小さなドットで均一にトーンを表現します。
+ * 複数の CMY ドットが重なる部分は Multiply 合成されるため、自然に黒くなります。
+ * 最後に白だけ透明に変換します。
  *
- * - 各ドットはシアン／マゼンタ／イエローのいずれか単色
- * - 混色は行わない
- * - 半径は選択された色成分の強度に比例する
- * - アルファ 0 のピクセルは無視される
- *
- * 注意:
- * - この処理は this.data を破壊的に変更する
- * - 出力は完全な白背景ではなく、未描画部分は透明になる
- *
- * @param {CPRect} rect
- *        処理対象となる矩形領域
- * @param {number} dotSize
- *        ドットの基準サイズ（2〜64にクランプされる）
+ * @param {Object} rect - 処理範囲を表すオブジェクト {top, left, bottom, right}
+ * @param {number} dotSize - 基本となるドットのサイズ（ピクセル）
+ * @param {number} [density=1.0] - ドットの密度（0.1〜1.0）。1.0で標準密度、0.5なら疎め、1.5なら密度高め
  */
-CPColorBmp.prototype.colorHalftone = function (rect, dotSize) {
+CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
     dotSize = Math.max(2, Math.min(512, dotSize | 0));
     rect = this.getBounds().clipTo(rect);
 
@@ -932,72 +923,133 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize) {
 
     const src = new Uint8ClampedArray(this.data);
     const dst = new Uint8ClampedArray(this.data.length);
-    dst.fill(0);
 
-    const step = dotSize * 0.8;
+    // 背景白、α255で初期化
+    for (let i = 0; i < dst.length; i += 4) {
+        dst[i] = 255;
+        dst[i + 1] = 255;
+        dst[i + 2] = 255;
+        dst[i + 3] = 255;
+    }
 
-    for (let y = rect.top; y < rect.bottom; y += step) {
-        for (let x = rect.left; x < rect.right; x += step) {
+    // CMYの位置オフセット
+    const baseOffs = {
+        c: { x: -dotSize * 0.15, y: 0 },
+        m: { x: dotSize * 0.15, y: 0 },
+        y: { x: 0, y: dotSize * 0.15 },
+    };
+
+    const darkenFactor = 0.6;
+
+    for (let y = rect.top; y < rect.bottom; ) {
+        const cy = y + dotSize * 0.5;
+        if (cy < 0 || cy >= h) {
+            y += dotSize;
+            continue;
+        }
+
+        const iTop = ((cy | 0) * w + (rect.left | 0)) * B;
+        let rTop = src[iTop] / 255;
+        let gTop = src[iTop + 1] / 255;
+        let bTop = src[iTop + 2] / 255;
+        let brightnessY = (rTop + gTop + bTop) / 3;
+
+        brightnessY *= darkenFactor;
+        const spacingY = Math.max(
+            2,
+            dotSize * density * (0.5 + 0.5 * brightnessY)
+        );
+
+        for (let x = rect.left; x < rect.right; ) {
             const cx = x + dotSize * 0.5;
-            const cy = y + dotSize * 0.5;
-            if (cx < 0 || cy < 0 || cx >= w || cy >= h) continue;
+            if (cx < 0 || cx >= w) {
+                x += dotSize;
+                continue;
+            }
 
             const i = ((cy | 0) * w + (cx | 0)) * B;
-            if (src[i + 3] === 0) continue;
-
-            // CMY量
-            const c = 1 - src[i] / 255;
-            const m = 1 - src[i + 1] / 255;
-            const yv = 1 - src[i + 2] / 255;
-
-            // 一番強い色だけ選ぶ
-            let r = 0,
-                g = 0,
-                b = 0;
-            let v = c;
-
-            if (m > v) {
-                v = m;
-                r = 255;
-                g = 0;
-                b = 255;
-            } else {
-                r = 0;
-                g = 255;
-                b = 255;
+            if (src[i + 3] === 0) {
+                x += dotSize;
+                continue;
             }
 
-            if (yv > v) {
-                r = 255;
-                g = 255;
-                b = 0;
-                v = yv;
+            const r = src[i] / 255;
+            const g = src[i + 1] / 255;
+            const b = src[i + 2] / 255;
+
+            const c = 1 - r;
+            const m = 1 - g;
+            const yv = 1 - b;
+
+            let brightness = (r + g + b) / 3;
+            brightness *= darkenFactor;
+
+            const radiusScale = 0.3 + 0.7 * (1 - brightness);
+            const spacingX = Math.max(
+                2,
+                dotSize * density * (0.5 + 0.5 * brightness)
+            );
+
+            // CMYドット描画、重なりを部分的にズラす
+            drawDot(cx, cy, c, baseOffs.c, radiusScale, 0, 255, 255);
+            drawDot(cx, cy, m, baseOffs.m, radiusScale, 255, 0, 255);
+            drawDot(cx, cy, yv, baseOffs.y, radiusScale, 255, 255, 0);
+
+            // 薄い部分は補助ドットを少し大きめ
+            if (brightness > 0.7) {
+                drawDot(cx, cy, c * 0.5, baseOffs.c, 0.3, 0, 255, 255);
+                drawDot(cx, cy, m * 0.5, baseOffs.m, 0.3, 255, 0, 255);
+                drawDot(cx, cy, yv * 0.5, baseOffs.y, 0.3, 255, 255, 0);
             }
 
-            const radius = v * (dotSize * 0.5);
-            if (radius < 0.5) continue;
+            x += spacingX;
+        }
 
-            const r2 = radius * radius;
+        y += spacingY;
+    }
 
-            for (let dy = -radius; dy <= radius; dy++) {
-                for (let dx = -radius; dx <= radius; dx++) {
-                    if (dx * dx + dy * dy > r2) continue;
-
-                    const px = (cx + dx) | 0;
-                    const py = (cy + dy) | 0;
-                    if (px < 0 || py < 0 || px >= w || py >= h) continue;
-
-                    const p = (py * w + px) * B;
-                    dst[p] = r;
-                    dst[p + 1] = g;
-                    dst[p + 2] = b;
-                    dst[p + 3] = 255;
-                }
-            }
+    // 最後に白を透明化
+    for (let i = 0; i < dst.length; i += 4) {
+        if (dst[i] === 255 && dst[i + 1] === 255 && dst[i + 2] === 255) {
+            dst[i + 3] = 0;
         }
     }
 
     this.data.set(dst);
+
+    function drawDot(cx, cy, v, off, radiusScale, r, g, b) {
+        if (v <= 0) return;
+
+        const radius = Math.max(
+            0.5,
+            v * (dotSize * 0.5 + dotSize * 0.2) * radiusScale
+        );
+        const a = Math.round(v * (radiusScale < 0.3 ? 200 : 230));
+
+        // 小さいドットは完全均一、大きいドットだけ少しランダム
+        const jitterFactor = radiusScale < 1.0 ? 0.0 : 0.15; // 小さいドットは0、大きいドットは0.15
+        const jitterX = (Math.random() - 0.5) * dotSize * jitterFactor;
+        const jitterY = (Math.random() - 0.5) * dotSize * jitterFactor;
+
+        const r2 = radius * radius;
+
+        for (let dy = -radius; dy <= radius; dy++) {
+            for (let dx = -radius; dx <= radius; dx++) {
+                if (dx * dx + dy * dy > r2) continue;
+
+                const px = (cx + off.x + dx + jitterX) | 0;
+                const py = (cy + off.y + dy + jitterY) | 0;
+                if (px < 0 || py < 0 || px >= w || py >= h) continue;
+
+                const p = (py * w + px) * B;
+
+                dst[p] = (dst[p] * (255 - a + ((r * a) >> 8))) >> 8;
+                dst[p + 1] = (dst[p + 1] * (255 - a + ((g * a) >> 8))) >> 8;
+                dst[p + 2] = (dst[p + 2] * (255 - a + ((b * a) >> 8))) >> 8;
+                dst[p + 3] = 255;
+            }
+        }
+    }
 };
 
 CPColorBmp.prototype.offsetOfPixel = function (x, y) {

@@ -33,7 +33,7 @@ export default function CPchromaticAberration(parent, controller) {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">${_("Chromatic aberration")}</h5>
+                    <h5 class="modal-title">${_("Color halftone")}</h5>
                     <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -88,7 +88,7 @@ export default function CPchromaticAberration(parent, controller) {
     };
 
     // ドットサイズの初期値を設定
-    dotSizeElem.value = 10;
+    dotSizeElem.value = 15;
 
     // モーダルが閉じられた後にダイアログを削除
     dialog.addEventListener("hidden.bs.modal", () => {
