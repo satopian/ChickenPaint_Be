@@ -46,6 +46,7 @@ import CPTabletDialog from "./gui/CPTabletDialog.js";
 import CPGridDialog from "./gui/CPGridDialog.js";
 import CPChromaticAberrationDialog from "./gui/CPChromaticAberrationDialog.js";
 import CPColorHalftoneDialog from "./gui/CPColorHalftoneDialog.js";
+import CPMonoHalftoneDialog from "./gui/CPMonoHalftoneDialog.js";
 import CPMosaicDialog from "./gui/CPMosaicDialog.js";
 import CPSendDialog from "./gui/CPSendDialog.js";
 
@@ -355,6 +356,7 @@ export default function ChickenPaint(options) {
         gridDialog,
         mosaicDialog,
         colorHalftoneDialog,
+        monoHalftoneDialog,
         chromaticAberrationDialog,
         actions = {
             // GUI actions
@@ -746,6 +748,12 @@ export default function ChickenPaint(options) {
                 },
                 modifies: { gui: true },
             },
+            CPMonoHalftone: {
+                action: function () {
+                    showMonoHalftoneDialog();
+                },
+                modifies: { gui: true },
+            },
             CPChromaticAberration: {
                 action: function () {
                     showChromaticAberrationDialog();
@@ -1128,6 +1136,16 @@ export default function ChickenPaint(options) {
         }
 
         colorHalftoneDialog.show();
+    }
+    function showMonoHalftoneDialog() {
+        if (!monoHalftoneDialog) {
+            monoHalftoneDialog = new CPMonoHalftoneDialog(
+                uiElem,
+                that
+            );
+        }
+
+        monoHalftoneDialog.show();
     }
     function showChromaticAberrationDialog() {
         if (!chromaticAberrationDialog) {

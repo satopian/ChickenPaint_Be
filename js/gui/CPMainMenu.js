@@ -270,6 +270,11 @@ const MENU_ENTRIES = [
                 mnemonic: "C",
             },
             {
+                name: "Mono halftone",
+                action: "CPMonoHalftone",
+                mnemonic: "M",
+            },
+            {
                 name: "-",
             },
             {
