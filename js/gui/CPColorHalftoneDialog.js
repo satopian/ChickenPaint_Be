@@ -39,7 +39,7 @@ export default function CPchromaticAberration(parent, controller) {
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label>${_("Dot size")} (5px ~ 256px)</label>
+                            <label>${_("Dot size")} (5px ~ 512px)</label>
                             <input type="number" class="form-control chickenpaint-aberration-dot-size" value="" min="2", max="512">
                         </div>
                     </form>
@@ -99,7 +99,7 @@ export default function CPchromaticAberration(parent, controller) {
     applyButton?.addEventListener("click", () => {
         const dotSize = Math.max(
             5,
-            Math.min(256, parseInt(dotSizeElem?.value, 10) || 0)
+            Math.min(512, parseInt(dotSizeElem?.value, 10) || 0)
         );
 
         // チェックONなら結合レイヤーを追加して全体に適用
