@@ -1795,7 +1795,6 @@ export default function CPArtwork(_width, _height) {
      * @param {boolean} [createMergedLayer=false]
      */
     this.monoHalftone = function (dotSize, createMergedLayer = false) {
-        if (maskEditingMode) return;
         if (createMergedLayer) {
             addUndo(
                 new CPCreateMergedLayerWithFilter(function (target, r) {

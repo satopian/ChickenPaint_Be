@@ -220,33 +220,6 @@ const MENU_ENTRIES = [
                 shortcut: "ctrl+f",
             },
             {
-                name: "Flip horizontal",
-                action: "CPHFlip",
-                mnemonic: "Q",
-                shortcut: "q",
-            },
-            {
-                name: "Flip vertical",
-                action: "CPVFlip",
-                mnemonic: "V",
-            },
-            {
-                name: "Invert",
-                action: "CPFXInvert",
-                mnemonic: "I",
-                shortcut: "ctrl+i",
-                title: _("Invert the image colors"),
-            },
-            {
-                name: "-",
-            },
-            {
-                name: "Convert brightness to opacity",
-                action: "CPBrightnessToOpacity",
-                mnemonic: "B",
-                title: _("Convert brightness to opacity"),
-            },
-            {
                 name: "-",
             },
             {
@@ -288,6 +261,36 @@ const MENU_ENTRIES = [
                 action: "CPCNoise",
                 mnemonic: "C",
                 title: _("Fills the selection with colored noise"),
+            },
+            {
+                name: "-",
+            },
+            {
+                name: "Flip horizontal",
+                action: "CPHFlip",
+                mnemonic: "Q",
+                shortcut: "q",
+            },
+            {
+                name: "Flip vertical",
+                action: "CPVFlip",
+                mnemonic: "V",
+            },
+            {
+                name: "Invert",
+                action: "CPFXInvert",
+                mnemonic: "I",
+                shortcut: "ctrl+i",
+                title: _("Invert the image colors"),
+            },
+            {
+                name: "-",
+            },
+            {
+                name: "Convert brightness to opacity",
+                action: "CPBrightnessToOpacity",
+                mnemonic: "B",
+                title: _("Convert brightness to opacity"),
             },
         ],
     },

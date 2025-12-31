@@ -736,6 +736,96 @@ CPGreyBmp.prototype.mosaic = function (rect, blockSize) {
 };
 
 /**
+ * モノクロハーフトーン（45°・円ドット） 
+ *
+ * ・1セル1ドット
+ * ・角度 45°
+ * ・明るいほど小さく、暗いほど大きい
+ * ・黒ドットのみ
+ * ・αなし（マスク濃度のみ）
+ * ・白は不透明のまま
+ */
+CPGreyBmp.prototype.monoHalftone = function (rect, dotSize, density = 1.0) {
+    dotSize = Math.max(2, dotSize | 0);
+    rect = this.getBounds().clipTo(rect);
+
+    const w = this.width;
+    const h = this.height;
+    const B = CPGreyBmp.BYTES_PER_PIXEL; // = 1
+
+    const src = new Uint8ClampedArray(this.data);
+    const dst = new Uint8ClampedArray(this.data.length);
+
+    // 背景：白
+    for (let i = 0; i < dst.length; i++) {
+        dst[i] = 255;
+    }
+
+    const centerX = w * 0.5;
+    const centerY = h * 0.5;
+
+    const angle = (45 * Math.PI) / 180;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    const step = dotSize * density;
+    const maxR = dotSize * 0.5;
+    const minR = 0.5;
+
+    // 端欠け防止
+    const diag = Math.ceil(Math.sqrt(w * w + h * h));
+    const offsetX = (diag - w) * 0.5;
+    const offsetY = (diag - h) * 0.5;
+
+    for (let gy = -offsetY; gy < h + offsetY; gy += step) {
+        for (let gx = -offsetX; gx < w + offsetX; gx += step) {
+            const cx = gx + step * 0.5;
+            const cy = gy + step * 0.5;
+
+            // 回転
+            const dx = cx - centerX;
+            const dy = cy - centerY;
+            const rx = dx * cos - dy * sin + centerX;
+            const ry = dx * sin + dy * cos + centerY;
+
+            const sx = rx | 0;
+            const sy = ry | 0;
+            if (sx < 0 || sy < 0 || sx >= w || sy >= h) continue;
+
+            const i = sy * w + sx;
+
+            const lum = src[i] / 255; // マスク濃度そのもの
+            const v = 1 - lum;
+            if (v <= 0) continue;
+
+            const radius = minR + (maxR - minR) * Math.pow(v, 0.9);
+            drawDot(rx, ry, radius);
+        }
+    }
+
+    this.data.set(dst);
+
+    /* ===== 内部 ===== */
+
+    function drawDot(cx, cy, radius) {
+        const r2 = radius * radius;
+
+        for (let dy = -radius; dy <= radius; dy++) {
+            for (let dx = -radius; dx <= radius; dx++) {
+                if (dx * dx + dy * dy > r2) continue;
+
+                const px = (cx + dx) | 0;
+                const py = (cy + dy) | 0;
+                if (px < 0 || py < 0 || px >= w || py >= h) continue;
+
+                const p = py * w + px;
+                dst[p] = 0; // 黒マスク
+            }
+        }
+    }
+};
+
+/**
  * @param {CPRect} rect
  */
 CPGreyBmp.prototype.fillWithNoise = function (rect) {
