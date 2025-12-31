@@ -40,7 +40,7 @@ export default function CPchromaticAberration(parent, controller) {
                     <form>
                         <div class="form-group">
                             <label>${_("Dot size")} (5px ~ 512px)</label>
-                            <input type="number" class="form-control chickenpaint-aberration-dot-size" value="" min="2", max="512">
+                            <input type="number" class="form-control chickenpaint-aberration-dot-size" value="" min="5", max="512">
                         </div>
                     </form>
                     <div class="form-check mt-3">
