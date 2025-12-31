@@ -1798,7 +1798,7 @@ export default function CPArtwork(_width, _height) {
         if (createMergedLayer) {
             addUndo(
                 new CPCreateMergedLayerWithFilter(function (target, r) {
-                    target.monoHalftone(r, dotSize);
+                    target.monoHalftone(r, dotSize, 0.85);
                 })
             );
             return;
@@ -1811,7 +1811,7 @@ export default function CPArtwork(_width, _height) {
             prepareForLayerPaintUndo();
             paintUndoArea = r.clone();
 
-            target.monoHalftone(r, dotSize);
+            target.monoHalftone(r, dotSize, 0.85);
 
             addUndo(new CPUndoPaint());
             invalidateLayerPaint(curLayer, r);
@@ -1828,7 +1828,7 @@ export default function CPArtwork(_width, _height) {
         if (createMergedLayer) {
             addUndo(
                 new CPCreateMergedLayerWithFilter(function (target, r) {
-                    target.colorHalftone(r, dotSize);
+                    target.colorHalftone(r, dotSize, 0.85);
                 }, CPBlend.LM_MULTIPLY2)
             );
             return;
@@ -1841,7 +1841,7 @@ export default function CPArtwork(_width, _height) {
             prepareForLayerPaintUndo();
             paintUndoArea = r.clone();
 
-            target.colorHalftone(r, dotSize);
+            target.colorHalftone(r, dotSize, 0.85);
 
             addUndo(new CPUndoPaint());
             invalidateLayerPaint(curLayer, r);

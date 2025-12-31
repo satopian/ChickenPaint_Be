@@ -736,7 +736,7 @@ CPGreyBmp.prototype.mosaic = function (rect, blockSize) {
 };
 
 /**
- * モノクロハーフトーン（45°・円ドット） 
+ * モノクロハーフトーン（45°・円ドット）
  *
  * ・1セル1ドット
  * ・角度 45°
@@ -744,6 +744,11 @@ CPGreyBmp.prototype.mosaic = function (rect, blockSize) {
  * ・黒ドットのみ
  * ・αなし（マスク濃度のみ）
  * ・白は不透明のまま
+ *
+ * @param {Object} rect    対象矩形
+ * @param {number} dotSize ドット基準サイズ（px）
+ * @param {number} [density=1.0] ドット配置間隔の倍率（0.5–2.0）
+ *        小さいほど密／大きいほど疎
  */
 CPGreyBmp.prototype.monoHalftone = function (rect, dotSize, density = 1.0) {
     dotSize = Math.max(2, dotSize | 0);

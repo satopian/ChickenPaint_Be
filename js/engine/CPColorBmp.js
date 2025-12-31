@@ -911,6 +911,11 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
  * ・Multiply的に重なって黒になる
  * ・透明に近いほど白扱い
  * ・最後に白だけ透明化
+ *
+ * @param {CPRect} rect   対象矩形
+ * @param {number} dotSize ドット基準サイズ（px）
+ * @param {number} [density=1.0] ドット配置間隔の倍率（0.5–2.0）
+ *        小さいほど密／大きいほど疎
  */
 CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
     dotSize = Math.max(2, dotSize | 0);
@@ -1024,9 +1029,10 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
  * ・黒ドットのみ
  * ・透明に近いほど白扱い
  *
- * @param {Object} rect
- * @param {number} dotSize
- * @param {number} density
+ * @param {Object} rect    対象矩形
+ * @param {number} dotSize ドット基準サイズ（px）
+ * @param {number} [density=1.0] ドット配置間隔の倍率（0.5–2.0）
+ *        小さいほど密／大きいほど疎
  */
 CPColorBmp.prototype.monoHalftone = function (rect, dotSize, density = 1.0) {
     dotSize = Math.max(2, dotSize | 0);
