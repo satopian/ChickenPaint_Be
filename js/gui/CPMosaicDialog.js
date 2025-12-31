@@ -85,7 +85,7 @@ export default function CPMosaicDialog(parent, controller) {
         modal.show();
     };
 
-    // グリッドサイズの初期値を設定
+    // ブロックサイズの初期値を設定
     blockSizeElem.value = 6;
 
     // モーダルが閉じられた後にダイアログを削除

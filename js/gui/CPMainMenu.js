@@ -238,6 +238,9 @@ const MENU_ENTRIES = [
                 mnemonic: "C",
             },
             {
+                name: "-",
+            },
+            {
                 name: "Color halftone",
                 action: "CPColorHalftone",
                 mnemonic: "C",

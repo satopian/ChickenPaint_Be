@@ -1799,7 +1799,7 @@ export default function CPArtwork(_width, _height) {
             addUndo(
                 new CPCreateMergedLayerWithFilter(function (target, r) {
                     target.monoHalftone(r, dotSize);
-                }, CPBlend.LM_MULTIPLY2)
+                })
             );
             return;
         }
@@ -2806,7 +2806,10 @@ export default function CPArtwork(_width, _height) {
      * @extends CPUndo
      * @param {Function} applyFilterFn - (target, r) => void
      */
-    function CPCreateMergedLayerWithFilter(applyFilterFn, blendMode = CPBlend.LM_NORMAL) {
+    function CPCreateMergedLayerWithFilter(
+        applyFilterFn,
+        blendMode = CPBlend.LM_NORMAL
+    ) {
         if (maskEditingMode) return;
 
         let oldActiveLayer = that.getActiveLayer(),
