@@ -844,11 +844,14 @@ export default function CPMainMenu(controller, mainGUI) {
     }
 
     bar.addEventListener("click", (e) => {
-        const target = e.target.closest('[data-action]');
-        if (target) {
-            menuItemClicked(target);
-            e.preventDefault();
+        const target = e.target.closest("[data-action]");
+        if (!target) return;
+        if (target.tagName === "BUTTON") {
+            // button 用の処理はここでは行わない
+            return;
         }
+        menuItemClicked(target);
+        e.preventDefault();
     });
 
     /**
