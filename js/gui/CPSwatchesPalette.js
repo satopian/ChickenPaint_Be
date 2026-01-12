@@ -55,10 +55,10 @@ export default function CPSwatchesPalette(controller) {
 
     function CPColorSwatch(color) {
         let wrapper = document.createElement("div"),
-            swatchElem = document.createElement("a"),
+            swatchElem = document.createElement("button"),
             swatchMenu = document.createElement("ul"),
-            mnuRemove = document.createElement("a"),
-            mnuSetToCurrent = document.createElement("a"),
+            mnuRemove = document.createElement("span"),
+            mnuSetToCurrent = document.createElement("span"),
             that = this;
 
         this.getElement = function () {
@@ -73,7 +73,6 @@ export default function CPSwatchesPalette(controller) {
 
         this.setColor(color);
 
-        swatchElem.href = "#";
         swatchElem.className = "chickenpaint-color-swatch dropdown-toggle";
         //"data-bs-toggle"に設定しない
         // swatchElem.setAttribute("data-bs-toggle", "dropdown");
@@ -206,10 +205,10 @@ export default function CPSwatchesPalette(controller) {
             let swatch = e.target;
 
             if (
-                !/^<a data-color=/i.test(swatch.outerHTML) ||
+                !/^<button data-color=/i.test(swatch.outerHTML) ||
                 !/chickenpaint-color-swatch/.test(swatch.className)
             ) {
-                return; //<a data-color=で始まらない場合もreturn
+                return; //<button data-color=で始まらない場合もreturn
             }
 
             if (
@@ -230,10 +229,10 @@ export default function CPSwatchesPalette(controller) {
             let swatch = e.target;
 
             if (
-                !/^<a data-color=/i.test(swatch.outerHTML) ||
+                !/^<button data-color=/i.test(swatch.outerHTML) ||
                 !/chickenpaint-color-swatch/.test(swatch.className)
             ) {
-                return; //<a data-color=で始まらない場合もreturn
+                return; //<button data-color=で始まらない場合もreturn
             }
             e.preventDefault();
             var dropdown = new bootstrap.Dropdown(swatch); // Bootstrap 5: ドロップダウンを初期化
@@ -258,8 +257,8 @@ export default function CPSwatchesPalette(controller) {
         let btnSettings = document.createElement("button"),
             btnAdd = document.createElement("button"),
             settingsMenu = document.createElement("ul"),
-            mnuSave = document.createElement("a"),
-            mnuLoad = document.createElement("a");
+            mnuSave = document.createElement("span"),
+            mnuLoad = document.createElement("span");
 
         btnAdd.type = "button";
         btnAdd.title = _("Add the current brush color as a new swatch");

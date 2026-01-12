@@ -493,7 +493,7 @@ export default function CPMainMenu(controller, mainGUI) {
     bar.className = "navbar navbar-expand-md bg-light";
     bar.innerHTML = `
     <div class="navbar-upper">
-      <a class="navbar-brand" href="#">litaChix</a>
+      <span class="navbar-brand">litaChix</span>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#chickenpaint-main-menu-content" aria-controls="chickenpaint-main-menu-content" aria-expanded="false" aria-label="Toggle main menu">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -574,9 +574,9 @@ export default function CPMainMenu(controller, mainGUI) {
             const div = document.createElement("div");
             div.className = "nav-item dropdown";
             div.innerHTML = `
-        <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${_(
+        <span class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${_(
             topEntry.name
-        )}</a>
+        )}</span>
         <ul class="dropdown-menu"></ul>
       `;
 
@@ -640,9 +640,8 @@ export default function CPMainMenu(controller, mainGUI) {
                 }
 
                 let entryElem;
-                entryElem = document.createElement("a");
+                entryElem = document.createElement("span");
                 entryElem.className = "dropdown-item";
-                entryElem.href = "#";
                 entryElem.dataset.action = entry.action;
                 entryElem.innerHTML = `<span>${_(entry.name)}</span>`;
 
@@ -845,7 +844,7 @@ export default function CPMainMenu(controller, mainGUI) {
     }
 
     bar.addEventListener("click", (e) => {
-        const target = e.target.closest("a:not(.dropdown-toggle)");
+        const target = e.target.closest('[data-action]');
         if (target) {
             menuItemClicked(target);
             e.preventDefault();
