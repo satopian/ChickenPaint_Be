@@ -493,7 +493,7 @@ export default function CPMainMenu(controller, mainGUI) {
     bar.className = "navbar navbar-expand-md bg-light";
     bar.innerHTML = `
     <div class="navbar-upper">
-      <span class="navbar-brand">litaChix</span>
+      <a class="navbar-brand" href="#">litaChix</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#chickenpaint-main-menu-content" aria-controls="chickenpaint-main-menu-content" aria-expanded="false" aria-label="Toggle main menu">
         <span class="navbar-toggler-icon"></span>
       </button>
