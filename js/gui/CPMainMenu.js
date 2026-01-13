@@ -493,7 +493,7 @@ export default function CPMainMenu(controller, mainGUI) {
     bar.className = "navbar navbar-expand-md bg-light";
     bar.innerHTML = `
     <div class="navbar-upper">
-      <a class="navbar-brand" href="#">litaChix</a>
+      <span class="navbar-brand">litaChix</span>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#chickenpaint-main-menu-content" aria-controls="chickenpaint-main-menu-content" aria-expanded="false" aria-label="Toggle main menu">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -696,12 +696,6 @@ export default function CPMainMenu(controller, mainGUI) {
                 const span = document.createElement("span");
                 span.textContent = entry.mnemonic;
                 btn.appendChild(span);
-
-                btn.addEventListener("click", (e) => {
-                    menuItemClicked(btn);
-                    e.preventDefault();
-                });
-
                 menuElem.appendChild(btn);
             });
         //全画面モードのオプションがforceの時は
@@ -771,11 +765,6 @@ export default function CPMainMenu(controller, mainGUI) {
             mobileBtn.appendChild(span);
             mobileBtn.dataset.action = mobileEntry.action;
 
-            mobileBtn.addEventListener("click", (e) => {
-                menuItemClicked(mobileBtn);
-                e.preventDefault();
-            });
-
             menuElem.appendChild(mobileBtn);
         }
         //消去アイコンを追加
@@ -788,11 +777,6 @@ export default function CPMainMenu(controller, mainGUI) {
         clearIcon.title = _("Clear");
         clearIcon.dataset.action = "CPClear";
 
-        clearIcon.addEventListener("click", (e) => {
-            menuItemClicked(clearIcon);
-            e.preventDefault();
-        });
-
         menuElem.appendChild(clearIcon);
         //塗り潰しアイコンを追加
         const fillIcon = document.createElement("span");
@@ -803,11 +787,6 @@ export default function CPMainMenu(controller, mainGUI) {
         fillIcon.style.verticalAlign = "bottom";
         fillIcon.title = _("Fill");
         fillIcon.dataset.action = "CPFill";
-
-        fillIcon.addEventListener("click", (e) => {
-            menuItemClicked(fillIcon);
-            e.preventDefault();
-        });
 
         menuElem.appendChild(fillIcon);
         //変形アイコンを追加
@@ -820,11 +799,6 @@ export default function CPMainMenu(controller, mainGUI) {
         transFormIcon.title = _("Transform");
         transFormIcon.dataset.action = "CPTransform";
 
-        transFormIcon.addEventListener("click", (e) => {
-            menuItemClicked(transFormIcon);
-            e.preventDefault();
-        });
-
         menuElem.appendChild(transFormIcon);
         //選択解除アイコンを追加
         const deselectIcon = document.createElement("span");
@@ -835,10 +809,6 @@ export default function CPMainMenu(controller, mainGUI) {
         deselectIcon.style.verticalAlign = "bottom";
         deselectIcon.dataset.action = "CPDeselectAll";
         deselectIcon.title = _("Deselect");
-        deselectIcon.addEventListener("click", (e) => {
-            menuItemClicked(deselectIcon);
-            e.preventDefault();
-        });
 
         menuElem.appendChild(deselectIcon);
     }
@@ -846,10 +816,7 @@ export default function CPMainMenu(controller, mainGUI) {
     bar.addEventListener("click", (e) => {
         const target = e.target.closest("[data-action]");
         if (!target) return;
-        if (target.tagName === "BUTTON") {
-            // button 用の処理はここでは行わない
-            return;
-        }
+
         menuItemClicked(target);
         e.preventDefault();
     });
