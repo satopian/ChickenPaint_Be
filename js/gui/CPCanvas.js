@@ -2953,15 +2953,6 @@ export default function CPCanvas(controller) {
             // ズーム中は描画しない
             return;
         }
-        //線画カクツキ対策
-        //ブラシサイズが10px以下の時は"pointerrawupdate"でより多くの情報を拾う
-        if ("onpointerrawupdate" in window && controller.getBrushSize() <= 10) {
-            canvas.addEventListener("pointerrawupdate", handlePointerMove);
-            canvas.removeEventListener("pointermove", handlePointerMove);
-        } else {
-            canvas.addEventListener("pointermove", handlePointerMove);
-            canvas.removeEventListener("pointerrawupdate", handlePointerMove);
-        }
 
         canvas.setPointerCapture(e.pointerId);
 
@@ -2978,6 +2969,23 @@ export default function CPCanvas(controller) {
         mouseDown[e.button] = true;
 
         modeStack.mouseDown(e, e.button, getPointerPressure(e));
+    }
+
+    //高精細描画モードを条件に応じて使用する(描画カクツキ対策)
+    function handlePointerMoveWrapper(e) {
+        // 使用するイベントを動的に切り替え
+        const isFreehand = modeStack.peek() instanceof CPFreehandMode;
+        const brushSmall = controller.getBrushSize() <= 10;
+        // 条件に応じて実際の描画関数を呼ぶ
+        if (isFreehand && brushSmall) {
+            // ブラウザが1フレームに統合した、詳細な移動履歴（全イベント）を取得する
+            const events = e.getCoalescedEvents?.() ?? [e];
+            for (const ev of events) {
+                handlePointerMove(ev); // 高速描画
+            }
+        } else {
+            handlePointerMove(e);//通常描画
+        }
     }
 
     function handleKeyDown(e) {
@@ -3414,7 +3422,7 @@ export default function CPCanvas(controller) {
     });
 
     canvas.addEventListener("pointerdown", handlePointerDown);
-    // canvas.addEventListener("pointermove", handlePointerMove);
+    canvas.addEventListener("pointermove", handlePointerMoveWrapper);
     canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
     canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
     canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
