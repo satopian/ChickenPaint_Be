@@ -2953,6 +2953,15 @@ export default function CPCanvas(controller) {
             // ズーム中は描画しない
             return;
         }
+        //線画カクツキ対策
+        //ブラシサイズが10px以下の時は"pointerrawupdate"でより多くの情報を拾う
+        if ("onpointerrawupdate" in window && controller.getBrushSize() <= 10) {
+            canvas.addEventListener("pointerrawupdate", handlePointerMove);
+            canvas.removeEventListener("pointermove", handlePointerMove);
+        } else {
+            canvas.addEventListener("pointermove", handlePointerMove);
+            canvas.removeEventListener("pointerrawupdate", handlePointerMove);
+        }
 
         canvas.setPointerCapture(e.pointerId);
 
@@ -3405,7 +3414,7 @@ export default function CPCanvas(controller) {
     });
 
     canvas.addEventListener("pointerdown", handlePointerDown);
-    canvas.addEventListener("pointermove", handlePointerMove);
+    // canvas.addEventListener("pointermove", handlePointerMove);
     canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
     canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
     canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
