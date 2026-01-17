@@ -65,8 +65,8 @@ import CPUserPreferences from "./gui/CPUserPreferences.js";
 function isSmallScreen() {
     return Boolean(
         typeof navigator.maxTouchPoints === "number" &&
-            navigator.maxTouchPoints > 2 &&
-            (window.screen.width <= 820 || window.screen.height <= 820)
+        navigator.maxTouchPoints > 2 &&
+        (window.screen.width <= 820 || window.screen.height <= 820),
     );
 }
 
@@ -85,6 +85,7 @@ function createDrawingTools() {
         tip: CPBrushInfo.TIP_ROUND_AA,
         brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
         paintMode: CPBrushInfo.PAINT_MODE_OPACITY,
+        smoothing: 0.01,
     });
 
     tools[ChickenPaint.T_ERASER] = new CPBrushInfo({
@@ -115,6 +116,7 @@ function createDrawingTools() {
         brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
         paintMode: CPBrushInfo.PAINT_MODE_FLOW,
         alphaScale: 1 / 2,
+        smoothing: 0.01,
     });
 
     tools[ChickenPaint.T_SOFTERASER] = new CPBrushInfo({
@@ -325,7 +327,7 @@ export default function ChickenPaint(options) {
             e.preventDefault();
             e.stopPropagation();
         },
-        { passive: false }
+        { passive: false },
     );
 
     let that = this,
@@ -402,7 +404,7 @@ export default function ChickenPaint(options) {
                     const mainMenu = mainGUI.getMainMenu();
                     const menuElement = mainMenu.getElement();
                     const flipMenuItem = menuElement.querySelector(
-                        '[data-action="CPViewHFlip"]'
+                        '[data-action="CPViewHFlip"]',
                     );
                     if (flipButton) {
                         flipButton.classList.remove("flipped");
@@ -425,7 +427,7 @@ export default function ChickenPaint(options) {
                     // console.log("mainMenu", mainMenu);
                     // console.log("menuElement", menuElement);
                     const flipMenuItem = menuElement.querySelector(
-                        '[data-action="CPViewHFlip"]'
+                        '[data-action="CPViewHFlip"]',
                     );
                     if (flipButton) {
                         //表示の左右反転時には、左右反転アイコンに赤枠を付ける
@@ -475,8 +477,8 @@ export default function ChickenPaint(options) {
                     if (
                         confirm(
                             _(
-                                "You're about to clear the current Undo/Redo history.\nThis operation cannot be undone, are you sure you want to do that?"
-                            )
+                                "You're about to clear the current Undo/Redo history.\nThis operation cannot be undone, are you sure you want to do that?",
+                            ),
                         )
                     ) {
                         that.artwork.clearHistory();
@@ -504,7 +506,7 @@ export default function ChickenPaint(options) {
             CPFloodFill: new ModeChangeAction(ChickenPaint.M_FLOODFILL),
             CPGradientFill: new ModeChangeAction(ChickenPaint.M_GRADIENTFILL),
             CPRectSelection: new ModeChangeAction(
-                ChickenPaint.M_RECT_SELECTION
+                ChickenPaint.M_RECT_SELECTION,
             ),
             CPMoveTool: new ModeChangeAction(ChickenPaint.M_MOVE_TOOL),
             CPRotateCanvas: new ModeChangeAction(ChickenPaint.M_ROTATE_CANVAS),
@@ -521,9 +523,9 @@ export default function ChickenPaint(options) {
                         that.showLayerNotification(
                             layer,
                             _(
-                                "Whoops! All of the selected pixels are transparent!"
+                                "Whoops! All of the selected pixels are transparent!",
                             ),
-                            "layer"
+                            "layer",
                         );
                     } else {
                         setMode(ChickenPaint.M_TRANSFORM);
@@ -538,21 +540,21 @@ export default function ChickenPaint(options) {
                         that.showLayerNotification(
                             layer,
                             _("Whoops! This layer is currently hidden"),
-                            "layer"
+                            "layer",
                         );
                     } else if (layer.alpha == 0) {
                         that.showLayerNotification(
                             layer,
                             _("Whoops! This layer's opacity is currently 0%"),
-                            "opacity"
+                            "opacity",
                         );
                     } else if (that.artwork.transformAffineBegin() == null) {
                         that.showLayerNotification(
                             layer,
                             _(
-                                "Whoops! All of the selected pixels are transparent!"
+                                "Whoops! All of the selected pixels are transparent!",
                             ),
-                            "layer"
+                            "layer",
                         );
                     } else {
                         return layer.getEffectiveAlpha() != 0;
@@ -872,8 +874,8 @@ export default function ChickenPaint(options) {
                     if (!that.artwork.removeLayer()) {
                         alert(
                             _(
-                                "Sorry, you can't remove the last remaining layer in the drawing."
-                            )
+                                "Sorry, you can't remove the last remaining layer in the drawing.",
+                            ),
                         );
                     }
                 },
@@ -1005,7 +1007,7 @@ export default function ChickenPaint(options) {
             },
             CPExportAsZIP: {
                 action: function () {
-                    saveDrawing({zip:true});
+                    saveDrawing({ zip: true });
                 },
                 isSupported: function () {
                     return options.allowDownload !== false;
@@ -1119,30 +1121,21 @@ export default function ChickenPaint(options) {
 
     function showMosaicDialog() {
         if (!mosaicDialog) {
-            mosaicDialog = new CPMosaicDialog(
-                uiElem,
-                that
-            );
+            mosaicDialog = new CPMosaicDialog(uiElem, that);
         }
 
         mosaicDialog.show();
     }
     function showColorHalftoneDialog() {
         if (!colorHalftoneDialog) {
-            colorHalftoneDialog = new CPColorHalftoneDialog(
-                uiElem,
-                that
-            );
+            colorHalftoneDialog = new CPColorHalftoneDialog(uiElem, that);
         }
 
         colorHalftoneDialog.show();
     }
     function showMonoHalftoneDialog() {
         if (!monoHalftoneDialog) {
-            monoHalftoneDialog = new CPMonoHalftoneDialog(
-                uiElem,
-                that
-            );
+            monoHalftoneDialog = new CPMonoHalftoneDialog(uiElem, that);
         }
 
         monoHalftoneDialog.show();
@@ -1151,7 +1144,7 @@ export default function ChickenPaint(options) {
         if (!chromaticAberrationDialog) {
             chromaticAberrationDialog = new CPChromaticAberrationDialog(
                 uiElem,
-                that
+                that,
             );
         }
 
@@ -1373,7 +1366,7 @@ export default function ChickenPaint(options) {
         return tools[curBrush];
     };
 
-    function saveDrawing(save_options={}) {
+    function saveDrawing(save_options = {}) {
         let saver = new CPResourceSaver({
             artwork: that.getArtwork(),
             rotation: canvas.getRotation90(),
@@ -1387,12 +1380,12 @@ export default function ChickenPaint(options) {
         saver.on("savingFailure", function () {
             alert(
                 _(
-                    "Sorry, your drawing could not be saved, Please see the error message."
-                )
+                    "Sorry, your drawing could not be saved, Please see the error message.",
+                ),
             );
         });
 
-        saver.save({zip: save_options.zip ?? false});
+        saver.save({ zip: save_options.zip ?? false });
     }
 
     function sendDrawing() {
@@ -1400,8 +1393,8 @@ export default function ChickenPaint(options) {
             !that.isActionSupported("CPContinue") &&
             !confirm(
                 _(
-                    "Are you sure you want to send your drawing to the server and finish drawing now?"
-                )
+                    "Are you sure you want to send your drawing to the server and finish drawing now?",
+                ),
             )
         ) {
             return;
@@ -1431,8 +1424,8 @@ export default function ChickenPaint(options) {
         saver.on("savingFailure", function () {
             alert(
                 _(
-                    "Sorry, your drawing could not be saved, Please see the error message."
-                )
+                    "Sorry, your drawing could not be saved, Please see the error message.",
+                ),
             );
         });
 
@@ -1544,7 +1537,7 @@ export default function ChickenPaint(options) {
 
             uiElem.classList.toggle(
                 "chickenpaint-small-screen",
-                smallScreenMode
+                smallScreenMode,
             );
             that.emitEvent("smallScreen", [smallScreenMode]);
         }
@@ -1554,21 +1547,21 @@ export default function ChickenPaint(options) {
         return smallScreenMode;
     };
 
-    this.fullScreenModeOptions = function (){
+    this.fullScreenModeOptions = function () {
         return options.fullScreenMode;
-    }
+    };
     this.setFullScreen = function (newVal) {
         if (isFullScreen !== newVal) {
             isFullScreen = newVal;
 
             document.body.classList.toggle(
                 "chickenpaint-full-screen",
-                isFullScreen
+                isFullScreen,
             );
             uiElem.classList.toggle("chickenpaint-full-screen", isFullScreen);
 
             const viewportMetaTags = document.querySelectorAll(
-                'head meta[name="viewport"]'
+                'head meta[name="viewport"]',
             );
             const count = viewportMetaTags.length;
             if (isFullScreen && count === 0) {
@@ -1582,7 +1575,7 @@ export default function ChickenPaint(options) {
                 // Give the browser time to adjust the viewport before we adapt to the new size
                 setTimeout(
                     () => that.emitEvent("fullScreen", [isFullScreen]),
-                    200
+                    200,
                 );
             } else {
                 that.emitEvent("fullScreen", [isFullScreen]);
@@ -1677,7 +1670,7 @@ export default function ChickenPaint(options) {
     }
 
     preferences.on("toolbarStyle", (newStyle) =>
-        this.emitEvent("toolbarStyleChange", [newStyle])
+        this.emitEvent("toolbarStyleChange", [newStyle]),
     );
 
     if (options.loadImageUrl || options.loadChibiFileUrl) {
@@ -1701,7 +1694,7 @@ export default function ChickenPaint(options) {
         } else {
             this.artwork = new CPArtwork(
                 options.canvasWidth || 800,
-                options.canvasHeight || 600
+                options.canvasHeight || 600,
             );
             this.artwork.addBackgroundLayer();
             //起動時に透明なレイヤーを1枚追加
