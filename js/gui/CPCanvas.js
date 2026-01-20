@@ -274,7 +274,8 @@ export default function CPCanvas(controller) {
         fillExpandPixels = 0,
         foodFillAlpha = 255,
         floodFillReferAllLayers = true,
-        currentSelection = true;
+        currentSelection = true,
+        isPointerDown = false;
     Math.sign =
         Math.sign ||
         function (x) {
@@ -474,7 +475,7 @@ export default function CPCanvas(controller) {
             mouseX - halfBrushSize,
             mouseY - halfBrushSize,
             mouseX + halfBrushSize,
-            mouseY + halfBrushSize
+            mouseY + halfBrushSize,
         );
     };
 
@@ -550,7 +551,7 @@ export default function CPCanvas(controller) {
                 (r.top + r.bottom) / 2,
                 r.getWidth() / 2,
                 0,
-                Math.PI * 2
+                Math.PI * 2,
             );
 
             canvasContext.stroke();
@@ -608,7 +609,7 @@ export default function CPCanvas(controller) {
             var pf = coordToDocument({ x: mouseX, y: mouseY }),
                 smoothing = Math.min(
                     0.999,
-                    Math.pow(controller.getBrushInfo().smoothing, 0.3)
+                    Math.pow(controller.getBrushInfo().smoothing, 0.3),
                 );
             const smoothingFactor = 1.0 - smoothing;
             this.smoothMouse.x =
@@ -619,7 +620,7 @@ export default function CPCanvas(controller) {
             artwork.continueStroke(
                 this.smoothMouse.x,
                 this.smoothMouse.y,
-                pressure
+                pressure,
             );
 
             return true;
@@ -680,7 +681,7 @@ export default function CPCanvas(controller) {
                         Math.max(dragLineFrom.y, dragLineTo.y) +
                             LINE_PREVIEW_WIDTH +
                             1 +
-                            1
+                            1,
                     );
 
                 dragLineTo = { x: mouseX + 0.5, y: mouseY + 0.5 }; // Target centre of pixel
@@ -691,8 +692,8 @@ export default function CPCanvas(controller) {
                         angle = Math.round(
                             Math.atan2(
                                 dragLineTo.y - dragLineFrom.y,
-                                dragLineTo.x - dragLineFrom.x
-                            ) / snap
+                                dragLineTo.x - dragLineFrom.x,
+                            ) / snap,
                         );
 
                     switch (angle) {
@@ -713,7 +714,7 @@ export default function CPCanvas(controller) {
                                 (dragLineTo.y - dragLineFrom.y) *
                                     (dragLineTo.y - dragLineFrom.y) +
                                     (dragLineTo.x - dragLineFrom.x) *
-                                        (dragLineTo.x - dragLineFrom.x)
+                                        (dragLineTo.x - dragLineFrom.x),
                             );
 
                             dragLineTo.x =
@@ -739,8 +740,8 @@ export default function CPCanvas(controller) {
                         Math.max(dragLineFrom.y, dragLineTo.y) +
                             LINE_PREVIEW_WIDTH +
                             1 +
-                            1
-                    )
+                            1,
+                    ),
                 );
 
                 repaintRect(invalidateRect);
@@ -774,7 +775,7 @@ export default function CPCanvas(controller) {
                     Math.max(dragLineFrom.y, dragLineTo.y) +
                         LINE_PREVIEW_WIDTH +
                         1 +
-                        1
+                        1,
                 );
 
                 repaintRect(invalidateRect);
@@ -997,7 +998,7 @@ export default function CPCanvas(controller) {
 
                 if (artwork.isPointWithin(pf.x, pf.y)) {
                     controller.setCurColor(
-                        new CPColor(artwork.colorPicker(pf.x, pf.y))
+                        new CPColor(artwork.colorPicker(pf.x, pf.y)),
                     );
                 }
 
@@ -1086,7 +1087,7 @@ export default function CPCanvas(controller) {
             if (this.capture) {
                 that.setOffset(
                     panningOffset.x + e.pageX - panningX,
-                    panningOffset.y + e.pageY - panningY
+                    panningOffset.y + e.pageY - panningY,
                 );
 
                 return true;
@@ -1163,7 +1164,7 @@ export default function CPCanvas(controller) {
                     pf.y,
                     fillExpandPixels,
                     foodFillAlpha,
-                    floodFillReferAllLayers
+                    floodFillReferAllLayers,
                 );
                 that.repaintAll();
             }
@@ -1184,7 +1185,7 @@ export default function CPCanvas(controller) {
             const brushpalette = paletteManager.palettes.brush.getElement();
             //縦横比固定のチェックボックスの要素を取得
             const maintainAspectCheckbox = brushpalette.querySelector(
-                "#chickenpaint-s-maintainAspectCheckbox"
+                "#chickenpaint-s-maintainAspectCheckbox",
             );
 
             if (
@@ -1222,7 +1223,7 @@ export default function CPCanvas(controller) {
             let square = e.shiftKey || maintainAspectCheckd;
             let squareDist = ~~Math.max(
                 Math.abs(p.x - firstClick.x),
-                Math.abs(p.y - firstClick.y)
+                Math.abs(p.y - firstClick.y),
             );
 
             if (p.x >= firstClick.x) {
@@ -1422,11 +1423,11 @@ export default function CPCanvas(controller) {
                     edgeP2 = corners.points[(i + 1) % corners.points.length],
                     vEdge = new CPVector(
                         edgeP2.x - edgeP1.x,
-                        edgeP2.y - edgeP1.y
+                        edgeP2.y - edgeP1.y,
                     ),
                     vMouse = new CPVector(
                         mouse.x - edgeP1.x,
-                        mouse.y - edgeP1.y
+                        mouse.y - edgeP1.y,
                     ),
                     vEdgeLen = vEdge.getLength(),
                     vEdgeScaled = vEdge.getScaled(1 / vEdgeLen),
@@ -1476,8 +1477,8 @@ export default function CPCanvas(controller) {
                             .add(
                                 CPVector.subtractPoints(
                                     cornerAfter,
-                                    corner
-                                ).normalize()
+                                    corner,
+                                ).normalize(),
                             );
 
                     setResizeCursorForVector(v45);
@@ -1491,7 +1492,7 @@ export default function CPCanvas(controller) {
                         corner2 = corners.points[(~~(dragAction / 2) + 1) % 4],
                         vPerp = CPVector.subtractPoints(
                             corner2,
-                            corner1
+                            corner1,
                         ).getPerpendicular();
 
                     setResizeCursorForVector(vPerp);
@@ -1520,7 +1521,7 @@ export default function CPCanvas(controller) {
             const brushpalette = paletteManager.palettes.brush.getElement();
             //縦横比固定のチェックボックスの要素を取得
             const maintainAspectCheckbox = brushpalette.querySelector(
-                "#chickenpaint-t-maintainAspectCheckbox"
+                "#chickenpaint-t-maintainAspectCheckbox",
             );
 
             if (
@@ -1563,11 +1564,11 @@ export default function CPCanvas(controller) {
                 switch (draggingMode) {
                     case DRAG_MOVE:
                         let dragPointDoc = roundPoint(
-                                coordToDocument(dragPointDisplay)
+                                coordToDocument(dragPointDisplay),
                             ),
                             translation = CPVector.subtractPoints(
                                 dragPointDoc,
-                                lastDragPointDoc
+                                lastDragPointDoc,
                             ),
                             // Only translate in whole-pixel increments (in document space not canvas space)
                             translationRounded = translation.getTruncated(),
@@ -1580,7 +1581,7 @@ export default function CPCanvas(controller) {
                          */
                         translateInstance.translate(
                             translationRounded.x,
-                            translationRounded.y
+                            translationRounded.y,
                         );
 
                         affine.preMultiply(translateInstance);
@@ -1588,7 +1589,7 @@ export default function CPCanvas(controller) {
                         // Accumulate the fractional move that we didn't apply for next time
                         lastDragPointDoc = CPVector.subtractPoints(
                             dragPointDoc,
-                            translationRemainder
+                            translationRemainder,
                         );
                         break;
                     case DRAG_ROTATE:
@@ -1598,11 +1599,11 @@ export default function CPCanvas(controller) {
                             centerDisplay = coordToDisplay(centerDoc),
                             oldMouseAngle = Math.atan2(
                                 lastDragPointDisplay.y - centerDisplay.y,
-                                lastDragPointDisplay.x - centerDisplay.x
+                                lastDragPointDisplay.x - centerDisplay.x,
                             ),
                             newMouseAngle = Math.atan2(
                                 dragPointDisplay.y - centerDisplay.y,
-                                dragPointDisplay.x - centerDisplay.x
+                                dragPointDisplay.x - centerDisplay.x,
                             ),
                             deltaMouseAngle = newMouseAngle - oldMouseAngle,
                             rotateAngle,
@@ -1619,7 +1620,8 @@ export default function CPCanvas(controller) {
                             rotateAngle =
                                 -affine.decompose().rotate +
                                 Math.round(
-                                    rotationAccumulator / DRAG_ROTATE_SNAP_ANGLE
+                                    rotationAccumulator /
+                                        DRAG_ROTATE_SNAP_ANGLE,
                                 ) *
                                     DRAG_ROTATE_SNAP_ANGLE;
                         } else {
@@ -1636,7 +1638,7 @@ export default function CPCanvas(controller) {
                         rotateInstance.rotateAroundPoint(
                             rotateAngle,
                             centerDoc.x,
-                            centerDoc.y
+                            centerDoc.y,
                         );
 
                         affine.preMultiply(rotateInstance);
@@ -1656,8 +1658,8 @@ export default function CPCanvas(controller) {
                                     .getInverted()
                                     .getTransformedPoint(
                                         roundPoint(
-                                            coordToDocument(dragPointDisplay)
-                                        )
+                                            coordToDocument(dragPointDisplay),
+                                        ),
                                     ),
                                 // The opposite corner to the one we dragged must not move
                                 fixCorner =
@@ -1700,7 +1702,7 @@ export default function CPCanvas(controller) {
                                 scaleX,
                                 scaleY,
                                 fixCorner.x,
-                                fixCorner.y
+                                fixCorner.y,
                             );
                         }
                         break;
@@ -1714,15 +1716,15 @@ export default function CPCanvas(controller) {
                                     origCornerPoints.points[cornerIndex],
                                     origCornerPoints.points[
                                         (cornerIndex + 1) % 4
-                                    ]
+                                    ],
                                 ),
                                 // The handle we dragged will move into its new position
                                 newHandle = affine
                                     .getInverted()
                                     .getTransformedPoint(
                                         roundPoint(
-                                            coordToDocument(dragPointDisplay)
-                                        )
+                                            coordToDocument(dragPointDisplay),
+                                        ),
                                     ),
                                 // The opposite handle to the one we dragged must not move
                                 fixHandle = averagePoints(
@@ -1731,17 +1733,17 @@ export default function CPCanvas(controller) {
                                     ],
                                     origCornerPoints.points[
                                         (cornerIndex + 3) % 4
-                                    ]
+                                    ],
                                 ),
                                 scaleX,
                                 scaleY,
                                 oldVector = CPVector.subtractPoints(
                                     oldHandle,
-                                    fixHandle
+                                    fixHandle,
                                 ),
                                 newVector = CPVector.subtractPoints(
                                     newHandle,
-                                    fixHandle
+                                    fixHandle,
                                 ),
                                 oldLength = oldVector.getLength(),
                                 // We only take the length in the perpendicular direction to the transform edge:
@@ -1776,7 +1778,7 @@ export default function CPCanvas(controller) {
                                 scaleX,
                                 scaleY,
                                 fixHandle.x,
-                                fixHandle.y
+                                fixHandle.y,
                             );
                         }
                         break;
@@ -1870,7 +1872,7 @@ export default function CPCanvas(controller) {
                     handles[i].x - HANDLE_RADIUS,
                     handles[i].y - HANDLE_RADIUS,
                     HANDLE_RADIUS * 2 + 1,
-                    HANDLE_RADIUS * 2 + 1
+                    HANDLE_RADIUS * 2 + 1,
                 );
             }
 
@@ -2063,7 +2065,7 @@ export default function CPCanvas(controller) {
                     Math.atan2(p.y - displayCenter.y, p.x - displayCenter.x) -
                     Math.atan2(
                         firstClick.y - displayCenter.y,
-                        firstClick.x - displayCenter.x
+                        firstClick.x - displayCenter.x,
                     );
 
                 let rotTrans = new CPTransform();
@@ -2071,7 +2073,7 @@ export default function CPCanvas(controller) {
                 rotTrans.rotateAroundPoint(
                     deltaAngle,
                     canvasCenter.x,
-                    canvasCenter.y
+                    canvasCenter.y,
                 );
 
                 rotTrans.multiply(initTransform);
@@ -2079,7 +2081,7 @@ export default function CPCanvas(controller) {
                 that.setRotation(initAngle + deltaAngle);
                 that.setOffset(
                     ~~rotTrans.getTranslateX(),
-                    ~~rotTrans.getTranslateY()
+                    ~~rotTrans.getTranslateY(),
                 );
 
                 dragged = true;
@@ -2115,7 +2117,7 @@ export default function CPCanvas(controller) {
                 that.setRotation(initAngle + deltaAngle);
                 that.setOffset(
                     ~~rotTrans.getTranslateX(),
-                    ~~rotTrans.getTranslateY()
+                    ~~rotTrans.getTranslateY(),
                 );
 
                 that.repaintAll();
@@ -2185,7 +2187,7 @@ export default function CPCanvas(controller) {
             Math.round(from.y),
             Math.round(to.x),
             Math.round(to.y),
-            controller.getCurGradient()
+            controller.getCurGradient(),
         );
     };
 
@@ -2206,7 +2208,7 @@ export default function CPCanvas(controller) {
             controller.showLayerNotification(
                 activeLayer,
                 _("Whoops! This layer is currently hidden"),
-                "layer"
+                "layer",
             );
 
             return false;
@@ -2214,7 +2216,7 @@ export default function CPCanvas(controller) {
             controller.showLayerNotification(
                 activeLayer,
                 _("Whoops! This layer's opacity is currently 0%"),
-                "opacity"
+                "opacity",
             );
 
             return false;
@@ -2236,7 +2238,7 @@ export default function CPCanvas(controller) {
             controller.showLayerNotification(
                 activeLayer,
                 _("Whoops! You can't draw on a group"),
-                "layer"
+                "layer",
             );
 
             return false;
@@ -2275,7 +2277,7 @@ export default function CPCanvas(controller) {
         }
 
         var visibleRect = getRefreshArea(
-            new CPRect(0, 0, artworkCanvas.width, artworkCanvas.height)
+            new CPRect(0, 0, artworkCanvas.width, artworkCanvas.height),
         );
 
         updateScrollBar(
@@ -2283,14 +2285,14 @@ export default function CPCanvas(controller) {
             visibleRect.left,
             visibleRect.getWidth(),
             canvas.clientWidth,
-            that.getOffset().x
+            that.getOffset().x,
         );
         updateScrollBar(
             vertScroll,
             visibleRect.top,
             visibleRect.getHeight(),
             canvas.clientHeight,
-            that.getOffset().y
+            that.getOffset().y,
         );
     }
 
@@ -2407,7 +2409,7 @@ export default function CPCanvas(controller) {
                 Math.min(Math.min(p1.x, p2.x), Math.min(p3.x, p4.x)),
                 Math.min(Math.min(p1.y, p2.y), Math.min(p3.y, p4.y)),
                 Math.max(Math.max(p1.x, p2.x), Math.max(p3.x, p4.x)) + 1,
-                Math.max(Math.max(p1.y, p2.y), Math.max(p3.y, p4.y)) + 1
+                Math.max(Math.max(p1.y, p2.y), Math.max(p3.y, p4.y)) + 1,
             );
 
         r2.grow(2, 2); // to be sure to include everything
@@ -2428,7 +2430,7 @@ export default function CPCanvas(controller) {
 
         that.setOffset(
             Math.round(offsetX + width / 2.0 - artworkCenter.x),
-            Math.round(offsetY + height / 2.0 - artworkCenter.y)
+            Math.round(offsetY + height / 2.0 - artworkCenter.y),
         );
     }
 
@@ -2564,7 +2566,7 @@ export default function CPCanvas(controller) {
                 offset.x +
                     ~~((centerX - offset.x) * (1 - zoom / that.getZoom())),
                 offset.y +
-                    ~~((centerY - offset.y) * (1 - zoom / that.getZoom()))
+                    ~~((centerY - offset.y) * (1 - zoom / that.getZoom())),
             );
 
             that.setZoom(zoom);
@@ -2711,13 +2713,13 @@ export default function CPCanvas(controller) {
                     zoomOnPoint(
                         that.getZoom() * factor,
                         canvasPoint.x,
-                        canvasPoint.y
+                        canvasPoint.y,
                     );
                 } else {
                     zoomOnPoint(
                         that.getZoom() * factor,
                         offsetX + ~~((artwork.width * zoom) / 2),
-                        offsetY + ~~((artwork.height * zoom) / 2)
+                        offsetY + ~~((artwork.height * zoom) / 2),
                     );
                 }
 
@@ -2792,7 +2794,7 @@ export default function CPCanvas(controller) {
                 zoomOnPoint(
                     that.getZoom() * factor,
                     canvasPoint.x,
-                    canvasPoint.y
+                    canvasPoint.y,
                 );
 
                 penStartX = e.clientX; // 連続ズーム対応
@@ -2845,7 +2847,7 @@ export default function CPCanvas(controller) {
             zoomOnPoint(
                 pinchStartZoom * zoomFactor,
                 canvasPoint.x,
-                canvasPoint.y
+                canvasPoint.y,
             );
 
             e.preventDefault();
@@ -2884,8 +2886,7 @@ export default function CPCanvas(controller) {
             FLAG_PRIMARY = 1,
             FLAG_SECONDARY = 2,
             FLAG_WHEEL = 4,
-            isDragging = e.buttons !== 0,
-            pressure = isDragging ? getPointerPressure(e) : 0;
+            pressure = isPointerDown ? getPointerPressure(e) : 0;
 
         // Did any of our buttons change state?
         if (((e.buttons & FLAG_PRIMARY) !== 0) != mouseDown[BUTTON_PRIMARY]) {
@@ -2921,7 +2922,7 @@ export default function CPCanvas(controller) {
             }
         }
 
-        if (isDragging) {
+        if (isPointerDown) {
             modeStack.mouseDrag(e, pressure);
         } else {
             modeStack.mouseMove(e, pressure);
@@ -2934,6 +2935,7 @@ export default function CPCanvas(controller) {
 
     // Called when all mouse/pointer buttons are released
     function handlePointerUp(e) {
+        isPointerDown = false;
         mouseDown[BUTTON_PRIMARY] = false;
         mouseDown[BUTTON_SECONDARY] = false;
         mouseDown[BUTTON_WHEEL] = false;
@@ -2944,6 +2946,8 @@ export default function CPCanvas(controller) {
 
     // Called when the first button on the pointer is depressed / pen touches the surface
     function handlePointerDown(e) {
+        isPointerDown = true;
+
         if (sawPen && !isTouchInputAllowed && e.pointerType === "touch") {
             //タッチインプットが許可されていないモードの時はペン対応デバイスのタッチイベントを無視する
             // Palm rejection for devices that support pens
@@ -2975,16 +2979,16 @@ export default function CPCanvas(controller) {
     function handlePointerMoveWrapper(e) {
         // 使用するイベントを動的に切り替え
         const isFreehand = modeStack.peek() instanceof CPFreehandMode;
-        const brushSmall = controller.getBrushSize() <= 10;
+        const brushSmall = controller.getBrushSize() <= 16;
         // 条件に応じて実際の描画関数を呼ぶ
-        if (isFreehand && brushSmall) {
+        if (isPointerDown && isFreehand && brushSmall) {
             // ブラウザが1フレームに統合した、詳細な移動履歴（全イベント）を取得する
             const events = e.getCoalescedEvents?.() ?? [e];
             for (const ev of events) {
                 handlePointerMove(ev); // 高速描画
             }
         } else {
-            handlePointerMove(e);//通常描画
+            handlePointerMove(e); //通常描画
         }
     }
 
@@ -3068,7 +3072,7 @@ export default function CPCanvas(controller) {
                     repaintRegion.left,
                     repaintRegion.top,
                     Math.ceil(repaintRegion.getWidth()),
-                    Math.ceil(repaintRegion.getHeight())
+                    Math.ceil(repaintRegion.getHeight()),
                 );
 
                 canvasContext.clip();
@@ -3094,7 +3098,7 @@ export default function CPCanvas(controller) {
                 artworkUpdateRegion.left,
                 artworkUpdateRegion.top,
                 artworkUpdateRegion.getWidth(),
-                artworkUpdateRegion.getHeight()
+                artworkUpdateRegion.getHeight(),
             );
 
             artworkUpdateRegion.makeEmpty();
@@ -3112,7 +3116,7 @@ export default function CPCanvas(controller) {
                 transform.m[2],
                 transform.m[3],
                 transform.m[4],
-                transform.m[5]
+                transform.m[5],
             );
 
             canvasContext.fillStyle = checkerboardPattern;
@@ -3123,7 +3127,7 @@ export default function CPCanvas(controller) {
                 0,
                 0,
                 artworkCanvas.width,
-                artworkCanvas.height
+                artworkCanvas.height,
             );
         }
         canvasContext.restore();
@@ -3446,7 +3450,7 @@ export default function CPCanvas(controller) {
 
             that.resize(oldHeight, true);
         },
-        false
+        false,
     );
 
     window.addEventListener("scroll", function () {
