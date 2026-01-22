@@ -38,7 +38,7 @@ const MENU_ENTRIES = [
                 name: "Export as zip",
                 action: "CPExportAsZIP",
                 title: _(
-                    "Save the PNG image, CHI project file, and swatches file together as a ZIP package"
+                    "Save the PNG image, CHI project file, and swatches file together as a ZIP package",
                 ),
                 mnemonic: "S",
                 shortcut: "shift+alt+s",
@@ -254,6 +254,14 @@ const MENU_ENTRIES = [
                 name: "-",
             },
             {
+                name: "Outline outer",
+                action: "CPOutlineOuter",
+                mnemonic: "O",
+            },
+            {
+                name: "-",
+            },
+            {
                 name: "Monochromatic noise",
                 action: "CPMNoise",
                 mnemonic: "M",
@@ -355,7 +363,7 @@ const MENU_ENTRIES = [
                 action: "CPLinearInterpolation",
                 mnemonic: "L",
                 title: _(
-                    "Linear interpolation is used to give a smoothed looked to the picture when zoomed in"
+                    "Linear interpolation is used to give a smoothed looked to the picture when zoomed in",
                 ),
                 checkbox: true,
                 checked: true, //初期状態でズームのアンチエイリアスをOnに
@@ -553,8 +561,8 @@ export default function CPMainMenu(controller, mainGUI) {
 
         const visible = Array.from(
             menuElem.querySelectorAll(
-                ".dropdown-item:not(.hidden), .dropdown-divider:not(.hidden)"
-            )
+                ".dropdown-item:not(.hidden), .dropdown-divider:not(.hidden)",
+            ),
         );
         let lastDivider = null;
 
@@ -575,7 +583,7 @@ export default function CPMainMenu(controller, mainGUI) {
             div.className = "nav-item dropdown";
             div.innerHTML = `
         <span class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${_(
-            topEntry.name
+            topEntry.name,
         )}</span>
         <ul class="dropdown-menu"></ul>
       `;
@@ -604,7 +612,7 @@ export default function CPMainMenu(controller, mainGUI) {
                     // 変形操作で↓キーを押下時にメニューが開くのを防止
                     blurIfDropdownFocused();
                     updateMenuStates(div);
-                }
+                },
             );
 
             div.querySelector(".dropdown-toggle")?.addEventListener(
@@ -613,7 +621,7 @@ export default function CPMainMenu(controller, mainGUI) {
                     // ドロップダウンメニューのフォーカスを外す
                     // 変形操作で↓キーを押下時にメニューが開くのを防止
                     blurIfDropdownFocused();
-                }
+                },
             );
 
             topEntry.children.forEach((entry) => {
@@ -739,7 +747,7 @@ export default function CPMainMenu(controller, mainGUI) {
         }
 
         const mobileEntry = entries.find(
-            (e) => e.action === "CPToggleSetSmallScreenMode"
+            (e) => e.action === "CPToggleSetSmallScreenMode",
         );
 
         if (mobileEntry) {
@@ -851,10 +859,10 @@ export default function CPMainMenu(controller, mainGUI) {
     mainGUI.getPaletteManager().on("paletteVisChange", onPaletteVisChange);
 
     const fullScreenToggle = bar.querySelector(
-        ".dropdown-item[data-action=CPFullScreen]"
+        ".dropdown-item[data-action=CPFullScreen]",
     );
     controller.on("fullScreen", (isFS) =>
-        fullScreenToggle?.classList.toggle("selected", isFS)
+        fullScreenToggle?.classList.toggle("selected", isFS),
     );
     fullScreenToggle?.classList.toggle("selected", controller.isFullScreen());
 

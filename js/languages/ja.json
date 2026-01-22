@@ -55,6 +55,8 @@
     "Chromatic aberration": "色収差 (RGBずらし)",
     "Offset X": "横方向 X",
     "Offset Y": "縦方向 Y",
+    "Outline outer": "縁取り",
+    "Outline width": "縁の幅",
     "Apply to all (create merged layer)": "全体に適用 (結合レイヤーを追加)",
     "Monochromatic noise": "単色ノイズ",
     "Color noise": "カラーノイズ",

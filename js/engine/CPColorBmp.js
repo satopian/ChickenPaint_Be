@@ -1020,6 +1020,115 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
 };
 
 /**
+ * 縁取り
+ *
+ * ・内側＋縁取り範囲をすべて縁取り色で塗り潰す
+ * ・外側境界 1px のみアンチエイリアス
+ * ・最後に元画像を α 合成で戻す
+ *
+ * @param {CPRect} rect
+ * @param {number} outlineWidth px
+ * @param {number} color 0xRRGGBB
+ */
+CPColorBmp.prototype.outlineOuter = function (rect, outlineWidth, color) {
+    outlineWidth = Math.max(1, outlineWidth | 0);
+    rect = this.getBounds().clipTo(rect);
+
+    const r = (color >> 16) & 0xff;
+    const g = (color >> 8) & 0xff;
+    const b = color & 0xff;
+
+    const w = this.width;
+    const h = this.height;
+    const B = CPColorBmp.BYTES_PER_PIXEL;
+
+    const src = new Uint8ClampedArray(this.data);
+    const dst = new Uint8ClampedArray(this.data.length);
+
+    const INF = 1e9;
+    const dist = new Int32Array(w * h);
+
+    // 1) 距離初期化
+    for (let y = rect.top; y < rect.bottom; y++) {
+        for (let x = rect.left; x < rect.right; x++) {
+            const i = (y * w + x) * B;
+            dist[y * w + x] = src[i + 3] > 0 ? 0 : INF;
+        }
+    }
+
+    const R = outlineWidth * 10; // Chamfer単位
+
+    // 2) 前方パス（Chamfer 10/14）
+    for (let y = rect.top; y < rect.bottom; y++) {
+        for (let x = rect.left; x < rect.right; x++) {
+            const i = y * w + x;
+            let d = dist[i];
+            if (x > rect.left) d = Math.min(d, dist[i - 1] + 10);
+            if (y > rect.top) d = Math.min(d, dist[i - w] + 10);
+            if (x > rect.left && y > rect.top)
+                d = Math.min(d, dist[i - w - 1] + 14);
+            if (x < rect.right - 1 && y > rect.top)
+                d = Math.min(d, dist[i - w + 1] + 14);
+            dist[i] = d;
+        }
+    }
+
+    // 3) 後方パス
+    for (let y = rect.bottom - 1; y >= rect.top; y--) {
+        for (let x = rect.right - 1; x >= rect.left; x--) {
+            const i = y * w + x;
+            let d = dist[i];
+            if (x < rect.right - 1) d = Math.min(d, dist[i + 1] + 10);
+            if (y < rect.bottom - 1) d = Math.min(d, dist[i + w] + 10);
+            if (x < rect.right - 1 && y < rect.bottom - 1)
+                d = Math.min(d, dist[i + w + 1] + 14);
+            if (x > rect.left && y < rect.bottom - 1)
+                d = Math.min(d, dist[i + w - 1] + 14);
+            dist[i] = d;
+        }
+    }
+
+    // 4) 内側＋縁取り塗り（外縁AA）
+    for (let y = rect.top; y < rect.bottom; y++) {
+        for (let x = rect.left; x < rect.right; x++) {
+            const idx = y * w + x;
+            const d = dist[idx];
+            if (d > R) continue;
+
+            const i = idx * B;
+            let a = 1;
+
+            // 外側1pxのみAA
+            if (d > R - 10) {
+                a = (R - d) / 10;
+                a = a * a; // 適度シャープ
+            }
+
+            dst[i] = r;
+            dst[i + 1] = g;
+            dst[i + 2] = b;
+            dst[i + 3] = a * 255;
+        }
+    }
+
+    // 5) 元画像 α 合成で戻す
+    for (let i = 0; i < dst.length; i += 4) {
+        const sa = src[i + 3] / 255;
+        if (sa === 0) continue;
+
+        const da = dst[i + 3] / 255;
+        const outA = sa + da * (1 - sa);
+
+        dst[i] = (src[i] * sa + dst[i] * da * (1 - sa)) / outA;
+        dst[i + 1] = (src[i + 1] * sa + dst[i + 1] * da * (1 - sa)) / outA;
+        dst[i + 2] = (src[i + 2] * sa + dst[i + 2] * da * (1 - sa)) / outA;
+        dst[i + 3] = outA * 255;
+    }
+
+    this.data.set(dst);
+};
+
+/**
  * 単色ハーフトーン（45°・円ドット）
  *
  * ・1セル1ドット

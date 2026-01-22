@@ -1789,6 +1789,27 @@ export default function CPArtwork(_width, _height) {
         }
     };
     /**
+     * 現在のレイヤーに縁取りを適用する。
+     *
+     * @param {number} outlineWidth
+     */
+    this.outlineOuter = function (outlineWidth) {
+        if (maskEditingMode) return;
+
+        let r = this.getSelectionAutoSelect(),
+            target = getActiveImage();
+
+        if (target) {
+            prepareForLayerPaintUndo();
+            paintUndoArea = r.clone();
+
+            target.outlineOuter(r, outlineWidth, curColor);
+
+            addUndo(new CPUndoPaint());
+            invalidateLayerPaint(curLayer, r);
+        }
+    };
+    /**
      * 現在のレイヤーにモノクロハーフトーンを適用する。
      *
      * @param {number} dotSize
