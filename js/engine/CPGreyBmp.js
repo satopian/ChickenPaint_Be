@@ -78,7 +78,7 @@ CPGreyBmp.prototype.cloneRect = function (rect) {
     var result = new CPGreyBmp(
         rect.getWidth(),
         rect.getHeight(),
-        this.bitDepth
+        this.bitDepth,
     );
 
     result.copyBitmapRect(this, 0, 0, rect);
@@ -179,7 +179,7 @@ CPGreyBmp.prototype.floodFillWithBorder = function (
     y,
     color,
     expandBy = 2,
-    alpha255 = 255
+    alpha255 = 255,
 ) {
     if (!this.isInside(x, y)) return;
 
@@ -238,7 +238,7 @@ CPGreyBmp.prototype.floodFillWithBorder = function (
                         // ここで必ず元の値から補間する
                         const base = orig[nidx];
                         const applied = Math.round(
-                            base * (1 - alpha) + gray * alpha
+                            base * (1 - alpha) + gray * alpha,
                         );
                         expandedData[nidx] = applied;
                     }
@@ -258,7 +258,7 @@ CPGreyBmp.prototype.createThumbnailFrom = function (that) {
     const MAX_SAMPLES_PER_OUTPUT_PIXEL = 3,
         numSamples = Math.min(
             Math.floor(that.width / this.width),
-            MAX_SAMPLES_PER_OUTPUT_PIXEL
+            MAX_SAMPLES_PER_OUTPUT_PIXEL,
         );
 
     if (numSamples < 2) {
@@ -271,7 +271,7 @@ CPGreyBmp.prototype.createThumbnailFrom = function (that) {
         srcRowByteLength = that.width,
         sourceBytesBetweenOutputCols = Math.floor(that.width / this.width),
         intersampleXByteSpacing = Math.floor(
-            that.width / this.width / numSamples
+            that.width / this.width / numSamples,
         ),
         /* Due to the floor() in intersampleXByteSkip, it's likely that the gap between the last sample for an output pixel
          * and the start of the sample for the next pixel will be higher than the intersample gap. So we'll add this between
@@ -282,7 +282,7 @@ CPGreyBmp.prototype.createThumbnailFrom = function (that) {
         // Now we do the same for rows...
         sourceRowsBetweenOutputRows = Math.floor(that.height / this.height),
         intersampleYRowsSpacing = Math.floor(
-            that.height / this.height / numSamples
+            that.height / this.height / numSamples,
         ),
         intersampleYByteSkip =
             intersampleYRowsSpacing * srcRowByteLength -
@@ -566,7 +566,7 @@ CPGreyBmp.prototype.copyRegionVFlip = function (rect, source) {
         var dstOffset = this.offsetOfPixel(rect.left, y),
             srcOffset = source.offsetOfPixel(
                 rect.left,
-                rect.bottom - 1 - (y - rect.top)
+                rect.bottom - 1 - (y - rect.top),
             );
 
         for (var x = 0; x < width; x++) {
@@ -747,10 +747,16 @@ CPGreyBmp.prototype.mosaic = function (rect, blockSize) {
  *
  * @param {Object} rect    対象矩形
  * @param {number} dotSize ドット基準サイズ（px）
+ * @param {number} [color=0x000000] ドットの色（ダミー）
  * @param {number} [density=1.0] ドット配置間隔の倍率（0.5–2.0）
  *        小さいほど密／大きいほど疎
  */
-CPGreyBmp.prototype.monoHalftone = function (rect, dotSize, density = 1.0) {
+CPGreyBmp.prototype.monoHalftone = function (
+    rect,
+    dotSize,
+    color = 0x000000,
+    density = 1.0,
+) {
     dotSize = Math.max(2, dotSize | 0);
     rect = this.getBounds().clipTo(rect);
 
@@ -893,7 +899,7 @@ CPGreyBmp.prototype.brightnessToOpacity = function (rect) {
 
             // 元のアルファ値を考慮して透明度を更新
             this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] = Math.round(
-                newAlpha * originalAlpha
+                newAlpha * originalAlpha,
             );
 
             // 不透明な線画の明度を低下させる
@@ -1023,7 +1029,7 @@ CPGreyBmp.prototype.gradientHorzReplace = function (
     rect,
     fromX,
     toX,
-    gradientPoints
+    gradientPoints,
 ) {
     var fromColor = gradientPoints[0] & 0xff,
         toColor = gradientPoints[1] & 0xff,
@@ -1085,7 +1091,7 @@ CPGreyBmp.prototype.gradientVertReplace = function (
     rect,
     fromY,
     toY,
-    gradientPoints
+    gradientPoints,
 ) {
     let fromColor = gradientPoints[0] & 0xff,
         toColor = gradientPoints[1] & 0xff,
@@ -1158,7 +1164,7 @@ CPGreyBmp.prototype.gradientReplace = function (
     fromY,
     toX,
     toY,
-    gradientPoints
+    gradientPoints,
 ) {
     var yStride = this.width - rect.getWidth(),
         pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
@@ -1205,7 +1211,7 @@ CPGreyBmp.prototype.gradientAlpha = function (
     fromY,
     toX,
     toY,
-    gradientPoints
+    gradientPoints,
 ) {
     var yStride = this.width - rect.getWidth(),
         pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
@@ -1266,7 +1272,7 @@ CPGreyBmp.prototype.gradient = function (
     toX,
     toY,
     gradientPoints,
-    replace
+    replace,
 ) {
     rect = this.getBounds().clipTo(rect);
 

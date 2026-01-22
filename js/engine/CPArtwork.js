@@ -407,7 +407,7 @@ export default function CPArtwork(_width, _height) {
             if (!drawingInProgress) {
                 thumbnailRebuildTimer = setTimeout(
                     buildThumbnails,
-                    THUMBNAIL_REBUILD_DELAY_MSEC
+                    THUMBNAIL_REBUILD_DELAY_MSEC,
                 );
             }
         }
@@ -512,14 +512,14 @@ export default function CPArtwork(_width, _height) {
 
                 newLayer = new CPLayerGroup(
                     this.getDefaultLayerName(true),
-                    CPBlend.LM_PASSTHROUGH
+                    CPBlend.LM_PASSTHROUGH,
                 );
                 break;
             default:
                 newLayer = new CPImageLayer(
                     this.width,
                     this.height,
-                    this.getDefaultLayerName(false)
+                    this.getDefaultLayerName(false),
                 );
                 newLayer.image.clearAll(EMPTY_LAYER_COLOR);
         }
@@ -573,7 +573,7 @@ export default function CPArtwork(_width, _height) {
                 .getLinearizedLayerList(false)
                 .some(
                     (layer) =>
-                        layer instanceof CPImageLayer && layer != curLayer
+                        layer instanceof CPImageLayer && layer != curLayer,
                 );
         }
         if (curLayer instanceof CPLayerGroup) {
@@ -582,7 +582,7 @@ export default function CPArtwork(_width, _height) {
                 .some(
                     (layer) =>
                         layer instanceof CPImageLayer &&
-                        !layer.hasAncestor(curLayer)
+                        !layer.hasAncestor(curLayer),
                 );
         }
 
@@ -793,7 +793,7 @@ export default function CPArtwork(_width, _height) {
                 curBrush,
                 brushRect,
                 dab,
-                curColor
+                curColor,
             );
         } else {
             // 選択範囲あり → intersection 計算
@@ -813,7 +813,7 @@ export default function CPArtwork(_width, _height) {
                 intersect.left - dab.x,
                 intersect.top - dab.y,
                 intersect.left - dab.x + intersect.getWidth(),
-                intersect.top - dab.y + intersect.getHeight()
+                intersect.top - dab.y + intersect.getHeight(),
             );
 
             brushTool.paintDab(
@@ -823,7 +823,7 @@ export default function CPArtwork(_width, _height) {
                 curBrush,
                 sourceRect,
                 dab,
-                curColor
+                curColor,
             );
         }
 
@@ -857,7 +857,7 @@ export default function CPArtwork(_width, _height) {
             if (nameRegex.test(layer.name)) {
                 highestLayerNb = Math.max(
                     highestLayerNb,
-                    parseInt(layer.name.substring(prefix.length), 10)
+                    parseInt(layer.name.substring(prefix.length), 10),
                 );
             }
         }
@@ -888,13 +888,13 @@ export default function CPArtwork(_width, _height) {
                     paintingModes[CPBrushInfo.BRUSH_MODE_PAINT].mergeOntoMask(
                         destMask,
                         undoMask,
-                        0xff000000
+                        0xff000000,
                     );
                 } else {
                     paintingModes[curBrush.brushMode].mergeOntoMask(
                         destMask,
                         undoMask,
-                        curColor & 0xff
+                        curColor & 0xff,
                     );
                 }
             } else {
@@ -911,13 +911,13 @@ export default function CPArtwork(_width, _height) {
                     paintingModes[CPBrushInfo.BRUSH_MODE_PAINT].mergeOntoImage(
                         destImage,
                         undoImage,
-                        EMPTY_LAYER_COLOR
+                        EMPTY_LAYER_COLOR,
                     );
                 } else {
                     paintingModes[curBrush.brushMode].mergeOntoImage(
                         destImage,
                         undoImage,
-                        curColor
+                        curColor,
                     );
                 }
 
@@ -942,7 +942,7 @@ export default function CPArtwork(_width, _height) {
         let layer = new CPImageLayer(
             that.width,
             that.height,
-            this.getDefaultLayerName(false)
+            this.getDefaultLayerName(false),
         );
         layer.image.clearAll(EMPTY_BACKGROUND_COLOR);
         this.addLayerObject(this.getLayersRoot(), layer);
@@ -952,7 +952,7 @@ export default function CPArtwork(_width, _height) {
         let layer = new CPImageLayer(
             that.width,
             that.height,
-            this.getDefaultLayerName(false)
+            this.getDefaultLayerName(false),
         );
         layer.image.clearAll(EMPTY_LAYER_COLOR);
         this.addLayerObject(this.getLayersRoot(), layer);
@@ -1044,14 +1044,14 @@ export default function CPArtwork(_width, _height) {
                                         fusion,
                                         layer.image,
                                         100,
-                                        blendRect
+                                        blendRect,
                                     );
                                 } else {
                                     CPBlend.upgradeMultiplyOfTransparentLayer(
                                         fusion,
                                         layer.image,
                                         layer.alpha,
-                                        blendRect
+                                        blendRect,
                                     );
                                 }
                                 layer.setBlendMode(CPBlend.LM_MULTIPLY2);
@@ -1076,7 +1076,7 @@ export default function CPArtwork(_width, _height) {
                         layer.alpha,
                         layer.blendMode,
                         blendRect,
-                        null
+                        null,
                     );
                 }
             }
@@ -1299,7 +1299,7 @@ export default function CPArtwork(_width, _height) {
                 curLayer.image,
                 undoImageInvalidRegion.left,
                 undoImageInvalidRegion.top,
-                undoImageInvalidRegion
+                undoImageInvalidRegion,
             );
 
             undoImageInvalidRegion.makeEmpty();
@@ -1314,7 +1314,7 @@ export default function CPArtwork(_width, _height) {
                 curLayer.mask,
                 undoMaskInvalidRegion.left,
                 undoMaskInvalidRegion.top,
-                undoMaskInvalidRegion
+                undoMaskInvalidRegion,
             );
 
             undoMaskInvalidRegion.makeEmpty();
@@ -1434,7 +1434,7 @@ export default function CPArtwork(_width, _height) {
         y,
         fillExpandPixels = 0,
         foodFillAlpha = 255,
-        floodFillReferAllLayers = true
+        floodFillReferAllLayers = true,
     ) {
         const fusion =
             !maskEditingMode && floodFillReferAllLayers
@@ -1452,7 +1452,7 @@ export default function CPArtwork(_width, _height) {
                 curColor | 0xff000000,
                 fillExpandPixels,
                 foodFillAlpha,
-                fusion
+                fusion,
             );
 
             addUndo(new CPUndoPaint());
@@ -1726,7 +1726,7 @@ export default function CPArtwork(_width, _height) {
         radiusX,
         radiusY,
         iterations,
-        createMergedLayer = false
+        createMergedLayer = false,
     ) {
         if (createMergedLayer) {
             addUndo(
@@ -1734,7 +1734,7 @@ export default function CPArtwork(_width, _height) {
                     for (let i = 0; i < iterations; i++) {
                         target.boxBlur(r, radiusX, radiusY);
                     }
-                })
+                }),
             );
             return;
         }
@@ -1763,14 +1763,14 @@ export default function CPArtwork(_width, _height) {
     this.chromaticAberration = function (
         offsetX,
         offsetY,
-        createMergedLayer = false
+        createMergedLayer = false,
     ) {
         if (maskEditingMode) return;
         if (createMergedLayer) {
             addUndo(
                 new CPCreateMergedLayerWithFilter(function (target, r) {
                     target.chromaticAberration(r, offsetX, offsetY);
-                })
+                }),
             );
             return;
         }
@@ -1798,8 +1798,8 @@ export default function CPArtwork(_width, _height) {
         if (createMergedLayer) {
             addUndo(
                 new CPCreateMergedLayerWithFilter(function (target, r) {
-                    target.monoHalftone(r, dotSize, 0.85);
-                })
+                    target.monoHalftone(r, dotSize, curColor, 0.85);
+                }),
             );
             return;
         }
@@ -1811,7 +1811,7 @@ export default function CPArtwork(_width, _height) {
             prepareForLayerPaintUndo();
             paintUndoArea = r.clone();
 
-            target.monoHalftone(r, dotSize, 0.85);
+            target.monoHalftone(r, dotSize, curColor, 0.85);
 
             addUndo(new CPUndoPaint());
             invalidateLayerPaint(curLayer, r);
@@ -1829,7 +1829,7 @@ export default function CPArtwork(_width, _height) {
             addUndo(
                 new CPCreateMergedLayerWithFilter(function (target, r) {
                     target.colorHalftone(r, dotSize, 0.85);
-                }, CPBlend.LM_MULTIPLY2)
+                }, CPBlend.LM_MULTIPLY2),
             );
             return;
         }
@@ -1859,7 +1859,7 @@ export default function CPArtwork(_width, _height) {
             addUndo(
                 new CPCreateMergedLayerWithFilter(function (target, r) {
                     target.mosaic(r, blockSize);
-                })
+                }),
             );
             return;
         }
@@ -1884,7 +1884,7 @@ export default function CPArtwork(_width, _height) {
         newSelection.clipTo(this.getBounds());
 
         addUndo(
-            new CPUndoRectangleSelection(this.getSelection(), newSelection)
+            new CPUndoRectangleSelection(this.getSelection(), newSelection),
         );
 
         this.setSelection(newSelection);
@@ -1992,7 +1992,7 @@ export default function CPArtwork(_width, _height) {
          */
         operation = new CPActionAffineTransformSelection(
             initialTransform,
-            transformInterpolation
+            transformInterpolation,
         );
 
         if (operation.getInitialTransformRect().isEmpty()) {
@@ -2045,7 +2045,7 @@ export default function CPArtwork(_width, _height) {
     this.cutSelection = function () {
         if (this.isCutSelectionAllowed()) {
             addUndo(
-                new CPActionCut(curLayer, maskEditingMode, this.getSelection())
+                new CPActionCut(curLayer, maskEditingMode, this.getSelection()),
             );
         }
     };
@@ -2058,7 +2058,7 @@ export default function CPArtwork(_width, _height) {
             clipboard = new CPClip(
                 image.cloneRect(selection),
                 selection.left,
-                selection.top
+                selection.top,
             );
         }
     };
@@ -2074,7 +2074,7 @@ export default function CPArtwork(_width, _height) {
             clipboard = new CPClip(
                 this.fusionLayers().cloneRect(selection),
                 selection.left,
-                selection.top
+                selection.top,
             );
         }
     };
@@ -2176,11 +2176,11 @@ export default function CPArtwork(_width, _height) {
         }
 
         let dist = Math.sqrt(
-                (lastX - x) * (lastX - x) + (lastY - y) * (lastY - y)
+                (lastX - x) * (lastX - x) + (lastY - y) * (lastY - y),
             ),
             spacing = Math.max(
                 curBrush.minSpacing,
-                curBrush.curSize * curBrush.spacing
+                curBrush.curSize * curBrush.spacing,
             );
 
         if (dist > spacing) {
@@ -2306,7 +2306,7 @@ export default function CPArtwork(_width, _height) {
                 this.layer,
                 rect,
                 xorImage != null,
-                xorMask != null
+                xorMask != null,
             );
         };
 
@@ -2514,7 +2514,7 @@ export default function CPArtwork(_width, _height) {
 
             sourceLayer.parent.insertLayer(
                 sourceLayer.parent.indexOf(sourceLayer) + 1,
-                newLayer
+                newLayer,
             );
 
             artworkStructureChanged();
@@ -2625,7 +2625,7 @@ export default function CPArtwork(_width, _height) {
                 layerGroup,
                 that.width,
                 that.height,
-                false
+                false,
             ),
             blended;
 
@@ -2686,12 +2686,12 @@ export default function CPArtwork(_width, _height) {
                         CPBlend.multiplyAlphaByMask(
                             mergedLayer.image,
                             mergedLayer.alpha,
-                            mergedLayer.mask
+                            mergedLayer.mask,
                         );
                     } else {
                         CPBlend.multiplyAlphaBy(
                             mergedLayer.image,
-                            mergedLayer.alpha
+                            mergedLayer.alpha,
                         );
                     }
 
@@ -2702,7 +2702,7 @@ export default function CPArtwork(_width, _height) {
                         topLayer.alpha,
                         topLayer.blendMode,
                         topLayer.getBounds(),
-                        topLayer.mask
+                        topLayer.mask,
                     );
                 }
             } else {
@@ -2718,7 +2718,7 @@ export default function CPArtwork(_width, _height) {
                     tempGroup,
                     that.width,
                     that.height,
-                    false
+                    false,
                 );
                 blendTree.buildTree();
 
@@ -2808,7 +2808,7 @@ export default function CPArtwork(_width, _height) {
      */
     function CPCreateMergedLayerWithFilter(
         applyFilterFn,
-        blendMode = CPBlend.LM_NORMAL
+        blendMode = CPBlend.LM_NORMAL,
     ) {
         if (maskEditingMode) return;
 
@@ -2984,7 +2984,7 @@ export default function CPArtwork(_width, _height) {
                 }
                 this.layers = layers;
                 this.from = this.layers.map((layer) =>
-                    layer["get" + capitalPropertyName]()
+                    layer["get" + capitalPropertyName](),
                 );
                 this.to = newValue;
 
@@ -2996,21 +2996,21 @@ export default function CPArtwork(_width, _height) {
 
         ChangeAction.prototype.undo = function () {
             this.layers.forEach((layer, index) =>
-                layer["set" + capitalPropertyName](this.from[index])
+                layer["set" + capitalPropertyName](this.from[index]),
             );
 
             this.layers.forEach((layer) =>
-                layerPropertyChanged(layer, propertyName, !invalidatesLayer)
+                layerPropertyChanged(layer, propertyName, !invalidatesLayer),
             );
         };
 
         ChangeAction.prototype.redo = function () {
             this.layers.forEach((layer) =>
-                layer["set" + capitalPropertyName](this.to)
+                layer["set" + capitalPropertyName](this.to),
             );
 
             this.layers.forEach((layer) =>
-                layerPropertyChanged(layer, propertyName, !invalidatesLayer)
+                layerPropertyChanged(layer, propertyName, !invalidatesLayer),
             );
         };
 
@@ -3039,35 +3039,35 @@ export default function CPArtwork(_width, _height) {
 
     let CPActionChangeLayerAlpha = generateLayerPropertyChangeAction(
             "alpha",
-            true
+            true,
         ),
         CPActionChangeLayerMode = generateLayerPropertyChangeAction(
             "blendMode",
-            true
+            true,
         ),
         CPActionChangeLayerVisible = generateLayerPropertyChangeAction(
             "visible",
-            true
+            true,
         ),
         CPActionChangeLayerClip = generateLayerPropertyChangeAction(
             "clip",
-            true
+            true,
         ),
         CPActionChangeLayerMaskVisible = generateLayerPropertyChangeAction(
             "maskVisible",
-            true
+            true,
         ),
         CPActionChangeLayerName = generateLayerPropertyChangeAction(
             "name",
-            false
+            false,
         ),
         CPActionChangeLayerLockAlpha = generateLayerPropertyChangeAction(
             "lockAlpha",
-            false
+            false,
         ),
         CPActionChangeLayerMaskLinked = generateLayerPropertyChangeAction(
             "maskLinked",
-            false
+            false,
         );
 
     /**
@@ -3187,7 +3187,7 @@ export default function CPArtwork(_width, _height) {
                         moveMask: layer.mask !== null && layer.maskLinked,
                         imageRect: new Map(),
                         maskRect: new Map(),
-                    }))
+                    })),
                 );
             }
 
@@ -3213,16 +3213,16 @@ export default function CPArtwork(_width, _height) {
                         occupiedSpace.union(
                             layerInfo.layer.mask.getValueBounds(
                                 this.srcRect,
-                                0xff
-                            )
+                                0xff,
+                            ),
                         );
                     }
 
                     if (layerInfo.moveImage) {
                         occupiedSpace.union(
                             layerInfo.layer.image.getNonTransparentBounds(
-                                this.srcRect
-                            )
+                                this.srcRect,
+                            ),
                         );
                     }
                 }
@@ -3242,16 +3242,16 @@ export default function CPArtwork(_width, _height) {
                         occupiedSpace.union(
                             layerInfo.layer.mask.getValueBounds(
                                 this.srcRect,
-                                0x00
-                            )
+                                0x00,
+                            ),
                         );
                     }
 
                     if (layerInfo.moveImage) {
                         occupiedSpace.union(
                             layerInfo.layer.image.getNonTransparentBounds(
-                                this.srcRect
-                            )
+                                this.srcRect,
+                            ),
                         );
                     }
                 }
@@ -3284,7 +3284,7 @@ export default function CPArtwork(_width, _height) {
                                 layerInfo.imageUndo,
                                 region.left,
                                 region.top,
-                                region
+                                region,
                             );
                         }
                         if (layerInfo.moveMask) {
@@ -3292,7 +3292,7 @@ export default function CPArtwork(_width, _height) {
                                 layerInfo.maskUndo,
                                 region.left,
                                 region.top,
-                                region
+                                region,
                             );
                         }
                     });
@@ -3303,7 +3303,7 @@ export default function CPArtwork(_width, _height) {
                                 image,
                                 rect.left,
                                 rect.top,
-                                image.getBounds()
+                                image.getBounds(),
                             );
                         });
                     }
@@ -3314,7 +3314,7 @@ export default function CPArtwork(_width, _height) {
                                 mask,
                                 rect.left,
                                 rect.top,
-                                mask.getBounds()
+                                mask.getBounds(),
                             );
                         });
                     }
@@ -3325,10 +3325,10 @@ export default function CPArtwork(_width, _height) {
                 this.movingLayers.map((layerInfo) => layerInfo.layer),
                 restoreRegions.reduce(
                     (a, b) => a.getUnion(b),
-                    new CPRect(0, 0, 0, 0)
+                    new CPRect(0, 0, 0, 0),
                 ),
                 true,
-                true
+                true,
             );
 
             // Call this after we're done with restoreRegions, since it might be a part of that array.
@@ -3409,13 +3409,13 @@ export default function CPArtwork(_width, _height) {
                         if (layerInfo.moveImage) {
                             layerInfo.imageRect.set(
                                 rect,
-                                layerInfo.imageUndo.cloneRect(rect)
+                                layerInfo.imageUndo.cloneRect(rect),
                             );
                         }
                         if (layerInfo.moveMask) {
                             layerInfo.maskRect.set(
                                 rect,
-                                layerInfo.maskUndo.cloneRect(rect)
+                                layerInfo.maskUndo.cloneRect(rect),
                             );
                         }
                     });
@@ -3469,7 +3469,7 @@ export default function CPArtwork(_width, _height) {
                     if (layerInfo.moveImage) {
                         let canvas = createCanvas(
                                 this.srcRect.getWidth(),
-                                this.srcRect.getHeight()
+                                this.srcRect.getHeight(),
                             ),
                             context = canvas.getContext("2d");
 
@@ -3480,7 +3480,7 @@ export default function CPArtwork(_width, _height) {
                             this.srcRect.left,
                             this.srcRect.top,
                             this.srcRect.getWidth(),
-                            this.srcRect.getHeight()
+                            this.srcRect.getHeight(),
                         );
 
                         layerInfo.imageSourceCanvas = canvas;
@@ -3489,7 +3489,7 @@ export default function CPArtwork(_width, _height) {
                     if (layerInfo.moveMask) {
                         let canvas = createCanvas(
                                 this.srcRect.getWidth(),
-                                this.srcRect.getHeight()
+                                this.srcRect.getHeight(),
                             ),
                             context = canvas.getContext("2d");
 
@@ -3498,10 +3498,10 @@ export default function CPArtwork(_width, _height) {
                                 this.srcRect.left,
                                 this.srcRect.top,
                                 this.srcRect.getWidth(),
-                                this.srcRect.getHeight()
+                                this.srcRect.getHeight(),
                             ),
                             0,
-                            0
+                            0,
                         );
 
                         layerInfo.maskSourceCanvas = canvas;
@@ -3515,7 +3515,7 @@ export default function CPArtwork(_width, _height) {
                     "2d",
                     {
                         willReadFrequently: true,
-                    }
+                    },
                 );
                 const is_smooth = this.interpolation === "smooth";
                 const ctx = this.composeCanvasContext;
@@ -3551,7 +3551,7 @@ export default function CPArtwork(_width, _height) {
             this.dstRect.set(
                 CPRect.createBoundingBox(dstCorners)
                     .roundContain()
-                    .clipTo(that.getBounds())
+                    .clipTo(that.getBounds()),
             );
 
             const /* The area of original image data that we need to compose the transformed area onto (i.e. excluding the
@@ -3569,7 +3569,7 @@ export default function CPArtwork(_width, _height) {
                     oldDstRect.isEmpty()
                         ? this.srcRect
                         : this.srcRect.getIntersection(oldDstRect),
-                    this.dstRect
+                    this.dstRect,
                 ),
                 // The region of the source rectangle that we want to compose onto
                 srcComposeRect = this.srcRect.getIntersection(this.dstRect),
@@ -3589,7 +3589,7 @@ export default function CPArtwork(_width, _height) {
                     if (layerInfo.moveImage) {
                         layerInfo.layer.image.clearRect(
                             rect,
-                            EMPTY_LAYER_COLOR
+                            EMPTY_LAYER_COLOR,
                         );
                     }
 
@@ -3599,7 +3599,7 @@ export default function CPArtwork(_width, _height) {
                         } else {
                             layerInfo.layer.mask.clearRect(
                                 rect,
-                                EMPTY_MASK_COLOR
+                                EMPTY_MASK_COLOR,
                             );
                         }
                     }
@@ -3621,7 +3621,7 @@ export default function CPArtwork(_width, _height) {
                                 rect.left,
                                 rect.top,
                                 rect.getWidth(),
-                                rect.getHeight()
+                                rect.getHeight(),
                             );
                         });
 
@@ -3630,7 +3630,7 @@ export default function CPArtwork(_width, _height) {
                             srcComposeRect.left,
                             srcComposeRect.top,
                             srcComposeRect.getWidth(),
-                            srcComposeRect.getHeight()
+                            srcComposeRect.getHeight(),
                         );
 
                         this.composeCanvasContext.save();
@@ -3642,12 +3642,12 @@ export default function CPArtwork(_width, _height) {
                             this.affineTransform.m[2],
                             this.affineTransform.m[3],
                             this.affineTransform.m[4],
-                            this.affineTransform.m[5]
+                            this.affineTransform.m[5],
                         );
                         this.composeCanvasContext.drawImage(
                             layerInfo.imageSourceCanvas,
                             this.srcRect.left,
-                            this.srcRect.top
+                            this.srcRect.top,
                         );
 
                         this.composeCanvasContext.restore();
@@ -3659,8 +3659,8 @@ export default function CPArtwork(_width, _height) {
                                     this.dstRect.left,
                                     this.dstRect.top,
                                     this.dstRect.getWidth(),
-                                    this.dstRect.getHeight()
-                                )
+                                    this.dstRect.getHeight(),
+                                ),
                             ),
                             this.dstRect.left,
                             this.dstRect.top,
@@ -3668,8 +3668,8 @@ export default function CPArtwork(_width, _height) {
                                 0,
                                 0,
                                 this.dstRect.getWidth(),
-                                this.dstRect.getHeight()
-                            )
+                                this.dstRect.getHeight(),
+                            ),
                         );
                     }
 
@@ -3680,10 +3680,10 @@ export default function CPArtwork(_width, _height) {
                                     rect.left,
                                     rect.top,
                                     rect.getWidth(),
-                                    rect.getHeight()
+                                    rect.getHeight(),
                                 ),
                                 rect.left,
-                                rect.top
+                                rect.top,
                             );
                         });
 
@@ -3697,7 +3697,7 @@ export default function CPArtwork(_width, _height) {
                             srcComposeRect.left,
                             srcComposeRect.top,
                             srcComposeRect.getWidth(),
-                            srcComposeRect.getHeight()
+                            srcComposeRect.getHeight(),
                         );
 
                         this.composeCanvasContext.save();
@@ -3710,12 +3710,12 @@ export default function CPArtwork(_width, _height) {
                             this.affineTransform.m[2],
                             this.affineTransform.m[3],
                             this.affineTransform.m[4],
-                            this.affineTransform.m[5]
+                            this.affineTransform.m[5],
                         );
                         this.composeCanvasContext.drawImage(
                             layerInfo.maskSourceCanvas,
                             this.srcRect.left,
-                            this.srcRect.top
+                            this.srcRect.top,
                         );
 
                         this.composeCanvasContext.restore();
@@ -3725,10 +3725,10 @@ export default function CPArtwork(_width, _height) {
                                 this.dstRect.left,
                                 this.dstRect.top,
                                 this.dstRect.getWidth(),
-                                this.dstRect.getHeight()
+                                this.dstRect.getHeight(),
                             ),
                             this.dstRect.left,
-                            this.dstRect.top
+                            this.dstRect.top,
                         );
                     }
                 }
@@ -3745,7 +3745,7 @@ export default function CPArtwork(_width, _height) {
                             layerInfo.imageUndo,
                             rect.left,
                             rect.top,
-                            rect
+                            rect,
                         );
                     }
 
@@ -3754,7 +3754,7 @@ export default function CPArtwork(_width, _height) {
                             layerInfo.maskUndo,
                             rect.left,
                             rect.top,
-                            rect
+                            rect,
                         );
                     }
                 });
@@ -3764,7 +3764,7 @@ export default function CPArtwork(_width, _height) {
                 this.movingLayers.map((layerInfo) => layerInfo.layer),
                 invalidateRect,
                 true,
-                true
+                true,
             );
 
             // Transform the selection rect to enclose the transformed selection
@@ -3837,7 +3837,7 @@ export default function CPArtwork(_width, _height) {
             this.composeCanvasContext = null;
 
             this.movingLayers.forEach(
-                (layerInfo) => (layerInfo.imageSourceCanvas = null)
+                (layerInfo) => (layerInfo.imageSourceCanvas = null),
             );
         }
 
@@ -3851,7 +3851,7 @@ export default function CPArtwork(_width, _height) {
 
             result += this.movingLayers
                 .map((layerInfo) =>
-                    memoryUsedByCanvas(layerInfo.imageSourceCanvas)
+                    memoryUsedByCanvas(layerInfo.imageSourceCanvas),
                 )
                 .reduce(sum, 0);
 
@@ -3948,13 +3948,13 @@ export default function CPArtwork(_width, _height) {
                     if (layerInfo.moveImage) {
                         layerInfo.layer.image.clearRect(
                             eraseRegion,
-                            EMPTY_LAYER_COLOR
+                            EMPTY_LAYER_COLOR,
                         );
                     }
                     if (layerInfo.moveMask) {
                         layerInfo.layer.mask.clearRect(
                             eraseRegion,
-                            this.movingWholeLayer ? 0xff : EMPTY_MASK_COLOR
+                            this.movingWholeLayer ? 0xff : EMPTY_MASK_COLOR,
                         );
                     }
                 }
@@ -3965,7 +3965,7 @@ export default function CPArtwork(_width, _height) {
                             layerInfo.imageUndo,
                             restore.left,
                             restore.top,
-                            restore
+                            restore,
                         );
                     }
                     if (layerInfo.moveMask) {
@@ -3973,7 +3973,7 @@ export default function CPArtwork(_width, _height) {
                             layerInfo.maskUndo,
                             restore.left,
                             restore.top,
-                            restore
+                            restore,
                         );
                     }
                 });
@@ -3988,7 +3988,7 @@ export default function CPArtwork(_width, _height) {
                         layerInfo.imageUndo,
                         destRectUnclipped.left,
                         destRectUnclipped.top,
-                        this.srcRect
+                        this.srcRect,
                     );
                 }
                 if (layerInfo.moveMask) {
@@ -3996,7 +3996,7 @@ export default function CPArtwork(_width, _height) {
                         layerInfo.maskUndo,
                         destRectUnclipped.left,
                         destRectUnclipped.top,
-                        this.srcRect
+                        this.srcRect,
                     );
                 }
             });
@@ -4007,7 +4007,7 @@ export default function CPArtwork(_width, _height) {
                 this.movingLayers.map((layerInfo) => layerInfo.layer),
                 invalidateRegion,
                 true,
-                true
+                true,
             );
 
             if (!this.fromSelection.isEmpty()) {
@@ -4054,7 +4054,7 @@ export default function CPArtwork(_width, _height) {
                 cutData,
                 selection.left,
                 selection.top,
-                cutData.getBounds()
+                cutData.getBounds(),
             );
 
             that.setActiveLayer(layer, cutFromMask);
@@ -4097,7 +4097,7 @@ export default function CPArtwork(_width, _height) {
             newLayer = new CPImageLayer(
                 that.width,
                 that.height,
-                that.getDefaultLayerName(false)
+                that.getDefaultLayerName(false),
             ),
             oldLayer = curLayer,
             parentGroup = oldLayer.parent;

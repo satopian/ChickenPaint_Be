@@ -352,7 +352,7 @@ CPColorBmp.prototype.createThumbnailFrom = function (that) {
     const MAX_SAMPLES_PER_OUTPUT_PIXEL = 3,
         numSamples = Math.min(
             Math.floor(that.width / this.width),
-            MAX_SAMPLES_PER_OUTPUT_PIXEL
+            MAX_SAMPLES_PER_OUTPUT_PIXEL,
         );
 
     if (numSamples < 2) {
@@ -364,7 +364,7 @@ CPColorBmp.prototype.createThumbnailFrom = function (that) {
     const // Uint16 means we can have up to 16 (since 16*16 ~= 65535/255) times scale reduction without overflow
         rowBuffer = new Uint16Array(
             this.width *
-                5 /* 4 bytes of RGBA plus one to record the max alpha of the samples */
+                5 /* 4 bytes of RGBA plus one to record the max alpha of the samples */,
         ),
         srcRowByteLength = that.width * CPColorBmp.BYTES_PER_PIXEL,
         sourceBytesBetweenOutputCols =
@@ -381,7 +381,7 @@ CPColorBmp.prototype.createThumbnailFrom = function (that) {
         // Now we do the same for rows...
         sourceRowsBetweenOutputRows = Math.floor(that.height / this.height),
         intersampleYRowsSpacing = Math.floor(
-            that.height / this.height / numSamples
+            that.height / this.height / numSamples,
         ),
         intersampleYByteSkip =
             intersampleYRowsSpacing * srcRowByteLength -
@@ -436,7 +436,7 @@ CPColorBmp.prototype.createThumbnailFrom = function (that) {
                     // And keep track of the highest alpha we see
                     rowBuffer[bufferIndex + 4] = Math.max(
                         rowBuffer[bufferIndex + 4],
-                        sourceAlpha
+                        sourceAlpha,
                     );
                 }
             }
@@ -487,7 +487,7 @@ CPColorBmp.prototype.floodFillWithBorder = function (
     fillColor,
     expandBy = 2,
     alpha255 = 255,
-    fusion = null
+    fusion = null,
 ) {
     if (!this.isInside(x, y)) return;
 
@@ -606,7 +606,7 @@ function separateAlpha(buffer, len) {
             for (var j = 0; j < 3; j++, pixIndex++) {
                 buffer[pixIndex] = Math.min(
                     Math.round(buffer[pixIndex] * invAlpha),
-                    255
+                    255,
                 );
             }
             // Don't modify alpha channel
@@ -882,7 +882,7 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
             let bIdx = (by * w + bx) * BYTES;
             dst[bIdx + CPColorBmp.BLUE_BYTE_OFFSET] = Math.round(
                 src[idx + CPColorBmp.BLUE_BYTE_OFFSET] * a0 +
-                    dst[bIdx + CPColorBmp.BLUE_BYTE_OFFSET] * (1 - a0)
+                    dst[bIdx + CPColorBmp.BLUE_BYTE_OFFSET] * (1 - a0),
             );
 
             // === RED（右側）===
@@ -891,7 +891,7 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
             let rIdx = (ry * w + rx) * BYTES;
             dst[rIdx + CPColorBmp.RED_BYTE_OFFSET] = Math.round(
                 src[idx + CPColorBmp.RED_BYTE_OFFSET] * a0 +
-                    dst[rIdx + CPColorBmp.RED_BYTE_OFFSET] * (1 - a0)
+                    dst[rIdx + CPColorBmp.RED_BYTE_OFFSET] * (1 - a0),
             );
 
             // GREEN は中央（元のまま）
@@ -938,9 +938,9 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
     }
 
     const CHANNELS = [
-        { idx: 0, r: 0,   g: 255, b: 255, angle: 15 * Math.PI / 180 }, // C
-        { idx: 1, r: 255, g: 0,   b: 255, angle: 75 * Math.PI / 180 }, // M
-        { idx: 2, r: 255, g: 255, b: 0,   angle: 30 * Math.PI / 180 }, // Y
+        { idx: 0, r: 0, g: 255, b: 255, angle: (15 * Math.PI) / 180 }, // C
+        { idx: 1, r: 255, g: 0, b: 255, angle: (75 * Math.PI) / 180 }, // M
+        { idx: 2, r: 255, g: 255, b: 0, angle: (30 * Math.PI) / 180 }, // Y
     ];
 
     const step = dotSize * density;
@@ -957,7 +957,6 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
 
         for (let gy = -offsetY; gy < h + offsetY; gy += step) {
             for (let gx = -offsetX; gx < w + offsetX; gx += step) {
-
                 const cx = gx + step * 0.5;
                 const cy = gy + step * 0.5;
 
@@ -976,7 +975,7 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
                 if (a <= 0) continue;
 
                 // αを考慮して白にブレンド
-                const r = (src[i]     / 255) * a + (1 - a);
+                const r = (src[i] / 255) * a + (1 - a);
                 const g = (src[i + 1] / 255) * a + (1 - a);
                 const b = (src[i + 2] / 255) * a + (1 - a);
 
@@ -1011,7 +1010,7 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
                 if (px < 0 || py < 0 || px >= w || py >= h) continue;
 
                 const p = (py * w + px) * B;
-                dst[p]     = (dst[p]     * r) >> 8;
+                dst[p] = (dst[p] * r) >> 8;
                 dst[p + 1] = (dst[p + 1] * g) >> 8;
                 dst[p + 2] = (dst[p + 2] * b) >> 8;
                 dst[p + 3] = 255;
@@ -1021,20 +1020,25 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
 };
 
 /**
- * モノクロハーフトーン（45°・円ドット）
+ * 単色ハーフトーン（45°・円ドット）
  *
  * ・1セル1ドット
  * ・角度 45°
  * ・明るいほど小さく、暗いほど大きい
- * ・黒ドットのみ
- * ・透明に近いほど白扱い
+ * ・単色ドット
+ * ・透明に近いほど白扱い（＝ドットなし）
  *
  * @param {Object} rect    対象矩形
  * @param {number} dotSize ドット基準サイズ（px）
+ * @param {number} color   0xRRGGBB
  * @param {number} [density=1.0] ドット配置間隔の倍率（0.5–2.0）
- *        小さいほど密／大きいほど疎
  */
-CPColorBmp.prototype.monoHalftone = function (rect, dotSize, density = 1.0) {
+CPColorBmp.prototype.monoHalftone = function (
+    rect,
+    dotSize,
+    color = 0x000000,
+    density = 1.0,
+) {
     dotSize = Math.max(2, dotSize | 0);
     rect = this.getBounds().clipTo(rect);
 
@@ -1045,11 +1049,16 @@ CPColorBmp.prototype.monoHalftone = function (rect, dotSize, density = 1.0) {
     const src = new Uint8ClampedArray(this.data);
     const dst = new Uint8ClampedArray(this.data.length);
 
-    // 背景白
+    // ===== 背景は最初から完全透明 =====
     for (let i = 0; i < dst.length; i += 4) {
-        dst[i] = dst[i + 1] = dst[i + 2] = 255;
-        dst[i + 3] = 255;
+        dst[i] = dst[i + 1] = dst[i + 2] = 0;
+        dst[i + 3] = 0;
     }
+
+    // ドット色
+    const dr = (color >> 16) & 0xff;
+    const dg = (color >> 8) & 0xff;
+    const db = color & 0xff;
 
     // 回転中心
     const centerX = w * 0.5;
@@ -1099,18 +1108,10 @@ CPColorBmp.prototype.monoHalftone = function (rect, dotSize, density = 1.0) {
 
             // 暗いほどドット大
             const v = 1.0 - lum;
-            if (v <= 0) continue;
+            if (v <= 0) continue; // ← 白は「何も描かれない」＝透明
 
             const radius = minR + (maxR - minR) * Math.pow(v, 0.9);
-
             drawDot(rx, ry, radius);
-        }
-    }
-
-    // 白を透明化
-    for (let i = 0; i < dst.length; i += 4) {
-        if (dst[i] === 255 && dst[i + 1] === 255 && dst[i + 2] === 255) {
-            dst[i + 3] = 0;
         }
     }
 
@@ -1131,9 +1132,9 @@ CPColorBmp.prototype.monoHalftone = function (rect, dotSize, density = 1.0) {
 
                 const p = (py * w + px) * B;
 
-                dst[p] = 0;
-                dst[p + 1] = 0;
-                dst[p + 2] = 0;
+                dst[p] = dr;
+                dst[p + 1] = dg;
+                dst[p + 2] = db;
                 dst[p + 3] = 255;
             }
         }
@@ -1176,7 +1177,6 @@ CPColorBmp.prototype.clearAll = function (color) {
         for (
             var i = 0;
             i < this.width * this.height * CPColorBmp.BYTES_PER_PIXEL;
-
         ) {
             this.data[i++] = r;
             this.data[i++] = g;
@@ -1247,7 +1247,7 @@ CPColorBmp.prototype.copyRegionVFlip = function (rect, source) {
         var dstOffset = this.offsetOfPixel(rect.left, y),
             srcOffset = source.offsetOfPixel(
                 rect.left,
-                rect.bottom - 1 - (y - rect.top)
+                rect.bottom - 1 - (y - rect.top),
             );
 
         for (var x = 0; x < widthBytes; x++) {
@@ -1294,7 +1294,7 @@ CPColorBmp.prototype.gradientHorzReplace = function (
     rect,
     fromX,
     toX,
-    gradientPoints
+    gradientPoints,
 ) {
     var fromColor = {
             r: (gradientPoints[0] >> 16) & 0xff,
@@ -1388,7 +1388,7 @@ CPColorBmp.prototype.gradientVertReplace = function (
     rect,
     fromY,
     toY,
-    gradientPoints
+    gradientPoints,
 ) {
     let fromColor = {
             r: (gradientPoints[0] >> 16) & 0xff,
@@ -1489,7 +1489,7 @@ CPColorBmp.prototype.gradientReplace = function (
     fromY,
     toX,
     toY,
-    gradientPoints
+    gradientPoints,
 ) {
     var yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL,
         pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
@@ -1552,7 +1552,7 @@ CPColorBmp.prototype.gradientAlpha = function (
     fromY,
     toX,
     toY,
-    gradientPoints
+    gradientPoints,
 ) {
     var yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL,
         pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
@@ -1641,7 +1641,7 @@ CPColorBmp.prototype.gradient = function (
     toX,
     toY,
     gradientPoints,
-    replace
+    replace,
 ) {
     rect = this.getBounds().clipTo(rect);
 
@@ -1755,7 +1755,7 @@ CPColorBmp.prototype.brightnessToOpacity = function (rect) {
 
             // 元のアルファ値を考慮して透明度を更新
             this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = Math.round(
-                newAlpha * originalAlpha
+                newAlpha * originalAlpha,
             );
 
             // 不透明な線画の明度を0に
@@ -1913,7 +1913,7 @@ export function getRotatedCanvas(canvas, rotation) {
             rotatedCanvasContext.drawImage(
                 canvas,
                 -canvas.width,
-                -canvas.height
+                -canvas.height,
             );
             break;
         case 3:
@@ -2040,7 +2040,7 @@ CPColorBmp.createFromImage = function (image) {
     imageContext.drawImage(image, 0, 0);
 
     return new CPColorBmp(
-        imageContext.getImageData(0, 0, image.width, image.height)
+        imageContext.getImageData(0, 0, image.width, image.height),
     );
 };
 
