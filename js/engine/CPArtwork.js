@@ -1796,9 +1796,9 @@ export default function CPArtwork(_width, _height) {
     /**
      * 現在のレイヤーに縁取りを適用する。
      *
-     * @param {number} outlineWidth
+     * @param {number} edgeWidth
      */
-    this.outlineOuter = function (outlineWidth, replaceWithOutline) {
+    this.edge = function (edgeWidth, replaceWithInnerFill) {
         if (maskEditingMode) return;
 
         let r = this.getSelectionAutoSelect(),
@@ -1808,7 +1808,7 @@ export default function CPArtwork(_width, _height) {
             prepareForLayerPaintUndo();
             paintUndoArea = r.clone();
 
-            target.outlineOuter(r, outlineWidth, curColor, replaceWithOutline);
+            target.edge(r, edgeWidth, curColor, replaceWithInnerFill);
 
             addUndo(new CPUndoPaint());
             invalidateLayerPaint(curLayer, r);

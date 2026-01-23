@@ -254,9 +254,9 @@ const MENU_ENTRIES = [
                 name: "-",
             },
             {
-                name: "Outline outer",
-                action: "CPOutlineOuter",
-                mnemonic: "O",
+                name: "Edge",
+                action: "CPEdge",
+                mnemonic: "E",
             },
             {
                 name: "-",

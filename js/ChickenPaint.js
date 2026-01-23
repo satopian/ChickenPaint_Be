@@ -48,7 +48,7 @@ import CPChromaticAberrationDialog from "./gui/CPChromaticAberrationDialog.js";
 import CPColorHalftoneDialog from "./gui/CPColorHalftoneDialog.js";
 import CPMonoHalftoneDialog from "./gui/CPMonoHalftoneDialog.js";
 import CPMosaicDialog from "./gui/CPMosaicDialog.js";
-import CPOutlineOuterDialog from "./gui/CPOutlineOuterDialog.js";
+import CPEdgeDialog from "./gui/CPEdgeDialog.js";
 import CPSendDialog from "./gui/CPSendDialog.js";
 
 import CPColor from "./util/CPColor.js";
@@ -361,7 +361,7 @@ export default function ChickenPaint(options) {
         colorHalftoneDialog,
         monoHalftoneDialog,
         chromaticAberrationDialog,
-        outlineOuterDialog,
+        edgeDialog,
         actions = {
             // GUI actions
 
@@ -766,9 +766,9 @@ export default function ChickenPaint(options) {
                 allowed: "isNotEditingMask",
                 modifies: { gui: true },
             },
-            CPOutlineOuter: {
+            CPEdge: {
                 action: function () {
-                    showOutlineOuterDialog();
+                    showEdgeDialog();
                 },
                 allowed: "isNotEditingMask",
                 modifies: { gui: true },
@@ -1161,11 +1161,11 @@ export default function ChickenPaint(options) {
 
         chromaticAberrationDialog.show();
     }
-    function showOutlineOuterDialog() {
-        if (!outlineOuterDialog) {
-            outlineOuterDialog = new CPOutlineOuterDialog(uiElem, that);
+    function showEdgeDialog() {
+        if (!edgeDialog) {
+            edgeDialog = new CPEdgeDialog(uiElem, that);
         }
-        outlineOuterDialog.show();
+        edgeDialog.show();
     }
 
     function showGridOptionsDialog() {

@@ -23,7 +23,7 @@
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
-export default function CPOutlineOuter(parent, controller) {
+export default function CPEdge(parent, controller) {
     // ダイアログ要素を作成
     const dialog = document.createElement("div");
     dialog.classList.add("modal", "fade");
@@ -33,20 +33,20 @@ export default function CPOutlineOuter(parent, controller) {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">${_("Outline outer")}</h5>
+                    <h5 class="modal-title">${_("Edge")}</h5>
                     <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label>${_("Outline width")} (1px ~ 128px)</label>
-                            <input type="number" class="form-control chickenpaint-aberration-outlineWidth" value="" min="1", max="128">
+                            <label>${_("Edge width")} (1px ~ 128px)</label>
+                            <input type="number" class="form-control chickenpaint-aberration-edgeWidth" value="" min="1", max="128">
                         </div>
                     </form>
                     <div class="form-check mt-3">
-                    <input class="form-check-input" type="checkbox" id="replaceWithOutline">
-                    <label class="form-check-label" for="replaceWithOutline">
-                    ${_("Fill Inside with outline color")}
+                    <input class="form-check-input" type="checkbox" id="replaceWithInnerFill">
+                    <label class="form-check-label" for="replaceWithInnerFill">
+                    ${_("Fill Inside with edge color")}
                     </label>
                     </div>
                 </div>
@@ -62,8 +62,8 @@ export default function CPOutlineOuter(parent, controller) {
         </div>
     `;
 
-    const outlineWidthElem = dialog.querySelector(
-        ".chickenpaint-aberration-outlineWidth",
+    const edgeWidthElem = dialog.querySelector(
+        ".chickenpaint-aberration-edgeWidth",
     );
     const applyButton = dialog.querySelector(
         ".chickenpaint-apply-aberration-settings",
@@ -88,7 +88,7 @@ export default function CPOutlineOuter(parent, controller) {
     };
 
     // 縁取り幅のデフォルト値を設定
-    outlineWidthElem.value = 5;
+    edgeWidthElem.value = 5;
 
     // モーダルが閉じられた後にダイアログを削除
     dialog.addEventListener("hidden.bs.modal", () => {
@@ -97,15 +97,15 @@ export default function CPOutlineOuter(parent, controller) {
 
     // 「OK」ボタンのクリックイベント
     applyButton?.addEventListener("click", () => {
-        const outlineWidth = Math.max(
+        const edgeWidth = Math.max(
             1,
-            Math.min(128, parseInt(outlineWidthElem?.value, 10) || 0),
+            Math.min(128, parseInt(edgeWidthElem?.value, 10) || 0),
         );
 
-        const replaceWithOutline = dialog.querySelector(
-            "#replaceWithOutline",
+        const replaceWithInnerFill = dialog.querySelector(
+            "#replaceWithInnerFill",
         )?.checked;
-        controller.getArtwork().outlineOuter(outlineWidth, replaceWithOutline);
+        controller.getArtwork().edge(edgeWidth, replaceWithInnerFill);
         controller.setModalShown(false);
 
         modal.hide(); // モーダルを手動で閉じる
@@ -114,7 +114,7 @@ export default function CPOutlineOuter(parent, controller) {
     // モーダルが表示されたときに、入力フィールドにフォーカス
     dialog.addEventListener("shown.bs.modal", () => {
         controller.setModalShown(true);
-        outlineWidthElem?.focus();
+        edgeWidthElem?.focus();
     });
 
     // Enterキーが押されたときの処理

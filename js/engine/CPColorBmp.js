@@ -1027,17 +1027,17 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
  * ・最後に元画像を α 合成で戻す
  *
  * @param {CPRect} rect
- * @param {number} outlineWidth px
+ * @param {number} edgeWidth px
  * @param {number} color 0xRRGGBB
- * @param {boolean} replaceWithOutline true で内側を縁取り色で塗りつぶす
+ * @param {boolean} replaceWithInnerFill true で内側を縁取り色で塗りつぶす
  */
-CPColorBmp.prototype.outlineOuter = function (
+CPColorBmp.prototype.edge = function (
     rect,
-    outlineWidth,
+    edgeWidth,
     color,
-    replaceWithOutline,
+    replaceWithInnerFill,
 ) {
-    outlineWidth = Math.max(1, outlineWidth | 0);
+    edgeWidth = Math.max(1, edgeWidth | 0);
     rect = this.getBounds().clipTo(rect);
 
     const r = (color >> 16) & 0xff;
@@ -1062,7 +1062,7 @@ CPColorBmp.prototype.outlineOuter = function (
         }
     }
 
-    const R = outlineWidth * 10; // Chamfer単位
+    const R = edgeWidth * 10; // Chamfer単位
 
     // 2) 前方パス（Chamfer 10/14）
     for (let y = rect.top; y < rect.bottom; y++) {
@@ -1117,7 +1117,7 @@ CPColorBmp.prototype.outlineOuter = function (
         }
     }
 
-    if (!replaceWithOutline) {
+    if (!replaceWithInnerFill) {
         // 5) 元画像 α 合成で戻す
         for (let i = 0; i < dst.length; i += 4) {
             const sa = src[i + 3] / 255;
