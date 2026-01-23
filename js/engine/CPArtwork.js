@@ -1669,6 +1669,10 @@ export default function CPArtwork(_width, _height) {
         return !this.isEditingMask() && this.isActiveLayerDrawable();
     };
 
+    this.isNotEditingMask = function () {
+        return !this.isEditingMask() && this.isActiveLayerDrawable();
+    };
+
     /**
      * We can only fill layer images with color noise (not masks)
      */
@@ -1700,8 +1704,9 @@ export default function CPArtwork(_width, _height) {
             invalidateLayerPaint(curLayer, r);
         }
     };
-
+    //輝度を透明度に変換
     this.brightnessToOpacity = function () {
+        if (maskEditingMode) return;
         let r = this.getSelectionAutoSelect(),
             target = getActiveImage();
 

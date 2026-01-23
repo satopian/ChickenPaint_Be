@@ -869,49 +869,6 @@ CPGreyBmp.prototype.invert = function (rect) {
 };
 
 /**
- * @param {CPRect} rect
- */
-CPGreyBmp.prototype.brightnessToOpacity = function (rect) {
-    rect = this.getBounds().clipTo(rect);
-    const threshold = 250;
-
-    const yStride = (this.width - rect.getWidth()) * CPGreyBmp.BYTES_PER_PIXEL;
-    let pixIndex = this.offsetOfPixel(rect.left, rect.top);
-
-    for (let y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
-        for (let x = rect.left; x < rect.right; x++, pixIndex++) {
-            // CPGreyBmp は1チャンネルなのでインデックスを1つだけ増やす
-            // 輝度の計算（グレースケール画像なので直接値を使用）
-            const brightness = this.data[pixIndex];
-
-            // 元のアルファ値を取得
-            const originalAlpha =
-                this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] / 255;
-
-            // しきい値を基に透明度を設定
-            let newAlpha;
-            if (brightness > threshold) {
-                newAlpha = 0; // 完全に透明
-            } else {
-                // 線形にマッピングして中間の透明度を計算 (輝度が高いほど透明に近づく)
-                newAlpha = Math.round((1 - brightness / threshold) * 255);
-            }
-
-            // 元のアルファ値を考慮して透明度を更新
-            this.data[pixIndex + CPGreyBmp.ALPHA_BYTE_OFFSET] = Math.round(
-                newAlpha * originalAlpha,
-            );
-
-            // 不透明な線画の明度を低下させる
-            if (newAlpha > 0) {
-                // 不透明な部分の明度を0に
-                this.data[pixIndex] = 0;
-            }
-        }
-    }
-};
-
-/**
  * Get a rectangle that encloses pixels in the bitmap which don't match the given value within the given initialBounds
  * (or an empty rect if all pixels inside the given bounds match the value).
  *
