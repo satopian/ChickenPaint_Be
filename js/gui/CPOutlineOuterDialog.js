@@ -43,7 +43,13 @@ export default function CPOutlineOuter(parent, controller) {
                             <input type="number" class="form-control chickenpaint-aberration-outlineWidth" value="" min="1", max="128">
                         </div>
                     </form>
+                    <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" id="replaceWithOutline">
+                    <label class="form-check-label" for="replaceWithOutline">
+                    ${_("Fill Inside with outline color")}
+                    </label>
                     </div>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_(
                         "Cancel",
@@ -96,8 +102,12 @@ export default function CPOutlineOuter(parent, controller) {
             Math.min(128, parseInt(outlineWidthElem?.value, 10) || 0),
         );
 
-        controller.getArtwork().outlineOuter(outlineWidth);
+        const replaceWithOutline = dialog.querySelector(
+            "#replaceWithOutline",
+        )?.checked;
+        controller.getArtwork().outlineOuter(outlineWidth, replaceWithOutline);
         controller.setModalShown(false);
+
         modal.hide(); // モーダルを手動で閉じる
     });
 

@@ -1658,7 +1658,7 @@ export default function CPArtwork(_width, _height) {
             prepareForLayerPaintUndo();
             paintUndoArea = r.clone();
 
-            target.fillWithNoise(r);
+            target.fillWithNoise(r, curColor);
 
             addUndo(new CPUndoPaint());
             invalidateLayerPaint(curLayer, r);
@@ -1793,7 +1793,7 @@ export default function CPArtwork(_width, _height) {
      *
      * @param {number} outlineWidth
      */
-    this.outlineOuter = function (outlineWidth) {
+    this.outlineOuter = function (outlineWidth, replaceWithOutline) {
         if (maskEditingMode) return;
 
         let r = this.getSelectionAutoSelect(),
@@ -1803,7 +1803,7 @@ export default function CPArtwork(_width, _height) {
             prepareForLayerPaintUndo();
             paintUndoArea = r.clone();
 
-            target.outlineOuter(r, outlineWidth, curColor);
+            target.outlineOuter(r, outlineWidth, curColor, replaceWithOutline);
 
             addUndo(new CPUndoPaint());
             invalidateLayerPaint(curLayer, r);

@@ -1029,8 +1029,14 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
  * @param {CPRect} rect
  * @param {number} outlineWidth px
  * @param {number} color 0xRRGGBB
+ * @param {boolean} replaceWithOutline true で内側を縁取り色で塗りつぶす
  */
-CPColorBmp.prototype.outlineOuter = function (rect, outlineWidth, color) {
+CPColorBmp.prototype.outlineOuter = function (
+    rect,
+    outlineWidth,
+    color,
+    replaceWithOutline,
+) {
     outlineWidth = Math.max(1, outlineWidth | 0);
     rect = this.getBounds().clipTo(rect);
 
@@ -1111,18 +1117,20 @@ CPColorBmp.prototype.outlineOuter = function (rect, outlineWidth, color) {
         }
     }
 
-    // 5) 元画像 α 合成で戻す
-    for (let i = 0; i < dst.length; i += 4) {
-        const sa = src[i + 3] / 255;
-        if (sa === 0) continue;
+    if (!replaceWithOutline) {
+        // 5) 元画像 α 合成で戻す
+        for (let i = 0; i < dst.length; i += 4) {
+            const sa = src[i + 3] / 255;
+            if (sa === 0) continue;
 
-        const da = dst[i + 3] / 255;
-        const outA = sa + da * (1 - sa);
+            const da = dst[i + 3] / 255;
+            const outA = sa + da * (1 - sa);
 
-        dst[i] = (src[i] * sa + dst[i] * da * (1 - sa)) / outA;
-        dst[i + 1] = (src[i + 1] * sa + dst[i + 1] * da * (1 - sa)) / outA;
-        dst[i + 2] = (src[i + 2] * sa + dst[i + 2] * da * (1 - sa)) / outA;
-        dst[i + 3] = outA * 255;
+            dst[i] = (src[i] * sa + dst[i] * da * (1 - sa)) / outA;
+            dst[i + 1] = (src[i + 1] * sa + dst[i + 1] * da * (1 - sa)) / outA;
+            dst[i + 2] = (src[i + 2] * sa + dst[i + 2] * da * (1 - sa)) / outA;
+            dst[i + 3] = outA * 255;
+        }
     }
 
     this.data.set(dst);
@@ -1367,9 +1375,14 @@ CPColorBmp.prototype.copyRegionVFlip = function (rect, source) {
 
 /**
  * @param {CPRect} rect
+ * @param {number} color
  */
-CPColorBmp.prototype.fillWithNoise = function (rect) {
+CPColorBmp.prototype.fillWithNoise = function (rect, color = 0) {
     rect = this.getBounds().clipTo(rect);
+
+    const r = (color >> 16) & 0xff;
+    const g = (color >> 8) & 0xff;
+    const b = color & 0xff;
 
     var value,
         yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL,
@@ -1383,9 +1396,14 @@ CPColorBmp.prototype.fillWithNoise = function (rect) {
         ) {
             value = (Math.random() * 0x100) | 0;
 
-            this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] = value;
-            this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] = value;
-            this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET] = value;
+            const k = 1 - value / 255;
+
+            this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] =
+                (255 - (255 - r) * k) | 0;
+            this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] =
+                (255 - (255 - g) * k) | 0;
+            this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET] =
+                (255 - (255 - b) * k) | 0;
             this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = 0xff;
         }
     }
