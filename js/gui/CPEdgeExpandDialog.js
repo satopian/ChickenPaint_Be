@@ -33,13 +33,13 @@ export default function CPEdge(parent, controller) {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">${_("Edge")}</h5>
+                    <h5 class="modal-title">${_("Edge expand")}</h5>
                     <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label>${_("Edge width")} (1px ~ 128px)</label>
+                            <label>${_("Edge expand width")} (1px ~ 128px)</label>
                             <input type="number" class="form-control chickenpaint-aberration-edgeWidth" value="" min="1", max="128">
                         </div>
                     </form>

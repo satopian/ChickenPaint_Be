@@ -254,8 +254,8 @@ const MENU_ENTRIES = [
                 name: "-",
             },
             {
-                name: "Edge",
-                action: "CPEdge",
+                name: "Edge expand",
+                action: "CPEdgeExpand",
                 mnemonic: "E",
             },
             {

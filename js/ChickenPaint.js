@@ -48,7 +48,7 @@ import CPChromaticAberrationDialog from "./gui/CPChromaticAberrationDialog.js";
 import CPColorHalftoneDialog from "./gui/CPColorHalftoneDialog.js";
 import CPMonoHalftoneDialog from "./gui/CPMonoHalftoneDialog.js";
 import CPMosaicDialog from "./gui/CPMosaicDialog.js";
-import CPEdgeDialog from "./gui/CPEdgeDialog.js";
+import CPEdgeExpandDialog from "./gui/CPEdgeExpandDialog.js";
 import CPSendDialog from "./gui/CPSendDialog.js";
 
 import CPColor from "./util/CPColor.js";
@@ -361,7 +361,7 @@ export default function ChickenPaint(options) {
         colorHalftoneDialog,
         monoHalftoneDialog,
         chromaticAberrationDialog,
-        edgeDialog,
+        edgeExpandDialog,
         actions = {
             // GUI actions
 
@@ -766,9 +766,9 @@ export default function ChickenPaint(options) {
                 allowed: "isNotEditingMask",
                 modifies: { gui: true },
             },
-            CPEdge: {
+            CPEdgeExpand: {
                 action: function () {
-                    showEdgeDialog();
+                    showEdgeExpandDialog();
                 },
                 allowed: "isNotEditingMask",
                 modifies: { gui: true },
@@ -1161,11 +1161,11 @@ export default function ChickenPaint(options) {
 
         chromaticAberrationDialog.show();
     }
-    function showEdgeDialog() {
-        if (!edgeDialog) {
-            edgeDialog = new CPEdgeDialog(uiElem, that);
+    function showEdgeExpandDialog() {
+        if (!edgeExpandDialog) {
+            edgeExpandDialog = new CPEdgeExpandDialog(uiElem, that);
         }
-        edgeDialog.show();
+        edgeExpandDialog.show();
     }
 
     function showGridOptionsDialog() {
