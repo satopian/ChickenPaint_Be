@@ -744,6 +744,7 @@ export default function ChickenPaint(options) {
                 action: function () {
                     showMosaicDialog();
                 },
+                requiresDrawable: true,
                 modifies: { gui: true },
             },
             CPColorHalftone: {
@@ -757,6 +758,7 @@ export default function ChickenPaint(options) {
                 action: function () {
                     showMonoHalftoneDialog();
                 },
+                requiresDrawable: true,
                 modifies: { gui: true },
             },
             CPChromaticAberration: {
