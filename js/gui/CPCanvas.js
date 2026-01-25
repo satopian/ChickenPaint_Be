@@ -2978,14 +2978,14 @@ export default function CPCanvas(controller) {
         const isFreehand = isPointerDown
             ? modeStack.peek() instanceof CPFreehandMode
             : false;
-        const isAllowedBrush = isPointerDown
+        const isAllowedBrush = isFreehand
             ? [0, 1, 2, 3, 4].includes(curBrush)
             : false; //鉛筆 0 ･ 消しゴム 1 ･ ペン 2･ 薄消しゴム 3 ･エアブラシ 4
-        const brushSmall = isPointerDown
+        const brushSmall = isAllowedBrush
             ? controller.getBrushSize() <= 32
             : false;
         // 条件に応じて実際の描画関数を呼ぶ
-        if (isFreehand && isAllowedBrush && brushSmall) {
+        if (brushSmall) {
             // ブラウザが1フレームに統合した、詳細な移動履歴（全イベント）を取得する
             const events = e.getCoalescedEvents?.() ?? [e];
             for (const ev of events) {
