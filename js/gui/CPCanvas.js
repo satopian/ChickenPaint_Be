@@ -275,6 +275,7 @@ export default function CPCanvas(controller) {
         foodFillAlpha = 255,
         floodFillReferAllLayers = true,
         currentSelection = true,
+        curBrush = 0,
         isPointerDown = false;
     Math.sign =
         Math.sign ||
@@ -2597,10 +2598,6 @@ export default function CPCanvas(controller) {
             } else if (Math.abs(roundedZoom - 0.5) < 0.08) {
                 zoom = 0.5;
             }
-            // console.log("Math.abs(roundedZoom - 1)",Math.abs(roundedZoom - 1));
-            // console.log("Math.abs(roundedZoom - 2)",Math.abs(roundedZoom - 2));
-            // console.log("Math.abs(roundedZoom - 0.5)",Math.abs(roundedZoom - 0.5));
-            // console.log("zoom",zoom);
         }
 
         zoomOnPoint(zoom, width / 2, height / 2);
@@ -2978,10 +2975,17 @@ export default function CPCanvas(controller) {
     //高精細描画モードを条件に応じて使用する(描画カクツキ対策)
     function handlePointerMoveWrapper(e) {
         // 使用するイベントを動的に切り替え
-        const isFreehand = modeStack.peek() instanceof CPFreehandMode;
-        const brushSmall = controller.getBrushSize() <= 16;
+        const isFreehand = isPointerDown
+            ? modeStack.peek() instanceof CPFreehandMode
+            : false;
+        const isAllowedBrush = isPointerDown
+            ? [0, 1, 2, 3, 4].includes(curBrush)
+            : false; //鉛筆 0 ･ 消しゴム 1 ･ ペン 2･ 薄消しゴム 3 ･エアブラシ 4
+        const brushSmall = isPointerDown
+            ? controller.getBrushSize() <= 32
+            : false;
         // 条件に応じて実際の描画関数を呼ぶ
-        if (isPointerDown && isFreehand && brushSmall) {
+        if (isFreehand && isAllowedBrush && brushSmall) {
             // ブラウザが1フレームに統合した、詳細な移動履歴（全イベント）を取得する
             const events = e.getCoalescedEvents?.() ?? [e];
             for (const ev of events) {
@@ -3299,6 +3303,7 @@ export default function CPCanvas(controller) {
         }
 
         curDrawMode = newMode;
+        curBrush = tool;
     });
 
     controller.on("modeChange", function (mode) {

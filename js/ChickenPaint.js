@@ -317,7 +317,6 @@ export default function ChickenPaint(options) {
             ((e.ctrlKey || e.metaKey) && keys.includes(e.key.toLowerCase())) ||
             e.key === "Enter"
         ) {
-            // console.log("e.key",e.key);
             e.preventDefault();
         }
     });

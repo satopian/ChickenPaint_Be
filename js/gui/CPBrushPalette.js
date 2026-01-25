@@ -116,7 +116,7 @@ export default function CPBrushPalette(controller) {
         (e) => {
             e.preventDefault(); // デフォルトの動作をキャンセル
         },
-        { passive: false }
+        { passive: false },
     );
 
     body.appendChild(brushPanel.getElement());
@@ -217,17 +217,17 @@ function CPBrushPanel(controller) {
         tipCombo = document.createElement("select"),
         alphaCB = new CPCheckbox(
             false,
-            _("Control brush opacity with pen pressure")
+            _("Control brush opacity with pen pressure"),
         ),
         alphaSlider = new CPSlider(1, 255, false, true),
         sizeCB = new CPCheckbox(
             true,
-            _("Control brush size with pen pressure")
+            _("Control brush size with pen pressure"),
         ),
         sizeSlider = new CPSlider(1, 200, false, true),
         scatteringCB = new CPCheckbox(
             false,
-            _("Control brush scattering with pen pressure")
+            _("Control brush scattering with pen pressure"),
         ),
         scatteringSlider = new CPSlider(0, 1000, false, true),
         resatSlider = new CPSlider(0, 100, false, true),
@@ -245,7 +245,7 @@ function CPBrushPanel(controller) {
 
         scatteringCB.setValue(controller.getBrushInfo().pressureScattering);
         scatteringSlider.setValue(
-            ~~(controller.getBrushInfo().scattering * 100)
+            ~~(controller.getBrushInfo().scattering * 100),
         );
 
         tipCombo.value = controller.getBrushInfo().tip;
@@ -441,7 +441,7 @@ CPBrushPalette.CPBrushPreview = function (controller) {
             canvas.height / 2,
             (size / 2) * window.devicePixelRatio,
             0,
-            Math.PI * 2
+            Math.PI * 2,
         );
         canvasContext.stroke();
     }
@@ -524,12 +524,12 @@ function CPGradientPanel(controller) {
         gradientStartSwatch = new CPColorSwatch(
             new CPColor(controller.getCurGradient()[0] & 0xffffff),
             controller.getCurGradient()[0] >>> 24,
-            gradientPanel
+            gradientPanel,
         ),
         gradientEndSwatch = new CPColorSwatch(
             new CPColor(controller.getCurGradient()[1] & 0xffffff),
             controller.getCurGradient()[1] >>> 24,
-            gradientPanel
+            gradientPanel,
         );
 
     function updateGradient() {
@@ -593,7 +593,7 @@ function setButtonIcon(button, iconClass) {
         "d-flex",
         "align-items-center",
         "justify-content-center",
-        "position-relative"
+        "position-relative",
     );
 
     // 左端からの開始位置（パディング）を設定
@@ -673,7 +673,7 @@ function CPTransformPanel(controller) {
         createBootstrapCheckbox(
             "chickenpaint-t-maintainAspectCheckbox",
             _("Constrain"),
-            true
+            true,
         );
 
     // パネルに追加
@@ -756,7 +756,7 @@ function CPSelectionPanel(controller) {
         createBootstrapCheckbox(
             "chickenpaint-s-maintainAspectCheckbox",
             _("Constrain"),
-            false
+            false,
         );
 
     panel.appendChild(maintainAspectGroup);
@@ -859,7 +859,7 @@ function CPPanPanel(controller) {
             e.preventDefault(); // これでスクロール抑制できる
             updateSliderDebounced();
         },
-        { passive: false }
+        { passive: false },
     );
     // デバウンス関数の定義
     function debounce(func, wait) {
@@ -1002,7 +1002,7 @@ function CPfloodFillPanel(controller) {
         createBootstrapCheckbox(
             "chickenpaint-floodFillreferAllLayersCheckbox",
             _("Refer all layers"),
-            true
+            true,
         );
     referAllLayersGroup.classList.add("mb-1");
     panel.appendChild(referAllLayersGroup);
