@@ -743,7 +743,6 @@ export default function ChickenPaint(options) {
                 action: function () {
                     showMosaicDialog();
                 },
-                requiresDrawable: true,
                 modifies: { gui: true },
             },
             CPColorHalftone: {
@@ -757,7 +756,6 @@ export default function ChickenPaint(options) {
                 action: function () {
                     showMonoHalftoneDialog();
                 },
-                requiresDrawable: true,
                 modifies: { gui: true },
             },
             CPChromaticAberration: {
@@ -771,7 +769,7 @@ export default function ChickenPaint(options) {
                 action: function () {
                     showEdgeExpandDialog();
                 },
-                allowed: "isNotEditingMask",
+                allowed: "isNotEditingMaskAndDrawable",
                 modifies: { gui: true },
             },
             CPFXInvert: {
@@ -786,7 +784,7 @@ export default function ChickenPaint(options) {
                     that.artwork.brightnessToOpacity();
                 },
                 modifies: { document: true },
-                allowed: "isNotEditingMask",
+                allowed: "isNotEditingMaskAndDrawable",
             },
 
             CPCut: {

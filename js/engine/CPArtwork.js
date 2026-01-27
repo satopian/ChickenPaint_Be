@@ -1670,6 +1670,10 @@ export default function CPArtwork(_width, _height) {
     };
 
     this.isNotEditingMask = function () {
+        return !this.isEditingMask();
+    };
+
+    this.isNotEditingMaskAndDrawable = function () {
         return !this.isEditingMask() && this.isActiveLayerDrawable();
     };
 
