@@ -29,7 +29,7 @@
  *
  * @property {int} spacing
  * @property {int} minSpacing
- * 
+ *
  * @property {int} size - The user-chosen size of this brush
  * @property {int} curSize - The current size of the brush after pen pressure has been applied
  *
@@ -50,8 +50,7 @@
  * @constructor
  */
 export default function CPBrushInfo(properties) {
-    var
-        propName;
+    var propName;
 
     // Set brush setting fields with default values, then apply the supplied 'properties' on top
     for (propName in CPBrushInfo.DEFAULTS) {
@@ -59,7 +58,7 @@ export default function CPBrushInfo(properties) {
             this[propName] = CPBrushInfo.DEFAULTS[propName];
         }
     }
-    
+
     for (propName in properties) {
         if (properties.hasOwnProperty(propName)) {
             this[propName] = properties[propName];
@@ -93,34 +92,45 @@ CPBrushInfo.PAINT_MODE_FLOW = 1;
 
 CPBrushInfo.DEFAULTS = {
     isAA: false,
-    minSpacing: 0, spacing: 0,
-    
+    minSpacing: 0,
+    spacing: 0,
+
     pressureSize: true,
     pressureAlpha: false,
     pressureScattering: false,
     alphaScale: 1.0,
-    
+
     tip: CPBrushInfo.TIP_ROUND_PIXEL,
-    brushMode: CPBrushInfo.BRUSH_MODE_PAINT, 
+    brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
     paintMode: CPBrushInfo.PAINT_MODE_OPACITY,
     strokeMode: CPBrushInfo.STROKE_MODE_FREEHAND,
-    resat: 1.0, bleed: 0.0,
+    resat: 1.0,
+    bleed: 0.0,
 
     texture: 1.0,
-    
+
     // "cur" values are current brush settings (once tablet pressure and stuff is applied)
-    size: 0, curSize: 0,
-    alpha: 0, curAlpha: 0,
-    scattering: 0.0, curScattering: 0,
-    squeeze: 0.0, curSqueeze: 0,
-    angle: Math.PI, curAngle: 0,
-    
-    smoothing: 0.0
+    size: 0,
+    curSize: 0,
+    alpha: 0,
+    curAlpha: 0,
+    scattering: 0.0,
+    curScattering: 0,
+    squeeze: 0.0,
+    curSqueeze: 0,
+    angle: Math.PI,
+    curAngle: 0,
+
+    smoothing: 0.0,
 };
 
-CPBrushInfo.prototype.applyPressure = function(pressure) {
+CPBrushInfo.prototype.applyPressure = function (pressure) {
     // FIXME: no variable size for smudge and oil :(
-    if (this.pressureSize && this.brushMode != CPBrushInfo.BRUSH_MODE_SMUDGE && this.brushMode != CPBrushInfo.BRUSH_MODE_OIL) {
+    if (
+        this.pressureSize &&
+        this.brushMode != CPBrushInfo.BRUSH_MODE_SMUDGE &&
+        this.brushMode != CPBrushInfo.BRUSH_MODE_OIL
+    ) {
         this.curSize = Math.max(0.1, this.size * pressure);
     } else {
         this.curSize = Math.max(0.1, this.size);
@@ -134,12 +144,17 @@ CPBrushInfo.prototype.applyPressure = function(pressure) {
     // Don't allow brush size to exceed that supported by CPBrushManager
     this.curSize = Math.min(this.curSize, 400);
 
-    this.curAlpha = this.pressureAlpha ? Math.floor(this.alpha * Math.min(pressure, 1.0)) : this.alpha;
+    this.curAlpha = this.pressureAlpha
+        ? Math.floor(this.alpha * Math.min(pressure, 1.0))
+        : this.alpha;
     this.curSqueeze = this.squeeze;
     this.curAngle = this.angle;
-    this.curScattering = this.scattering * this.curSize * (this.pressureScattering ? pressure : 1.0);
+    this.curScattering =
+        this.scattering *
+        this.curSize *
+        (this.pressureScattering ? pressure : 1.0);
 };
 
-CPBrushInfo.prototype.clone = function() {
+CPBrushInfo.prototype.clone = function () {
     return new CPBrushInfo(this);
 };

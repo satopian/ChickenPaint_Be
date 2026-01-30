@@ -481,7 +481,7 @@ export default function CPBrushManager() {
             dab.brush = createSubpixelShiftedBrush(
                 brushInfo,
                 subpixelX,
-                subpixelY
+                subpixelY,
             );
         } else {
             dab.brush = getBrush(brushInfo);
