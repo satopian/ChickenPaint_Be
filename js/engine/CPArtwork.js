@@ -2201,33 +2201,41 @@ export default function CPArtwork(_width, _height) {
     };
 
     this.continueStroke = function (x, y, pressure) {
-        if (curBrush == null) {
-            return;
-        }
+        if (curBrush == null) return;
 
-        let dist = Math.sqrt(
-                (lastX - x) * (lastX - x) + (lastY - y) * (lastY - y),
-            ),
-            spacing = Math.max(
-                curBrush.minSpacing,
-                curBrush.curSize * curBrush.spacing,
-            );
+        let dx = x - lastX;
+        let dy = y - lastY;
+        let dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist > spacing) {
-            let nx = lastX,
-                ny = lastY,
-                np = lastPressure,
-                df = (spacing - 0.001) / dist;
+        // 現在の筆圧に基づいた間隔
+        let spacing = Math.max(
+            curBrush.minSpacing,
+            curBrush.curSize * curBrush.spacing,
+        );
 
-            for (let f = df; f <= 1.0; f += df) {
-                nx = f * x + (1.0 - f) * lastX;
-                ny = f * y + (1.0 - f) * lastY;
-                np = f * pressure + (1.0 - f) * lastPressure;
+        if (dist >= spacing) {
+            // 正規化された方向ベクトル
+            let vx = dx / dist;
+            let vy = dy / dist;
+            let vp = (pressure - lastPressure) / dist;
+
+            let currentDist = spacing;
+            while (currentDist <= dist) {
+                // 浮動小数点のまま座標と筆圧を計算
+                let nx = lastX + vx * currentDist;
+                let ny = lastY + vy * currentDist;
+                let np = lastPressure + vp * currentDist;
+
+                // paintDabの中で座標(nx, ny)を整数に丸めない。
                 this.paintDab(nx, ny, np);
+
+                currentDist += spacing;
             }
-            lastX = nx;
-            lastY = ny;
-            lastPressure = np;
+
+            // 最後に打ったスタンプの位置ではなく、マウス位置を正確に追跡する
+            lastX = x;
+            lastY = y;
+            lastPressure = pressure;
         }
     };
 

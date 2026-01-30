@@ -131,14 +131,9 @@ CPBrushInfo.prototype.applyPressure = function (pressure) {
         this.brushMode != CPBrushInfo.BRUSH_MODE_SMUDGE &&
         this.brushMode != CPBrushInfo.BRUSH_MODE_OIL
     ) {
-        this.curSize = Math.max(0.1, this.size * pressure);
+        this.curSize = Math.max(0.3, this.size * pressure);
     } else {
-        this.curSize = Math.max(0.1, this.size);
-    }
-
-    // FIXME: what is the point of doing that?
-    if (this.curSize > 16) {
-        this.curSize = Math.floor(this.curSize);
+        this.curSize = Math.max(0.3, this.size);
     }
 
     // Don't allow brush size to exceed that supported by CPBrushManager

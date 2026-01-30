@@ -61,20 +61,35 @@ function buildBrush(brush, brushInfo) {
  * @param {CPBrushInfo} brushInfo
  */
 function buildBrushAA(brush, brushInfo) {
-    let intSize = Math.ceil(brushInfo.curSize),
-        center = intSize / 2.0,
-        sqrRadius = (brushInfo.curSize / 2) * (brushInfo.curSize / 2),
-        sqrRadiusInner =
-            ((brushInfo.curSize - 2) / 2) * ((brushInfo.curSize - 2) / 2),
-        sqrRadiusOuter =
-            ((brushInfo.curSize + 2) / 2) * ((brushInfo.curSize + 2) / 2),
-        xFactor = 1.0 + brushInfo.curSqueeze * MAX_SQUEEZE,
-        cosA = Math.cos(brushInfo.curAngle),
-        sinA = Math.sin(brushInfo.curAngle),
-        offset = 0;
+    // 1px以下の極小ブラシ処理
+    if (brushInfo.curSize < 1) {
+        const size = brushInfo.curSize;
+        const r = size / 2;
+        const area = Math.PI * r * r;
+        const alpha = Math.min(255, area * 255);
+        brush[0] = alpha | 0;
+        return;
+    }
+
+    const size = brushInfo.curSize;
+    // 浮動小数点の中心座標を考慮し、描画に必要なバッファのサイズを決定
+    const intSize = Math.ceil(size);
+    const center = intSize / 2.0;
+    const radius = size / 2;
+
+    const sqrRadius = radius * radius;
+    const sqrRadiusInner = Math.pow((size - 2) / 2, 2);
+    const sqrRadiusOuter = Math.pow((size + 2) / 2, 2);
+
+    const xFactor = 1.0 + brushInfo.curSqueeze * MAX_SQUEEZE;
+    const cosA = Math.cos(brushInfo.curAngle);
+    const sinA = Math.sin(brushInfo.curAngle);
+
+    let offset = 0;
 
     for (let j = 0; j < intSize; j++) {
         for (let i = 0; i < intSize; i++) {
+            // ピクセル中心座標 = 整数 + 0.5 - 中心位置
             let x = i + 0.5 - center,
                 y = j + 0.5 - center,
                 dx = (x * cosA - y * sinA) * xFactor,
@@ -86,17 +101,16 @@ function buildBrushAA(brush, brushInfo) {
             } else if (sqrDist > sqrRadiusOuter) {
                 brush[offset++] = 0;
             } else {
+                // アンチエイリアス用の4x4サブサンプリング
                 let count = 0;
-
                 for (let oy = 0; oy < 4; oy++) {
                     for (let ox = 0; ox < 4; ox++) {
-                        x = i + ox * (1.0 / 4.0) - center;
-                        y = j + oy * (1.0 / 4.0) - center;
-                        dx = (x * cosA - y * sinA) * xFactor;
-                        dy = y * cosA + x * sinA;
+                        let sx = i + ox * 0.25 - center;
+                        let sy = j + oy * 0.25 - center;
+                        let sdx = (sx * cosA - sy * sinA) * xFactor;
+                        let sdy = sy * cosA + sx * sinA;
 
-                        sqrDist = dx * dx + dy * dy;
-                        if (sqrDist <= sqrRadius) {
+                        if (sdx * sdx + sdy * sdy <= sqrRadius) {
                             count += 1;
                         }
                     }
