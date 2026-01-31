@@ -131,11 +131,10 @@ CPBrushInfo.prototype.applyPressure = function (pressure) {
         : Math.max(0.3, this.size);
 
     // 2. 線幅ローパスフィルタ
-    const sizeSmooth = 0.85; //小さいほど滑らか
+    const sizeSmooth = targetSize > 2.0 ? 0.6 : targetSize > 1.0 ? 0.8 : 0.9; //小さいほど滑らか
     if (!this._lastSize) this._lastSize = targetSize;
     this.curSize = this._lastSize + sizeSmooth * (targetSize - this._lastSize);
     this._lastSize = this.curSize;
-
     // 3. 不透明度
     this.curAlpha = this.pressureAlpha
         ? Math.floor(this.alpha * Math.min(pressure, 1.0))
