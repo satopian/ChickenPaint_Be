@@ -340,7 +340,9 @@ export default function CPCanvas(controller) {
         if (
             !spacePressed &&
             (button == BUTTON_SECONDARY ||
-                (button == BUTTON_PRIMARY && e.altKey))
+                (button == BUTTON_PRIMARY &&
+                    !(e.ctrlKey || e.metaKey) &&
+                    e.altKey))
         ) {
             modeStack.push(colorPickerMode, true);
             // Avoid infinite recursion by only delivering the event to the new mode (don't let it bubble back to us!)
@@ -356,7 +358,7 @@ export default function CPCanvas(controller) {
         } else if (
             button == BUTTON_WHEEL ||
             (!e.altKey &&
-                !e.ctrlKey &&
+                !(e.ctrlKey || e.metaKey) &&
                 !key.isPressed("z") &&
                 spacePressed &&
                 button == BUTTON_PRIMARY)
@@ -370,7 +372,7 @@ export default function CPCanvas(controller) {
     CPDefaultMode.prototype.keyDown = function (e) {
         if (
             !e.altKey &&
-            ((!e.ctrlKey && key.isPressed("z")) ||
+            ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
                 (e.ctrlKey && key.isPressed("space")))
         ) {
             setCursor(CURSOR_ZOOM_IN);
@@ -392,7 +394,7 @@ export default function CPCanvas(controller) {
             return true;
         } else if (
             e.key === " " &&
-            (!e.ctrlKey || e.key.toLowerCase() !== "z")
+            (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z")
         ) {
             //スペースキーのみの時は通常のパン
             // We can start the pan mode before the mouse button is even pressed, so that the "grabbable" cursor appears
@@ -1034,7 +1036,7 @@ export default function CPCanvas(controller) {
         var panningX, panningY, panningOffset, panningButton;
 
         this.keyDown = function (e) {
-            if (!e.ctrlKey && e.key === " ") {
+            if (!(e.ctrlKey || e.metaKey) && e.key === " ") {
                 // If we're not already panning, then advertise that a left-click would pan
                 if (!this.capture) {
                     setCursor(CURSOR_PANNABLE);
@@ -1064,7 +1066,7 @@ export default function CPCanvas(controller) {
             } else if (
                 button == BUTTON_WHEEL ||
                 (key.isPressed("space") &&
-                    !e.ctrlKey &&
+                    !(e.ctrlKey || e.metaKey) &&
                     button == BUTTON_PRIMARY) ||
                 (!this.transient && button == BUTTON_PRIMARY)
             ) {
@@ -2756,22 +2758,32 @@ export default function CPCanvas(controller) {
     // ペンでズーム
     let penZoomActive = false;
     let penStartX = 0;
+    //ペンでブラシサイズ変更
+    let brushStartX = 0;
+    let lastX = 0;
+    let isDragging = false;
     canvas.addEventListener("pointerdown", (e) => {
         if (
             !e.altKey &&
-            ((!e.ctrlKey && key.isPressed("z")) ||
+            ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
                 (e.ctrlKey && key.isPressed("space"))) &&
             e.pointerType !== "touch"
         ) {
             penZoomActive = true;
             penStartX = e.clientX;
         }
+
+        if ((e.ctrlKey || e.metaKey) && e.altKey && e.buttons === 1) {
+            brushStartX = e.clientX;
+            isDragging = true;
+            lastX = e.clientX; // ← ここで初期化
+        }
     });
 
     canvas.addEventListener("pointermove", (e) => {
         if (
             !e.altKey &&
-            ((!e.ctrlKey && key.isPressed("z")) ||
+            ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
                 (e.ctrlKey && key.isPressed("space"))) &&
             penZoomActive &&
             e.pointerType !== "touch" &&
@@ -2797,6 +2809,27 @@ export default function CPCanvas(controller) {
                 penStartX = e.clientX; // 連続ズーム対応
             }
 
+            e.preventDefault();
+        }
+        // Ctrl + Alt でブラシサイズ変更
+        if ((e.ctrlKey || e.metaKey) && e.altKey && e.buttons === 1) {
+            const dx = e.clientX - lastX;
+            lastX = e.clientX;
+
+            let size = controller.getBrushSize();
+            let delta;
+
+            if (size <= 10) {
+                // ブラシサイズ 1〜10：変化が緩やか
+                const t = Math.min(1, Math.max(0, (size - 1) / 9));
+                const gain = 0.08 + 0.17 * Math.pow(t, 1.5);
+                delta = dx * gain;
+            } else {
+                // ブラシサイズ >10：元の挙動
+                delta = dx * 0.5;
+            }
+
+            controller.setBrushSize(size + delta);
             e.preventDefault();
         }
     });

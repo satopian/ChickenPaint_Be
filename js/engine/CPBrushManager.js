@@ -64,10 +64,11 @@ function buildBrushAA(brush, brushInfo) {
     // 1px以下の極小ブラシ処理
     if (brushInfo.curSize < 1) {
         const size = brushInfo.curSize;
-        const r = size / 2;
-        const area = Math.PI * r * r;
+        const r = size / 2; // 半径
+        const area = Math.PI * r * r; // 実質カバー率
         const alpha = Math.min(255, area * 255);
-        brush[0] = alpha | 0;
+
+        brush[0] = alpha | 0; // 中心だけ描く
         return;
     }
 
@@ -199,8 +200,9 @@ function buildBrushSquareAA(brush, brushInfo) {
 
                 for (let oy = 0; oy < 4; oy++) {
                     for (let ox = 0; ox < 4; ox++) {
-                        x = i + ox * (1.0 / 4.0) - center;
-                        y = j + oy * (1.0 / 4.0) - center;
+                        // 4×4 スーパーサンプリング：角度依存の偏りを防ぐため、サブピクセルの中心をサンプリングする
+                        x = i + (ox + 0.5) * (1.0 / 4.0) - center;
+                        y = j + (oy + 0.5) * (1.0 / 4.0) - center;
                         dx = Math.abs(x * cosA - y * sinA);
                         dy = Math.abs(y * cosA + x * sinA);
 

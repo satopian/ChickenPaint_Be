@@ -20,20 +20,20 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import {_} from "../languages/lang.js";
+import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { _ } from "../languages/lang.js";
 
-const macPlatform = navigator.userAgent.toLowerCase().includes('mac os');
+const macPlatform = navigator.userAgent.toLowerCase().includes("mac os");
 const Ctrl = macPlatform ? "⌘" : "Ctrl";
 const Alt = macPlatform ? "⌥" : "Alt";
-const ctrlForZoom = macPlatform ? '⌃' : "Ctrl";
+const ctrlForZoom = macPlatform ? "⌃" : "Ctrl";
 
 export default function CPShortcutsDialog(parent) {
-    const dialog = document.createElement('div');
-    dialog.classList.add('modal', 'fade', 'chickenpaint-shortcuts-dialog');
+    const dialog = document.createElement("div");
+    dialog.classList.add("modal", "fade", "chickenpaint-shortcuts-dialog");
     dialog.tabIndex = -1;
-    dialog.role = 'dialog';
-    
+    dialog.role = "dialog";
+
     dialog.innerHTML = `
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -76,7 +76,8 @@ export default function CPShortcutsDialog(parent) {
                                     <dl>
                                         <dt><span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">1</span> - <span class="chickenpaint-shortcut-key">9</span>, <span class="chickenpaint-shortcut-key">0</span></span></dt>
                                         <dd>${_("Change brush opacity")}</dd>
-                                        <dt><span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">[</span>, <span class="chickenpaint-shortcut-key">]</span></span></dt>
+                                        <dt><span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">[</span>, <span class="chickenpaint-shortcut-key">]</span></span><span class="chickenpaint-shortcut-alternate">${_("or")}</span><span class="chickenpaint-shortcut"><span class="chickenpaint-shortcut-key">${Ctrl}</span> +
+                                        <span class="chickenpaint-shortcut-key">${Alt}</span> +  <span class="fa icon-mouse-pointer"></span> ${_("Left")}</span></dt>
                                         <dd>${_("Change brush size")}</dd>
                                     </dl>
                                 </li>
@@ -149,7 +150,7 @@ export default function CPShortcutsDialog(parent) {
     `;
 
     // Destroy the modal upon close
-    dialog.querySelector('.btn-close').addEventListener('click', () => {
+    dialog.querySelector(".btn-close").addEventListener("click", () => {
         dialog.remove();
     });
 
