@@ -71,15 +71,15 @@ export default function CPResourceSaver(options) {
             ) {
                 reportFatal(
                     `${_("The file size exceeds the server limit.")}\n${_(
-                        "Limit size"
-                    )}:${limit_size}\n${_("Current size")}:${total_size}`
+                        "Limit size",
+                    )}:${limit_size}\n${_("Current size")}:${total_size}`,
                 );
                 return; // サイズ超過の場合は中断
             } else {
                 console.log(
                     _(
-                        "The total size of FormData is within the acceptable range."
-                    )
+                        "The total size of FormData is within the acceptable range.",
+                    ),
                 );
             }
         } catch (error) {
@@ -131,8 +131,8 @@ export default function CPResourceSaver(options) {
 
                     throw new Error(
                         `${_("Network response was not OK")} ( ${_(
-                            "HTTP status code"
-                        )} ${response.status} : ${httpErrorMessag} )`
+                            "HTTP status code",
+                        )} ${response.status} : ${httpErrorMessag} )`,
                     );
                 }
 
@@ -234,7 +234,7 @@ export default function CPResourceSaver(options) {
         var flat, flatBlob, swatchesBlob;
 
         flat = binaryStringToByteArray(
-            options.artwork.getFlatPNG(options.rotation)
+            options.artwork.getFlatPNG(options.rotation),
         );
         flatBlob = new Blob([flat], { type: "image/png" });
         flat = null; // Don't need this any more
@@ -313,7 +313,7 @@ export default function CPResourceSaver(options) {
                             saveFilename,
                             flatBlob,
                             chibiResult,
-                            swatchesBlob
+                            swatchesBlob,
                         );
                     } else {
                         FileSaver.saveAs(flatBlob, saveFilename + ".png");
@@ -354,7 +354,7 @@ export default function CPResourceSaver(options) {
         saveFilename,
         flatBlob,
         chibiResult,
-        swatchesBlob
+        swatchesBlob,
     ) {
         const zip = new JSZip();
 

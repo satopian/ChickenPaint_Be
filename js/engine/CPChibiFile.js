@@ -230,14 +230,14 @@ class ChibiLayerDecoder {
 
                     if (this.hasMask) {
                         this.layer.setMask(
-                            new CPGreyBmp(this.width, this.height, 8)
+                            new CPGreyBmp(this.width, this.height, 8),
                         );
                         this.maskDecoder = new CPMaskDecoder(this.layer.mask);
                     }
 
                     if (this.layer instanceof CPImageLayer) {
                         this.colorDecoder = new CPColorPixelsDecoder(
-                            this.layer.image
+                            this.layer.image,
                         );
                     }
 
@@ -445,7 +445,7 @@ class CPColorPixelsDecoder {
         let bytesRemain =
                 Math.min(
                     buffer.length - bufferPos,
-                    this.bytesTotal - this.bytesRead
+                    this.bytesTotal - this.bytesRead,
                 ) | 0,
             fullPixelsRemain = (bytesRemain / CPColorBmp.BYTES_PER_PIXEL) | 0,
             subpixelsRemain = bytesRemain % CPColorBmp.BYTES_PER_PIXEL;
@@ -621,7 +621,7 @@ function allocateChunkStream(chunkTag, chunkBodySize) {
 function serializeFileHeaderChunk(artwork, version, numLayers) {
     let stream = allocateChunkStream(
         CHUNK_TAG_HEAD,
-        CPChibiFileHeader.FIXED_HEADER_LENGTH
+        CPChibiFileHeader.FIXED_HEADER_LENGTH,
     );
 
     stream.writeU32BE(version);
@@ -655,7 +655,7 @@ function serializeLayerChunk(layer) {
             (layer.mask ? layer.mask.data.length : 0),
         stream = allocateChunkStream(
             isImageLayer ? CHUNK_TAG_LAYER : CHUNK_TAG_GROUP,
-            FIXED_HEADER_LENGTH + VARIABLE_HEADER_LENGTH + PAYLOAD_LENGTH
+            FIXED_HEADER_LENGTH + VARIABLE_HEADER_LENGTH + PAYLOAD_LENGTH,
         );
 
     let layerFlags = 0,
@@ -754,7 +754,7 @@ function hasChibiMagicMarker(array) {
  *
  * @returns {Promise.<SerializeResult>}
  */
-export function save(artwork, options={}) {
+export function save(artwork, options = {}) {
     options = options || {};
 
     return Promise.resolve().then(() => {
@@ -788,7 +788,7 @@ export function save(artwork, options={}) {
         // The rest gets compressed
         deflator.push(
             serializeFileHeaderChunk(artwork, version, layers.length),
-            false
+            false,
         );
 
         for (let layer of layers) {
@@ -799,7 +799,7 @@ export function save(artwork, options={}) {
 
                         // Insert a setTimeout between each serialized layer, so we can maintain browser responsiveness
                         setTimeout(resolve, 10);
-                    })
+                    }),
             );
         }
 
@@ -842,7 +842,7 @@ export function save(artwork, options={}) {
                     };
 
                     deflator.push(serializeEndChunk(), true);
-                })
+                }),
         );
     });
 }
@@ -964,7 +964,7 @@ export function load(source, options) {
                             layerDecoder = new ChibiImageLayerDecoder(
                                 curChunkHeader,
                                 fileHeader.width,
-                                fileHeader.height
+                                fileHeader.height,
                             );
                             continue;
                         } else if (
@@ -974,14 +974,14 @@ export function load(source, options) {
                             layerDecoder = new ChibiLayerGroupDecoder(
                                 curChunkHeader,
                                 fileHeader.width,
-                                fileHeader.height
+                                fileHeader.height,
                             );
                             continue;
                         } else {
                             console.log(
                                 "Unknown chunk type '" +
                                     curChunkHeader.chunkType +
-                                    "', attempting to skip..."
+                                    "', attempting to skip...",
                             );
 
                             skipCount = curChunkHeader.chunkSize;
@@ -1015,7 +1015,7 @@ export function load(source, options) {
 
                     artwork = new CPArtwork(
                         fileHeader.width,
-                        fileHeader.height
+                        fileHeader.height,
                     );
                     destGroup = artwork.getLayersRoot();
 
@@ -1041,7 +1041,7 @@ export function load(source, options) {
                         artwork.addLayerGroupObject(
                             destGroup,
                             layerDecoder.layer,
-                            layerDecoder.childLayers
+                            layerDecoder.childLayers,
                         );
 
                         state = STATE_WAIT_FOR_CHUNK;
@@ -1074,7 +1074,7 @@ export function load(source, options) {
 
                 if (!hasChibiMagicMarker(byteArray)) {
                     reject(
-                        "This doesn't appear to be a ChibiPaint layers file, is it damaged?"
+                        "This doesn't appear to be a ChibiPaint layers file, is it damaged?",
                     );
                     return;
                 }
@@ -1091,11 +1091,11 @@ export function load(source, options) {
                             fileHeader.version <
                                 makeChibiVersion(
                                     OUR_MAJOR_VERSION,
-                                    OUR_MINOR_VERSION
+                                    OUR_MINOR_VERSION,
                                 )
                         ) {
                             artwork.upgradeMultiplyLayers(
-                                options.upgradeMultiplyLayers
+                                options.upgradeMultiplyLayers,
                             );
                         }
 
@@ -1109,6 +1109,6 @@ export function load(source, options) {
 
                 // Begin decompression/decoding
                 inflator.push(byteArray, true);
-            })
+            }),
     );
 }
