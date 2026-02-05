@@ -1011,7 +1011,8 @@ export default function ChickenPaint(options) {
 
             CPExportAsPNG: {
                 action: function () {
-                    saveDrawing();
+                    const saveUrl = options.saveUrl || false;
+                    saveDrawing({ saveUrl: saveUrl });
                 },
                 isSupported: function () {
                     return options.allowDownload !== false;
@@ -1020,7 +1021,8 @@ export default function ChickenPaint(options) {
             },
             CPExportAsZIP: {
                 action: function () {
-                    saveDrawing({ zip: true });
+                    const saveUrl = options.saveUrl || false;
+                    saveDrawing({ zip: true, saveUrl: saveUrl });
                 },
                 isSupported: function () {
                     return options.allowDownload !== false;
@@ -1415,6 +1417,7 @@ export default function ChickenPaint(options) {
 
         saver.save({
             zip: save_options.zip ?? false,
+            saveUrl: save_options.saveUrl ?? false,
             savedb: save_options.savedb ?? false,
         });
     }

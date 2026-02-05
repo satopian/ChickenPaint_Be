@@ -233,7 +233,9 @@ export default function CPResourceSaver(options) {
      */
     this.save = function (save_options = {}) {
         const zip = save_options.zip ?? false;
+        const saveUrl = save_options.saveUrl ?? false;
         const savedb = save_options.savedb ?? false;
+
         var flat, flatBlob, swatchesBlob;
 
         flat = !savedb
@@ -308,7 +310,7 @@ export default function CPResourceSaver(options) {
                             .toISOString()
                             .split(".")[0]
                             .replace(/[^0-9]/g, "_");
-                    if (typeof options.url === "undefined" && !savedb) {
+                    if (!saveUrl && !savedb) {
                         CPClearChiAutosaveFromDB();
                     }
 
