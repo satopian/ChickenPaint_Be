@@ -2966,8 +2966,8 @@ export default function CPCanvas(controller) {
     //オートセーブ処理用変数
     let countPointerUp = 0; // 通算ストローク数
     let lastSavedCount = 0; // 最後にDB保存した時のカウント
-    const STROKE_THRESHOLD = 500; // ここで設定されたストローク数ごとに保存
-    const TIME_INTERVAL_MS = 10 * 60 * 1000; // ここで設定された時間ごとに保存
+    const STROKE_THRESHOLD = 1000; // ここで設定されたストローク数ごとに保存
+    const TIME_INTERVAL_MS = 5 * 60 * 1000; // ここで設定された時間ごとに保存
 
     let isTimeSaveReserved = false; // 時間による保存予約フラグ    // Called when all mouse/pointer buttons are released
 

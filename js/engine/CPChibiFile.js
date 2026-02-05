@@ -757,96 +757,114 @@ function hasChibiMagicMarker(array) {
 export function save(artwork, options = {}) {
     options = options || {};
 
-    return Promise.resolve().then(() => {
-        const deflator = new pako.Deflate({
-                level: 7,
-            }),
-            /**
-             * The fragments that make up the completed .chi file:
-             * @type {Uint8Array[]}
-             */
-            blobParts = [],
-            magic = new Uint8Array(CHI_MAGIC.length),
-            layers = artwork.getLayersRoot().getLinearizedLayerList(false),
-            version = options.forceOldVersion
-                ? makeChibiVersion(0, 0)
-                : minimumVersionForArtwork(artwork),
-            versionString = chibiVersionToString(version);
-
-        let layerWritePromise = Promise.resolve();
-
-        deflator.onData = function (chunk) {
-            blobParts.push(chunk);
-        };
-
-        // The magic file signature is not ZLIB compressed:
-        for (let i = 0; i < CHI_MAGIC.length; i++) {
-            magic[i] = CHI_MAGIC.charCodeAt(i);
-        }
-        blobParts.push(magic);
-
-        // The rest gets compressed
-        deflator.push(
-            serializeFileHeaderChunk(artwork, version, layers.length),
-            false,
-        );
-
-        for (let layer of layers) {
-            layerWritePromise = layerWritePromise.then(
-                () =>
-                    new Promise(function (resolve) {
-                        deflator.push(serializeLayerChunk(layer), false);
-
-                        // Insert a setTimeout between each serialized layer, so we can maintain browser responsiveness
-                        setTimeout(resolve, 10);
+    // new Promise
+    return new Promise((overallResolve, overallReject) => {
+        setTimeout(() => {
+            const layers = artwork
+                .getLayersRoot()
+                .getLinearizedLayerList(false);
+            setTimeout(() => {
+                const deflator = new pako.Deflate({
+                        level: 7,
                     }),
-            );
-        }
+                    /**
+                     * The fragments that make up the completed .chi file:
+                     * @type {Uint8Array[]}
+                     */
+                    blobParts = [],
+                    magic = new Uint8Array(CHI_MAGIC.length),
+                    version = options.forceOldVersion
+                        ? makeChibiVersion(0, 0)
+                        : minimumVersionForArtwork(artwork),
+                    versionString = chibiVersionToString(version);
 
-        return layerWritePromise.then(
-            () =>
-                new Promise((resolve, reject) => {
-                    deflator.onEnd = function (status) {
-                        if (status === 0) {
-                            if (typeof Blob !== "undefined") {
-                                // In the browser
-                                resolve({
-                                    bytes: new Blob(blobParts, {
-                                        type: "application/octet-stream",
-                                    }),
-                                    version: versionString,
-                                });
-                            } else {
-                                // In Node.js
-                                let totalSize = blobParts
-                                        .map((part) => part.byteLength)
-                                        .reduce((total, size) => {
-                                            return total + size;
-                                        }, 0),
-                                    buffer = new Uint8Array(totalSize),
-                                    offset = 0;
+                let layerWritePromise = Promise.resolve();
 
-                                for (let part of blobParts) {
-                                    buffer.set(part, offset);
-                                    offset += part.byteLength;
-                                }
+                deflator.onData = function (chunk) {
+                    blobParts.push(chunk);
+                };
 
-                                resolve({
-                                    bytes: buffer,
-                                    version: versionString,
-                                });
-                            }
-                        } else {
-                            reject(status);
-                        }
-                    };
+                // The magic file signature is not ZLIB compressed:
+                for (let i = 0; i < CHI_MAGIC.length; i++) {
+                    magic[i] = CHI_MAGIC.charCodeAt(i);
+                }
+                blobParts.push(magic);
 
-                    deflator.push(serializeEndChunk(), true);
-                }),
-        );
+                // The rest gets compressed
+                deflator.push(
+                    serializeFileHeaderChunk(artwork, version, layers.length),
+                    false,
+                );
+
+                for (let layer of layers) {
+                    layerWritePromise = layerWritePromise.then(
+                        () =>
+                            new Promise(function (resolve) {
+                                deflator.push(
+                                    serializeLayerChunk(layer),
+                                    false,
+                                );
+
+                                // Insert a setTimeout between each serialized layer, so we can maintain browser responsiveness
+                                setTimeout(resolve, 50);
+                            }),
+                    );
+                }
+
+                // 結果を overallResolve に渡すように繋ぐ
+                layerWritePromise
+                    .then(
+                        () =>
+                            new Promise((resolve, reject) => {
+                                deflator.onEnd = function (status) {
+                                    if (status === 0) {
+                                        let finalResult; // 結果を一時的に格納
+                                        if (typeof Blob !== "undefined") {
+                                            finalResult = {
+                                                bytes: new Blob(blobParts, {
+                                                    type: "application/octet-stream",
+                                                }),
+                                                version: versionString,
+                                            };
+                                        } else {
+                                            // Node.js用
+                                            let totalSize = blobParts
+                                                    .map(
+                                                        (part) =>
+                                                            part.byteLength,
+                                                    )
+                                                    .reduce(
+                                                        (total, size) =>
+                                                            total + size,
+                                                        0,
+                                                    ),
+                                                buffer = new Uint8Array(
+                                                    totalSize,
+                                                ),
+                                                offset = 0;
+                                            for (let part of blobParts) {
+                                                buffer.set(part, offset);
+                                                offset += part.byteLength;
+                                            }
+                                            finalResult = {
+                                                bytes: buffer,
+                                                version: versionString,
+                                            };
+                                        }
+                                        // ここで「本当の完了」を外に伝える
+                                        overallResolve(finalResult);
+                                    } else {
+                                        overallReject(status);
+                                    }
+                                };
+                                deflator.push(serializeEndChunk(), true);
+                            }),
+                    )
+                    .catch(overallReject); // エラーが発生した時も外に伝える
+            }, 0);
+        }, 1);
     });
 }
-
 /**
  * Attempt to load a chibifile from the given source.
  *

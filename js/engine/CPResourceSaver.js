@@ -308,6 +308,9 @@ export default function CPResourceSaver(options) {
                             .toISOString()
                             .split(".")[0]
                             .replace(/[^0-9]/g, "_");
+                    if (typeof options.url === "undefined" && !savedb) {
+                        CPClearChiAutosaveFromDB();
+                    }
 
                     if (zip) {
                         saveFilesAsZip(
@@ -321,21 +324,6 @@ export default function CPResourceSaver(options) {
                         CPPutChiAutosaveToDB(chibiResult.bytes, swatchesBlob);
                     } else {
                         FileSaver.saveAs(flatBlob, saveFilename + ".png");
-
-                        //複数ファイル自動ダウンロードはブロックされる事があるため、コメントアウト。
-                        //.chiが必要な時はZIPでダウンロード。
-                        // if (chibiResult) {
-                        //     FileSaver.saveAs(
-                        //         chibiResult.bytes,
-                        //         saveFilename + ".chi"
-                        //     );
-                        // }
-                        // if (swatchesBlob) {
-                        //     FileSaver.saveAs(
-                        //         swatchesBlob,
-                        //         saveFilename + ".aco"
-                        //     );
-                        // }
                     }
                 }
             })

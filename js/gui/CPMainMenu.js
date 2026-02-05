@@ -654,6 +654,7 @@ export default function CPMainMenu(controller, mainGUI) {
                 ) {
                     entry.name = _("Post Oekaki");
                     entry.shortcut = "ctrl+p";
+                    return;
                 }
 
                 let entryElem;
