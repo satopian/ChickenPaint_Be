@@ -2296,19 +2296,6 @@ export default function CPArtwork(_width, _height) {
     };
 
     /**
-     * Returns true if this artwork can be exactly represented as a simple transparent PNG (i.e. doesn't have multiple
-     * layers, and base layer's opacity is set to 100%).
-     */
-    this.isSimpleDrawing = function () {
-        return (
-            layersRoot.layers.length == 1 &&
-            layersRoot.layers[0] instanceof CPImageLayer &&
-            !layersRoot.layers[0].mask &&
-            layersRoot.layers[0].getEffectiveAlpha() == 100
-        );
-    };
-
-    /**
      * Save the difference between the current layer and the undoImage / undoMask (within the undoArea) for undo, and
      * clear the undoArea.
      *

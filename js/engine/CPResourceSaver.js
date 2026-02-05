@@ -3,7 +3,8 @@ import AdobeColorTable from "../util/AdobeColorTable.js";
 import EventEmitter from "wolfy87-eventemitter";
 import FileSaver from "file-saver";
 import JSZip from "jszip";
-
+import { CPPutChiAutosaveToDB } from "./CPChiAutosaveDB.js";
+import { CPClearChiAutosaveFromDB } from "./CPChiAutosaveDB.js";
 import { _ } from "../languages/lang.js";
 
 /**
@@ -142,6 +143,7 @@ export default function CPResourceSaver(options) {
                 if (/^CHIBIOK/.test(responseText)) {
                     reportProgress(1.0);
                     that.emitEvent("savingComplete");
+                    CPClearChiAutosaveFromDB();
                 } else {
                     reportFatal(responseText);
                 }
@@ -231,21 +233,20 @@ export default function CPResourceSaver(options) {
      */
     this.save = function (save_options = {}) {
         const zip = save_options.zip ?? false;
+        const savedb = save_options.savedb ?? false;
         var flat, flatBlob, swatchesBlob;
 
-        flat = binaryStringToByteArray(
-            options.artwork.getFlatPNG(options.rotation),
-        );
-        flatBlob = new Blob([flat], { type: "image/png" });
+        flat = !savedb
+            ? binaryStringToByteArray(
+                  options.artwork.getFlatPNG(options.rotation),
+              )
+            : null;
+        flatBlob = !savedb ? new Blob([flat], { type: "image/png" }) : null;
         flat = null; // Don't need this any more
 
         var serializeLayers;
 
-        if (options.artwork.isSimpleDrawing()) {
-            serializeLayers = Promise.resolve(null);
-        } else {
-            serializeLayers = chiSave(options.artwork);
-        }
+        serializeLayers = chiSave(options.artwork);
 
         serializeLayers
             .then(function (chibiResult) {
@@ -315,6 +316,9 @@ export default function CPResourceSaver(options) {
                             chibiResult,
                             swatchesBlob,
                         );
+                    } else if (savedb) {
+                        // chibiResult.bytes（画像）と swatchesBlob（パレット）をセットで保存
+                        CPPutChiAutosaveToDB(chibiResult.bytes, swatchesBlob);
                     } else {
                         FileSaver.saveAs(flatBlob, saveFilename + ".png");
 

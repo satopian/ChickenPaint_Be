@@ -33,6 +33,9 @@ import CPBrushInfo from "./engine/CPBrushInfo.js";
 import CPArtwork from "./engine/CPArtwork.js";
 import CPResourceLoader from "./engine/CPResourceLoader.js";
 import CPResourceSaver from "./engine/CPResourceSaver.js";
+import { CPGetChiAutosaveFromDB } from "./engine/CPChiAutosaveDB.js";
+import { CPClearChiAutosaveFromDB } from "./engine/CPChiAutosaveDB.js";
+import { load as chiLoad } from "./engine/CPChibiFile.js";
 
 import CPSplashScreen from "./gui/CPSplashScreen.js";
 
@@ -1024,6 +1027,15 @@ export default function ChickenPaint(options) {
                 },
                 modifies: { document: true },
             },
+            CPSaveDB: {
+                action: function () {
+                    saveDrawing({ savedb: true });
+                },
+                isSupported: function () {
+                    return options.allowDownload !== false;
+                },
+                modifies: { document: true },
+            },
             CPSend: {
                 action: function () {
                     sendDrawing();
@@ -1401,7 +1413,10 @@ export default function ChickenPaint(options) {
             );
         });
 
-        saver.save({ zip: save_options.zip ?? false });
+        saver.save({
+            zip: save_options.zip ?? false,
+            savedb: save_options.savedb ?? false,
+        });
     }
 
     function sendDrawing() {
@@ -1689,40 +1704,91 @@ export default function ChickenPaint(options) {
         this.emitEvent("toolbarStyleChange", [newStyle]),
     );
 
-    if (options.loadImageUrl || options.loadChibiFileUrl) {
-        let loader = new CPResourceLoader(options);
+    //ロードするPNGやChibiファイル
+    const loadFileUrl = options.loadImageUrl || options.loadChibiFileUrl;
+    // オートセーブがあるかどうかをローカルストレージを使って同期的にチェック
+    const hasAutosave =
+        localStorage.getItem("has_chibi_autosave_flag") === "true";
 
-        new CPSplashScreen(uiElem, loader, options.resourcesRoot);
+    let useautosave = false;
 
-        loader.on("loadingComplete", function (resources) {
-            that.artwork = resources.layers || resources.flat;
+    if (hasAutosave) {
+        // 未保存のデータがあります。復元しますか？
+        const confirmtext = loadFileUrl
+            ? _(
+                  "Unsaved data detected.\nInterrupt image loading and restore it?",
+              )
+            : _("Unsaved data detected. Would you like to restore it?");
 
-            startMainGUI(resources.swatches, options.rotation);
-            if (options.onLoaded) {
-                options.onLoaded(this);
-            }
-        });
+        useautosave = confirm(confirmtext); // 同期的に確認ダイヤログをだしてChromeのブロックを回避
 
-        loader.load();
-    } else {
-        if (options.artwork) {
-            this.artwork = options.artwork;
-        } else {
-            this.artwork = new CPArtwork(
-                options.canvasWidth || 800,
-                options.canvasHeight || 600,
-            );
-            this.artwork.addBackgroundLayer();
-            //起動時に透明なレイヤーを1枚追加
-            this.artwork.addDefaultLayer();
-        }
-
-        startMainGUI();
-
-        if (options.onLoaded) {
-            options.onLoaded(this);
+        if (!useautosave) {
+            CPClearChiAutosaveFromDB(); // キャンセルならDBとDB存在フラグを削除
         }
     }
+
+    // 非同期でDBをチェック
+    CPGetChiAutosaveFromDB().then((autosave) => {
+        if (useautosave) {
+            // --- バックアップ復元ルート ---
+            chiLoad(autosave.bytes).then((artwork) => {
+                this.artwork = artwork;
+
+                // パレットのBlobがある場合、それをURLとして偽装してLoaderに渡す
+                if (autosave.swatches) {
+                    const tempSwatchesUrl = URL.createObjectURL(
+                        autosave.swatches,
+                    );
+
+                    // loader用の設定を書き換え
+                    let restoreOptions = Object.assign({}, options);
+                    restoreOptions.loadSwatchesUrl = tempSwatchesUrl;
+                    restoreOptions.loadImageUrl = null; // 画像は既にchiLoadしたので不要
+                    restoreOptions.loadChibiFileUrl = null;
+
+                    let loader = new CPResourceLoader(restoreOptions);
+                    loader.on("loadingComplete", (resources) => {
+                        // パレットの読み込みが終わったらGUI開始
+                        startMainGUI(resources.swatches, options.rotation);
+                        URL.revokeObjectURL(tempSwatchesUrl); // メモリ解放
+                        if (options.onLoaded) options.onLoaded(this);
+                    });
+                    loader.load();
+                } else {
+                    // パレットがない場合はそのまま起動
+                    startMainGUI([], options.rotation);
+                    if (options.onLoaded) options.onLoaded(this);
+                }
+            });
+        } else if (loadFileUrl) {
+            //PNGやChibiファイルがある時
+            // --- 通常のロードルート ---
+            let loader = new CPResourceLoader(options);
+            new CPSplashScreen(uiElem, loader, options.resourcesRoot);
+
+            loader.on("loadingComplete", function (resources) {
+                that.artwork = resources.layers || resources.flat;
+                startMainGUI(resources.swatches, options.rotation);
+                if (options.onLoaded) options.onLoaded(this);
+            });
+
+            loader.load();
+        } else {
+            // --- 完全新規ルート ---
+            if (options.artwork) {
+                this.artwork = options.artwork;
+            } else {
+                this.artwork = new CPArtwork(
+                    options.canvasWidth || 800,
+                    options.canvasHeight || 600,
+                );
+                this.artwork.addBackgroundLayer();
+                this.artwork.addDefaultLayer();
+            }
+            startMainGUI(); // 引数なしでデフォルトパレット等を使用
+            if (options.onLoaded) options.onLoaded(this);
+        }
+    });
 }
 
 ChickenPaint.prototype = Object.create(EventEmitter.prototype);

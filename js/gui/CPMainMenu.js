@@ -44,6 +44,15 @@ const MENU_ENTRIES = [
                 shortcut: "shift+alt+s",
             },
             {
+                name: "Backup to browser storage",
+                action: "CPSaveDB",
+                title: _(
+                    "Save the current drawing to the browser's local database",
+                ),
+                mnemonic: "S",
+                shortcut: "shift+alt+s",
+            },
+            {
                 name: "Save Oekaki",
                 action: "CPSend",
                 mnemonic: "S",

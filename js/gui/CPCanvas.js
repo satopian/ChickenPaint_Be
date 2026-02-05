@@ -2963,9 +2963,31 @@ export default function CPCanvas(controller) {
         }
     }
 
-    // Called when all mouse/pointer buttons are released
+    //オートセーブ処理用変数
+    let countPointerUp = 0; // 通算ストローク数
+    let lastSavedCount = 0; // 最後にDB保存した時のカウント
+    const STROKE_THRESHOLD = 500; // ここで設定されたストローク数ごとに保存
+    const TIME_INTERVAL_MS = 10 * 60 * 1000; // ここで設定された時間ごとに保存
+
+    let isTimeSaveReserved = false; // 時間による保存予約フラグ    // Called when all mouse/pointer buttons are released
+
     function handlePointerUp(e) {
         isPointerDown = false;
+        //オートセーブ処理
+        countPointerUp++; // カウントアップ
+
+        // 保存が必要かどうかの判定
+        // A: 規定のストローク数に達したか
+        // B: タイマーによって予約されているか（かつ進捗があるか）
+        const shouldSaveByCount =
+            countPointerUp - lastSavedCount >= STROKE_THRESHOLD;
+        const shouldSaveByTime =
+            isTimeSaveReserved && countPointerUp > lastSavedCount;
+
+        if (shouldSaveByCount || shouldSaveByTime) {
+            executeDBSave();
+        }
+
         mouseDown[BUTTON_PRIMARY] = false;
         mouseDown[BUTTON_SECONDARY] = false;
         mouseDown[BUTTON_WHEEL] = false;
@@ -3028,6 +3050,21 @@ export default function CPCanvas(controller) {
             handlePointerMove(e); //通常描画
         }
     }
+    //DBへのオートセーブ実行
+    function executeDBSave() {
+        console.log("Auto-saving to DB...");
+        controller.actionPerformed({ action: "CPSaveDB" });
+
+        // 状態をリセット
+        lastSavedCount = countPointerUp;
+        isTimeSaveReserved = false;
+    }
+    // オートセーブタイマー処理
+    setInterval(() => {
+        // 10分経過したら「次の描画終了時に保存するフラグ｣を立てる。
+        // 時間の経過のみでは保存しない。
+        isTimeSaveReserved = true;
+    }, TIME_INTERVAL_MS);
 
     function handleKeyDown(e) {
         modeStack.keyDown(e);

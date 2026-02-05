@@ -3,6 +3,8 @@
     "Export as png": "PNGで保存",
     "Save the PNG image, CHI project file, and swatches file together as a ZIP package": "画像と固有形式ファイルをZIPで保存します",
     "Export as zip": "ZIPで保存",
+    "Backup to browser storage": "バックアップをブラウザに保存",
+    "Save the current drawing to the browser's local database": "現在の画像をブラウザのローカルデータベースに保存します",
     "Post Oekaki": "画像を投稿",
 
     "Edit": "編集",
@@ -299,5 +301,7 @@
     "Current size": "現在のサイズ",
 
     "Network response was not OK": "通信エラー",
-    "HTTP status code": "HTTPステータスコード"
+    "HTTP status code": "HTTPステータスコード",
+    "Unsaved data detected.\nInterrupt image loading and restore it?": "未保存のデータがあります。\n画像の読み込みを中断して復元しますか？",
+    "Unsaved data detected. Would you like to restore it?": "未保存のデータがあります。復元しますか？"  
 }
