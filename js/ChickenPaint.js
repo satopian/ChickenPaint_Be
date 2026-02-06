@@ -1724,9 +1724,9 @@ export default function ChickenPaint(options) {
         // 未保存のデータがあります。復元しますか？
         const confirmtext = loadFileUrl
             ? _(
-                  "Unsaved data detected.\nInterrupt image loading and restore it?",
+                  "Unsaved data was detected.\nInterrupt image loading and restore it?",
               )
-            : _("Unsaved data detected. Would you like to restore it?");
+            : _("Unsaved data was detected. Would you like to restore it?");
 
         useautosave = confirm(confirmtext); // 同期的に確認ダイヤログをだしてChromeのブロックを回避
 

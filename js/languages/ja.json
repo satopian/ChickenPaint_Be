@@ -303,6 +303,6 @@
 
     "Network response was not OK": "通信エラー",
     "HTTP status code": "HTTPステータスコード",
-    "Unsaved data detected.\nInterrupt image loading and restore it?": "未保存のデータがあります。\n画像の読み込みを中断して復元しますか？",
-    "Unsaved data detected. Would you like to restore it?": "未保存のデータがあります。復元しますか？"  
+    "Unsaved data was detected.\nInterrupt image loading and restore it?": "未保存のデータがあります。\n画像の読み込みを中断して復元しますか？",
+    "Unsaved data was detected. Would you like to restore it?": "未保存のデータがあります。復元しますか？"  
 }
