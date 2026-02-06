@@ -326,7 +326,7 @@ export default function CPResourceSaver(options) {
                         // chibiResult.bytes（画像）と swatchesBlob（パレット）をセットで保存
                         CPPutChiAutosaveToDB(chibiResult.bytes, swatchesBlob);
                         if (savedbFromMenu) {
-                            alert(_("Saved to your browser's database."));
+                            alert(_("Saved to your browser's storage."));
                         }
                     } else {
                         FileSaver.saveAs(flatBlob, saveFilename + ".png");
