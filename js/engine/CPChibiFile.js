@@ -756,6 +756,7 @@ function hasChibiMagicMarker(array) {
  */
 export function save(artwork, options = {}) {
     options = options || {};
+    const savedb = options.savedb || false;
 
     // new Promise
     return new Promise((overallResolve, overallReject) => {
@@ -765,7 +766,7 @@ export function save(artwork, options = {}) {
                 .getLinearizedLayerList(false);
             setTimeout(() => {
                 const deflator = new pako.Deflate({
-                        level: 7,
+                        level: savedb ? 3 : 7,
                     }),
                     /**
                      * The fragments that make up the completed .chi file:
