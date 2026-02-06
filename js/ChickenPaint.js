@@ -1031,6 +1031,15 @@ export default function ChickenPaint(options) {
             },
             CPSaveDB: {
                 action: function () {
+                    saveDrawing({ savedb: true });
+                },
+                isSupported: function () {
+                    return options.allowDownload !== false;
+                },
+                modifies: { document: true },
+            },
+            CPSaveDBFromMenu: {
+                action: function () {
                     saveDrawing({ savedb: true, savedbFromMenu: true });
                 },
                 isSupported: function () {

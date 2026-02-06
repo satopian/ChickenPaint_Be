@@ -45,7 +45,7 @@ const MENU_ENTRIES = [
             },
             {
                 name: "Backup to browser storage",
-                action: "CPSaveDB",
+                action: "CPSaveDBFromMenu",
                 title: _(
                     "Save the current drawing to the browser's local database",
                 ),
