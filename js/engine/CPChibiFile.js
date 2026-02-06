@@ -876,9 +876,7 @@ export function save(artwork, options = {}) {
  *
  * @returns {Promise.<CPArtwork>}
  */
-export function load(source, options) {
-    options = options || {};
-
+export function load(source, options = {}) {
     const STATE_WAIT_FOR_CHUNK = 0,
         STATE_DECODE_FILE_HEADER = 1,
         STATE_DECODE_LAYER = 2,

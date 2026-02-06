@@ -1031,7 +1031,7 @@ export default function ChickenPaint(options) {
             },
             CPSaveDB: {
                 action: function () {
-                    saveDrawing({ savedb: true });
+                    saveDrawing({ savedb: true, savedbFromMenu: true });
                 },
                 isSupported: function () {
                     return options.allowDownload !== false;
@@ -1415,11 +1415,7 @@ export default function ChickenPaint(options) {
             );
         });
 
-        saver.save({
-            zip: save_options.zip ?? false,
-            saveUrl: save_options.saveUrl ?? false,
-            savedb: save_options.savedb ?? false,
-        });
+        saver.save(save_options);
     }
 
     function sendDrawing() {

@@ -4,6 +4,7 @@
     "Save the PNG image, CHI project file, and swatches file together as a ZIP package": "画像と固有形式ファイルをZIPで保存します",
     "Export as zip": "ZIPで保存",
     "Backup to browser storage": "バックアップをブラウザに保存",
+    "Saved to your browser's database.": "ブラウザのローカルデータベースに保存しました。",
     "Save the current drawing to the browser's local database": "現在の画像をブラウザのローカルデータベースに保存します",
     "Post Oekaki": "画像を投稿",
 

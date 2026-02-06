@@ -235,6 +235,7 @@ export default function CPResourceSaver(options) {
         const zip = save_options.zip ?? false;
         const saveUrl = save_options.saveUrl ?? false;
         const savedb = save_options.savedb ?? false;
+        const savedbFromMenu = save_options.savedbFromMenu ?? false;
 
         var flat, flatBlob, swatchesBlob;
 
@@ -324,6 +325,9 @@ export default function CPResourceSaver(options) {
                     } else if (savedb) {
                         // chibiResult.bytes（画像）と swatchesBlob（パレット）をセットで保存
                         CPPutChiAutosaveToDB(chibiResult.bytes, swatchesBlob);
+                        if (savedbFromMenu) {
+                            alert(_("Saved to your browser's database."));
+                        }
                     } else {
                         FileSaver.saveAs(flatBlob, saveFilename + ".png");
                     }
