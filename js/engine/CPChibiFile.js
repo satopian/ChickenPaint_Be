@@ -766,7 +766,7 @@ export function save(artwork, options = {}) {
                 .getLinearizedLayerList(false);
             setTimeout(() => {
                 const deflator = new pako.Deflate({
-                        level: savedb ? 3 : 7,
+                        level: savedb ? 1 : 7,
                     }),
                     /**
                      * The fragments that make up the completed .chi file:
@@ -807,7 +807,7 @@ export function save(artwork, options = {}) {
                                 );
 
                                 // Insert a setTimeout between each serialized layer, so we can maintain browser responsiveness
-                                setTimeout(resolve, 50);
+                                setTimeout(resolve, 30);
                             }),
                     );
                 }
