@@ -2879,9 +2879,8 @@ export default function CPCanvas(controller) {
                 canvasPoint.x,
                 canvasPoint.y,
             );
-
-            e.preventDefault();
         }
+        e.preventDefault();
     }
 
     let canvasClientRect;

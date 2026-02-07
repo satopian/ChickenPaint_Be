@@ -127,7 +127,7 @@ export class CPBrushTool {
         brushConfig,
         brushRect,
         dab,
-        color
+        color,
     ) {
         // dab.alpha (1-255) → 5～255 に変換
         dab.alpha = Math.round((dab.alpha - 1) * (250 / 254) + 5);
@@ -147,7 +147,7 @@ export class CPBrushTool {
                     imageRect,
                     dab.brush,
                     dab.width,
-                    alpha
+                    alpha,
                 );
                 break;
             case CPBrushInfo.PAINT_MODE_OPACITY:
@@ -156,7 +156,7 @@ export class CPBrushTool {
                     imageRect,
                     dab.brush,
                     dab.width,
-                    alpha
+                    alpha,
                 );
                 break;
         }
@@ -182,11 +182,11 @@ export class CPBrushTool {
             height = strokedRegion.getHeight() | 0,
             srcOffset = this._strokeBuffer.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             dstOffset = destImage.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             srcYStride = (this._strokeBuffer.width - width) | 0,
             dstYStride =
@@ -251,11 +251,11 @@ export class CPBrushTool {
             height = strokedRegion.getHeight() | 0,
             dstOffset = destMask.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             srcOffset = this._strokeBuffer.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             srcYStride = (this._strokeBuffer.width - width) | 0,
             dstYStride = (destMask.width - width) | 0;
@@ -296,7 +296,7 @@ export class CPBrushTool {
             brushOffset = brushRect.left + brushRect.top * brushWidth,
             strokeOffset = this._strokeBuffer.offsetOfPixel(
                 imageRect.left,
-                imageRect.top
+                imageRect.top,
             ),
             dstHeight = imageRect.getHeight(),
             dstWidth = imageRect.getWidth(),
@@ -319,7 +319,7 @@ export class CPBrushTool {
                         strokeData[strokeOffset] +
                             ((255 - strokeData[strokeOffset] / 255) *
                                 brushAlpha) /
-                                255
+                                255,
                     );
                 }
             }
@@ -343,7 +343,7 @@ export class CPBrushTool {
             brushOffset = brushRect.left + brushRect.top * brushWidth,
             imageOffset = this._strokeBuffer.offsetOfPixel(
                 imageRect.left,
-                imageRect.top
+                imageRect.top,
             ),
             imageWidth = imageRect.getWidth(),
             srcYStride = brushWidth - imageWidth,
@@ -361,7 +361,7 @@ export class CPBrushTool {
             for (let x = 0; x < imageWidth; x++, brushOffset++, imageOffset++) {
                 strokeData[imageOffset] = Math.max(
                     brush[brushOffset] * alpha,
-                    strokeData[imageOffset]
+                    strokeData[imageOffset],
                 );
             }
         }
@@ -394,7 +394,7 @@ export class CPBrushToolEraser extends CPBrushTool {
                     CPColorBmp.ALPHA_BYTE_OFFSET,
                 srcOffset = this._strokeBuffer.offsetOfPixel(
                     strokedRegion.left,
-                    y
+                    y,
                 );
 
             for (
@@ -428,11 +428,11 @@ export class CPBrushToolDodge extends CPBrushTool {
             height = strokedRegion.getHeight(),
             dstOffset = destImage.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             srcOffset = this._strokeBuffer.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             dstYSkip = (destImage.width - width) * CPColorBmp.BYTES_PER_PIXEL,
             srcYSkip = this._strokeBuffer.width - width,
@@ -481,11 +481,11 @@ export class CPBrushToolDodge extends CPBrushTool {
             height = strokedRegion.getHeight(),
             dstOffset = destMask.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             srcOffset = this._strokeBuffer.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             dstYSkip = destMask.width - width,
             srcYSkip = this._strokeBuffer.width - width,
@@ -505,7 +505,7 @@ export class CPBrushToolDodge extends CPBrushTool {
 
                     destMaskData[dstOffset] = Math.min(
                         undoMaskData[dstOffset] * scale,
-                        255
+                        255,
                     );
                 }
             }
@@ -528,11 +528,11 @@ export class CPBrushToolBurn extends CPBrushTool {
             height = strokedRegion.getHeight(),
             dstOffset = destImage.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             srcOffset = this._strokeBuffer.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             dstYSkip = (destImage.width - width) * CPColorBmp.BYTES_PER_PIXEL,
             srcYSkip = this._strokeBuffer.width - width,
@@ -597,11 +597,11 @@ export class CPBrushToolBurn extends CPBrushTool {
             height = strokedRegion.getHeight(),
             dstOffset = destMask.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             srcOffset = this._strokeBuffer.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             dstYSkip = destMask.width - width,
             srcYSkip = this._strokeBuffer.width - width,
@@ -622,7 +622,7 @@ export class CPBrushToolBurn extends CPBrushTool {
                             ((BURN_CONSTANT - undoMaskData[dstOffset]) *
                                 strokeAlpha) /
                                 255,
-                        0
+                        0,
                     );
                 }
             }
@@ -651,11 +651,11 @@ export class CPBrushToolBlur extends CPBrushTool {
             destYStride = undoImage.width * CPColorBmp.BYTES_PER_PIXEL,
             destOffset = undoImage.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             srcOffset = this._strokeBuffer.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             destYSkip = (undoImage.width - width) * CPColorBmp.BYTES_PER_PIXEL,
             srcYSkip = this._strokeBuffer.width - width,
@@ -711,19 +711,19 @@ export class CPBrushToolBlur extends CPBrushTool {
                     addSample(
                         y < undoImage.height - 1
                             ? destOffset + destYStride
-                            : destOffset
+                            : destOffset,
                     );
                     // x - 1, y
                     addSample(
                         x > 0
                             ? destOffset - CPColorBmp.BYTES_PER_PIXEL
-                            : destOffset
+                            : destOffset,
                     );
                     // x + 1, y
                     addSample(
                         x < undoImage.width - 1
                             ? destOffset + CPColorBmp.BYTES_PER_PIXEL
-                            : destOffset
+                            : destOffset,
                     );
 
                     a /= weightSum;
@@ -756,11 +756,11 @@ export class CPBrushToolBlur extends CPBrushTool {
             destYStride = undoMask.width,
             destOffset = undoMask.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             srcOffset = this._strokeBuffer.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             destYSkip = undoMask.width - width,
             srcYSkip = this._strokeBuffer.width - width,
@@ -835,11 +835,11 @@ class CPBrushToolDirectBrush extends CPBrushTool {
             destImageData = destImage.data,
             srcOffset = this._strokeBuffer.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             dstOffset = destImage.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             width = strokedRegion.getWidth() | 0,
             height = strokedRegion.getHeight() | 0,
@@ -899,11 +899,11 @@ class CPBrushToolDirectBrush extends CPBrushTool {
             destMaskData = destMask.data,
             srcOffset = this._strokeBuffer.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             dstOffset = destMask.offsetOfPixel(
                 strokedRegion.left,
-                strokedRegion.top
+                strokedRegion.top,
             ),
             width = strokedRegion.getWidth() | 0,
             height = strokedRegion.getHeight() | 0,
@@ -978,66 +978,83 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         return average(samples.map((coord) => mask.getPixel(coord.x, coord.y)));
     }
     /**
-     * Sample RGB pixels around (x, y) and ignore fully transparent pixels.
-     * If all sampled pixels are transparent, return the brush color as fallback.
+     * (x, y) 周辺の RGB ピクセルをサンプリングし、完全に透明なピクセルは無視します。
+     * もしサンプリングした全てのピクセルが透明だった場合は、フォールバックとしてブラシの色を返します。
+     * (Sample RGB pixels around (x, y) and ignore fully transparent pixels.
+     * If all sampled pixels are transparent, return the brush color as fallback.)
      *
-     * @param {CPColorBmp} image
-     * @param {number} x - Center of sample
-     * @param {number} y
-     * @param {number} dx - Spread of samples from center
-     * @param {number} dy
-     * @param {CPColorFloat} brushColor - Current brush color fallback
-     * @returns {CPColorFloat}
+     * @param {CPColorBmp} image - サンプリング対象の画像データ
+     * @param {number} x - サンプリングの中心となる X 座標
+     * @param {number} y - サンプリングの中心となる Y 座標
+     * @param {number} dx - 中心からのサンプリングの広がり（幅）
+     * @param {number} dy - 中心からのサンプリングの広がり（高さ）
+     * @param {CPColorFloat} brushColor - 全て透明だった場合に返される現在のブラシ色（fallback用）
+     * @returns {CPColorFloat} 算出された平均色、またはブラシ色
      */
     static _sampleRGB(image, x, y, dx, dy, brushColor) {
-        x = x | 0;
-        y = y | 0;
+        const imgW = image.width;
+        const imgH = image.height;
+        const imgData = image.data;
 
-        const samples = [{ x, y }];
-        for (let r = 0.25; r < 1.001; r += 0.25) {
-            Array.prototype.push.apply(samples, [
-                { x: ~~(x + r * dx), y },
-                { x: ~~(x - r * dx), y },
-                { x, y: ~~(y + r * dy) },
-                { x, y: ~~(y - r * dy) },
-                { x: ~~(x + r * 0.7 * dx), y: ~~(y + r * 0.7 * dy) },
-                { x: ~~(x + r * 0.7 * dx), y: ~~(y - r * 0.7 * dy) },
-                { x: ~~(x - r * 0.7 * dx), y: ~~(y + r * 0.7 * dy) },
-                { x: ~~(x - r * 0.7 * dx), y: ~~(y - r * 0.7 * dy) },
-            ]);
-        }
+        let rSum = 0,
+            gSum = 0,
+            bSum = 0,
+            count = 0;
 
-        const validSamples = [];
+        /**
+         * 有効なピクセルを判定し、集計する内部処理
+         */
+        const process = (sx, sy) => {
+            const ix = ~~sx;
+            const iy = ~~sy;
+            if (ix >= 0 && iy >= 0 && ix < imgW && iy < imgH) {
+                const offset = (iy * imgW + ix) * 4;
+                const a = imgData[offset + 3]; // アルファ値を取得
 
-        for (let coord of samples) {
-            if (
-                coord.x < 0 ||
-                coord.y < 0 ||
-                coord.x >= image.width ||
-                coord.y >= image.height
-            )
-                continue;
-            const offset = (coord.y * image.width + coord.x) * 4;
-            const a = image.data[offset + 3];
-            if (a > 0) {
-                // Fully transparent pixelは無視
-                const r = image.data[offset];
-                const g = image.data[offset + 1];
-                const b = image.data[offset + 2];
-                validSamples.push(
-                    CPColorFloat.createFromInt(
-                        (255 << 24) | (r << 16) | (g << 8) | b
-                    )
-                );
+                // Fully transparent pixelは無視 (Ignore fully transparent pixels)
+                if (a > 0) {
+                    rSum += imgData[offset]; // R
+                    gSum += imgData[offset + 1]; // G
+                    bSum += imgData[offset + 2]; // B
+                    count++;
+                }
             }
+        };
+
+        // 1. 中心点をサンプリング
+        process(x, y);
+
+        // 2. 周囲をサンプリング
+        for (let r = 0.25; r < 1.001; r += 0.25) {
+            const rdx = r * dx;
+            const rdy = r * dy;
+            const rdx7 = rdx * 0.7;
+            const rdy7 = rdy * 0.7;
+
+            process(x + rdx, y);
+            process(x - rdx, y);
+            process(x, y + rdy);
+            process(x, y - rdy);
+            process(x + rdx7, y + rdy7);
+            process(x + rdx7, y - rdy7);
+            process(x - rdx7, y + rdy7);
+            process(x - rdx7, y - rdy7);
         }
 
-        // 全部透明ならブラシ色を返す
-        if (validSamples.length === 0) {
+        // 全て透明ならブラシ色を返す (If all sampled pixels are transparent, return the brush color as fallback)
+        if (count === 0) {
             return brushColor;
         }
 
-        return averageColorFloat(validSamples);
+        // RGB成分の平均値を算出
+        const avgR = (rSum / count) | 0;
+        const avgG = (gSum / count) | 0;
+        const avgB = (bSum / count) | 0;
+
+        // 不透明な CPColorFloat オブジェクトを生成して返す
+        return CPColorFloat.createFromInt(
+            (255 << 24) | (avgR << 16) | (avgG << 8) | avgB,
+        );
     }
 
     /**
@@ -1056,7 +1073,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         brushShape,
         brushWidth,
         alpha,
-        color1
+        color1,
     ) {
         let strokeData = this._strokeBuffer.data,
             width = imageRect.getWidth(),
@@ -1066,7 +1083,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
             brushOffset = brushRect.left + brushRect.top * brushWidth,
             imageOffset = this._strokeBuffer.offsetOfPixel(
                 imageRect.left,
-                imageRect.top
+                imageRect.top,
             );
 
         this._strokedRegion.union(imageRect);
@@ -1127,7 +1144,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         brushShape,
         brushWidth,
         alpha,
-        color1
+        color1,
     ) {
         let strokeData = this._strokeBuffer.data;
 
@@ -1141,7 +1158,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
             let srcOffset = brushRect.left + brushY * brushWidth,
                 dstOffset = this._strokeBuffer.offsetOfPixel(
                     imageRect.left,
-                    destY
+                    destY,
                 );
 
             for (
@@ -1194,7 +1211,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         brushConfig,
         brushRect,
         dab,
-        color
+        color,
     ) {
         const alphaScale = this.isTransparentCanvas ? 0.3 : 1.0;
         // dab.alpha の最小値1を8に、最大値255はそのまま255にマッピング
@@ -1208,15 +1225,15 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
                 1,
                 Math.min(
                     WATERCOLOR_SAMPLE_RADIUS,
-                    imageRect.getWidth() * WATERCOLOR_SPREAD_FACTOR
-                )
+                    imageRect.getWidth() * WATERCOLOR_SPREAD_FACTOR,
+                ),
             ),
             dy = Math.max(
                 1,
                 Math.min(
                     WATERCOLOR_SAMPLE_RADIUS,
-                    imageRect.getHeight() * WATERCOLOR_SPREAD_FACTOR
-                )
+                    imageRect.getHeight() * WATERCOLOR_SPREAD_FACTOR,
+                ),
             );
 
         if (sampleImage instanceof CPGreyBmp) {
@@ -1231,8 +1248,8 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
                         sampleX,
                         sampleY,
                         dx,
-                        dy
-                    )
+                        dy,
+                    ),
                 );
             }
 
@@ -1243,7 +1260,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
             wcColor = lerp(
                 wcColor,
                 color & 0xff,
-                brushConfig.resat * brushConfig.resat
+                brushConfig.resat * brushConfig.resat,
             );
 
             newColor = wcColor;
@@ -1256,9 +1273,9 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
                     sampleX,
                     sampleY,
                     dx,
-                    dy
+                    dy,
                 ),
-                brushConfig.bleed
+                brushConfig.bleed,
             );
 
             this._previousSamples.push(wcColor);
@@ -1270,7 +1287,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
                 dab.brush,
                 dab.width,
                 paintAlpha,
-                Math.round(newColor)
+                Math.round(newColor),
             );
         } else {
             if (this._previousSamples == null) {
@@ -1285,8 +1302,8 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
                         sampleY,
                         dx,
                         dy,
-                        brushColorFloat
-                    )
+                        brushColorFloat,
+                    ),
                 );
             }
 
@@ -1295,7 +1312,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
             // resaturation - add the brush's color to the mixture
             wcColor.mixWith(
                 CPColorFloat.createFromInt(color),
-                brushConfig.resat * brushConfig.resat
+                brushConfig.resat * brushConfig.resat,
             );
 
             let newColor = wcColor.toInt();
@@ -1306,7 +1323,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
                 sampleY,
                 dx,
                 dy,
-                brushColorFloat
+                brushColorFloat,
             );
             this.isTransparentCanvas = brushColorFloat === sampled;
             // bleed
@@ -1321,7 +1338,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
                 dab.brush,
                 dab.width,
                 paintAlpha,
-                newColor
+                newColor,
             );
         }
     }
@@ -1352,7 +1369,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
                 brushRect.left + brushRect.top * this._brushBuffer.width,
             dstOffset = maskToSample.offsetOfPixel(
                 imageRect.left,
-                imageRect.top
+                imageRect.top,
             ),
             srcYSkip = this._brushBuffer.width - width,
             dstYSkip = maskToSample.width - width;
@@ -1432,7 +1449,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         brushRect,
         imageRect,
         brushShape,
-        alpha
+        alpha,
     ) {
         let strokeData = this._strokeBuffer.data,
             brushData = this._brushBuffer.data,
@@ -1447,11 +1464,11 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         ) {
             let bufferOffset = this._brushBuffer.offsetOfPixel(
                     brushRect.left,
-                    brushY
+                    brushY,
                 ),
                 strokeOffset = this._strokeBuffer.offsetOfPixel(
                     imageRect.left,
-                    y
+                    y,
                 ),
                 layerOffset = destImage.offsetOfPixel(imageRect.left, y);
 
@@ -1497,7 +1514,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
                 brushRect.left + brushRect.top * this._brushBuffer.width,
             dstOffset = imageToSample.offsetOfPixel(
                 imageRect.left,
-                imageRect.top
+                imageRect.top,
             ),
             srcYSkip = this._brushBuffer.width - width,
             dstYSkip =
@@ -1618,7 +1635,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         brushRect,
         imageRect,
         brushShape,
-        alpha
+        alpha,
     ) {
         let strokeData = this._strokeBuffer.data,
             brushData = this._brushBuffer.data,
@@ -1633,11 +1650,11 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         ) {
             let bufferOffset = this._brushBuffer.offsetOfPixel(
                     brushRect.left,
-                    brushY
+                    brushY,
                 ),
                 strokeOffset = this._strokeBuffer.offsetOfPixel(
                     imageRect.left,
-                    y
+                    y,
                 ),
                 layerOffset = destImage.offsetOfPixel(imageRect.left, y);
 
@@ -1708,7 +1725,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         brushConfig,
         brushRect,
         dab,
-        color
+        color,
     ) {
         if (destImage instanceof CPColorBmp) {
             if (this._brushBuffer == null) {
@@ -1719,7 +1736,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
                     sampleImage,
                     brushRect,
                     imageRect,
-                    255
+                    255,
                 );
             } else {
                 this._resaturateBrushWithColor(
@@ -1728,22 +1745,22 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
                         ? 0
                         : Math.max(
                               1,
-                              brushConfig.resat * brushConfig.resat * 255
+                              brushConfig.resat * brushConfig.resat * 255,
                           )),
-                    color & 0xffffff
+                    color & 0xffffff,
                 );
                 this._paintToColorStrokeBuffer(
                     destImage,
                     brushRect,
                     imageRect,
                     dab.brush,
-                    dab.alpha
+                    dab.alpha,
                 );
                 this._accumulatePaintFromImage(
                     sampleImage,
                     brushRect,
                     imageRect,
-                    ~~(brushConfig.bleed * 255)
+                    ~~(brushConfig.bleed * 255),
                 );
             }
         } else {
@@ -1754,7 +1771,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
                     sampleImage,
                     brushRect,
                     imageRect,
-                    255
+                    255,
                 );
             } else {
                 this._resaturateBrushWithGrey(
@@ -1763,22 +1780,22 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
                         ? 0
                         : Math.max(
                               1,
-                              brushConfig.resat * brushConfig.resat * 255
+                              brushConfig.resat * brushConfig.resat * 255,
                           )),
-                    color & 0xff
+                    color & 0xff,
                 );
                 this._paintToGreyscaleStrokeBuffer(
                     destImage,
                     brushRect,
                     imageRect,
                     dab.brush,
-                    dab.alpha
+                    dab.alpha,
                 );
                 this._accumulatePaintFromMask(
                     sampleImage,
                     brushRect,
                     imageRect,
-                    ~~(brushConfig.bleed * 255)
+                    ~~(brushConfig.bleed * 255),
                 );
             }
         }
@@ -1868,7 +1885,7 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
             height = brushRect.getHeight(),
             brushOffset = this._brushBuffer.offsetOfPixel(
                 brushRect.left,
-                brushRect.top
+                brushRect.top,
             ),
             maskOffset = sampleMask.offsetOfPixel(maskRect.left, maskRect.top),
             brushYSkip = this._brushBuffer.width - width,
@@ -1934,7 +1951,7 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
             height = brushRect.getHeight(),
             srcOffset = this._brushBuffer.offsetOfPixel(
                 brushRect.left,
-                brushRect.top
+                brushRect.top,
             ),
             dstOffset = destMask.offsetOfPixel(imageRect.left, imageRect.top),
             srcYSkip = this._brushBuffer.width - width,
@@ -1974,11 +1991,11 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
             height = brushRect.getHeight(),
             brushOffset = this._brushBuffer.offsetOfPixel(
                 brushRect.left,
-                brushRect.top
+                brushRect.top,
             ),
             imageOffset = sampleImage.offsetOfPixel(
                 imageRect.left,
-                imageRect.top
+                imageRect.top,
             ),
             brushYSkip = this._brushBuffer.width - width,
             imageYSkip =
@@ -2090,7 +2107,7 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
             height = brushRect.getHeight(),
             srcOffset = this._brushBuffer.offsetOfPixel(
                 brushRect.left,
-                brushRect.top
+                brushRect.top,
             ),
             dstOffset = destImage.offsetOfPixel(imageRect.left, imageRect.top),
             srcYSkip = this._brushBuffer.width - width,
@@ -2137,7 +2154,7 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
         brushConfig,
         brushRect,
         dab,
-        color
+        color,
     ) {
         if (destImage instanceof CPColorBmp) {
             if (this._brushBuffer == null) {
@@ -2148,7 +2165,7 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
                     sampleImage,
                     brushRect,
                     imageRect,
-                    dab.alpha
+                    dab.alpha,
                 );
                 this._paintToImage(destImage, brushRect, imageRect, dab.brush);
             }
@@ -2161,7 +2178,7 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
                     sampleImage,
                     brushRect,
                     imageRect,
-                    dab.alpha
+                    dab.alpha,
                 );
                 this._paintToMask(destImage, brushRect, imageRect, dab.brush);
             }
