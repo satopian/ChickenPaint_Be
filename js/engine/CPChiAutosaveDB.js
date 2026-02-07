@@ -30,13 +30,30 @@ async function performAction(mode, callback) {
             const db = request.result;
             const transaction = db.transaction(STORE_NAME, mode);
             const store = transaction.objectStore(STORE_NAME);
+
+            // callback(store) が返すのが「操作リクエスト（putやgetなど）」です
             const opRequest = callback(store);
 
+            let result;
             opRequest.onsuccess = () => {
-                resolve(opRequest.result);
-                db.close();
+                result = opRequest.result;
             };
-            opRequest.onerror = () => reject(opRequest.error);
+
+            // ここで transaction（トランザクション全体）の完了を待つ
+            transaction.oncomplete = () => {
+                db.close();
+                resolve(result);
+            };
+
+            transaction.onabort = () => {
+                db.close();
+                // errorがあればそれを、なければ「中断された」というメッセージを渡す
+                reject(transaction.error || new Error("Transaction aborted"));
+            }; // エラー時もトランザクション全体を見る
+            transaction.onerror = () => {
+                db.close();
+                reject(transaction.error);
+            };
         };
         request.onerror = () => reject(request.error);
     });
