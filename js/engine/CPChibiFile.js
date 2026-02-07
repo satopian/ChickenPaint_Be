@@ -807,7 +807,7 @@ export function save(artwork, options = {}) {
                                 );
 
                                 // Insert a setTimeout between each serialized layer, so we can maintain browser responsiveness
-                                setTimeout(resolve, 30);
+                                setTimeout(resolve, 0);
                             }),
                     );
                 }
@@ -863,7 +863,7 @@ export function save(artwork, options = {}) {
                     )
                     .catch(overallReject); // エラーが発生した時も外に伝える
             }, 0);
-        }, 1);
+        }, 0);
     });
 }
 /**
