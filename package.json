@@ -14,6 +14,8 @@
   },
   "version": "0.4.1",
   "devDependencies": {
+    "@parcel/optimizer-data-url": "^2.16.3",
+    "@parcel/transformer-inline-string": "^2.16.3",
     "canvas": "^3.0.0",
     "google-closure-compiler": "^20250915.0.0",
     "multipipe": "^2.0.3",
