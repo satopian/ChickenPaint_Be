@@ -50,7 +50,6 @@ const MENU_ENTRIES = [
                     "Save the current drawing to the browser's local database",
                 ),
                 mnemonic: "S",
-                shortcut: "shift+alt+s",
             },
             {
                 name: "Save Oekaki",
