@@ -3049,21 +3049,34 @@ export default function CPCanvas(controller) {
             handlePointerMove(e); //通常描画
         }
     }
-    //DBへのオートセーブ実行
+
+    let autoSaveTimer = null; // タイマーの入れ物
+
+    // --- オートセーブタイマーのスタートとリスタート ---
+    function restartAutoSaveTimer() {
+        // 動いているタイマーがあれば停止
+        if (autoSaveTimer) {
+            isTimeSaveReserved = false;
+            clearTimeout(autoSaveTimer);
+        }
+        // 2分後にフラグを立てる予約を入れる
+        autoSaveTimer = setTimeout(() => {
+            isTimeSaveReserved = true;
+        }, TIME_INTERVAL_MS);
+    }
+
+    // --- セーブ実行関数 ---
     function executeDBSave() {
-        console.log("Auto-saving to DB...");
+        console.log("Auto-saving...");
         controller.actionPerformed({ action: "CPSaveDB" });
 
-        // 状態をリセット
+        // 状態リセット
         lastSavedCount = countPointerUp;
         isTimeSaveReserved = false;
+
+        // タイマーをリスタートして再計測
+        restartAutoSaveTimer();
     }
-    // オートセーブタイマー処理
-    setInterval(() => {
-        // 10分経過したら「次の描画終了時に保存するフラグ｣を立てる。
-        // 時間の経過のみでは保存しない。
-        isTimeSaveReserved = true;
-    }, TIME_INTERVAL_MS);
 
     function handleKeyDown(e) {
         modeStack.keyDown(e);
