@@ -744,6 +744,9 @@ function hasChibiMagicMarker(array) {
  * @property {String} SerializeResult.version - Version string of created artwork, "ChibiPaint v0.0" or "ChickenPaint v0.10"
  */
 
+// ループの合間に「ブラウザに息をつかせる」関数
+const yieldToMain = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 /**
  * Serialize the given artwork to Chibifile format.
  *
@@ -757,7 +760,7 @@ export function save(artwork, options = {}) {
     options = options || {};
     const savedb = options.savedb || false;
 
-    return new Promise((overallResolve, overallReject) => {
+    return new Promise(async (overallResolve, overallReject) => {
         // 1. レイヤー情報の取得（ここは同期処理でOK）
         const layers = artwork.getLayersRoot().getLinearizedLayerList(false);
         const version = options.forceOldVersion
@@ -771,6 +774,7 @@ export function save(artwork, options = {}) {
         ];
         for (const layer of layers) {
             chunks.push(serializeLayerChunk(layer));
+            await yieldToMain();
         }
         chunks.push(serializeEndChunk());
 
