@@ -28,8 +28,7 @@ import CPLayerGroup from "./CPLayerGroup.js";
 import CPGreyBmp from "./CPGreyBmp.js";
 import CPBlend from "./CPBlend.js";
 
-import pako from "pako";
-
+import { zlib, unzlib } from "fflate";
 /**
  * Concat two Uint8Arrays to make a new one and return it.
  *
@@ -758,112 +757,68 @@ export function save(artwork, options = {}) {
     options = options || {};
     const savedb = options.savedb || false;
 
-    // new Promise
     return new Promise((overallResolve, overallReject) => {
-        setTimeout(() => {
-            const layers = artwork
-                .getLayersRoot()
-                .getLinearizedLayerList(false);
-            setTimeout(() => {
-                const deflator = new pako.Deflate({
-                        level: savedb ? 1 : 7,
+        // 1. レイヤー情報の取得（ここは同期処理でOK）
+        const layers = artwork.getLayersRoot().getLinearizedLayerList(false);
+        const version = options.forceOldVersion
+            ? makeChibiVersion(0, 0)
+            : minimumVersionForArtwork(artwork);
+        const versionString = chibiVersionToString(version);
+
+        // 2. 圧縮対象のデータを1つのUint8Arrayにまとめる
+        const chunks = [
+            serializeFileHeaderChunk(artwork, version, layers.length),
+        ];
+        for (const layer of layers) {
+            chunks.push(serializeLayerChunk(layer));
+        }
+        chunks.push(serializeEndChunk());
+
+        // 全体の長さを計算して結合
+        const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
+        const uncompressedData = new Uint8Array(totalLen);
+        let offset = 0;
+        for (const c of chunks) {
+            uncompressedData.set(c, offset);
+            offset += c.length;
+        }
+
+        // 3. fflateで圧縮 (Workerを自動利用)
+        // level 1（savedb時）はpakoより高速、level 7もpakoより軽量
+        zlib(uncompressedData, { level: savedb ? 1 : 7 }, (err, compressed) => {
+            if (err) {
+                overallReject(err);
+                return;
+            }
+
+            // 4. Magic Number（非圧縮）の準備
+            const magic = new Uint8Array(CHI_MAGIC.length);
+            for (let i = 0; i < CHI_MAGIC.length; i++) {
+                magic[i] = CHI_MAGIC.charCodeAt(i);
+            }
+
+            // 5. 結果の構築（ブラウザ環境とNode.js環境の両対応）
+            if (typeof Blob !== "undefined") {
+                // ブラウザ環境 (Apache経由でアクセス)
+                overallResolve({
+                    bytes: new Blob([magic, compressed], {
+                        type: "application/octet-stream",
                     }),
-                    /**
-                     * The fragments that make up the completed .chi file:
-                     * @type {Uint8Array[]}
-                     */
-                    blobParts = [],
-                    magic = new Uint8Array(CHI_MAGIC.length),
-                    version = options.forceOldVersion
-                        ? makeChibiVersion(0, 0)
-                        : minimumVersionForArtwork(artwork),
-                    versionString = chibiVersionToString(version);
-
-                let layerWritePromise = Promise.resolve();
-
-                deflator.onData = function (chunk) {
-                    blobParts.push(chunk);
-                };
-
-                // The magic file signature is not ZLIB compressed:
-                for (let i = 0; i < CHI_MAGIC.length; i++) {
-                    magic[i] = CHI_MAGIC.charCodeAt(i);
-                }
-                blobParts.push(magic);
-
-                // The rest gets compressed
-                deflator.push(
-                    serializeFileHeaderChunk(artwork, version, layers.length),
-                    false,
+                    version: versionString,
+                });
+            } else {
+                // Node.js環境 (テスト実行時など)
+                const finalBuffer = new Uint8Array(
+                    magic.length + compressed.length,
                 );
-
-                for (let layer of layers) {
-                    layerWritePromise = layerWritePromise.then(
-                        () =>
-                            new Promise(function (resolve) {
-                                deflator.push(
-                                    serializeLayerChunk(layer),
-                                    false,
-                                );
-
-                                // Insert a setTimeout between each serialized layer, so we can maintain browser responsiveness
-                                setTimeout(resolve, 0);
-                            }),
-                    );
-                }
-
-                // 結果を overallResolve に渡すように繋ぐ
-                layerWritePromise
-                    .then(
-                        () =>
-                            new Promise((resolve, reject) => {
-                                deflator.onEnd = function (status) {
-                                    if (status === 0) {
-                                        let finalResult; // 結果を一時的に格納
-                                        if (typeof Blob !== "undefined") {
-                                            finalResult = {
-                                                bytes: new Blob(blobParts, {
-                                                    type: "application/octet-stream",
-                                                }),
-                                                version: versionString,
-                                            };
-                                        } else {
-                                            // Node.js用
-                                            let totalSize = blobParts
-                                                    .map(
-                                                        (part) =>
-                                                            part.byteLength,
-                                                    )
-                                                    .reduce(
-                                                        (total, size) =>
-                                                            total + size,
-                                                        0,
-                                                    ),
-                                                buffer = new Uint8Array(
-                                                    totalSize,
-                                                ),
-                                                offset = 0;
-                                            for (let part of blobParts) {
-                                                buffer.set(part, offset);
-                                                offset += part.byteLength;
-                                            }
-                                            finalResult = {
-                                                bytes: buffer,
-                                                version: versionString,
-                                            };
-                                        }
-                                        // ここで「本当の完了」を外に伝える
-                                        overallResolve(finalResult);
-                                    } else {
-                                        overallReject(status);
-                                    }
-                                };
-                                deflator.push(serializeEndChunk(), true);
-                            }),
-                    )
-                    .catch(overallReject); // エラーが発生した時も外に伝える
-            }, 0);
-        }, 0);
+                finalBuffer.set(magic, 0);
+                finalBuffer.set(compressed, magic.length);
+                overallResolve({
+                    bytes: finalBuffer,
+                    version: versionString,
+                });
+            }
+        });
     });
 }
 /**
@@ -885,8 +840,7 @@ export function load(source, options = {}) {
         STATE_SUCCESS = 45,
         STATE_FATAL = 5;
 
-    let inflator = new pako.Inflate({}),
-        state = STATE_WAIT_FOR_CHUNK,
+    let state = STATE_WAIT_FOR_CHUNK,
         /**
          * Destination artwork
          *
@@ -1071,6 +1025,7 @@ export function load(source, options = {}) {
         }
     }
 
+    // --- ファイル読み込みを実行 ---
     return new Promise(function (resolve) {
         if (source instanceof ArrayBuffer) {
             resolve(source);
@@ -1096,13 +1051,21 @@ export function load(source, options = {}) {
                     return;
                 }
 
-                // Remove the magic header
-                byteArray = byteArray.subarray(CHI_MAGIC.length);
+                // マジックヘッダーを除去して圧縮データを取り出す
+                const compressedData = byteArray.subarray(CHI_MAGIC.length);
 
-                inflator.onData = processBlock;
+                // fflateで解凍（自動Worker）
+                unzlib(compressedData, (err, decompressed) => {
+                    if (err) {
+                        reject("Fatal error decompressing ChibiFile: " + err);
+                        return;
+                    }
 
-                inflator.onEnd = function (status) {
-                    if (status === 0 && state == STATE_SUCCESS) {
+                    // 解凍された全データを解析ロジックへ投入
+                    processBlock(decompressed);
+
+                    // 解析が終わったあとの最終処理
+                    if (state == STATE_SUCCESS) {
                         if (
                             options.upgradeMultiplyLayers !== false &&
                             fileHeader.version <
@@ -1115,17 +1078,12 @@ export function load(source, options = {}) {
                                 options.upgradeMultiplyLayers,
                             );
                         }
-
                         artwork.selectTopmostVisibleLayer();
-
                         resolve(artwork);
                     } else {
-                        reject("Fatal error decoding ChibiFile: " + status);
+                        reject("Fatal error decoding ChibiFile structure.");
                     }
-                };
-
-                // Begin decompression/decoding
-                inflator.push(byteArray, true);
+                });
             }),
     );
 }

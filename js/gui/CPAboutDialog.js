@@ -74,13 +74,13 @@ export default function CPAboutDialog(parent) {
 
 Includes these MIT-licensed libraries:
 
-    Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js" rel="noopener">FileSaver.js library</a>
+    Includes the <a target="_blank" href="https://github.com/eligrey/FileSaver.js" rel="noopener">FileSaver.js</a> library
     Copyright (c) 2016 <a target="_blank" href="https://eligrey.com/" rel="noopener">Eli Grey</a>
 
-    Includes the <a target="_blank" href="https://github.com/nodeca/pako" rel="noopener">Pako zlib compression library</a>
-    Copyright (c) 2014-2017 by Vitaly Puzrin and Andrei Tuputcyn
-    
-    Includes the <a target="_blank" href="https://github.com/madrobby/keymaster" rel="noopener">keymaster.js</a> keyboard library
+    Includes the <a target="_blank" href="https://github.com/101arrowz/fflate" rel="noopener">fflate</a> library
+    Copyright (c) 2023 Arjun Barrett  
+
+    Includes the <a target="_blank" href="https://github.com/madrobby/keymaster" rel="noopener">keymaster.js</a> library
     Copyright (c) 2011-2013 Thomas Fuchs
 
     Includes the <a target="_blank" href="https://benalman.com/projects/jquery-throttle-debounce-plugin/" rel="noopener">jQuery throttle-debounce</a> library
@@ -93,7 +93,7 @@ Includes these MIT-licensed libraries:
     Franz Buchinger,
     António Afonso
 
-    Includes the <a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap</a> 
+    Includes the <a href="https://getbootstrap.com/" target="_blank" rel="noopener">Bootstrap</a> library
     Copyright (c) 2011-2025 <a href="https://github.com/twbs/bootstrap/blob/main/LICENSE" target="_blank" rel="noopener">The Bootstrap Authors</a>
 
     MIT License

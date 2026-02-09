@@ -25,9 +25,9 @@
   "dependencies": {
     "@parcel/watcher": "^2.5.0",
     "bootstrap": "^5.3.3",
+    "fflate": "^0.8.2",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
-    "pako": "^1.0.11",
     "random-js": "^2.1.0",
     "uuid": "^9.0.1",
     "wolfy87-eventemitter": "^5.2.9"
