@@ -1,5 +1,5 @@
 /*
-    ChickenPaint Be
+    litaChix
     https://github.com/satopian/ChickenPaint_Be
     by satopian
     Customized from ChickenPaint by Nicholas Sherlock.
@@ -1737,7 +1737,7 @@ export default function ChickenPaint(options) {
 
     // 非同期でDBをチェック
     CPGetChiAutosaveFromDB().then((autosave) => {
-        if (useautosave) {
+        if (useautosave && autosave && autosave.bytes) {
             // --- バックアップ復元ルート ---
             chiLoad(autosave.bytes).then((artwork) => {
                 this.artwork = artwork;

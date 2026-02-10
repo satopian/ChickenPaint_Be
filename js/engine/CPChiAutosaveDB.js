@@ -68,12 +68,25 @@ async function performAction(mode, callback) {
 export async function CPPutChiAutosaveToDB(bytes, swatchesBlob) {
     const data = {
         bytes: bytes,
-        swatches: swatchesBlob, // BlobもそのままIndexedDBに保存可能です
+        swatches: swatchesBlob,
         savedAt: Date.now(),
     };
-    // 復元可能なバックアップが存在することを示すフラグをlocalStorageに保存
-    localStorage.setItem("has_chibi_autosave_flag", "true");
-    return performAction("readwrite", (store) => store.put(data, STORAGE_KEY));
+
+    try {
+        // 1. まず実際にDBへの保存を実行し、完了を待つ
+        const result = await performAction("readwrite", (store) =>
+            store.put(data, STORAGE_KEY),
+        );
+
+        // 2. DB保存が成功した時だけ、localStorageにフラグを立てる
+        localStorage.setItem("has_chibi_autosave_flag", "true");
+
+        return result;
+    } catch (error) {
+        // DB保存に失敗した場合は、フラグを立てずにエラーを投げる
+        console.log("Failed to save to IndexedDB:", error);
+        throw error;
+    }
 }
 /**
  * 復元対象があるか確認し、あればデータを取得する (Load)

@@ -893,7 +893,7 @@ export function load(source, options = {}) {
      *
      * @param {Uint8Array} block
      */
-    function processBlock(block) {
+    async function processBlock(block) {
         let stream;
 
         accumulator = concatBuffers(accumulator, block);
@@ -1005,6 +1005,7 @@ export function load(source, options = {}) {
                     if (layerDecoder.done) {
                         artwork.addLayerObject(destGroup, layerDecoder.layer);
                         state = STATE_WAIT_FOR_CHUNK;
+                        await yieldToMain();
                         continue;
                     }
                     break;
@@ -1020,6 +1021,7 @@ export function load(source, options = {}) {
                         );
 
                         state = STATE_WAIT_FOR_CHUNK;
+                        await yieldToMain();
                         continue;
                     }
                     break;
@@ -1059,14 +1061,14 @@ export function load(source, options = {}) {
                 const compressedData = byteArray.subarray(CHI_MAGIC.length);
 
                 // fflateで解凍（自動Worker）
-                unzlib(compressedData, (err, decompressed) => {
+                unzlib(compressedData, async (err, decompressed) => {
                     if (err) {
                         reject("Fatal error decompressing ChibiFile: " + err);
                         return;
                     }
 
                     // 解凍された全データを解析ロジックへ投入
-                    processBlock(decompressed);
+                    await processBlock(decompressed);
 
                     // 解析が終わったあとの最終処理
                     if (state == STATE_SUCCESS) {
