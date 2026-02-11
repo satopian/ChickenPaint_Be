@@ -788,8 +788,8 @@ export function save(artwork, options = {}) {
         }
 
         // 3. fflateで圧縮 (Workerを自動利用)
-        // level 1（savedb時）はpakoより高速、level 6もpakoより軽量
-        zlib(uncompressedData, { level: savedb ? 1 : 6 }, (err, compressed) => {
+        // level 1（savedb時）はpakoより高速、level 5もpakoより軽量
+        zlib(uncompressedData, { level: savedb ? 1 : 5 }, (err, compressed) => {
             if (err) {
                 overallReject(err);
                 return;
