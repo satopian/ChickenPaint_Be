@@ -3435,6 +3435,24 @@ export default function CPCanvas(controller) {
             mode === ChickenPaint.M_MOVE_TOOL ||
             mode === ChickenPaint.M_ROTATE_CANVAS ||
             mode === ChickenPaint.M_PAN_CANVAS;
+
+        if (isPinchZoomAllowed) {
+            // ピンチズームが許可されているモードの時にのみピンチズームのためのイベントを登録
+            canvas.addEventListener("touchstart", handleTouchStart, {
+                passive: false,
+            });
+            canvas.addEventListener("touchend", handleTouchEnd, {
+                passive: false,
+            });
+            canvas.addEventListener("touchmove", handleTouchMove, {
+                passive: false,
+            });
+        } else {
+            canvas.removeEventListener("touchstart", handleTouchStart);
+            canvas.removeEventListener("touchend", handleTouchEnd);
+            canvas.removeEventListener("touchmove", handleTouchMove);
+        }
+
         modeStack.setUserMode(newMode);
         that.repaintAll();
     });
@@ -3514,12 +3532,8 @@ export default function CPCanvas(controller) {
 
     canvas.addEventListener("pointerdown", handlePointerDown);
     canvas.addEventListener("pointermove", handlePointerMoveWrapper);
-    canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
-    canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
-    canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
     canvas.addEventListener("pointerup", handlePointerUp);
     canvas.addEventListener("wheel", handleMouseWheel, { passive: false });
-
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("keyup", handleKeyUp);
 
