@@ -125,22 +125,28 @@ CPBrushInfo.DEFAULTS = {
 };
 
 CPBrushInfo.prototype.applyPressure = function (pressure) {
-    // 1. 目標サイズ
-    let targetSize = this.pressureSize
-        ? Math.max(0.01, this.size * pressure)
-        : Math.max(0.01, this.size);
+    // FIXME: no variable size for smudge and oil :(
+    if (
+        this.pressureSize &&
+        this.brushMode != CPBrushInfo.BRUSH_MODE_SMUDGE &&
+        this.brushMode != CPBrushInfo.BRUSH_MODE_OIL
+    ) {
+        this.curSize = Math.max(1, this.size * pressure);
+    } else {
+        this.curSize = Math.max(1, this.size);
+    }
 
-    // 2. 線幅ローパスフィルタ
-    const sizeSmooth = targetSize > 2.0 ? 0.6 : targetSize > 1.0 ? 0.8 : 0.9; //小さいほど滑らか
-    if (!this._lastSize) this._lastSize = targetSize;
-    this.curSize = this._lastSize + sizeSmooth * (targetSize - this._lastSize);
-    this._lastSize = this.curSize;
-    // 3. 不透明度
+    // FIXME: what is the point of doing that?
+    if (this.curSize > 16) {
+        this.curSize = Math.floor(this.curSize);
+    }
+
+    // Don't allow brush size to exceed that supported by CPBrushManager
+    this.curSize = Math.min(this.curSize, 400);
+
     this.curAlpha = this.pressureAlpha
         ? Math.floor(this.alpha * Math.min(pressure, 1.0))
         : this.alpha;
-
-    // 4. その他
     this.curSqueeze = this.squeeze;
     this.curAngle = this.angle;
     this.curScattering =
