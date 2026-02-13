@@ -127,8 +127,8 @@ CPBrushInfo.DEFAULTS = {
 CPBrushInfo.prototype.applyPressure = function (pressure) {
     // 1. 目標サイズ
     let targetSize = this.pressureSize
-        ? Math.max(1, this.size * pressure)
-        : Math.max(1, this.size);
+        ? Math.max(0.1, this.size * pressure)
+        : Math.max(0.1, this.size);
 
     // 2. 線幅ローパスフィルタ
     const sizeSmooth = 0.6; //小さいほど滑らか
