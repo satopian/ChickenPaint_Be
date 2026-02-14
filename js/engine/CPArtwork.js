@@ -758,7 +758,7 @@ export default function CPArtwork(_width, _height) {
     this.paintDab = function (x, y, pressure) {
         if (!curBrush) return;
 
-        curBrush.applyPressure(pressure);
+        curBrush.applyPressure(pressure, isFirstPoint);
 
         if (curBrush.scattering > 0.0) {
             x += (rnd.nextGaussian() * curBrush.curScattering) / 4.0;
@@ -2168,6 +2168,7 @@ export default function CPArtwork(_width, _height) {
         this.texture = texture;
     };
 
+    let isFirstPoint = false;
     /**
      * Start a painting operation.
      *
@@ -2180,7 +2181,7 @@ export default function CPArtwork(_width, _height) {
         if (curBrush === null || !this.isActiveLayerDrawable()) {
             return false;
         }
-
+        isFirstPoint = true;
         prepareForLayerPaintUndo();
         paintUndoArea.makeEmpty();
 
@@ -2201,6 +2202,7 @@ export default function CPArtwork(_width, _height) {
     };
 
     this.continueStroke = function (x, y, pressure) {
+        isFirstPoint = false;
         if (curBrush == null) return;
 
         let dx = x - lastX;
@@ -2240,6 +2242,7 @@ export default function CPArtwork(_width, _height) {
     };
 
     this.endStroke = function () {
+        isFirstPoint = false;
         if (curBrush == null) {
             return;
         }
