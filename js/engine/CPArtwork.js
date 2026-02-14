@@ -755,7 +755,7 @@ export default function CPArtwork(_width, _height) {
      * @param {number} y - ブラシ先端の Y 座標
      * @param {number} pressure - ペンの筆圧（タブレット対応）
      */
-    this.paintDab = function (x, y, pressure) {
+    this.paintDab = function (x, y, pressure, isFirstPoint = false) {
         if (!curBrush) return;
 
         curBrush.applyPressure(pressure, isFirstPoint);
@@ -2168,7 +2168,6 @@ export default function CPArtwork(_width, _height) {
         this.texture = texture;
     };
 
-    let isFirstPoint = false;
     /**
      * Start a painting operation.
      *
@@ -2181,7 +2180,6 @@ export default function CPArtwork(_width, _height) {
         if (curBrush === null || !this.isActiveLayerDrawable()) {
             return false;
         }
-        isFirstPoint = true;
         prepareForLayerPaintUndo();
         paintUndoArea.makeEmpty();
 
@@ -2196,13 +2194,12 @@ export default function CPArtwork(_width, _height) {
 
         paintingModes[curBrush.brushMode].beginStroke();
 
-        this.paintDab(x, y, pressure);
+        this.paintDab(x, y, pressure, true);
 
         return true;
     };
 
     this.continueStroke = function (x, y, pressure) {
-        isFirstPoint = false;
         if (curBrush == null) return;
 
         let dx = x - lastX;
@@ -2242,7 +2239,6 @@ export default function CPArtwork(_width, _height) {
     };
 
     this.endStroke = function () {
-        isFirstPoint = false;
         if (curBrush == null) {
             return;
         }

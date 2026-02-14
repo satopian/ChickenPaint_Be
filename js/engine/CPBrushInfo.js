@@ -125,7 +125,6 @@ CPBrushInfo.DEFAULTS = {
 };
 
 CPBrushInfo.prototype.applyPressure = function (pressure, isFirstPoint) {
-    // 1. 目標サイズ
     let targetSize = this.pressureSize
         ? Math.max(0.6, this.size * pressure)
         : Math.max(0.6, this.size);
