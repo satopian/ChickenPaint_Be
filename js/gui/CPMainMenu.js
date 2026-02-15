@@ -29,17 +29,6 @@ const MENU_ENTRIES = [
         mnemonic: "F",
         children: [
             {
-                name: "Backup to browser storage",
-                action: "CPSaveDBFromMenu",
-                title: _(
-                    "Save the current drawing to the browser's local database",
-                ),
-                mnemonic: "S",
-            },
-            {
-                name: "-",
-            },
-            {
                 name: "Export as png",
                 action: "CPExportAsPNG",
                 mnemonic: "S",
@@ -53,6 +42,17 @@ const MENU_ENTRIES = [
                 ),
                 mnemonic: "S",
                 shortcut: "shift+alt+s",
+            },
+            {
+                name: "-",
+            },
+            {
+                name: "Backup to browser storage",
+                action: "CPSaveDBFromMenu",
+                title: _(
+                    "Save the current drawing to the browser's local database",
+                ),
+                mnemonic: "S",
             },
             {
                 name: "Save Oekaki",
