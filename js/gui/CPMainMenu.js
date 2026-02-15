@@ -37,6 +37,9 @@ const MENU_ENTRIES = [
                 mnemonic: "S",
             },
             {
+                name: "-",
+            },
+            {
                 name: "Export as png",
                 action: "CPExportAsPNG",
                 mnemonic: "S",
@@ -652,6 +655,9 @@ export default function CPMainMenu(controller, mainGUI) {
                     entry.action === "CPSend" &&
                     !controller.isActionSupported("CPContinue")
                 ) {
+                    const entryElem = document.createElement("hr");
+                    entryElem.className = "dropdown-divider";
+                    dropdownMenu?.appendChild(entryElem);
                     entry.name = _("Post Oekaki");
                     entry.shortcut = "ctrl+p";
                 }
