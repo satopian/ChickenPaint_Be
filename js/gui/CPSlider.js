@@ -32,7 +32,7 @@ export default function CPSlider(
     centerMode,
     expMode,
     defaultWidth = 150,
-    expModeFactor = 2.5 //低い値の時にスライダーの動作を細やかにする係数
+    expModeFactor = 3.0, //低い値の時にスライダーの動作を細やかにする係数
 ) {
     const PRECISE_DRAG_SCALE = 4,
         DRAG_MODE_IDLE = 0,
@@ -83,9 +83,19 @@ export default function CPSlider(
             canvasContext.beginPath();
 
             if (that.value >= valueRange / 2) {
-                canvasContext.rect(width / 2, 0, (that.value - valueRange / 2) * width / valueRange, height);
+                canvasContext.rect(
+                    width / 2,
+                    0,
+                    ((that.value - valueRange / 2) * width) / valueRange,
+                    height,
+                );
             } else {
-                canvasContext.rect(that.value * width / valueRange, 0, (valueRange / 2 - that.value) * width / valueRange, height);
+                canvasContext.rect(
+                    (that.value * width) / valueRange,
+                    0,
+                    ((valueRange / 2 - that.value) * width) / valueRange,
+                    height,
+                );
             }
 
             canvasContext.fill();
