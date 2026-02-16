@@ -745,8 +745,13 @@ function hasChibiMagicMarker(array) {
  */
 
 // ループの合間に「ブラウザに息をつかせる」関数
-const yieldToMain = () => new Promise((resolve) => setTimeout(resolve, 0));
-
+const yieldToMain = () => {
+    return new Promise((resolve) => {
+        const channel = new MessageChannel();
+        channel.port1.onmessage = () => resolve(true);
+        channel.port2.postMessage(undefined);
+    });
+};
 /**
  * Serialize the given artwork to Chibifile format.
  *
