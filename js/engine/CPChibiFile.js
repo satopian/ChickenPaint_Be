@@ -782,7 +782,8 @@ export function save(artwork, options = {}) {
             chunks.push(serializeEndChunk());
 
             const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
-            const uncompressedData = new Uint8Array(totalLen);
+            let uncompressedData = null; // 最初に null で初期化
+            uncompressedData = new Uint8Array(totalLen); // その後データを生成
             let offset = 0;
             for (const c of chunks) {
                 uncompressedData.set(c, offset);
@@ -798,14 +799,24 @@ export function save(artwork, options = {}) {
                 { level: savedb ? 1 : 6 },
             );
 
-            const step = 512 * 1024;
+            const step = 128 * 1024;
             for (let i = 0; i < uncompressedData.length; i += step) {
                 const isLast = i + step >= uncompressedData.length;
                 deflator.push(uncompressedData.subarray(i, i + step), isLast);
-                if (!isLast) await new Promise((r) => setTimeout(r, 0));
+
+                if (!isLast) {
+                    await new Promise((resolve) => {
+                        const channel = new MessageChannel();
+                        channel.port1.onmessage = () => resolve(true);
+                        channel.port2.postMessage(undefined);
+                    });
+                }
             }
 
-            // --- concat の代わりの処理 ---
+            // 生データを参照不可にしてメモリを空ける
+            uncompressedData = null;
+
+            // --- 4. 圧縮後の結合処理 ---
             const totalCompressedLen = chunks_out.reduce(
                 (acc, c) => acc + c.length,
                 0,
