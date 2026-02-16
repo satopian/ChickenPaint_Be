@@ -816,46 +816,25 @@ export function save(artwork, options = {}) {
             // 生データを参照不可にしてメモリを空ける
             uncompressedData = null;
 
-            // --- 4. 圧縮後の結合処理 ---
-            const totalCompressedLen = chunks_out.reduce(
-                (acc, c) => acc + c.length,
-                0,
-            );
-            const compressed = new Uint8Array(totalCompressedLen);
-            let compressedOffset = 0;
-            for (const c of chunks_out) {
-                compressed.set(c, compressedOffset);
-                compressedOffset += c.length;
-            }
+            // 4. 結果の構築（結合コピーをせず、断片のまま Blob 化）
 
-            // 結合が終わったので、断片リストを参照不可にする
-            chunks_out = null;
-
-            // 4. Magic Number（非圧縮）の準備
+            // Magic Number（非圧縮ヘッダー）の準備
             const magic = new Uint8Array(CHI_MAGIC.length);
             for (let i = 0; i < CHI_MAGIC.length; i++) {
                 magic[i] = CHI_MAGIC.charCodeAt(i);
             }
 
-            // 5. 結果の構築
-            if (typeof Blob !== "undefined") {
-                overallResolve({
-                    bytes: new Blob([magic, compressed], {
-                        type: "application/octet-stream",
-                    }),
-                    version: versionString,
-                });
-            } else {
-                const finalBuffer = new Uint8Array(
-                    magic.length + compressed.length,
-                );
-                finalBuffer.set(magic, 0);
-                finalBuffer.set(compressed, magic.length);
-                overallResolve({
-                    bytes: finalBuffer,
-                    version: versionString,
-                });
-            }
+            // 直接 Blob に [ヘッダー, ...圧縮断片リスト] を渡す
+            // 大きな Uint8Array を使わない
+            overallResolve({
+                bytes: new Blob([magic, ...chunks_out], {
+                    type: "application/octet-stream",
+                }),
+                version: versionString,
+            });
+
+            // 最後に参照を消して GC（ゴミ捨て）を促す
+            chunks_out = null;
         } catch (err) {
             // Zlibでエラーが出た場合はここでキャッチ
             overallReject(err);
