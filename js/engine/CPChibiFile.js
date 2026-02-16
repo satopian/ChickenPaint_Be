@@ -27,8 +27,8 @@ import ArrayDataStream from "../util/ArrayDataStream.js";
 import CPLayerGroup from "./CPLayerGroup.js";
 import CPGreyBmp from "./CPGreyBmp.js";
 import CPBlend from "./CPBlend.js";
+import { Zlib, unzlibSync } from "fflate";
 
-import { zlib, unzlib } from "fflate";
 /**
  * Concat two Uint8Arrays to make a new one and return it.
  *
@@ -761,39 +761,64 @@ export function save(artwork, options = {}) {
     const savedb = options.savedb || false;
 
     return new Promise(async (overallResolve, overallReject) => {
-        // 1. レイヤー情報の取得（ここは同期処理でOK）
-        const layers = artwork.getLayersRoot().getLinearizedLayerList(false);
-        const version = options.forceOldVersion
-            ? makeChibiVersion(0, 0)
-            : minimumVersionForArtwork(artwork);
-        const versionString = chibiVersionToString(version);
+        try {
+            // 1. レイヤー情報の取得
+            const layers = artwork
+                .getLayersRoot()
+                .getLinearizedLayerList(false);
+            const version = options.forceOldVersion
+                ? makeChibiVersion(0, 0)
+                : minimumVersionForArtwork(artwork);
+            const versionString = chibiVersionToString(version);
 
-        // 2. 圧縮対象のデータを1つのUint8Arrayにまとめる
-        const chunks = [
-            serializeFileHeaderChunk(artwork, version, layers.length),
-        ];
-        for (const layer of layers) {
-            chunks.push(serializeLayerChunk(layer));
-            await yieldToMain();
-        }
-        chunks.push(serializeEndChunk());
-
-        // 全体の長さを計算して結合
-        const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
-        const uncompressedData = new Uint8Array(totalLen);
-        let offset = 0;
-        for (const c of chunks) {
-            uncompressedData.set(c, offset);
-            offset += c.length;
-        }
-
-        // 3. fflateで圧縮 (Workerを自動利用)
-        // level 1（savedb時）はpakoより高速、level 6もpakoより高速
-        zlib(uncompressedData, { level: savedb ? 1 : 6 }, (err, compressed) => {
-            if (err) {
-                overallReject(err);
-                return;
+            // 2. 圧縮対象のデータを1つのUint8Arrayにまとめる
+            const chunks = [
+                serializeFileHeaderChunk(artwork, version, layers.length),
+            ];
+            for (const layer of layers) {
+                chunks.push(serializeLayerChunk(layer));
+                await yieldToMain();
             }
+            chunks.push(serializeEndChunk());
+
+            const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
+            const uncompressedData = new Uint8Array(totalLen);
+            let offset = 0;
+            for (const c of chunks) {
+                uncompressedData.set(c, offset);
+                offset += c.length;
+            }
+
+            // 3. 段階的に圧縮（Workerを使わず、メインスレッドも止めない）
+            let chunks_out = []; // 再代入できる let
+            const deflator = new Zlib(
+                (chunk) => {
+                    chunks_out.push(chunk);
+                },
+                { level: savedb ? 1 : 6 },
+            );
+
+            const step = 512 * 1024;
+            for (let i = 0; i < uncompressedData.length; i += step) {
+                const isLast = i + step >= uncompressedData.length;
+                deflator.push(uncompressedData.subarray(i, i + step), isLast);
+                if (!isLast) await new Promise((r) => setTimeout(r, 0));
+            }
+
+            // --- concat の代わりの処理 ---
+            const totalCompressedLen = chunks_out.reduce(
+                (acc, c) => acc + c.length,
+                0,
+            );
+            const compressed = new Uint8Array(totalCompressedLen);
+            let compressedOffset = 0;
+            for (const c of chunks_out) {
+                compressed.set(c, compressedOffset);
+                compressedOffset += c.length;
+            }
+
+            // 結合が終わったので、断片リストを参照不可にする
+            chunks_out = null;
 
             // 4. Magic Number（非圧縮）の準備
             const magic = new Uint8Array(CHI_MAGIC.length);
@@ -801,9 +826,8 @@ export function save(artwork, options = {}) {
                 magic[i] = CHI_MAGIC.charCodeAt(i);
             }
 
-            // 5. 結果の構築（ブラウザ環境とNode.js環境の両対応）
+            // 5. 結果の構築
             if (typeof Blob !== "undefined") {
-                // ブラウザ環境 (Apache経由でアクセス)
                 overallResolve({
                     bytes: new Blob([magic, compressed], {
                         type: "application/octet-stream",
@@ -811,7 +835,6 @@ export function save(artwork, options = {}) {
                     version: versionString,
                 });
             } else {
-                // Node.js環境 (テスト実行時など)
                 const finalBuffer = new Uint8Array(
                     magic.length + compressed.length,
                 );
@@ -822,9 +845,13 @@ export function save(artwork, options = {}) {
                     version: versionString,
                 });
             }
-        });
+        } catch (err) {
+            // Zlibでエラーが出た場合はここでキャッチ
+            overallReject(err);
+        }
     });
 }
+
 /**
  * Attempt to load a chibifile from the given source.
  *
@@ -1038,34 +1065,31 @@ export function load(source, options = {}) {
         } else {
             // Assume source is a Blob
             let reader = new FileReader();
-
             reader.onload = function () {
                 resolve(this.result);
             };
-
             reader.readAsArrayBuffer(source);
         }
     }).then(
         (arrayBuffer) =>
-            new Promise(function (resolve, reject) {
-                let byteArray = new Uint8Array(arrayBuffer);
+            new Promise(async function (resolve, reject) {
+                // processBlockがasyncなのでasyncを付与
+                try {
+                    let byteArray = new Uint8Array(arrayBuffer);
 
-                if (!hasChibiMagicMarker(byteArray)) {
-                    reject(
-                        "This doesn't appear to be a ChibiPaint layers file, is it damaged?",
-                    );
-                    return;
-                }
-
-                // マジックヘッダーを除去して圧縮データを取り出す
-                const compressedData = byteArray.subarray(CHI_MAGIC.length);
-
-                // fflateで解凍（自動Worker）
-                unzlib(compressedData, async (err, decompressed) => {
-                    if (err) {
-                        reject("Fatal error decompressing ChibiFile: " + err);
+                    if (!hasChibiMagicMarker(byteArray)) {
+                        reject(
+                            "This doesn't appear to be a ChibiPaint layers file, is it damaged?",
+                        );
                         return;
                     }
+
+                    // マジックヘッダーを除去して圧縮データを取り出す
+                    const compressedData = byteArray.subarray(CHI_MAGIC.length);
+
+                    // --- fflateで解凍（同期版：unzlibSync） ---
+                    // コールバックを削除し、直接戻り値を受け取ります
+                    const decompressed = unzlibSync(compressedData);
 
                     // 解凍された全データを解析ロジックへ投入
                     await processBlock(decompressed);
@@ -1089,7 +1113,12 @@ export function load(source, options = {}) {
                     } else {
                         reject("Fatal error decoding ChibiFile structure.");
                     }
-                });
+                } catch (err) {
+                    // 解凍エラーや解析エラーをキャッチ
+                    reject(
+                        "Fatal error decompressing/decoding ChibiFile: " + err,
+                    );
+                }
             }),
     );
 }
