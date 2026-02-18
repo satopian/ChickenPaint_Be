@@ -253,9 +253,17 @@ const MENU_ENTRIES = [
                 name: "-",
             },
             {
-                name: "Color halftone",
-                action: "CPColorHalftone",
-                mnemonic: "C",
+                name: "Edge expand",
+                action: "CPEdgeExpand",
+                mnemonic: "E",
+            },
+            {
+                name: "Convert to drawing color",
+                action: "CPConvertToDrawingColor",
+                mnemonic: "F",
+            },
+            {
+                name: "-",
             },
             {
                 name: "Mono halftone",
@@ -263,12 +271,9 @@ const MENU_ENTRIES = [
                 mnemonic: "M",
             },
             {
-                name: "-",
-            },
-            {
-                name: "Edge expand",
-                action: "CPEdgeExpand",
-                mnemonic: "E",
+                name: "Color halftone",
+                action: "CPColorHalftone",
+                mnemonic: "C",
             },
             {
                 name: "-",

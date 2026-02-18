@@ -63,6 +63,7 @@
     "Edge expand": "縁取り",
     "Edge expand width": "縁の幅",
     "Fill Inside with edge color": "縁の色で内側を塗り潰す",
+    "Convert to drawing color": "線の色を描画色に変更",
     "Monochromatic noise": "単色ノイズ",
     "Color noise": "カラーノイズ",
 
@@ -305,5 +306,5 @@
     "Network response was not OK": "通信エラー",
     "HTTP status code": "HTTPステータスコード",
     "Unsaved data was detected.\nInterrupt image loading and restore it?": "未保存のデータがあります。\n画像の読み込みを中断して復元しますか？",
-    "Unsaved data was detected. Would you like to restore it?": "未保存のデータがあります。復元しますか？"  
+    "Unsaved data was detected. Would you like to restore it?": "未保存のデータがあります。復元しますか？"
 }

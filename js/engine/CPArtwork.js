@@ -1819,6 +1819,26 @@ export default function CPArtwork(_width, _height) {
         }
     };
     /**
+     * 描画領域(Alpha > 0)の色を現在の選択色に置換
+     *
+     */
+    this.convertToDrawingColor = function () {
+        if (maskEditingMode) return;
+
+        let r = this.getSelectionAutoSelect(),
+            target = getActiveImage();
+
+        if (target) {
+            prepareForLayerPaintUndo();
+            paintUndoArea = r.clone();
+
+            target.convertToDrawingColor(r, curColor);
+
+            addUndo(new CPUndoPaint());
+            invalidateLayerPaint(curLayer, r);
+        }
+    };
+    /**
      * 現在のレイヤーにモノクロハーフトーンを適用する。
      *
      * @param {number} dotSize

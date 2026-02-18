@@ -775,6 +775,13 @@ export default function ChickenPaint(options) {
                 allowed: "isNotEditingMaskAndDrawable",
                 modifies: { gui: true },
             },
+            CPConvertToDrawingColor: {
+                action: function () {
+                    that.artwork.convertToDrawingColor();
+                },
+                allowed: "isNotEditingMaskAndDrawable",
+                modifies: { document: true },
+            },
             CPFXInvert: {
                 action: function () {
                     that.artwork.invert();

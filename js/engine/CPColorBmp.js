@@ -1137,6 +1137,42 @@ CPColorBmp.prototype.edge = function (
 };
 
 /**
+ * 描画領域(Alpha > 0)の色を現在の選択色に置換
+ * - Alphaは維持する
+ * - Alphaが0の場所は一切触らない
+ * @param {CPRect} rect - 処理対象の矩形範囲
+ * @param {number} color - 0xRRGGBB
+ */
+CPColorBmp.prototype.convertToDrawingColor = function (rect, color) {
+    // 範囲をクランプ
+    rect = this.getBounds().clipTo(rect);
+
+    const r = (color >> 16) & 0xff;
+    const g = (color >> 8) & 0xff;
+    const b = color & 0xff;
+
+    const w = this.width;
+    const B = CPColorBmp.BYTES_PER_PIXEL;
+    const data = this.data;
+
+    for (let y = rect.top; y < rect.bottom; y++) {
+        for (let x = rect.left; x < rect.right; x++) {
+            const i = (y * w + x) * B;
+
+            // Alphaが0なら透明なので、色の置き換え対象外
+            if (data[i + 3] === 0) {
+                continue;
+            }
+
+            // RGBのみ置換（Alphaは data[i+3] の値をそのまま保持）
+            data[i + 0] = r;
+            data[i + 1] = g;
+            data[i + 2] = b;
+        }
+    }
+};
+
+/**
  * 単色ハーフトーン（45°・円ドット）
  *
  * ・1セル1ドット
