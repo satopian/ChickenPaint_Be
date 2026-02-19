@@ -249,7 +249,10 @@ export default function CPResourceSaver(options) {
 
         var serializeLayers;
 
-        serializeLayers = chiSave(options.artwork, { savedb: savedb });
+        serializeLayers = chiSave(options.artwork, {
+            savedb: savedb,
+            savedbFromMenu: savedbFromMenu,
+        });
 
         serializeLayers
             .then(function (chibiResult) {

@@ -762,8 +762,8 @@ const yieldToMain = () => {
  * @returns {Promise.<SerializeResult>}
  */
 export function save(artwork, options = {}) {
-    options = options || {};
     const savedb = options.savedb || false;
+    const savedbFromMenu = options.savedbFromMenu || false;
 
     return new Promise(async (overallResolve, overallReject) => {
         try {
@@ -804,7 +804,7 @@ export function save(artwork, options = {}) {
                 { level: savedb ? 1 : 6 },
             );
 
-            const step = 128 * 1024;
+            const step = (!savedb || savedbFromMenu ? 512 : 128) * 1024;
             for (let i = 0; i < uncompressedData.length; i += step) {
                 const isLast = i + step >= uncompressedData.length;
                 deflator.push(uncompressedData.subarray(i, i + step), isLast);
