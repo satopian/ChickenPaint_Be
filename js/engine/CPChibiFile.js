@@ -785,7 +785,7 @@ export function save(artwork, options = {}) {
                 chunks.push(serializeLayerChunk(layer));
 
                 const shouldYield =
-                    !savedb || savedbFromMenu ? (i + 1) % 16 === 0 : true;
+                    !savedb || savedbFromMenu ? (i + 1) % 3 === 0 : true;
                 if (shouldYield) {
                     await yieldToMain();
                 }
@@ -810,7 +810,7 @@ export function save(artwork, options = {}) {
                 { level: savedb ? 1 : 6 },
             );
 
-            const step = (!savedb || savedbFromMenu ? 1024 : 128) * 1024;
+            const step = (!savedb || savedbFromMenu ? 512 : 128) * 1024;
             for (let i = 0; i < uncompressedData.length; i += step) {
                 const isLast = i + step >= uncompressedData.length;
                 deflator.push(uncompressedData.subarray(i, i + step), isLast);
