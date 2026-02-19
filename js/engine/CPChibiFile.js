@@ -367,15 +367,21 @@ class ChibiLayerGroupDecoder extends ChibiLayerDecoder {
  * @param {CPColorBmp} bitmap
  */
 function writeColorBitmapToStream(stream, bitmap) {
-    let pos = stream.pos,
-        buffer = stream.data,
-        bitmapData = bitmap.data;
+    const src = bitmap.data;
+    const view = new DataView(stream.data.buffer);
 
-    for (let i = 0; i < bitmapData.length; i += CPColorBmp.BYTES_PER_PIXEL) {
-        buffer[pos++] = bitmapData[i + CPColorBmp.ALPHA_BYTE_OFFSET];
-        buffer[pos++] = bitmapData[i + CPColorBmp.RED_BYTE_OFFSET];
-        buffer[pos++] = bitmapData[i + CPColorBmp.GREEN_BYTE_OFFSET];
-        buffer[pos++] = bitmapData[i + CPColorBmp.BLUE_BYTE_OFFSET];
+    let pos = stream.pos;
+
+    for (let i = 0; i < src.length; i += 4) {
+        view.setUint32(
+            pos,
+            (src[i + 3] << 24) | // A
+                (src[i + 0] << 16) | // R
+                (src[i + 1] << 8) | // G
+                src[i + 2], // B
+            false, // big-endian = ARGB順で書ける
+        );
+        pos += 4;
     }
 
     stream.pos = pos;
@@ -780,29 +786,23 @@ export function save(artwork, options = {}) {
             const chunks = [
                 serializeFileHeaderChunk(artwork, version, layers.length),
             ];
-            // layers.entries() を使って、何番目のループか (i) 取得
+
             for (const [i, layer] of layers.entries()) {
                 chunks.push(serializeLayerChunk(layer));
 
                 const shouldYield =
-                    !savedb || savedbFromMenu ? (i + 1) % 3 === 0 : true;
+                    !savedb || savedbFromMenu ? (i + 1) % 2 === 0 : true;
+
                 if (shouldYield) {
                     await yieldToMain();
                 }
             }
+
             chunks.push(serializeEndChunk());
 
-            const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
-            let uncompressedData = null; // 最初に null で初期化
-            uncompressedData = new Uint8Array(totalLen); // その後データを生成
-            let offset = 0;
-            for (const c of chunks) {
-                uncompressedData.set(c, offset);
-                offset += c.length;
-            }
+            // 3. 段階的に圧縮
+            let chunks_out = [];
 
-            // 3. 段階的に圧縮（Workerを使わず、メインスレッドも止めない）
-            let chunks_out = []; // 再代入できる let
             const deflator = new Zlib(
                 (chunk) => {
                     chunks_out.push(chunk);
@@ -810,22 +810,33 @@ export function save(artwork, options = {}) {
                 { level: savedb ? 1 : 6 },
             );
 
-            const step = (!savedb || savedbFromMenu ? 512 : 128) * 1024;
-            for (let i = 0; i < uncompressedData.length; i += step) {
-                const isLast = i + step >= uncompressedData.length;
-                deflator.push(uncompressedData.subarray(i, i + step), isLast);
+            // stepサイズ
+            const step = (!savedb || savedbFromMenu ? 1024 : 128) * 1024;
 
-                if (!isLast) {
-                    await new Promise((resolve) => {
-                        const channel = new MessageChannel();
-                        channel.port1.onmessage = () => resolve(true);
-                        channel.port2.postMessage(undefined);
-                    });
+            // chunkを順番に刻んで流す
+            for (let ci = 0; ci < chunks.length; ci++) {
+                const chunk = chunks[ci];
+
+                for (let i = 0; i < chunk.length; i += step) {
+                    const slice = chunk.subarray(i, i + step);
+
+                    // 最後かどうか判定
+                    const isLastChunk = ci === chunks.length - 1;
+                    const isLastSlice = i + step >= chunk.length;
+
+                    const isLast = isLastChunk && isLastSlice;
+
+                    deflator.push(slice, isLast);
+
+                    // 描画停止防止：必ずyield
+                    if (!isLast) {
+                        await yieldToMain();
+                    }
                 }
-            }
 
-            // 生データを参照不可にしてメモリを空ける
-            uncompressedData = null;
+                // chunk参照を切ってGC促進
+                chunks[ci] = null;
+            }
 
             // 4. 結果の構築（結合コピーをせず、断片のまま Blob 化）
 
