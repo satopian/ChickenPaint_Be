@@ -261,6 +261,7 @@ export default function CPResourceSaver(options) {
         serializeLayers
             .then(function (chibiResult) {
                 if (cancelled) {
+                    alert(_("Saving cancelled.")); // 取消されたことをユーザーに通知
                     return;
                 }
                 if (!savedbFromMenu) {

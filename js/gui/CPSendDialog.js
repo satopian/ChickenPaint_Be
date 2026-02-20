@@ -89,6 +89,9 @@ export default function CPSendDialog(
                 <div class="modal-body">
                     <p>${savedbFromMenu ? _("Your drawing has been saved to your browser storage.") : _("Your drawing has been saved, redirecting you to view your new post now...")}</p>
                 </div>
+                 <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-stage="success-savedb-from-menu" style="display:none">OK</button>
+                </div>
             </div>
         </div>
     `;
@@ -100,7 +103,10 @@ export default function CPSendDialog(
         ".chickenpaint-saving-error-message",
     );
     let progressElem = dialog.querySelector(".progress-bar");
-    let modal = new bootstrap.Modal(dialog);
+    let modal = new bootstrap.Modal(dialog, {
+        backdrop: "static", // 背景クリックで閉じない
+        keyboard: false, // Escキーで閉じない
+    });
     let that = this;
 
     resourceSaver.on("savingProgress", function (progress, message) {
@@ -133,6 +139,11 @@ export default function CPSendDialog(
             dialog.querySelector(
                 ".modal-content[data-stage='success-redirect']",
             ).style.display = "block";
+            if (savedbFromMenu) {
+                dialog.querySelector(
+                    ".modal-footer button[data-stage='success-savedb-from-menu']",
+                ).style.display = "block";
+            }
         }
     });
 

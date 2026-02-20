@@ -286,6 +286,7 @@
 
     "Drawing saved to browser storage!": "ブラウザに保存しました！",
     "Your drawing has been saved to your browser storage.": "バックアップをブラウザのストレージに保存しました。",
+    "Saving cancelled.": "キャンセルしました。",
 
     "Your drawing has been saved, would you like to post it to the forum now?": "画像の保存に成功しました。フォーラムへ投稿しますか？",
     "Yes, post it now": "はい、投稿します",
