@@ -42,7 +42,7 @@ export default function CPSendDialog(
                     <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="chickenpaint-saving-progress-message">${savedbFromMenu ? _("Preparing your backup to be saved, please wait...") : _("Preparing your drawing to be saved, please wait...")}</p>
+                    <p class="chickenpaint-saving-progress-message">${_("Preparing... This may take a few seconds.")}</p>
                     <pre class="chickenpaint-saving-error-message pre-scrollable" style="display: none;"></pre>
                     <div class="progress" style="${savedbFromMenu ? "display:none" : ""}">
                         <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>

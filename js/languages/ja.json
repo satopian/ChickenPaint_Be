@@ -278,8 +278,7 @@
     "Save Oekaki": "保存",
 
     "Saving drawing...": "画像を保存中…",
-    "Preparing your drawing to be saved, please wait...": "画像を保存する準備をしています。しばらくお待ちください…",
-    "Preparing your backup to be saved, please wait...": "バックアップを保存する準備をしています。しばらくお待ちください…",
+    "Preparing... This may take a few seconds.": "準備中…この処理は数秒かかる事があります。",
     "Drawing saved!": "画像を保存しました！",
 
     "Saving ...": "保存中…",
