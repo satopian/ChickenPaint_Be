@@ -279,7 +279,13 @@
 
     "Saving drawing...": "画像を保存中…",
     "Preparing your drawing to be saved, please wait...": "画像を保存する準備をしています。しばらくお待ちください…",
+    "Preparing your backup to be saved, please wait...": "バックアップを保存する準備をしています。しばらくお待ちください…",
     "Drawing saved!": "画像を保存しました！",
+
+    "Saving ...": "保存中…",
+
+    "Drawing saved to browser storage!": "ブラウザに保存しました！",
+    "Your drawing has been saved to your browser storage.": "バックアップをブラウザのストレージに保存しました。",
 
     "Your drawing has been saved, would you like to post it to the forum now?": "画像の保存に成功しました。フォーラムへ投稿しますか？",
     "Yes, post it now": "はい、投稿します",

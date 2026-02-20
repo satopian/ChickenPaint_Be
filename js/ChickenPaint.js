@@ -1018,8 +1018,7 @@ export default function ChickenPaint(options) {
 
             CPExportAsPNG: {
                 action: function () {
-                    const saveUrl = options.saveUrl || false;
-                    saveDrawing({ saveUrl: saveUrl });
+                    saveDrawing({ saveUrl: false });
                 },
                 isSupported: function () {
                     return options.allowDownload !== false;
@@ -1028,8 +1027,7 @@ export default function ChickenPaint(options) {
             },
             CPExportAsZIP: {
                 action: function () {
-                    const saveUrl = options.saveUrl || false;
-                    saveDrawing({ zip: true, saveUrl: saveUrl });
+                    saveDrawing({ zip: true, saveUrl: false });
                 },
                 isSupported: function () {
                     return options.allowDownload !== false;
@@ -1038,7 +1036,7 @@ export default function ChickenPaint(options) {
             },
             CPSaveDB: {
                 action: function () {
-                    saveDrawing({ savedb: true });
+                    saveDrawing({ savedb: true, saveUrl: false });
                 },
                 isSupported: function () {
                     return options.allowDownload !== false;
@@ -1047,12 +1045,12 @@ export default function ChickenPaint(options) {
             },
             CPSaveDBFromMenu: {
                 action: function () {
-                    saveDrawing({ savedb: true, savedbFromMenu: true });
+                    sendDrawing(true);
                 },
                 isSupported: function () {
                     return options.allowDownload !== false;
                 },
-                modifies: { document: true },
+                modifies: { gui: true },
             },
             CPSend: {
                 action: function () {
@@ -1434,8 +1432,9 @@ export default function ChickenPaint(options) {
         saver.save(save_options);
     }
 
-    function sendDrawing() {
+    function sendDrawing(savedbFromMenu = false) {
         if (
+            !savedbFromMenu &&
             !that.isActionSupported("CPContinue") &&
             !confirm(
                 _(
@@ -1445,17 +1444,21 @@ export default function ChickenPaint(options) {
         ) {
             return;
         }
-
+        const saveUrl = savedbFromMenu ? false : options.saveUrl; // Ensure saveUrl is defined for CPResourceSaver
         let saver = new CPResourceSaver({
                 artwork: that.getArtwork(),
                 rotation: canvas.getRotation90(),
                 swatches: mainGUI.getSwatches(),
-                url: options.saveUrl,
+                url: saveUrl,
                 post_max_size: options.post_max_size,
             }),
-            sendDialog = new CPSendDialog(that, uiElem, saver);
+            sendDialog = new CPSendDialog(that, uiElem, saver, savedbFromMenu);
 
         saver.on("savingComplete", function () {
+            if (savedbFromMenu) {
+                return;
+            }
+
             that.artwork.setHasUnsavedChanges(false);
 
             // If we're not allowed to keep editing, we can only go straight to viewing the new post
@@ -1477,7 +1480,11 @@ export default function ChickenPaint(options) {
 
         // Allow the dialog to show before we begin serialization
         sendDialog.on("shown", function () {
-            saver.save();
+            if (savedbFromMenu) {
+                saver.save({ savedb: true, savedbFromMenu: true });
+            } else {
+                saver.save();
+            }
         });
 
         sendDialog.show();

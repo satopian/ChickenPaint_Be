@@ -97,7 +97,7 @@ export default function CPResourceSaver(options) {
             },
             body: formData,
         };
-        reportProgress(0.5);
+        reportProgress(0.8);
         // リクエストを送信
         fetch(options.url, requestOptions)
             .then((response) => {
@@ -247,6 +247,10 @@ export default function CPResourceSaver(options) {
         flatBlob = !savedb ? new Blob([flat], { type: "image/png" }) : null;
         flat = null; // Don't need this any more
 
+        if (!savedbFromMenu) {
+            reportProgress(0.3); // 開始
+        }
+
         var serializeLayers;
 
         serializeLayers = chiSave(options.artwork, {
@@ -257,8 +261,10 @@ export default function CPResourceSaver(options) {
         serializeLayers
             .then(function (chibiResult) {
                 if (cancelled) {
-                    that.emitEvent("savingFailure");
                     return;
+                }
+                if (!savedbFromMenu) {
+                    reportProgress(0.6); // シリアライズ完了
                 }
 
                 if (options.swatches) {
@@ -329,7 +335,7 @@ export default function CPResourceSaver(options) {
                         // chibiResult.bytes（画像）と swatchesBlob（パレット）をセットで保存
                         CPPutChiAutosaveToDB(chibiResult.bytes, swatchesBlob);
                         if (savedbFromMenu) {
-                            alert(_("Saved to your browser's storage."));
+                            that.emitEvent("savingComplete");
                         }
                     } else {
                         FileSaver.saveAs(flatBlob, saveFilename + ".png");
