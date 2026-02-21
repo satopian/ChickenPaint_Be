@@ -39,7 +39,7 @@ export default function CPSendDialog(
             <div class="modal-content" data-stage="saving">
                 <div class="modal-header">
                     <h5 class="modal-title">${_("Saving ...")}</h5>
-                    <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close" style="display: none;"></button>
                 </div>
                 <div class="modal-body">
                     <p class="chickenpaint-saving-progress-message">${_("Preparing... This may take a few seconds.")}</p>
