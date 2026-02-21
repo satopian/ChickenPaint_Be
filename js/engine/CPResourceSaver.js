@@ -247,7 +247,7 @@ export default function CPResourceSaver(options) {
         flatBlob = !savedb ? new Blob([flat], { type: "image/png" }) : null;
         flat = null; // Don't need this any more
 
-        if (!savedbFromMenu) {
+        if (!savedb) {
             reportProgress(0.3); // 開始
         }
 
@@ -264,7 +264,7 @@ export default function CPResourceSaver(options) {
                     alert(_("Saving cancelled.")); // 取消されたことをユーザーに通知
                     return;
                 }
-                if (!savedbFromMenu) {
+                if (!savedb) {
                     reportProgress(0.6); // シリアライズ完了
                 }
 
