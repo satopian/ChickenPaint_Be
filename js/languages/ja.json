@@ -278,13 +278,13 @@
     "Save Oekaki": "保存",
 
     "Saving drawing...": "画像を保存中…",
-    "Preparing... This may take a few seconds.": "準備中…この処理は数秒かかる事があります。",
+    "Preparing... This may take a few seconds.": "準備しています。この処理は数秒かかる事があります。",
     "Drawing saved!": "画像を保存しました！",
 
     "Saving ...": "保存中…",
 
     "Drawing saved to browser storage!": "ブラウザに保存しました！",
-    "Your drawing has been saved to your browser storage.": "バックアップをブラウザのストレージに保存しました。",
+    "Your drawing has been saved to your browser storage.": "ブラウザのストレージにバックアップしました。",
     "Saving cancelled.": "キャンセルしました。",
 
     "Your drawing has been saved, would you like to post it to the forum now?": "画像の保存に成功しました。フォーラムへ投稿しますか？",
