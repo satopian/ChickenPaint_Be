@@ -1718,7 +1718,7 @@ export default function CPArtwork(_width, _height) {
             prepareForLayerPaintUndo();
             paintUndoArea = r.clone();
 
-            target.brightnessToOpacity(r);
+            target.brightnessToOpacity(r, curColor);
 
             addUndo(new CPUndoPaint());
             invalidateLayerPaint(curLayer, r);

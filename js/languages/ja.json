@@ -47,6 +47,7 @@
     "Flip vertical": "上下反転",
     "Invert": "ネガポジ反転",
     "Convert brightness to opacity": "輝度を透明度に変換",
+    "Convert brightness to opacity and change to drawing color": "輝度を透明度に変換して描画色に変更します。",
     "Box blur...": "ぼかし",
     "Box blur": "ぼかし",
     "Blur amount": "ぼかし量",

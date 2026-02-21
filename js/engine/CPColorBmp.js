@@ -1881,12 +1881,25 @@ CPColorBmp.prototype.invert = function (rect) {
 };
 
 /**
- * @param {CPRect} rect
+ * 輝度を透明度に変換し、指定した色を適用する
+ *
+ * @param {CPRect} rect 対象範囲
+ * @param {number} color 適用する色 (0xRRGGBB または 0xAARRGGBB)
  */
-CPColorBmp.prototype.brightnessToOpacity = function (rect) {
+CPColorBmp.prototype.brightnessToOpacity = function (rect, color) {
     rect = this.getBounds().clipTo(rect);
-    const threshold = 250;
 
+    // 引数 color から各成分を抽出
+    const a = (color >>> 24) & 0xff || 0xff; // アルファ指定がない場合は 255 (不透明)
+    const r = (color >> 16) & 0xff;
+    const g = (color >> 8) & 0xff;
+    const b = color & 0xff;
+
+    console.log(
+        `brightnessToOpacity: rect=${rect.toString()} color=0x${color.toString(16)}`,
+    );
+
+    const threshold = 250;
     const yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL;
     let pixIndex = this.offsetOfPixel(rect.left, rect.top);
 
@@ -1896,37 +1909,40 @@ CPColorBmp.prototype.brightnessToOpacity = function (rect) {
             x < rect.right;
             x++, pixIndex += CPColorBmp.BYTES_PER_PIXEL
         ) {
-            // 輝度の計算
+            // 1. 輝度の計算 (簡易平均)
             const brightness =
                 (this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] +
                     this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] +
                     this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET]) /
                 3;
 
-            // 元のアルファ値を取得
+            // 2. 元のピクセルのアルファ値を取得 (0.0 ~ 1.0)
             const originalAlpha =
                 this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
 
-            // しきい値を基に透明度を設定
-            let newAlpha;
+            // 3. 輝度に基づいた新しいアルファ値の計算
+            let calculatedAlpha;
             if (brightness > threshold) {
-                newAlpha = 0; // 完全に透明
+                calculatedAlpha = 0;
             } else {
-                // 線形にマッピングして中間の透明度を計算 (輝度が高いほど透明に近づく)
-                newAlpha = Math.round((1 - brightness / threshold) * 255);
+                // 輝度が低い（暗い）ほど不透明（255）に近づく
+                calculatedAlpha = Math.round(
+                    (1 - brightness / threshold) * 255,
+                );
             }
 
-            // 元のアルファ値を考慮して透明度を更新
-            this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = Math.round(
-                newAlpha * originalAlpha,
+            // 4. 指定色のアルファ値と元のアルファ値を掛け合わせて最終決定
+            const finalAlpha = Math.round(
+                calculatedAlpha * (a / 255) * originalAlpha,
             );
+            this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = finalAlpha;
 
-            // 不透明な線画の明度を0に
-            if (newAlpha > 0) {
-                // 不透明な部分の明度を0に
-                this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] = 0;
-                this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] = 0;
-                this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET] = 0;
+            // 5. 指定した色 (r, g, b) をピクセルに設定
+            // アルファが 0 より大きい（描画される）部分に色を適用
+            if (finalAlpha > 0) {
+                this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] = r;
+                this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] = g;
+                this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET] = b;
             }
         }
     }

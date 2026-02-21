@@ -318,7 +318,9 @@ const MENU_ENTRIES = [
                 name: "Convert brightness to opacity",
                 action: "CPBrightnessToOpacity",
                 mnemonic: "B",
-                title: _("Convert brightness to opacity"),
+                title: _(
+                    "Convert brightness to opacity and change to drawing color",
+                ),
             },
         ],
     },
