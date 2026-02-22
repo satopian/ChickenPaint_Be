@@ -105,7 +105,7 @@
     "Blur effect": "ぼかしフィルタ",
     "Fills the selection with noise": "単色ノイズで塗り潰し",
     "Fills the selection with colored noise": "カラーノイズで塗り潰し",
-    "Linear interpolation is used to give a smoothed looked to the picture when zoomed in": "画像の拡大時に補完して滑らかに表示します",
+    "Linear interpolation is used to give a smoothed looked to the picture when zoomed in": "画像の拡大時に補完して滑らかに表示します。",
     "Rearrange the palette windows": "パレットを再配置",
     "Hides or shows all palettes": "パレットの表示/非表示",
 

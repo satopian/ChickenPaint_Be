@@ -1882,10 +1882,11 @@ CPColorBmp.prototype.invert = function (rect) {
 
 /**
  * 輝度を透明度に変換し、指定した色を適用する
- *
- * @param {CPRect} rect 対象範囲
- * @param {number} color 適用する色 (0xRRGGBB または 0xAARRGGBB)
+ * 1. 輝度 0〜255 の滑らかな階調を作る。
+ * 2. 元の Alpha を参照せず、輝度から一発で Alpha を決定することで「縁の浮き」を防止する。
+ * 3. RGB を指定色で完全に上書きし、元の背景色の残滓を消去する。
  */
+
 CPColorBmp.prototype.brightnessToOpacity = function (rect, color) {
     rect = this.getBounds().clipTo(rect);
 
@@ -1895,11 +1896,6 @@ CPColorBmp.prototype.brightnessToOpacity = function (rect, color) {
     const g = (color >> 8) & 0xff;
     const b = color & 0xff;
 
-    console.log(
-        `brightnessToOpacity: rect=${rect.toString()} color=0x${color.toString(16)}`,
-    );
-
-    const threshold = 250;
     const yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL;
     let pixIndex = this.offsetOfPixel(rect.left, rect.top);
 
@@ -1909,36 +1905,28 @@ CPColorBmp.prototype.brightnessToOpacity = function (rect, color) {
             x < rect.right;
             x++, pixIndex += CPColorBmp.BYTES_PER_PIXEL
         ) {
-            // 1. 輝度の計算 (簡易平均)
+            // 1. 輝度の計算 (0.0 ~ 1.0)
             const brightness =
                 (this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] +
                     this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] +
                     this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET]) /
-                3;
+                (3 * 255);
 
             // 2. 元のピクセルのアルファ値を取得 (0.0 ~ 1.0)
             const originalAlpha =
                 this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
 
-            // 3. 輝度に基づいた新しいアルファ値の計算
-            let calculatedAlpha;
-            if (brightness > threshold) {
-                calculatedAlpha = 0;
-            } else {
-                // 輝度が低い（暗い）ほど不透明（255）に近づく
-                calculatedAlpha = Math.round(
-                    (1 - brightness / threshold) * 255,
-                );
-            }
+            // 3. 輝度を透明度に反転 (白 1.0 -> 0.0 / 黒 0.0 -> 1.0)
+            // ここで originalAlpha を掛けることで、フチを滑らかに
+            const targetOpacity = (1.0 - brightness) * originalAlpha;
 
-            // 4. 指定色のアルファ値と元のアルファ値を掛け合わせて最終決定
-            const finalAlpha = Math.round(
-                calculatedAlpha * (a / 255) * originalAlpha,
-            );
+            // 4. 指定色のアルファ(a)を適用して最終的な不透明度を決定
+            const finalAlpha = Math.round(targetOpacity * a);
+
+            // 5. データの書き換え
             this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = finalAlpha;
 
-            // 5. 指定した色 (r, g, b) をピクセルに設定
-            // アルファが 0 より大きい（描画される）部分に色を適用
+            // アルファが存在する場所だけ色を塗り替える
             if (finalAlpha > 0) {
                 this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] = r;
                 this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] = g;
