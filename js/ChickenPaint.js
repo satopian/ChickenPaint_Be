@@ -543,13 +543,13 @@ export default function ChickenPaint(options) {
                         //非表示レイヤーを変形しようとした時にエラーメッセージを出す
                         that.showLayerNotification(
                             layer,
-                            _("Whoops! This layer is currently hidden"),
+                            _("Whoops! This layer is currently hidden."),
                             "layer",
                         );
                     } else if (layer.alpha == 0) {
                         that.showLayerNotification(
                             layer,
-                            _("Whoops! This layer's opacity is currently 0%"),
+                            _("Whoops! This layer's opacity is currently 0%."),
                             "opacity",
                         );
                     } else if (that.artwork.transformAffineBegin() == null) {

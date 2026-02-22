@@ -38,7 +38,7 @@ const MENU_ENTRIES = [
                 name: "Export as zip",
                 action: "CPExportAsZIP",
                 title: _(
-                    "Save the PNG image, CHI project file, and swatches file together as a ZIP package",
+                    "Save the PNG image, CHI project file, and swatches file together as a ZIP package.",
                 ),
                 mnemonic: "S",
                 shortcut: "shift+alt+s",
@@ -50,14 +50,14 @@ const MENU_ENTRIES = [
                 name: "Backup to browser storage",
                 action: "CPSaveDBFromMenu",
                 title: _(
-                    "Save the current drawing to the browser's local database",
+                    "Save the current drawing to the browser's local database.",
                 ),
                 mnemonic: "S",
             },
             {
                 name: "Save Oekaki",
                 action: "CPSend",
-                title: _("Finish drawing and post to the server"),
+                title: _("Finish drawing and post to the server."),
                 mnemonic: "S",
                 shortcut: "ctrl+s",
             },
@@ -319,7 +319,7 @@ const MENU_ENTRIES = [
                 action: "CPBrightnessToOpacity",
                 mnemonic: "B",
                 title: _(
-                    "Convert brightness to opacity and change to drawing color",
+                    "Convert brightness to opacity and change to drawing color.",
                 ),
             },
         ],
@@ -382,7 +382,7 @@ const MENU_ENTRIES = [
                 action: "CPLinearInterpolation",
                 mnemonic: "L",
                 title: _(
-                    "Linear interpolation is used to give a smoothed looked to the picture when zoomed in",
+                    "Linear interpolation is used to give a smoothed looked to the picture when zoomed in.",
                 ),
                 checkbox: true,
                 checked: true, //初期状態でズームのアンチエイリアスをOnに

@@ -2210,7 +2210,7 @@ export default function CPCanvas(controller) {
         if (!(activeLayer.visible && activeLayer.ancestorsAreVisible())) {
             controller.showLayerNotification(
                 activeLayer,
-                _("Whoops! This layer is currently hidden"),
+                _("Whoops! This layer is currently hidden."),
                 "layer",
             );
 
@@ -2218,7 +2218,7 @@ export default function CPCanvas(controller) {
         } else if (activeLayer.alpha == 0) {
             controller.showLayerNotification(
                 activeLayer,
-                _("Whoops! This layer's opacity is currently 0%"),
+                _("Whoops! This layer's opacity is currently 0%."),
                 "opacity",
             );
 
@@ -2240,7 +2240,7 @@ export default function CPCanvas(controller) {
         if (activeLayer instanceof CPLayerGroup && !artwork.isEditingMask()) {
             controller.showLayerNotification(
                 activeLayer,
-                _("Whoops! You can't draw on a group"),
+                _("Whoops! You can't draw on a group."),
                 "layer",
             );
 
