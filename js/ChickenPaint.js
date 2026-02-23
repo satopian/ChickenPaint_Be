@@ -1018,7 +1018,8 @@ export default function ChickenPaint(options) {
 
             CPExportAsPNG: {
                 action: function () {
-                    saveDrawing({ saveUrl: false });
+                    const saveUrl = options.saveUrl || false;
+                    saveDrawing({ saveUrl: saveUrl });
                 },
                 isSupported: function () {
                     return options.allowDownload !== false;
@@ -1027,7 +1028,8 @@ export default function ChickenPaint(options) {
             },
             CPExportAsZIP: {
                 action: function () {
-                    saveDrawing({ zip: true, saveUrl: false });
+                    const saveUrl = options.saveUrl || false;
+                    saveDrawing({ zip: true, saveUrl: saveUrl });
                 },
                 isSupported: function () {
                     return options.allowDownload !== false;
