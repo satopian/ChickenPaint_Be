@@ -65,10 +65,10 @@ export default function CPResourceSaver(options) {
 
             if (
                 options &&
-                options.post_max_size &&
+                Number(options.post_max_size) &&
                 size &&
                 !isNaN(size) &&
-                size > options.post_max_size * 1024 * 1024
+                Number(size) > Number(options.post_max_size) * 1024 * 1024
             ) {
                 reportFatal(
                     `${_("The file size exceeds the server limit.")}\n${_(
@@ -167,8 +167,8 @@ export default function CPResourceSaver(options) {
      * @returns {Promise<number>} The total size of the FormData data in bytes.
      */
     async function getFormDataSize(formData) {
-        if (!options.post_max_size) {
-            return;
+        if (!Number(options.post_max_size)) {
+            return 0; // サイズ制限がない場合は0を返す
         }
 
         const entries = Array.from(formData.entries());
