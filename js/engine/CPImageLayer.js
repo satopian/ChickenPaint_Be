@@ -20,8 +20,8 @@
  along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import CPColorBmp from './CPColorBmp.js';
-import CPLayer from './CPLayer.js';
+import CPColorBmp from "./CPColorBmp.js";
+import CPLayer from "./CPLayer.js";
 import CPRect from "../util/CPRect.js";
 
 /**
@@ -35,38 +35,37 @@ import CPRect from "../util/CPRect.js";
  * @extends CPLayer
  */
 export default function CPImageLayer(width, height, name) {
-	CPLayer.call(this, name);
+  CPLayer.call(this, name);
 
-	if (width > 0 && height > 0) {
-		this.image = new CPColorBmp(width, height);
-	} else {
-		this.image = null;
-	}
+  if (width > 0 && height > 0) {
+    this.image = new CPColorBmp(width, height);
+  } else {
+    this.image = null;
+  }
 
-	/**
-	 * True if this layer should be clipped onto the CPImageLayer beneath it.
-	 *
-	 * @type {boolean}
-	 */
-	this.clip = false;
+  /**
+   * True if this layer should be clipped onto the CPImageLayer beneath it.
+   *
+   * @type {boolean}
+   */
+  this.clip = false;
 
-	/**
-	 *
-	 * @type {?CPColorBmp}
-	 */
-	this.imageThumbnail = null;
+  /**
+   *
+   * @type {?CPColorBmp}
+   */
+  this.imageThumbnail = null;
 }
 
 CPImageLayer.prototype = Object.create(CPLayer.prototype);
 CPImageLayer.prototype.constructor = CPImageLayer;
 
-CPImageLayer.createFromImage = function(image, name) {
-	let
-		result = new CPImageLayer(0, 0, name);
+CPImageLayer.createFromImage = function (image, name) {
+  let result = new CPImageLayer(0, 0, name);
 
-	result.image = image;
+  result.image = image;
 
-	return result;
+  return result;
 };
 
 /**
@@ -74,40 +73,39 @@ CPImageLayer.createFromImage = function(image, name) {
  *
  * @returns {CPImageLayer}
  */
-CPImageLayer.prototype.clone = function() {
-	var
-		result = new CPImageLayer(0, 0, this.name);
+CPImageLayer.prototype.clone = function () {
+  var result = new CPImageLayer(0, 0, this.name);
 
-	result.copyFrom(this);
+  result.copyFrom(this);
 
-	return result;
+  return result;
 };
 
 /**
  *
  * @param {CPImageLayer} layer
  */
-CPImageLayer.prototype.copyFrom = function(layer) {
-	CPLayer.prototype.copyFrom.call(this, layer);
+CPImageLayer.prototype.copyFrom = function (layer) {
+  CPLayer.prototype.copyFrom.call(this, layer);
 
-	this.clip = layer.clip;
+  this.clip = layer.clip;
 
-	if (!this.image) {
-		this.image = layer.image.clone();
-	} else {
-		this.image.copyPixelsFrom(layer.image);
-	}
+  if (!this.image) {
+    this.image = layer.image.clone();
+  } else {
+    this.image.copyPixelsFrom(layer.image);
+  }
 };
 
 /**
  * Do we have any non-opaque pixels in the entire layer?
  */
-CPImageLayer.prototype.hasAlpha = function() {
-	if (this.alpha != 100) {
-		return true;
-	}
+CPImageLayer.prototype.hasAlpha = function () {
+  if (this.alpha != 100) {
+    return true;
+  }
 
-	return this.image.hasAlpha();
+  return this.image.hasAlpha();
 };
 
 /**
@@ -116,20 +114,20 @@ CPImageLayer.prototype.hasAlpha = function() {
  * @param {CPRect} rect
  * @returns {boolean}
  */
-CPImageLayer.prototype.hasAlphaInRect = function(rect) {
-	if (this.alpha != 100) {
-		return true;
-	}
+CPImageLayer.prototype.hasAlphaInRect = function (rect) {
+  if (this.alpha != 100) {
+    return true;
+  }
 
-	return this.image.hasAlphaInRect(rect);
+  return this.image.hasAlphaInRect(rect);
 };
 
 /**
  *
  * @param {CPColorBmp} that
  */
-CPImageLayer.prototype.copyImageFrom = function(that) {
-	this.image.copyPixelsFrom(that);
+CPImageLayer.prototype.copyImageFrom = function (that) {
+  this.image.copyPixelsFrom(that);
 };
 
 /**
@@ -137,37 +135,36 @@ CPImageLayer.prototype.copyImageFrom = function(that) {
  *
  * @returns {CPImageLayer}
  */
-CPImageLayer.prototype.getClippingBase = function() {
-	if (this.clip && this.parent) {
-		for (var i = this.parent.indexOf(this) - 1; i >= 0; i--) {
-			if (this.parent.layers[i] instanceof CPImageLayer) {
-				if (!this.parent.layers[i].clip) {
-					return this.parent.layers[i];
-				}
-			} else {
-				// We can't clip to non-image layers, so something went wrong here...
-				break;
-			}
-		}
-	}
-	return null;
-
+CPImageLayer.prototype.getClippingBase = function () {
+  if (this.clip && this.parent) {
+    for (var i = this.parent.indexOf(this) - 1; i >= 0; i--) {
+      if (this.parent.layers[i] instanceof CPImageLayer) {
+        if (!this.parent.layers[i].clip) {
+          return this.parent.layers[i];
+        }
+      } else {
+        // We can't clip to non-image layers, so something went wrong here...
+        break;
+      }
+    }
+  }
+  return null;
 };
 
 /**
  *
  * @returns {boolean}
  */
-CPImageLayer.prototype.getClip = function() {
-	return this.clip;
+CPImageLayer.prototype.getClip = function () {
+  return this.clip;
 };
 
 /**
  *
  * @param {boolean} clip
  */
-CPImageLayer.prototype.setClip = function(clip) {
-	this.clip = clip;
+CPImageLayer.prototype.setClip = function (clip) {
+  this.clip = clip;
 };
 
 /**
@@ -180,15 +177,15 @@ CPImageLayer.prototype.setClip = function(clip) {
  *
  * @returns {CPRect}
  */
-CPImageLayer.prototype.getNonTransparentBounds = function(initialBounds) {
-	return this.image.getNonTransparentBounds(initialBounds);
+CPImageLayer.prototype.getNonTransparentBounds = function (initialBounds) {
+  return this.image.getNonTransparentBounds(initialBounds);
 };
 
 /**
  * @returns {CPRect}
  */
-CPImageLayer.prototype.getBounds = function() {
-	return new CPRect(0, 0, this.image.width, this.image.height);
+CPImageLayer.prototype.getBounds = function () {
+  return new CPRect(0, 0, this.image.width, this.image.height);
 };
 
 /**
@@ -196,22 +193,29 @@ CPImageLayer.prototype.getBounds = function() {
  *
  * @returns {number}
  */
-CPImageLayer.prototype.getMemoryUsed = function() {
-	return this.image ? this.image.getMemorySize() : 0;
+CPImageLayer.prototype.getMemoryUsed = function () {
+  return this.image ? this.image.getMemorySize() : 0;
 };
 
 /**
  * Recreate the image thumbnail for this layer.
  */
-CPImageLayer.prototype.rebuildImageThumbnail = function() {
-	if (!this.imageThumbnail) {
-		var
-			scaleDivider = Math.ceil(Math.max(this.image.width / CPLayer.LAYER_THUMBNAIL_WIDTH, this.image.height / CPLayer.LAYER_THUMBNAIL_HEIGHT));
+CPImageLayer.prototype.rebuildImageThumbnail = function () {
+  if (!this.imageThumbnail) {
+    var scaleDivider = Math.ceil(
+      Math.max(
+        this.image.width / CPLayer.LAYER_THUMBNAIL_WIDTH,
+        this.image.height / CPLayer.LAYER_THUMBNAIL_HEIGHT,
+      ),
+    );
 
-		this.imageThumbnail = new CPColorBmp(Math.floor(this.image.width / scaleDivider), Math.floor(this.image.height / scaleDivider));
-	}
+    this.imageThumbnail = new CPColorBmp(
+      Math.floor(this.image.width / scaleDivider),
+      Math.floor(this.image.height / scaleDivider),
+    );
+  }
 
-	this.imageThumbnail.createThumbnailFrom(this.image);
+  this.imageThumbnail.createThumbnailFrom(this.image);
 };
 
 /**
@@ -219,10 +223,10 @@ CPImageLayer.prototype.rebuildImageThumbnail = function() {
  *
  * @returns {CPColorBmp}
  */
-CPImageLayer.prototype.getImageThumbnail = function() {
-	if (!this.imageThumbnail) {
-		this.rebuildImageThumbnail();
-	}
+CPImageLayer.prototype.getImageThumbnail = function () {
+  if (!this.imageThumbnail) {
+    this.rebuildImageThumbnail();
+  }
 
-	return this.imageThumbnail;
+  return this.imageThumbnail;
 };

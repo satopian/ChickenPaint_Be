@@ -21,31 +21,29 @@
 */
 
 export default function CPLookUpTable() {
-    this.table = new Uint8Array(256);
+  this.table = new Uint8Array(256);
 
-    this.loadIdentity = function() {
-        for (var i = 0; i < 256; i++) {
-            this.table[i] = i;
-        }
-    };
+  this.loadIdentity = function () {
+    for (var i = 0; i < 256; i++) {
+      this.table[i] = i;
+    }
+  };
 
-    this.loadBrightnessContrast = function(brightness, contrast) {
-        var 
-            slope = contrast > 0.0 ? (1.0 / (1.0001 - contrast)): 1.0 + contrast,
-            offset = 0.5 - slope * 0.5 + brightness;
-            
-        for (var i = 0; i < 256; i++) {
-            var 
-                x = i / 255.0,
-                y = x * slope + offset;
+  this.loadBrightnessContrast = function (brightness, contrast) {
+    var slope = contrast > 0.0 ? 1.0 / (1.0001 - contrast) : 1.0 + contrast,
+      offset = 0.5 - slope * 0.5 + brightness;
 
-            this.table[i] = Math.min(255, Math.max(~~(y * 255.0), 0));
-        }
-    };
+    for (var i = 0; i < 256; i++) {
+      var x = i / 255.0,
+        y = x * slope + offset;
 
-    this.invert = function() {
-        for (var i = 0; i < 256; i++) {
-            this.table[i] = 255 - this.table[i];
-        }
-    };
+      this.table[i] = Math.min(255, Math.max(~~(y * 255.0), 0));
+    }
+  };
+
+  this.invert = function () {
+    for (var i = 0; i < 256; i++) {
+      this.table[i] = 255 - this.table[i];
+    }
+  };
 }

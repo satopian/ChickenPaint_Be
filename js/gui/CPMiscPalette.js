@@ -24,106 +24,102 @@ import CPPalette from "./CPPalette.js";
 import { _ } from "../languages/lang.js";
 
 export default function CPMiscPalette(cpController) {
-    CPPalette.call(this, cpController, "misc", "Misc");
+  CPPalette.call(this, cpController, "misc", "Misc");
 
-    /** @type {HTMLElement|null} */
-    //表示の左右反転時に赤枠を付けるElement
-    this.flipButton = null;
+  /** @type {HTMLElement|null} */
+  //表示の左右反転時に赤枠を付けるElement
+  this.flipButton = null;
 
-    let that = this,
-        buttons = [
-            {
-                className: "chickenpaint-tool-zoom-in",
-                command: "CPZoomIn",
-                toolTip: "Zoom in",
-            },
-            {
-                className: "chickenpaint-tool-zoom-out",
-                command: "CPZoomOut",
-                toolTip: "Zoom out",
-            },
-            {
-                className: "chickenpaint-tool-zoom-100",
-                command: "CPZoom100",
-                toolTip: "Zoom 100%",
-            },
-            {
-                className: "chickenpaint-tool-flip-horizontal",
-                command: "CPViewHFlip",
-                toolTip: "Flip View Horizontal",
-            },
-            {
-                className: "chickenpaint-tool-undo",
-                command: "CPUndo",
-                toolTip: "Undo",
-            },
-            {
-                className: "chickenpaint-tool-redo",
-                command: "CPRedo",
-                toolTip: "Redo",
-            },
-            {
-                className: "chickenpaint-tool-send",
-                command: "CPSend",
-                toolTip: "Save Oekaki",
-            },
-        ];
+  let that = this,
+    buttons = [
+      {
+        className: "chickenpaint-tool-zoom-in",
+        command: "CPZoomIn",
+        toolTip: "Zoom in",
+      },
+      {
+        className: "chickenpaint-tool-zoom-out",
+        command: "CPZoomOut",
+        toolTip: "Zoom out",
+      },
+      {
+        className: "chickenpaint-tool-zoom-100",
+        command: "CPZoom100",
+        toolTip: "Zoom 100%",
+      },
+      {
+        className: "chickenpaint-tool-flip-horizontal",
+        command: "CPViewHFlip",
+        toolTip: "Flip View Horizontal",
+      },
+      {
+        className: "chickenpaint-tool-undo",
+        command: "CPUndo",
+        toolTip: "Undo",
+      },
+      {
+        className: "chickenpaint-tool-redo",
+        command: "CPRedo",
+        toolTip: "Redo",
+      },
+      {
+        className: "chickenpaint-tool-send",
+        command: "CPSend",
+        toolTip: "Save Oekaki",
+      },
+    ];
 
-    function buildButtons() {
-        let body = that.getBodyElement(),
-            listElem = document.createElement("ul");
+  function buildButtons() {
+    let body = that.getBodyElement(),
+      listElem = document.createElement("ul");
 
-        listElem.className = "chickenpaint-misc-tools list-unstyled";
+    listElem.className = "chickenpaint-misc-tools list-unstyled";
 
-        for (let i in buttons) {
-            let button = buttons[i],
-                buttonElem = document.createElement("li"),
-                buttonIcon = document.createElement("div");
+    for (let i in buttons) {
+      let button = buttons[i],
+        buttonElem = document.createElement("li"),
+        buttonIcon = document.createElement("div");
 
-            if (
-                button.command == "CPSend" &&
-                !cpController.isActionSupported("CPContinue")
-            ) {
-                button.toolTip = "Post Oekaki";
-                button.className = "chickenpaint-tool-send-and-end";
-            }
+      if (
+        button.command == "CPSend" &&
+        !cpController.isActionSupported("CPContinue")
+      ) {
+        button.toolTip = "Post Oekaki";
+        button.className = "chickenpaint-tool-send-and-end";
+      }
 
-            buttonElem.className =
-                "chickenpaint-toolbar-button " + button.className;
-            buttonElem.setAttribute("data-buttonIndex", i);
-            buttonElem.setAttribute("title", _(button.toolTip));
+      buttonElem.className = "chickenpaint-toolbar-button " + button.className;
+      buttonElem.setAttribute("data-buttonIndex", i);
+      buttonElem.setAttribute("title", _(button.toolTip));
 
-            buttonIcon.className = "chickenpaint-toolbar-button-icon";
-            buttonElem.appendChild(buttonIcon);
+      buttonIcon.className = "chickenpaint-toolbar-button-icon";
+      buttonElem.appendChild(buttonIcon);
 
-            listElem.appendChild(buttonElem);
-            // 「左右反転ボタン」の要素を保存する
-            if (button.className === "chickenpaint-tool-flip-horizontal") {
-                that.flipButton = buttonElem;
-            }
-        }
-
-        listElem.addEventListener("click", function (e) {
-            // クリックされた要素が <li> 内の何らかの要素の場合、親の <li> を取得
-            const liElem = e.target.closest("li");
-
-            // 親が <li> であれば処理を行う
-            if (liElem) {
-                let buttonIndex = parseInt(
-                    liElem.getAttribute("data-buttonIndex"),
-                    10
-                );
-                let button = buttons[buttonIndex];
-
-                // アクションを実行
-                cpController.actionPerformed({ action: button.command });
-            }
-        });
-
-        body.appendChild(listElem);
+      listElem.appendChild(buttonElem);
+      // 「左右反転ボタン」の要素を保存する
+      if (button.className === "chickenpaint-tool-flip-horizontal") {
+        that.flipButton = buttonElem;
+      }
     }
 
-    buildButtons();
+    listElem.addEventListener("click", function (e) {
+      // クリックされた要素が <li> 内の何らかの要素の場合、親の <li> を取得
+      const liElem = e.target.closest("li");
+
+      // 親が <li> であれば処理を行う
+      if (liElem) {
+        let buttonIndex = parseInt(liElem.getAttribute("data-buttonIndex"), 10);
+        let button = buttons[buttonIndex];
+
+        // アクションを実行
+        cpController.actionPerformed({ action: button.command });
+      }
+    });
+
+    body.appendChild(listElem);
+  }
+
+  buildButtons();
 }
 
 CPMiscPalette.prototype = Object.create(CPPalette.prototype);

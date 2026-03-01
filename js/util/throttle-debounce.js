@@ -1,7 +1,7 @@
 /*!
  * jQuery throttle / debounce - v1.1 - 3/7/2010
  * http://benalman.com/projects/jquery-throttle-debounce-plugin/
- * 
+ *
  * Copyright (c) 2010 "Cowboy" Ben Alman
  * Dual licensed under the MIT and GPL licenses.
  * http://benalman.com/about/license/
@@ -10,38 +10,38 @@
 // Script: jQuery throttle / debounce: Sometimes, less is more!
 //
 // *Version: 1.1, Last updated: 3/7/2010*
-// 
+//
 // Project Home - http://benalman.com/projects/jquery-throttle-debounce-plugin/
 // GitHub       - http://github.com/cowboy/jquery-throttle-debounce/
 // Source       - http://github.com/cowboy/jquery-throttle-debounce/raw/master/jquery.ba-throttle-debounce.js
 // (Minified)   - http://github.com/cowboy/jquery-throttle-debounce/raw/master/jquery.ba-throttle-debounce.min.js (0.7kb)
-// 
+//
 // About: License
-// 
+//
 // Copyright (c) 2010 "Cowboy" Ben Alman,
 // Dual licensed under the MIT and GPL licenses.
 // http://benalman.com/about/license/
-// 
+//
 // About: Examples
-// 
+//
 // These working examples, complete with fully commented code, illustrate a few
 // ways in which this plugin can be used.
-// 
+//
 // Throttle - http://benalman.com/code/projects/jquery-throttle-debounce/examples/throttle/
 // Debounce - http://benalman.com/code/projects/jquery-throttle-debounce/examples/debounce/
-// 
+//
 // About: Support and Testing
-// 
+//
 // Information about what version or versions of jQuery this plugin has been
 // tested with, what browsers it has been tested in, and where the unit tests
 // reside (so you can test it yourself).
-// 
+//
 // jQuery Versions - none, 1.3.2, 1.4.2
 // Browsers Tested - Internet Explorer 6-8, Firefox 2-3.6, Safari 3-4, Chrome 4-5, Opera 9.6-10.1.
 // Unit Tests      - http://benalman.com/code/projects/jquery-throttle-debounce/unit/
-// 
+//
 // About: Release History
-// 
+//
 // 1.1 - (3/7/2010) Fixed a bug in <jQuery.throttle> where trailing callbacks
 //       executed later than they should. Reworked a fair amount of internal
 //       logic as well.
@@ -98,71 +98,72 @@
 //  (Function) A new, throttled, function.
 
 export function throttle(delay, no_trailing, callback, debounce_mode) {
-	// After wrapper has stopped being called, this timeout ensures that
-	// `callback` is executed at the proper times in `throttle` and `end`
-	// debounce modes.
-	var timeout_id,
+  // After wrapper has stopped being called, this timeout ensures that
+  // `callback` is executed at the proper times in `throttle` and `end`
+  // debounce modes.
+  var timeout_id,
+    // Keep track of the last time `callback` was executed.
+    last_exec = 0;
 
-	// Keep track of the last time `callback` was executed.
-		last_exec = 0;
+  // `no_trailing` defaults to falsy.
+  if (typeof no_trailing !== "boolean") {
+    debounce_mode = callback;
+    callback = no_trailing;
+    no_trailing = undefined;
+  }
 
-	// `no_trailing` defaults to falsy.
-	if (typeof no_trailing !== 'boolean') {
-		debounce_mode = callback;
-		callback = no_trailing;
-		no_trailing = undefined;
-	}
+  // The `wrapper` function encapsulates all of the throttling / debouncing
+  // functionality and when executed will limit the rate at which `callback`
+  // is executed.
+  function wrapper() {
+    var that = this,
+      elapsed = +new Date() - last_exec,
+      args = arguments;
 
-	// The `wrapper` function encapsulates all of the throttling / debouncing
-	// functionality and when executed will limit the rate at which `callback`
-	// is executed.
-	function wrapper() {
-		var that = this,
-			elapsed = +new Date() - last_exec,
-			args = arguments;
+    // Execute `callback` and update the `last_exec` timestamp.
+    function exec() {
+      last_exec = +new Date();
+      callback.apply(that, args);
+    }
 
-		// Execute `callback` and update the `last_exec` timestamp.
-		function exec() {
-			last_exec = +new Date();
-			callback.apply(that, args);
-		}
+    // If `debounce_mode` is true (at_begin) this is used to clear the flag
+    // to allow future `callback` executions.
+    function clear() {
+      timeout_id = undefined;
+    }
 
-		// If `debounce_mode` is true (at_begin) this is used to clear the flag
-		// to allow future `callback` executions.
-		function clear() {
-			timeout_id = undefined;
-		}
+    if (debounce_mode && !timeout_id) {
+      // Since `wrapper` is being called for the first time and
+      // `debounce_mode` is true (at_begin), execute `callback`.
+      exec();
+    }
 
-		if (debounce_mode && !timeout_id) {
-			// Since `wrapper` is being called for the first time and
-			// `debounce_mode` is true (at_begin), execute `callback`.
-			exec();
-		}
+    // Clear any existing timeout.
+    timeout_id && clearTimeout(timeout_id);
 
-		// Clear any existing timeout.
-		timeout_id && clearTimeout(timeout_id);
+    if (debounce_mode === undefined && elapsed > delay) {
+      // In throttle mode, if `delay` time has been exceeded, execute
+      // `callback`.
+      exec();
+    } else if (no_trailing !== true) {
+      // In trailing throttle mode, since `delay` time has not been
+      // exceeded, schedule `callback` to execute `delay` ms after most
+      // recent execution.
+      //
+      // If `debounce_mode` is true (at_begin), schedule `clear` to execute
+      // after `delay` ms.
+      //
+      // If `debounce_mode` is false (at end), schedule `callback` to
+      // execute after `delay` ms.
+      timeout_id = setTimeout(
+        debounce_mode ? clear : exec,
+        debounce_mode === undefined ? delay - elapsed : delay,
+      );
+    }
+  }
 
-		if (debounce_mode === undefined && elapsed > delay) {
-			// In throttle mode, if `delay` time has been exceeded, execute
-			// `callback`.
-			exec();
-
-		} else if (no_trailing !== true) {
-			// In trailing throttle mode, since `delay` time has not been
-			// exceeded, schedule `callback` to execute `delay` ms after most
-			// recent execution.
-			//
-			// If `debounce_mode` is true (at_begin), schedule `clear` to execute
-			// after `delay` ms.
-			//
-			// If `debounce_mode` is false (at end), schedule `callback` to
-			// execute after `delay` ms.
-			timeout_id = setTimeout(debounce_mode ? clear : exec, debounce_mode === undefined ? delay - elapsed : delay);
-		}
-	}
-
-	// Return the wrapper function.
-	return wrapper;
+  // Return the wrapper function.
+  return wrapper;
 }
 
 // Method: jQuery.debounce
@@ -215,7 +216,7 @@ export function throttle(delay, no_trailing, callback, debounce_mode) {
 //  (Function) A new, debounced, function.
 
 export function debounce(delay, at_begin, callback) {
-	return callback === undefined
-		? throttle(delay, at_begin, false)
-		: throttle(delay, callback, at_begin !== false);
+  return callback === undefined
+    ? throttle(delay, at_begin, false)
+    : throttle(delay, callback, at_begin !== false);
 }

@@ -23,21 +23,21 @@
 import CPRect from "../util/CPRect.js";
 
 /**
- * 
+ *
  * @param width
  * @param height
  * @constructor
  */
 export default function CPBitmap(width, height) {
-    // Width and height forced to integers
-    this.width = width | 0;
-    this.height = height | 0;
+  // Width and height forced to integers
+  this.width = width | 0;
+  this.height = height | 0;
 }
 
-CPBitmap.prototype.getBounds = function() {
-    return new CPRect(0, 0, this.width, this.height);
+CPBitmap.prototype.getBounds = function () {
+  return new CPRect(0, 0, this.width, this.height);
 };
 
-CPBitmap.prototype.isInside = function(x, y) {
-    return x >= 0 && y >= 0 && x < this.width && y < this.height;
+CPBitmap.prototype.isInside = function (x, y) {
+  return x >= 0 && y >= 0 && x < this.width && y < this.height;
 };

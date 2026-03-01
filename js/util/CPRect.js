@@ -21,7 +21,7 @@
 */
 
 export default function CPRect(left, top, right, bottom) {
-    /*
+  /*
     if (left === undefined || top === undefined || right === undefined || bottom === undefined) {
         throw "Bad rect";
     }
@@ -31,36 +31,36 @@ export default function CPRect(left, top, right, bottom) {
     }
     */
 
-    this.left = left;
-    this.top = top;
-    this.right = right;
-    this.bottom = bottom;
+  this.left = left;
+  this.top = top;
+  this.right = right;
+  this.bottom = bottom;
 }
 
 CPRect.prototype.makeEmpty = function () {
-    this.left = 0;
-    this.top = 0;
-    this.right = 0;
-    this.bottom = 0;
+  this.left = 0;
+  this.top = 0;
+  this.right = 0;
+  this.bottom = 0;
 };
 
 CPRect.prototype.union = function (that) {
-    if (this.isEmpty()) {
-        this.set(that);
-    } else if (!that.isEmpty()) {
-        this.left = Math.min(this.left, that.left);
-        this.top = Math.min(this.top, that.top);
-        this.right = Math.max(this.right, that.right);
-        this.bottom = Math.max(this.bottom, that.bottom);
-    }
+  if (this.isEmpty()) {
+    this.set(that);
+  } else if (!that.isEmpty()) {
+    this.left = Math.min(this.left, that.left);
+    this.top = Math.min(this.top, that.top);
+    this.right = Math.max(this.right, that.right);
+    this.bottom = Math.max(this.bottom, that.bottom);
+  }
 };
 
 CPRect.prototype.getUnion = function (that) {
-    var result = this.clone();
+  var result = this.clone();
 
-    result.union(that);
+  result.union(that);
 
-    return result;
+  return result;
 };
 
 /**
@@ -71,16 +71,16 @@ CPRect.prototype.getUnion = function (that) {
  * @returns {CPRect|null} - The intersection rectangle, or null if empty and returnNullIfEmpty is true.
  */
 CPRect.prototype.getIntersection = function (that, returnNullIfEmpty = false) {
-    const left = Math.max(this.left, that.left);
-    const top = Math.max(this.top, that.top);
-    const right = Math.min(this.right, that.right);
-    const bottom = Math.min(this.bottom, that.bottom);
+  const left = Math.max(this.left, that.left);
+  const top = Math.max(this.top, that.top);
+  const right = Math.min(this.right, that.right);
+  const bottom = Math.min(this.bottom, that.bottom);
 
-    if (returnNullIfEmpty && (left >= right || top >= bottom)) {
-        return null;
-    }
+  if (returnNullIfEmpty && (left >= right || top >= bottom)) {
+    return null;
+  }
 
-    return new CPRect(left, top, right, bottom);
+  return new CPRect(left, top, right, bottom);
 };
 
 /**
@@ -89,39 +89,36 @@ CPRect.prototype.getIntersection = function (that, returnNullIfEmpty = false) {
  * @returns {CPRect} A reference to this rectangle for chaining
  */
 CPRect.prototype.clipTo = function (that) {
-    if (!this.isEmpty()) {
-        if (that.isEmpty()) {
-            this.makeEmpty();
-        } else {
-            this.left = Math.min(Math.max(this.left, that.left), that.right);
-            this.top = Math.min(Math.max(this.top, that.top), that.bottom);
-            this.right = Math.max(Math.min(this.right, that.right), that.left);
-            this.bottom = Math.max(
-                Math.min(this.bottom, that.bottom),
-                that.top
-            );
-        }
+  if (!this.isEmpty()) {
+    if (that.isEmpty()) {
+      this.makeEmpty();
+    } else {
+      this.left = Math.min(Math.max(this.left, that.left), that.right);
+      this.top = Math.min(Math.max(this.top, that.top), that.bottom);
+      this.right = Math.max(Math.min(this.right, that.right), that.left);
+      this.bottom = Math.max(Math.min(this.bottom, that.bottom), that.top);
     }
+  }
 
-    return this;
+  return this;
 };
 
 CPRect.prototype.containsPoint = function (p) {
-    return !(
-        p.x < this.left ||
-        p.y < this.top ||
-        p.x >= this.right ||
-        p.y >= this.bottom
-    );
+  return !(
+    p.x < this.left ||
+    p.y < this.top ||
+    p.x >= this.right ||
+    p.y >= this.bottom
+  );
 };
 
 CPRect.prototype.isInside = function (that) {
-    return (
-        this.left >= that.left &&
-        this.top >= that.top &&
-        this.right <= that.right &&
-        this.bottom <= that.bottom
-    );
+  return (
+    this.left >= that.left &&
+    this.top >= that.top &&
+    this.right <= that.right &&
+    this.bottom <= that.bottom
+  );
 };
 
 /**
@@ -132,57 +129,57 @@ CPRect.prototype.isInside = function (that) {
  * srcRect has its coordinates tweaked to match the area that will be copied.
  */
 CPRect.prototype.clipSourceDest = function (srcRect, dstRect) {
-    dstRect.right = dstRect.left + srcRect.getWidth();
-    dstRect.bottom = dstRect.top + srcRect.getHeight();
+  dstRect.right = dstRect.left + srcRect.getWidth();
+  dstRect.bottom = dstRect.top + srcRect.getHeight();
 
-    if (
-        this.isEmpty() ||
-        dstRect.left >= this.right ||
-        dstRect.top >= this.bottom ||
-        dstRect.right <= this.left ||
-        dstRect.bottom <= this.top
-    ) {
-        srcRect.makeEmpty();
-        dstRect.makeEmpty();
-    } else {
-        // bottom/right
-        if (dstRect.right > this.right) {
-            srcRect.right -= dstRect.right - this.right;
-            dstRect.right = this.right;
-        }
-
-        if (dstRect.bottom > this.bottom) {
-            srcRect.bottom -= dstRect.bottom - this.bottom;
-            dstRect.bottom = this.bottom;
-        }
-
-        // top/left
-        if (dstRect.left < this.left) {
-            srcRect.left += this.left - dstRect.left;
-            dstRect.left = this.left;
-        }
-
-        if (dstRect.top < this.top) {
-            srcRect.top += this.top - dstRect.top;
-            dstRect.top = this.top;
-        }
+  if (
+    this.isEmpty() ||
+    dstRect.left >= this.right ||
+    dstRect.top >= this.bottom ||
+    dstRect.right <= this.left ||
+    dstRect.bottom <= this.top
+  ) {
+    srcRect.makeEmpty();
+    dstRect.makeEmpty();
+  } else {
+    // bottom/right
+    if (dstRect.right > this.right) {
+      srcRect.right -= dstRect.right - this.right;
+      dstRect.right = this.right;
     }
+
+    if (dstRect.bottom > this.bottom) {
+      srcRect.bottom -= dstRect.bottom - this.bottom;
+      dstRect.bottom = this.bottom;
+    }
+
+    // top/left
+    if (dstRect.left < this.left) {
+      srcRect.left += this.left - dstRect.left;
+      dstRect.left = this.left;
+    }
+
+    if (dstRect.top < this.top) {
+      srcRect.top += this.top - dstRect.top;
+      dstRect.top = this.top;
+    }
+  }
 };
 
 CPRect.prototype.getWidth = function () {
-    return this.right - this.left;
+  return this.right - this.left;
 };
 
 CPRect.prototype.getHeight = function () {
-    return this.bottom - this.top;
+  return this.bottom - this.top;
 };
 
 CPRect.prototype.getArea = function () {
-    return this.getWidth() * this.getHeight();
+  return this.getWidth() * this.getHeight();
 };
 
 CPRect.prototype.isEmpty = function () {
-    return this.right <= this.left || this.bottom <= this.top;
+  return this.right <= this.left || this.bottom <= this.top;
 };
 
 /**
@@ -191,10 +188,10 @@ CPRect.prototype.isEmpty = function () {
  * @param {CPRect} thatRect
  */
 CPRect.prototype.set = function (thatRect) {
-    this.left = thatRect.left;
-    this.top = thatRect.top;
-    this.right = thatRect.right;
-    this.bottom = thatRect.bottom;
+  this.left = thatRect.left;
+  this.top = thatRect.top;
+  this.right = thatRect.right;
+  this.bottom = thatRect.bottom;
 };
 
 /**
@@ -203,7 +200,7 @@ CPRect.prototype.set = function (thatRect) {
  * @returns {CPRect}
  */
 CPRect.prototype.clone = function () {
-    return new CPRect(this.left, this.top, this.right, this.bottom);
+  return new CPRect(this.left, this.top, this.right, this.bottom);
 };
 
 /**
@@ -215,33 +212,33 @@ CPRect.prototype.clone = function () {
  * @returns {CPRect} This rectangle for chaining
  */
 CPRect.prototype.translate = function (x, y) {
-    this.left += x;
-    this.right += x;
-    this.top += y;
-    this.bottom += y;
+  this.left += x;
+  this.right += x;
+  this.top += y;
+  this.bottom += y;
 
-    return this;
+  return this;
 };
 
 CPRect.prototype.getTranslated = function (x, y) {
-    var result = this.clone();
+  var result = this.clone();
 
-    result.translate(x, y);
+  result.translate(x, y);
 
-    return result;
+  return result;
 };
 
 CPRect.prototype.moveTo = function (x, y) {
-    this.translate(x - this.left, y - this.top);
+  this.translate(x - this.left, y - this.top);
 };
 
 CPRect.prototype.equals = function (that) {
-    return (
-        this.left == that.left &&
-        this.right == that.right &&
-        this.top == that.top &&
-        this.bottom == that.bottom
-    );
+  return (
+    this.left == that.left &&
+    this.right == that.right &&
+    this.top == that.top &&
+    this.bottom == that.bottom
+  );
 };
 
 /**
@@ -251,25 +248,25 @@ CPRect.prototype.equals = function (that) {
  * @param v
  */
 CPRect.prototype.grow = function (h, v) {
-    // TODO checks for rectangles with zero-extent
-    this.left -= h;
-    this.right += h;
-    this.top -= v;
-    this.bottom += v;
+  // TODO checks for rectangles with zero-extent
+  this.left -= h;
+  this.right += h;
+  this.top -= v;
+  this.bottom += v;
 };
 
 CPRect.prototype.toString = function () {
-    return (
-        "(" +
-        this.left +
-        "," +
-        this.top +
-        "," +
-        this.right +
-        "," +
-        this.bottom +
-        ")"
-    );
+  return (
+    "(" +
+    this.left +
+    "," +
+    this.top +
+    "," +
+    this.right +
+    "," +
+    this.bottom +
+    ")"
+  );
 };
 
 /**
@@ -277,12 +274,12 @@ CPRect.prototype.toString = function () {
  * point).
  */
 CPRect.prototype.toPoints = function () {
-    return [
-        { x: this.left, y: this.top },
-        { x: this.right, y: this.top },
-        { x: this.right, y: this.bottom },
-        { x: this.left, y: this.bottom },
-    ];
+  return [
+    { x: this.left, y: this.top },
+    { x: this.right, y: this.top },
+    { x: this.right, y: this.bottom },
+    { x: this.left, y: this.bottom },
+  ];
 };
 
 /**
@@ -291,12 +288,12 @@ CPRect.prototype.toPoints = function () {
  * @returns {CPRect} This rectangle for chaining
  */
 CPRect.prototype.roundNearest = function () {
-    this.left = Math.round(this.left);
-    this.top = Math.round(this.top);
-    this.right = Math.round(this.right);
-    this.bottom = Math.round(this.bottom);
+  this.left = Math.round(this.left);
+  this.top = Math.round(this.top);
+  this.right = Math.round(this.right);
+  this.bottom = Math.round(this.bottom);
 
-    return this;
+  return this;
 };
 
 /**
@@ -305,12 +302,12 @@ CPRect.prototype.roundNearest = function () {
  * @returns {CPRect} This rectangle for chaining
  */
 CPRect.prototype.roundContain = function () {
-    this.left = Math.floor(this.left);
-    this.top = Math.floor(this.top);
-    this.right = Math.ceil(this.right);
-    this.bottom = Math.ceil(this.bottom);
+  this.left = Math.floor(this.left);
+  this.top = Math.floor(this.top);
+  this.right = Math.ceil(this.right);
+  this.bottom = Math.ceil(this.bottom);
 
-    return this;
+  return this;
 };
 
 /**
@@ -321,20 +318,20 @@ CPRect.prototype.roundContain = function () {
  * @returns {CPRect}
  */
 CPRect.createBoundingBox = function (points) {
-    if (points.length === 0) {
-        return new CPRect(0, 0, 0, 0);
-    }
+  if (points.length === 0) {
+    return new CPRect(0, 0, 0, 0);
+  }
 
-    let result = new CPRect(points[0].x, points[0].y, points[0].x, points[0].y);
+  let result = new CPRect(points[0].x, points[0].y, points[0].x, points[0].y);
 
-    for (let i = 1; i < points.length; i++) {
-        result.left = Math.min(result.left, points[i].x);
-        result.top = Math.min(result.top, points[i].y);
-        result.right = Math.max(result.right, points[i].x);
-        result.bottom = Math.max(result.bottom, points[i].y);
-    }
+  for (let i = 1; i < points.length; i++) {
+    result.left = Math.min(result.left, points[i].x);
+    result.top = Math.min(result.top, points[i].y);
+    result.right = Math.max(result.right, points[i].x);
+    result.bottom = Math.max(result.bottom, points[i].y);
+  }
 
-    return result;
+  return result;
 };
 
 /**
@@ -345,7 +342,7 @@ CPRect.createBoundingBox = function (points) {
  * @returns {CPRect[]}
  */
 CPRect.prototype.subtract = function (that) {
-    return CPRect.subtract(this, that);
+  return CPRect.subtract(this, that);
 };
 
 /**
@@ -357,90 +354,85 @@ CPRect.prototype.subtract = function (that) {
  * @returns {CPRect[]}
  */
 CPRect.subtract = function (rectsA, rectsB) {
-    if (rectsA instanceof CPRect) {
-        rectsA = [rectsA];
-    }
-    if (rectsB instanceof CPRect) {
-        rectsB = [rectsB];
-    }
+  if (rectsA instanceof CPRect) {
+    rectsA = [rectsA];
+  }
+  if (rectsB instanceof CPRect) {
+    rectsB = [rectsB];
+  }
 
-    let result = rectsA.slice(0);
+  let result = rectsA.slice(0);
 
-    for (let i = 0; i < rectsB.length; i++) {
-        // Don't re-examine any new rectangles we push onto the result, since we know they don't intersect this rectB:
-        let rectB = rectsB[i],
-            resultLength = result.length;
+  for (let i = 0; i < rectsB.length; i++) {
+    // Don't re-examine any new rectangles we push onto the result, since we know they don't intersect this rectB:
+    let rectB = rectsB[i],
+      resultLength = result.length;
 
-        for (let j = 0; j < resultLength; j++) {
-            let rectA = result[j];
+    for (let j = 0; j < resultLength; j++) {
+      let rectA = result[j];
 
-            if (!rectA) {
-                continue;
-            }
+      if (!rectA) {
+        continue;
+      }
 
-            let intersection = rectA.getIntersection(rectB);
+      let intersection = rectA.getIntersection(rectB);
 
-            if (!intersection.isEmpty()) {
-                let newRects = [];
+      if (!intersection.isEmpty()) {
+        let newRects = [];
 
-                if (rectA.top < rectB.top) {
-                    newRects.push(
-                        new CPRect(
-                            rectA.left,
-                            rectA.top,
-                            rectA.right,
-                            intersection.top
-                        )
-                    );
-                }
-                if (rectA.bottom > rectB.bottom) {
-                    newRects.push(
-                        new CPRect(
-                            rectA.left,
-                            intersection.bottom,
-                            rectA.right,
-                            rectA.bottom
-                        )
-                    );
-                }
-                if (rectA.left < rectB.left) {
-                    newRects.push(
-                        new CPRect(
-                            rectA.left,
-                            intersection.top,
-                            intersection.left,
-                            intersection.bottom
-                        )
-                    );
-                }
-                if (rectA.right > rectB.right) {
-                    newRects.push(
-                        new CPRect(
-                            intersection.right,
-                            intersection.top,
-                            rectA.right,
-                            intersection.bottom
-                        )
-                    );
-                }
-
-                newRects = newRects.filter((rect) => !rect.isEmpty());
-
-                // Replace the original rectangle in the array with the new fragments
-                if (newRects.length > 0) {
-                    result[j] = newRects[0];
-
-                    for (let k = 1; k < newRects.length; k++) {
-                        result.push(newRects[k]);
-                    }
-                } else {
-                    result[j] = null;
-                }
-            }
+        if (rectA.top < rectB.top) {
+          newRects.push(
+            new CPRect(rectA.left, rectA.top, rectA.right, intersection.top),
+          );
         }
-    }
+        if (rectA.bottom > rectB.bottom) {
+          newRects.push(
+            new CPRect(
+              rectA.left,
+              intersection.bottom,
+              rectA.right,
+              rectA.bottom,
+            ),
+          );
+        }
+        if (rectA.left < rectB.left) {
+          newRects.push(
+            new CPRect(
+              rectA.left,
+              intersection.top,
+              intersection.left,
+              intersection.bottom,
+            ),
+          );
+        }
+        if (rectA.right > rectB.right) {
+          newRects.push(
+            new CPRect(
+              intersection.right,
+              intersection.top,
+              rectA.right,
+              intersection.bottom,
+            ),
+          );
+        }
 
-    return result.filter((rect) => rect != null);
+        newRects = newRects.filter((rect) => !rect.isEmpty());
+
+        // Replace the original rectangle in the array with the new fragments
+        if (newRects.length > 0) {
+          result[j] = newRects[0];
+
+          for (let k = 1; k < newRects.length; k++) {
+            result.push(newRects[k]);
+          }
+        } else {
+          result[j] = null;
+        }
+      }
+    }
+  }
+
+  return result.filter((rect) => rect != null);
 };
 
 /**
@@ -451,52 +443,52 @@ CPRect.subtract = function (rectsA, rectsB) {
  * @returns {CPRect[]}
  */
 CPRect.union = function (rects) {
-    let result;
+  let result;
 
-    if (rects instanceof CPRect) {
-        result = [rects];
-    } else {
-        result = rects.slice(0); // Clone to avoid damaging the original array
+  if (rects instanceof CPRect) {
+    result = [rects];
+  } else {
+    result = rects.slice(0); // Clone to avoid damaging the original array
 
-        for (let i = 0; i < result.length; i++) {
-            // Intersect this rectangle with all the others
-            let rectA = result[i],
-                resultLength = result.length;
+    for (let i = 0; i < result.length; i++) {
+      // Intersect this rectangle with all the others
+      let rectA = result[i],
+        resultLength = result.length;
 
-            if (!rectA) {
-                continue;
-            }
+      if (!rectA) {
+        continue;
+      }
 
-            // Don't re-examine any new rectangles we push onto the result
-            for (let j = i + 1; j < resultLength; j++) {
-                let rectB = result[j];
+      // Don't re-examine any new rectangles we push onto the result
+      for (let j = i + 1; j < resultLength; j++) {
+        let rectB = result[j];
 
-                if (!rectB) {
-                    continue;
-                }
-
-                let intersection = rectA.getIntersection(rectB);
-
-                if (!intersection.isEmpty()) {
-                    /* We need to eliminate the overlap between these rectangles. Subtract rectA from rectB and leave
-                     * rectA alone.
-                     */
-
-                    let newRects = CPRect.subtract(rectB, rectA);
-
-                    // Replace rectB with one of the fragments
-                    result[j] = newRects[0];
-
-                    // And add the rest of the fragments to the end
-                    for (let k = 1; k < newRects.length; k++) {
-                        result.push(newRects[k]);
-                    }
-                }
-            }
+        if (!rectB) {
+          continue;
         }
-    }
 
-    return result.filter((rect) => rect && !rect.isEmpty());
+        let intersection = rectA.getIntersection(rectB);
+
+        if (!intersection.isEmpty()) {
+          /* We need to eliminate the overlap between these rectangles. Subtract rectA from rectB and leave
+           * rectA alone.
+           */
+
+          let newRects = CPRect.subtract(rectB, rectA);
+
+          // Replace rectB with one of the fragments
+          result[j] = newRects[0];
+
+          // And add the rest of the fragments to the end
+          for (let k = 1; k < newRects.length; k++) {
+            result.push(newRects[k]);
+          }
+        }
+      }
+    }
+  }
+
+  return result.filter((rect) => rect && !rect.isEmpty());
 };
 
 /*
@@ -507,5 +499,5 @@ CPRect.union = function (rects) {
  * Avoid that mess by starting things off with floats in the members.
  */
 if (typeof window == "object") {
-    window.cpRectGarbage = new CPRect(1.5, 2.5, 3.5, 4.5);
+  window.cpRectGarbage = new CPRect(1.5, 2.5, 3.5, 4.5);
 }

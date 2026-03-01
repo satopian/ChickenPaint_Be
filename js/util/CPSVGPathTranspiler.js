@@ -20,7 +20,7 @@
 	along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import CPVector from './CPVector.js';
+import CPVector from "./CPVector.js";
 
 /**
  * Convert a SVG path (within a fairly restricted subset of SVG commands) into a JS function which draws that path
@@ -29,99 +29,110 @@ import CPVector from './CPVector.js';
  * @param {string} path
  */
 export default function CPSVGPathTranspiler(path) {
-	var
-		lines = [],
-		cursorX = 0, cursorY = 0,
-		bezierStartX, bezierStartY, bezierControlX, bezierControlY, bezierEndX, bezierEndY;
+  var lines = [],
+    cursorX = 0,
+    cursorY = 0,
+    bezierStartX,
+    bezierStartY,
+    bezierControlX,
+    bezierControlY,
+    bezierEndX,
+    bezierEndY;
 
-	while (path.length > 0) {
-		var
-			command = path.match(/\s*([a-zA-Z])((?:\s*(-?\d+(?:\.\d+)?)*)*)/),
-			argument;
+  while (path.length > 0) {
+    var command = path.match(/\s*([a-zA-Z])((?:\s*(-?\d+(?:\.\d+)?)*)*)/),
+      argument;
 
-		if (!command)
-			break;
+    if (!command) break;
 
-		argument = command[2].split(/\s+/).map(s => parseFloat(s));
+    argument = command[2].split(/\s+/).map((s) => parseFloat(s));
 
-		switch (command[1]) {
-			case 'M':
-				cursorX = argument[0];
-				cursorY = argument[1];
-				lines.push(`
+    switch (command[1]) {
+      case "M":
+        cursorX = argument[0];
+        cursorY = argument[1];
+        lines.push(`
 					context.moveTo(${cursorX}, ${cursorY});
 				`);
-			break;
-			case 'h':
-				cursorX += argument[0];
-				lines.push(`
+        break;
+      case "h":
+        cursorX += argument[0];
+        lines.push(`
 					context.lineTo(${cursorX}, ${cursorY});
 				`);
-			break;
-			case 'v':
-				cursorY += argument[0];
-				lines.push(`
+        break;
+      case "v":
+        cursorY += argument[0];
+        lines.push(`
 					context.lineTo(${cursorX}, ${cursorY});
 				`);
-			break;
-			case 'l':
-				cursorX += argument[0];
-				cursorY += argument[1];
-				lines.push(`
+        break;
+      case "l":
+        cursorX += argument[0];
+        cursorY += argument[1];
+        lines.push(`
 					context.lineTo(${cursorX}, ${cursorY});
 				`);
-			break;
-			case 'q':
-				bezierStartX = cursorX;
-				bezierStartY = cursorY;
+        break;
+      case "q":
+        bezierStartX = cursorX;
+        bezierStartY = cursorY;
 
-				bezierControlX = bezierStartX + argument[0];
-				bezierControlY = bezierStartY + argument[1];
+        bezierControlX = bezierStartX + argument[0];
+        bezierControlY = bezierStartY + argument[1];
 
-				bezierEndX = bezierStartX + argument[2];
-				bezierEndY = bezierStartY + argument[3];
+        bezierEndX = bezierStartX + argument[2];
+        bezierEndY = bezierStartY + argument[3];
 
-				lines.push(`
+        lines.push(`
 					context.quadraticCurveTo(${bezierControlX}, ${bezierControlY}, ${bezierEndX}, ${bezierEndY});
 				`);
 
-				cursorX = bezierEndX;
-				cursorY = bezierEndY;
-			break;
-			case 't':
-				var
-					oldBezierStart = {x: bezierStartX, y: bezierStartY},
-					oldControlPoint = {x: bezierControlX, y: bezierControlY},
-					oldControlVector = CPVector.subtractPoints(oldControlPoint, oldBezierStart),
+        cursorX = bezierEndX;
+        cursorY = bezierEndY;
+        break;
+      case "t":
+        var oldBezierStart = { x: bezierStartX, y: bezierStartY },
+          oldControlPoint = { x: bezierControlX, y: bezierControlY },
+          oldControlVector = CPVector.subtractPoints(
+            oldControlPoint,
+            oldBezierStart,
+          ),
+          normal = CPVector.subtractPoints(
+            { x: cursorX, y: cursorY },
+            oldBezierStart,
+          )
+            .getPerpendicular()
+            .normalize(),
+          reflectedControlVector = oldControlVector.subtract(
+            normal.getScaled(2 * oldControlVector.getDotProduct(normal)),
+          );
 
-					normal = CPVector.subtractPoints({x: cursorX, y: cursorY}, oldBezierStart).getPerpendicular().normalize(),
-					reflectedControlVector = oldControlVector.subtract(normal.getScaled(2 * oldControlVector.getDotProduct(normal)));
+        bezierStartX = cursorX;
+        bezierStartY = cursorY;
 
-				bezierStartX = cursorX;
-				bezierStartY = cursorY;
+        bezierControlX = bezierStartX + reflectedControlVector.x;
+        bezierControlY = bezierStartY + reflectedControlVector.y;
 
-				bezierControlX = bezierStartX + reflectedControlVector.x;
-				bezierControlY = bezierStartY + reflectedControlVector.y;
+        bezierEndX = bezierStartX + argument[0];
+        bezierEndY = bezierStartY + argument[1];
 
-				bezierEndX = bezierStartX + argument[0];
-				bezierEndY = bezierStartY + argument[1];
-
-				lines.push(`
+        lines.push(`
 					context.quadraticCurveTo(${bezierControlX}, ${bezierControlY}, ${bezierEndX}, ${bezierEndY});
 				`);
 
-				cursorX = bezierEndX;
-				cursorY = bezierEndY;
-			break;
-			case 'z':
-				lines.push("context.fill()");
-			break;
-			default:
-				console.log("Unsupported SVG command " + command[0]);
-		}
+        cursorX = bezierEndX;
+        cursorY = bezierEndY;
+        break;
+      case "z":
+        lines.push("context.fill()");
+        break;
+      default:
+        console.log("Unsupported SVG command " + command[0]);
+    }
 
-		path = path.substring(command[0].length);
-	}
+    path = path.substring(command[0].length);
+  }
 
-	return new Function("context", lines.join("\n"));
+  return new Function("context", lines.join("\n"));
 }

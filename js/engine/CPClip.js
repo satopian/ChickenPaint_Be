@@ -28,8 +28,8 @@
  * @constructor
  */
 export default function CPClip(bmp, x, y) {
-    this.bmp = bmp;
-    
-    this.x = x;
-    this.y = y;
-};
+  this.bmp = bmp;
+
+  this.x = x;
+  this.y = y;
+}

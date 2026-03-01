@@ -23,11 +23,11 @@
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 export default function CPTabletDialog(parent) {
-    let dialog = document.createElement("div");
-    dialog.classList.add("modal", "fade");
-    dialog.setAttribute("tabindex", "-1");
-    dialog.setAttribute("role", "dialog");
-    dialog.innerHTML = `
+  let dialog = document.createElement("div");
+  dialog.classList.add("modal", "fade");
+  dialog.setAttribute("tabindex", "-1");
+  dialog.setAttribute("role", "dialog");
+  dialog.innerHTML = `
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -67,26 +67,26 @@ export default function CPTabletDialog(parent) {
         </div>
     `;
 
-    const peSupportElem = dialog.querySelector(
-        ".chickenpaint-pointerevents-support"
-    );
-    const peSupported = !!window.PointerEvent;
+  const peSupportElem = dialog.querySelector(
+    ".chickenpaint-pointerevents-support",
+  );
+  const peSupported = !!window.PointerEvent;
 
-    peSupportElem?.classList.toggle("supported", peSupported);
-    peSupportElem?.classList.toggle("not-supported", !peSupported);
+  peSupportElem?.classList.toggle("supported", peSupported);
+  peSupportElem?.classList.toggle("not-supported", !peSupported);
 
-    // Destroy the modal upon close
-    dialog.addEventListener("hidden.bs.modal", (e) => {
-        dialog.remove();
-    });
+  // Destroy the modal upon close
+  dialog.addEventListener("hidden.bs.modal", (e) => {
+    dialog.remove();
+  });
 
-    // Initialize the modal using Bootstrap 5 methods
-    const modalInstance = new bootstrap.Modal(dialog);
+  // Initialize the modal using Bootstrap 5 methods
+  const modalInstance = new bootstrap.Modal(dialog);
 
-    parent.appendChild(dialog);
+  parent.appendChild(dialog);
 
-    // Show method
-    this.show = function () {
-        modalInstance.show();
-    };
+  // Show method
+  this.show = function () {
+    modalInstance.show();
+  };
 }

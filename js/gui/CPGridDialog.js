@@ -24,12 +24,12 @@ import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
 export default function CPGridDialog(parent, canvas) {
-    // ダイアログ要素を作成
-    const dialog = document.createElement("div");
-    dialog.classList.add("modal", "fade");
-    dialog.setAttribute("tabindex", "-1");
-    dialog.setAttribute("role", "dialog");
-    dialog.innerHTML = `
+  // ダイアログ要素を作成
+  const dialog = document.createElement("div");
+  dialog.classList.add("modal", "fade");
+  dialog.setAttribute("tabindex", "-1");
+  dialog.setAttribute("role", "dialog");
+  dialog.innerHTML = `
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -46,69 +46,67 @@ export default function CPGridDialog(parent, canvas) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_(
-                        "Cancel"
+                      "Cancel",
                     )}</button>
                     <button type="button" class="btn btn-primary chickenpaint-apply-grid-settings" data-bs-dismiss="modal">${_(
-                        "Ok"
+                      "Ok",
                     )}</button>
                 </div>
             </div>
         </div>
     `;
 
-    const gridSizeElem = dialog.querySelector(".chickenpaint-grid-size");
-    const applyButton = dialog.querySelector(
-        ".chickenpaint-apply-grid-settings"
+  const gridSizeElem = dialog.querySelector(".chickenpaint-grid-size");
+  const applyButton = dialog.querySelector(".chickenpaint-apply-grid-settings");
+
+  // Bootstrap 5: Modalコンストラクタを使用してモーダルを初期化
+  const modal = new bootstrap.Modal(dialog);
+
+  this.show = function () {
+    // ハンバガーメニューとモーダルの二重表示防止
+    const collapseElement = document.getElementById(
+      "chickenpaint-main-menu-content",
     );
+    if (collapseElement && collapseElement.classList.contains("show")) {
+      const bsCollapse = new bootstrap.Collapse(collapseElement, {
+        toggle: false,
+      });
+      bsCollapse.hide();
+    }
+    // モーダルを表示
+    modal.show();
+  };
 
-    // Bootstrap 5: Modalコンストラクタを使用してモーダルを初期化
-    const modal = new bootstrap.Modal(dialog);
+  // グリッドサイズの初期値を設定
+  gridSizeElem.value = canvas.getGridSize();
 
-    this.show = function () {
-        // ハンバガーメニューとモーダルの二重表示防止
-        const collapseElement = document.getElementById(
-            "chickenpaint-main-menu-content"
-        );
-        if (collapseElement && collapseElement.classList.contains("show")) {
-            const bsCollapse = new bootstrap.Collapse(collapseElement, {
-                toggle: false,
-            });
-            bsCollapse.hide();
-        }
-        // モーダルを表示
-        modal.show();
-    };
+  // モーダルが閉じられた後にダイアログを削除
+  dialog.addEventListener("hidden.bs.modal", () => {
+    dialog.remove();
+  });
 
-    // グリッドサイズの初期値を設定
-    gridSizeElem.value = canvas.getGridSize();
+  // 「OK」ボタンのクリックイベント
+  applyButton.addEventListener("click", () => {
+    const gridSize = parseInt(gridSizeElem.value, 10);
+    canvas.setGridSize(gridSize);
+    canvas.setModalShown(false);
+    modal.hide(); // モーダルを手動で閉じる
+  });
 
-    // モーダルが閉じられた後にダイアログを削除
-    dialog.addEventListener("hidden.bs.modal", () => {
-        dialog.remove();
-    });
+  // モーダルが表示されたときに、グリッドサイズの入力フィールドにフォーカス
+  dialog.addEventListener("shown.bs.modal", () => {
+    canvas.setModalShown(true);
+    gridSizeElem.focus();
+  });
 
-    // 「OK」ボタンのクリックイベント
-    applyButton.addEventListener("click", () => {
-        const gridSize = parseInt(gridSizeElem.value, 10);
-        canvas.setGridSize(gridSize);
-        canvas.setModalShown(false);
-        modal.hide(); // モーダルを手動で閉じる
-    });
+  // Enterキーが押されたときの処理
+  dialog.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // フォーム送信を防ぐ
+      applyButton.click(); // OKボタンをクリックしたことにする
+    }
+  });
 
-    // モーダルが表示されたときに、グリッドサイズの入力フィールドにフォーカス
-    dialog.addEventListener("shown.bs.modal", () => {
-        canvas.setModalShown(true);
-        gridSizeElem.focus();
-    });
-
-    // Enterキーが押されたときの処理
-    dialog.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault(); // フォーム送信を防ぐ
-            applyButton.click(); // OKボタンをクリックしたことにする
-        }
-    });
-
-    // 親要素にダイアログを追加
-    parent.appendChild(dialog);
+  // 親要素にダイアログを追加
+  parent.appendChild(dialog);
 }

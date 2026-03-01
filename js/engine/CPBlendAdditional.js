@@ -24,36 +24,39 @@
  * Extra functions for CPBlend that don't need to be generated dynamically.
  */
 
-import CPBlend from './CPBlend.js';
-import CPRect from '../util/CPRect.js';
+import CPBlend from "./CPBlend.js";
+import CPRect from "../util/CPRect.js";
 import CPColorBmp from "./CPColorBmp.js";
 import CPGreyBmp from "./CPGreyBmp.js";
 
-const
-	BYTES_PER_PIXEL = 4,
-	ALPHA_BYTE_OFFSET = 3;
+const BYTES_PER_PIXEL = 4,
+  ALPHA_BYTE_OFFSET = 3;
 
-CPBlend.blendFunctionNameForParameters = function(fusionHasTransparency, imageAlpha, imageBlendMode, hasMask) {
-    var
-        funcName = CPBlend.BLEND_MODE_CODENAMES[imageBlendMode] + "Onto";
+CPBlend.blendFunctionNameForParameters = function (
+  fusionHasTransparency,
+  imageAlpha,
+  imageBlendMode,
+  hasMask,
+) {
+  var funcName = CPBlend.BLEND_MODE_CODENAMES[imageBlendMode] + "Onto";
 
-    if (fusionHasTransparency) {
-        funcName += "TransparentFusion";
-    } else {
-        funcName += "OpaqueFusion";
-    }
+  if (fusionHasTransparency) {
+    funcName += "TransparentFusion";
+  } else {
+    funcName += "OpaqueFusion";
+  }
 
-    if (imageAlpha == 100) {
-        funcName += "WithOpaqueLayer";
-    } else {
-        funcName += "WithTransparentLayer";
-    }
+  if (imageAlpha == 100) {
+    funcName += "WithOpaqueLayer";
+  } else {
+    funcName += "WithTransparentLayer";
+  }
 
-    if (hasMask) {
-        funcName += "Masked";
-    }
+  if (hasMask) {
+    funcName += "Masked";
+  }
 
-    return funcName;
+  return funcName;
 };
 
 /**
@@ -67,27 +70,51 @@ CPBlend.blendFunctionNameForParameters = function(fusionHasTransparency, imageAl
  * @param {CPRect} rect - The rectangle of pixels that should be fused.
  * @param {?CPGreyBmp} mask - An optional mask to apply to the image
  */
-CPBlend.fuseImageOntoImage = function (fusion, fusionHasTransparency, image, imageAlpha, imageBlendMode, rect, mask) {
-	if (imageAlpha <= 0) {
-		return;
-	}
+CPBlend.fuseImageOntoImage = function (
+  fusion,
+  fusionHasTransparency,
+  image,
+  imageAlpha,
+  imageBlendMode,
+  rect,
+  mask,
+) {
+  if (imageAlpha <= 0) {
+    return;
+  }
 
-	let
-		funcName = CPBlend.blendFunctionNameForParameters(fusionHasTransparency, imageAlpha, imageBlendMode, mask != null);
+  let funcName = CPBlend.blendFunctionNameForParameters(
+    fusionHasTransparency,
+    imageAlpha,
+    imageBlendMode,
+    mask != null,
+  );
 
-	rect = fusion.getBounds().clipTo(rect);
+  rect = fusion.getBounds().clipTo(rect);
 
-	this[funcName](fusion, image, imageAlpha, rect, mask);
+  this[funcName](fusion, image, imageAlpha, rect, mask);
 };
 
-CPBlend.normalFuseImageOntoImageAtPosition = function(fusion, image, destX, destY, sourceRect) {
-	var
-		sourceRectCopy = sourceRect.clone(),
-		destRect = new CPRect(destX, destY, 0, 0);
+CPBlend.normalFuseImageOntoImageAtPosition = function (
+  fusion,
+  image,
+  destX,
+  destY,
+  sourceRect,
+) {
+  var sourceRectCopy = sourceRect.clone(),
+    destRect = new CPRect(destX, destY, 0, 0);
 
-	fusion.getBounds().clipSourceDest(sourceRectCopy, destRect);
+  fusion.getBounds().clipSourceDest(sourceRectCopy, destRect);
 
-	this._normalFuseImageOntoImageAtPosition(fusion, image, 100, sourceRectCopy, destRect.left, destRect.top);
+  this._normalFuseImageOntoImageAtPosition(
+    fusion,
+    image,
+    100,
+    sourceRectCopy,
+    destRect.left,
+    destRect.top,
+  );
 };
 
 /**
@@ -97,18 +124,21 @@ CPBlend.normalFuseImageOntoImageAtPosition = function(fusion, image, destX, dest
  * @param {number} alpha - [0...100] alpha to apply
  */
 CPBlend.multiplyAlphaBy = function (image, alpha) {
-	if (alpha < 100) {
-		if (alpha == 0) {
-			image.clearAll(0);
-		} else {
-			var
-				imageData = image.data;
+  if (alpha < 100) {
+    if (alpha == 0) {
+      image.clearAll(0);
+    } else {
+      var imageData = image.data;
 
-			for (var pixIndex = ALPHA_BYTE_OFFSET; pixIndex < imageData.length; pixIndex += BYTES_PER_PIXEL) {
-				imageData[pixIndex] = Math.round(imageData[pixIndex] * alpha / 100);
-			}
-		}
-	}
+      for (
+        var pixIndex = ALPHA_BYTE_OFFSET;
+        pixIndex < imageData.length;
+        pixIndex += BYTES_PER_PIXEL
+      ) {
+        imageData[pixIndex] = Math.round((imageData[pixIndex] * alpha) / 100);
+      }
+    }
+  }
 };
 
 /**
@@ -118,13 +148,18 @@ CPBlend.multiplyAlphaBy = function (image, alpha) {
  * @param {number} alpha
  * @param {CPGreyBmp} mask
  */
-CPBlend.multiplyAlphaByMask = function(image, alpha, mask) {
-	var
-		scale = alpha / (100 * 255);
-	
-	for (var dstIndex = CPColorBmp.ALPHA_BYTE_OFFSET, srcIndex = 0; dstIndex < image.data.length; dstIndex += CPColorBmp.BYTES_PER_PIXEL, srcIndex++) {
-		image.data[dstIndex] = Math.round(image.data[dstIndex] * mask.data[srcIndex] * scale);
-	}
+CPBlend.multiplyAlphaByMask = function (image, alpha, mask) {
+  var scale = alpha / (100 * 255);
+
+  for (
+    var dstIndex = CPColorBmp.ALPHA_BYTE_OFFSET, srcIndex = 0;
+    dstIndex < image.data.length;
+    dstIndex += CPColorBmp.BYTES_PER_PIXEL, srcIndex++
+  ) {
+    image.data[dstIndex] = Math.round(
+      image.data[dstIndex] * mask.data[srcIndex] * scale,
+    );
+  }
 };
 
 /**
@@ -137,20 +172,25 @@ CPBlend.multiplyAlphaByMask = function(image, alpha, mask) {
  * @param {CPRect} rect
  */
 CPBlend.copyAndMultiplyAlphaBy = function (dest, image, alpha, rect) {
-	if (alpha == 100) {
-		dest.copyBitmapRect(image, rect.left, rect.top, rect);
-	} else if (alpha == 0) {
-		dest.clearRect(rect, 0);
-	} else {
-		var
-			imageData = image.data;
+  if (alpha == 100) {
+    dest.copyBitmapRect(image, rect.left, rect.top, rect);
+  } else if (alpha == 0) {
+    dest.clearRect(rect, 0);
+  } else {
+    var imageData = image.data;
 
-		for (var pixIndex = 0; pixIndex < imageData.length; pixIndex += BYTES_PER_PIXEL) {
-			imageData[pixIndex] = imageData[pixIndex];
-			imageData[pixIndex + 1] = imageData[pixIndex + 1];
-			imageData[pixIndex + 2] = imageData[pixIndex + 2];
+    for (
+      var pixIndex = 0;
+      pixIndex < imageData.length;
+      pixIndex += BYTES_PER_PIXEL
+    ) {
+      imageData[pixIndex] = imageData[pixIndex];
+      imageData[pixIndex + 1] = imageData[pixIndex + 1];
+      imageData[pixIndex + 2] = imageData[pixIndex + 2];
 
-			imageData[pixIndex + ALPHA_BYTE_OFFSET] = Math.round(imageData[pixIndex + ALPHA_BYTE_OFFSET] * alpha / 100);
-		}
-	}
+      imageData[pixIndex + ALPHA_BYTE_OFFSET] = Math.round(
+        (imageData[pixIndex + ALPHA_BYTE_OFFSET] * alpha) / 100,
+      );
+    }
+  }
 };

@@ -20,6 +20,7 @@
     "google-closure-compiler": "^20250915.0.0",
     "multipipe": "^2.0.3",
     "parcel": "^2.13.2",
+    "prettier": "^3.8.1",
     "process": "^0.11.10"
   },
   "dependencies": {
@@ -38,6 +39,7 @@
   "scripts": {
     "dev": "BUILD_TIME=$(date -u +\"%Y-%m-%dT%H:%M:%S\") parcel index.html --no-cache",
     "test": "babel-node node_modules/.bin/_mocha -- test/*.js",
-    "prepare": "make all"
+    "prepare": "make all",
+    "format": "prettier --write \"js/**/*.js\""
   }
 }

@@ -29,12 +29,12 @@ const Alt = macPlatform ? "⌥" : "Alt";
 const ctrlForZoom = macPlatform ? "⌃" : "Ctrl";
 
 export default function CPShortcutsDialog(parent) {
-    const dialog = document.createElement("div");
-    dialog.classList.add("modal", "fade", "chickenpaint-shortcuts-dialog");
-    dialog.tabIndex = -1;
-    dialog.role = "dialog";
+  const dialog = document.createElement("div");
+  dialog.classList.add("modal", "fade", "chickenpaint-shortcuts-dialog");
+  dialog.tabIndex = -1;
+  dialog.role = "dialog";
 
-    dialog.innerHTML = `
+  dialog.innerHTML = `
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -149,17 +149,17 @@ export default function CPShortcutsDialog(parent) {
         </div>
     `;
 
-    // Destroy the modal upon close
-    dialog.querySelector(".btn-close").addEventListener("click", () => {
-        dialog.remove();
-    });
+  // Destroy the modal upon close
+  dialog.querySelector(".btn-close").addEventListener("click", () => {
+    dialog.remove();
+  });
 
-    // Initialize the modal using Bootstrap 5 methods
-    const modalInstance = new bootstrap.Modal(dialog);
+  // Initialize the modal using Bootstrap 5 methods
+  const modalInstance = new bootstrap.Modal(dialog);
 
-    parent.appendChild(dialog);
+  parent.appendChild(dialog);
 
-    this.show = function () {
-        modalInstance.show();
-    };
+  this.show = function () {
+    modalInstance.show();
+  };
 }

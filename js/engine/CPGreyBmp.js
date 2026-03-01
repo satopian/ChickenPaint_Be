@@ -36,36 +36,36 @@ import { getRotatedCanvas } from "./CPColorBmp.js";
  * @extends CPBitmap
  */
 export default function CPGreyBmp(width, height, bitDepth) {
-    CPBitmap.call(this, width, height);
+  CPBitmap.call(this, width, height);
 
-    this.createBitmap(width, height, bitDepth);
+  this.createBitmap(width, height, bitDepth);
 }
 
 CPGreyBmp.prototype = Object.create(CPBitmap.prototype);
 CPGreyBmp.prototype.constructor = CPGreyBmp;
 
 CPGreyBmp.prototype.createBitmap = function (width, height, bitDepth) {
-    this.bitDepth = bitDepth;
+  this.bitDepth = bitDepth;
 
-    switch (bitDepth) {
-        case 32:
-            this.data = new Uint32Array(width * height);
-            break;
-        case 16:
-            this.data = new Uint16Array(width * height);
-            break;
-        case 8:
-        default:
-            this.data = new Uint8Array(width * height);
-    }
+  switch (bitDepth) {
+    case 32:
+      this.data = new Uint32Array(width * height);
+      break;
+    case 16:
+      this.data = new Uint16Array(width * height);
+      break;
+    case 8:
+    default:
+      this.data = new Uint8Array(width * height);
+  }
 };
 
 CPGreyBmp.prototype.clone = function () {
-    var result = new CPGreyBmp(this.width, this.height, this.bitDepth);
+  var result = new CPGreyBmp(this.width, this.height, this.bitDepth);
 
-    result.copyPixelsFrom(this);
+  result.copyPixelsFrom(this);
 
-    return result;
+  return result;
 };
 
 /**
@@ -75,15 +75,11 @@ CPGreyBmp.prototype.clone = function () {
  * @returns {CPGreyBmp}
  */
 CPGreyBmp.prototype.cloneRect = function (rect) {
-    var result = new CPGreyBmp(
-        rect.getWidth(),
-        rect.getHeight(),
-        this.bitDepth,
-    );
+  var result = new CPGreyBmp(rect.getWidth(), rect.getHeight(), this.bitDepth);
 
-    result.copyBitmapRect(this, 0, 0, rect);
+  result.copyBitmapRect(this, 0, 0, rect);
 
-    return result;
+  return result;
 };
 
 /**
@@ -92,10 +88,10 @@ CPGreyBmp.prototype.cloneRect = function (rect) {
  * @returns {int} Pixel value
  */
 CPGreyBmp.prototype.getPixel = function (x, y) {
-    x = Math.max(0, Math.min(this.width - 1, x));
-    y = Math.max(0, Math.min(this.height - 1, y));
+  x = Math.max(0, Math.min(this.width - 1, x));
+  y = Math.max(0, Math.min(this.height - 1, y));
 
-    return this.data[this.offsetOfPixel(x, y)];
+  return this.data[this.offsetOfPixel(x, y)];
 };
 
 /**
@@ -107,16 +103,16 @@ CPGreyBmp.prototype.getPixel = function (x, y) {
  * @param {number} value - グレースケール値 (0-255)
  */
 CPGreyBmp.prototype.setPixel = function (x, y, value) {
-    x = Math.max(0, Math.min(this.width - 1, x));
-    y = Math.max(0, Math.min(this.height - 1, y));
+  x = Math.max(0, Math.min(this.width - 1, x));
+  y = Math.max(0, Math.min(this.height - 1, y));
 
-    const pixIndex = this.offsetOfPixel(x, y);
+  const pixIndex = this.offsetOfPixel(x, y);
 
-    this.data[pixIndex] = value;
+  this.data[pixIndex] = value;
 };
 
 CPGreyBmp.prototype.clearAll = function (value) {
-    this.data.fill(value);
+  this.data.fill(value);
 };
 
 /**
@@ -126,19 +122,19 @@ CPGreyBmp.prototype.clearAll = function (value) {
  * @param {number} value
  */
 CPGreyBmp.prototype.clearRect = function (rect, value) {
-    rect = this.getBounds().clipTo(rect);
+  rect = this.getBounds().clipTo(rect);
 
-    if (rect.equals(this.getBounds())) {
-        this.clearAll(value);
-    } else {
-        let yStride = this.width,
-            fillWidth = rect.right - rect.left,
-            rowStartIndex = this.offsetOfPixel(rect.left, rect.top);
+  if (rect.equals(this.getBounds())) {
+    this.clearAll(value);
+  } else {
+    let yStride = this.width,
+      fillWidth = rect.right - rect.left,
+      rowStartIndex = this.offsetOfPixel(rect.left, rect.top);
 
-        for (let y = rect.top; y < rect.bottom; y++, rowStartIndex += yStride) {
-            this.data.fill(value, rowStartIndex, rowStartIndex + fillWidth);
-        }
+    for (let y = rect.top; y < rect.bottom; y++, rowStartIndex += yStride) {
+      this.data.fill(value, rowStartIndex, rowStartIndex + fillWidth);
     }
+  }
 };
 
 /**
@@ -147,24 +143,24 @@ CPGreyBmp.prototype.clearRect = function (rect, value) {
  * @param {CPGreyBmp} that
  */
 CPGreyBmp.prototype.copyScaledNearestNeighbor = function (that) {
-    var destPixIndex = 0,
-        xSkip = that.width / this.width,
-        ySkip = that.height / this.height,
-        srcRowStart;
+  var destPixIndex = 0,
+    xSkip = that.width / this.width,
+    ySkip = that.height / this.height,
+    srcRowStart;
 
-    for (var y = 0, srcRow = 0; y < this.height; y++, srcRow += ySkip) {
-        srcRowStart = that.offsetOfPixel(0, Math.round(srcRow));
+  for (var y = 0, srcRow = 0; y < this.height; y++, srcRow += ySkip) {
+    srcRowStart = that.offsetOfPixel(0, Math.round(srcRow));
 
-        for (
-            var x = 0, srcCol = 0;
-            x < this.width;
-            x++, destPixIndex++, srcCol += xSkip
-        ) {
-            var srcPixIndex = srcRowStart + Math.round(srcCol);
+    for (
+      var x = 0, srcCol = 0;
+      x < this.width;
+      x++, destPixIndex++, srcCol += xSkip
+    ) {
+      var srcPixIndex = srcRowStart + Math.round(srcCol);
 
-            this.data[destPixIndex] = that.data[srcPixIndex];
-        }
+      this.data[destPixIndex] = that.data[srcPixIndex];
     }
+  }
 };
 
 /**
@@ -173,78 +169,76 @@ CPGreyBmp.prototype.copyScaledNearestNeighbor = function (that) {
  * - alpha255: 不透明度 (1-255)
  */
 CPGreyBmp.prototype.floodFillWithBorder = function (
-    x,
-    y,
-    color,
-    expandBy = 2,
-    alpha255 = 255,
+  x,
+  y,
+  color,
+  expandBy = 2,
+  alpha255 = 255,
 ) {
-    if (!this.isInside(x, y)) return;
+  if (!this.isInside(x, y)) return;
 
-    const gray = color & 0xff;
+  const gray = color & 0xff;
 
-    const w = this.width;
-    const h = this.height;
-    const data = this.data;
-    const Processed = new Uint8Array(w * h);
-    const threshold = 10;
+  const w = this.width;
+  const h = this.height;
+  const data = this.data;
+  const Processed = new Uint8Array(w * h);
+  const threshold = 10;
 
-    const oldGray = data[y * w + x];
-    const alpha = alpha255 / 255;
+  const oldGray = data[y * w + x];
+  const alpha = alpha255 / 255;
 
-    const stack = [{ x, y }];
+  const stack = [{ x, y }];
 
-    while (stack.length) {
-        const { x: px, y: py } = stack.pop();
-        if (px < 0 || py < 0 || px >= w || py >= h) continue;
-        const idx = py * w + px;
-        if (Processed[idx]) continue;
+  while (stack.length) {
+    const { x: px, y: py } = stack.pop();
+    if (px < 0 || py < 0 || px >= w || py >= h) continue;
+    const idx = py * w + px;
+    if (Processed[idx]) continue;
 
-        if (Math.abs(data[idx] - oldGray) > threshold) continue;
+    if (Math.abs(data[idx] - oldGray) > threshold) continue;
 
-        Processed[idx] = 1;
+    Processed[idx] = 1;
 
-        let applied;
-        // 元の色と選択色を補間: old * (1 - alpha) + selected * alpha
-        applied = Math.round(data[idx] * (1 - alpha) + gray * alpha);
-        data[idx] = applied;
+    let applied;
+    // 元の色と選択色を補間: old * (1 - alpha) + selected * alpha
+    applied = Math.round(data[idx] * (1 - alpha) + gray * alpha);
+    data[idx] = applied;
 
-        stack.push({ x: px + 1, y: py });
-        stack.push({ x: px - 1, y: py });
-        stack.push({ x: px, y: py + 1 });
-        stack.push({ x: px, y: py - 1 });
-    }
+    stack.push({ x: px + 1, y: py });
+    stack.push({ x: px - 1, y: py });
+    stack.push({ x: px, y: py + 1 });
+    stack.push({ x: px, y: py - 1 });
+  }
 
-    // 縁取り拡張
-    if (expandBy > 0) {
-        // 拡張の基準として、元の状態をコピーしておく
-        const orig = new Uint8ClampedArray(data);
-        const expandedData = new Uint8ClampedArray(orig);
+  // 縁取り拡張
+  if (expandBy > 0) {
+    // 拡張の基準として、元の状態をコピーしておく
+    const orig = new Uint8ClampedArray(data);
+    const expandedData = new Uint8ClampedArray(orig);
 
-        for (let py = 0; py < h; py++) {
-            for (let px = 0; px < w; px++) {
-                if (!Processed[py * w + px]) continue;
+    for (let py = 0; py < h; py++) {
+      for (let px = 0; px < w; px++) {
+        if (!Processed[py * w + px]) continue;
 
-                for (let dy = -expandBy; dy <= expandBy; dy++) {
-                    for (let dx = -expandBy; dx <= expandBy; dx++) {
-                        const nx = px + dx;
-                        const ny = py + dy;
-                        if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
-                        const nidx = ny * w + nx;
-                        if (Processed[nidx]) continue;
+        for (let dy = -expandBy; dy <= expandBy; dy++) {
+          for (let dx = -expandBy; dx <= expandBy; dx++) {
+            const nx = px + dx;
+            const ny = py + dy;
+            if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+            const nidx = ny * w + nx;
+            if (Processed[nidx]) continue;
 
-                        // ここで必ず元の値から補間する
-                        const base = orig[nidx];
-                        const applied = Math.round(
-                            base * (1 - alpha) + gray * alpha,
-                        );
-                        expandedData[nidx] = applied;
-                    }
-                }
-            }
+            // ここで必ず元の値から補間する
+            const base = orig[nidx];
+            const applied = Math.round(base * (1 - alpha) + gray * alpha);
+            expandedData[nidx] = applied;
+          }
         }
-        data.set(expandedData);
+      }
     }
+    data.set(expandedData);
+  }
 };
 
 /**
@@ -253,103 +247,100 @@ CPGreyBmp.prototype.floodFillWithBorder = function (
  * @param {CPGreyBmp} that
  */
 CPGreyBmp.prototype.createThumbnailFrom = function (that) {
-    const MAX_SAMPLES_PER_OUTPUT_PIXEL = 3,
-        numSamples = Math.min(
-            Math.floor(that.width / this.width),
-            MAX_SAMPLES_PER_OUTPUT_PIXEL,
-        );
+  const MAX_SAMPLES_PER_OUTPUT_PIXEL = 3,
+    numSamples = Math.min(
+      Math.floor(that.width / this.width),
+      MAX_SAMPLES_PER_OUTPUT_PIXEL,
+    );
 
-    if (numSamples < 2) {
-        // If we only take one sample per output pixel, there's no need for our filtering strategy
-        this.copyScaledNearestNeighbor(that);
-        return;
-    }
+  if (numSamples < 2) {
+    // If we only take one sample per output pixel, there's no need for our filtering strategy
+    this.copyScaledNearestNeighbor(that);
+    return;
+  }
 
-    const rowBuffer = new Uint16Array(this.width),
-        srcRowByteLength = that.width,
-        sourceBytesBetweenOutputCols = Math.floor(that.width / this.width),
-        intersampleXByteSpacing = Math.floor(
-            that.width / this.width / numSamples,
-        ),
-        /* Due to the floor() in intersampleXByteSkip, it's likely that the gap between the last sample for an output pixel
-         * and the start of the sample for the next pixel will be higher than the intersample gap. So we'll add this between
-         * pixels if needed.
-         */
-        interpixelXByteSkip =
-            sourceBytesBetweenOutputCols - intersampleXByteSpacing * numSamples,
-        // Now we do the same for rows...
-        sourceRowsBetweenOutputRows = Math.floor(that.height / this.height),
-        intersampleYRowsSpacing = Math.floor(
-            that.height / this.height / numSamples,
-        ),
-        intersampleYByteSkip =
-            intersampleYRowsSpacing * srcRowByteLength -
-            sourceBytesBetweenOutputCols * this.width,
-        interpixelYByteSkip =
-            (sourceRowsBetweenOutputRows -
-                intersampleYRowsSpacing * numSamples) *
-            srcRowByteLength;
+  const rowBuffer = new Uint16Array(this.width),
+    srcRowByteLength = that.width,
+    sourceBytesBetweenOutputCols = Math.floor(that.width / this.width),
+    intersampleXByteSpacing = Math.floor(that.width / this.width / numSamples),
+    /* Due to the floor() in intersampleXByteSkip, it's likely that the gap between the last sample for an output pixel
+     * and the start of the sample for the next pixel will be higher than the intersample gap. So we'll add this between
+     * pixels if needed.
+     */
+    interpixelXByteSkip =
+      sourceBytesBetweenOutputCols - intersampleXByteSpacing * numSamples,
+    // Now we do the same for rows...
+    sourceRowsBetweenOutputRows = Math.floor(that.height / this.height),
+    intersampleYRowsSpacing = Math.floor(
+      that.height / this.height / numSamples,
+    ),
+    intersampleYByteSkip =
+      intersampleYRowsSpacing * srcRowByteLength -
+      sourceBytesBetweenOutputCols * this.width,
+    interpixelYByteSkip =
+      (sourceRowsBetweenOutputRows - intersampleYRowsSpacing * numSamples) *
+      srcRowByteLength;
 
-    let srcPixIndex = 0,
-        dstPixIndex = 0;
+  let srcPixIndex = 0,
+    dstPixIndex = 0;
 
-    // For each output thumbnail row...
-    for (let y = 0; y < this.height; y++, srcPixIndex += interpixelYByteSkip) {
-        let bufferIndex = 0;
+  // For each output thumbnail row...
+  for (let y = 0; y < this.height; y++, srcPixIndex += interpixelYByteSkip) {
+    let bufferIndex = 0;
 
-        rowBuffer.fill(0);
+    rowBuffer.fill(0);
 
-        // Sum the contributions of the input rows that correspond to this output row
+    // Sum the contributions of the input rows that correspond to this output row
+    for (
+      let y2 = 0;
+      y2 < numSamples;
+      y2++, srcPixIndex += intersampleYByteSkip
+    ) {
+      bufferIndex = 0;
+      for (
+        let x = 0;
+        x < this.width;
+        x++, bufferIndex++, srcPixIndex += interpixelXByteSkip
+      ) {
         for (
-            let y2 = 0;
-            y2 < numSamples;
-            y2++, srcPixIndex += intersampleYByteSkip
+          let x2 = 0;
+          x2 < numSamples;
+          x2++, srcPixIndex += intersampleXByteSpacing
         ) {
-            bufferIndex = 0;
-            for (
-                let x = 0;
-                x < this.width;
-                x++, bufferIndex++, srcPixIndex += interpixelXByteSkip
-            ) {
-                for (
-                    let x2 = 0;
-                    x2 < numSamples;
-                    x2++, srcPixIndex += intersampleXByteSpacing
-                ) {
-                    rowBuffer[bufferIndex] += that.data[srcPixIndex];
-                }
-            }
+          rowBuffer[bufferIndex] += that.data[srcPixIndex];
         }
-
-        // Now this thumbnail row is complete and we can write the buffer to the output
-        bufferIndex = 0;
-        for (let x = 0; x < this.width; x++, bufferIndex++, dstPixIndex++) {
-            this.data[dstPixIndex] =
-                rowBuffer[bufferIndex] / (numSamples * numSamples);
-        }
+      }
     }
+
+    // Now this thumbnail row is complete and we can write the buffer to the output
+    bufferIndex = 0;
+    for (let x = 0; x < this.width; x++, bufferIndex++, dstPixIndex++) {
+      this.data[dstPixIndex] =
+        rowBuffer[bufferIndex] / (numSamples * numSamples);
+    }
+  }
 };
 
 CPGreyBmp.prototype.mirrorHorizontally = function () {
-    let width = this.width,
-        height = this.height,
-        newData = new Uint8Array(width * height),
-        dstOffset = 0,
-        srcOffset = width;
+  let width = this.width,
+    height = this.height,
+    newData = new Uint8Array(width * height),
+    dstOffset = 0,
+    srcOffset = width;
 
-    for (let y = 0; y < height; y++, srcOffset += width + width) {
-        for (let x = 0; x < width; x++) {
-            newData[dstOffset++] = this.data[--srcOffset];
-        }
+  for (let y = 0; y < height; y++, srcOffset += width + width) {
+    for (let x = 0; x < width; x++) {
+      newData[dstOffset++] = this.data[--srcOffset];
     }
+  }
 
-    this.data = newData;
+  this.data = newData;
 };
 
 CPGreyBmp.prototype.applyLUT = function (lut) {
-    for (var i = 0; i < this.data.length; i++) {
-        this.data[i] = lut.table[this.data[i]];
-    }
+  for (var i = 0; i < this.data.length; i++) {
+    this.data[i] = lut.table[this.data[i]];
+  }
 };
 
 /**
@@ -359,13 +350,13 @@ CPGreyBmp.prototype.applyLUT = function (lut) {
  * @returns {HTMLCanvasElement}
  */
 CPGreyBmp.prototype.getAsCanvas = function (imageRotation) {
-    var imageData = this.getImageData(0, 0, this.width, this.height),
-        canvas = createCanvas(this.width, this.height),
-        context = canvas.getContext("2d");
+  var imageData = this.getImageData(0, 0, this.width, this.height),
+    canvas = createCanvas(this.width, this.height),
+    context = canvas.getContext("2d");
 
-    context.putImageData(imageData, 0, 0);
+  context.putImageData(imageData, 0, 0);
 
-    return getRotatedCanvas(canvas, imageRotation || 0);
+  return getRotatedCanvas(canvas, imageRotation || 0);
 };
 
 /**
@@ -379,21 +370,21 @@ CPGreyBmp.prototype.getAsCanvas = function (imageRotation) {
  * @returns {ImageData}
  */
 CPGreyBmp.prototype.getImageData = function (x, y, width, height) {
-    let imageData = createImageData(width, height),
-        srcIndex = this.offsetOfPixel(x, y),
-        dstIndex = 0,
-        ySkip = this.width - width;
+  let imageData = createImageData(width, height),
+    srcIndex = this.offsetOfPixel(x, y),
+    dstIndex = 0,
+    ySkip = this.width - width;
 
-    for (let y = 0; y < height; y++, srcIndex += ySkip) {
-        for (let x = 0; x < width; x++, srcIndex++) {
-            imageData.data[dstIndex++] = this.data[srcIndex];
-            imageData.data[dstIndex++] = this.data[srcIndex];
-            imageData.data[dstIndex++] = this.data[srcIndex];
-            imageData.data[dstIndex++] = 0xff;
-        }
+  for (let y = 0; y < height; y++, srcIndex += ySkip) {
+    for (let x = 0; x < width; x++, srcIndex++) {
+      imageData.data[dstIndex++] = this.data[srcIndex];
+      imageData.data[dstIndex++] = this.data[srcIndex];
+      imageData.data[dstIndex++] = this.data[srcIndex];
+      imageData.data[dstIndex++] = 0xff;
     }
+  }
 
-    return imageData;
+  return imageData;
 };
 
 /**
@@ -404,17 +395,17 @@ CPGreyBmp.prototype.getImageData = function (x, y, width, height) {
  * @param {number} y
  */
 CPGreyBmp.prototype.pasteImageData = function (imageData, x, y) {
-    let srcIndex = 0,
-        dstIndex = this.offsetOfPixel(x, y),
-        ySkip = this.width - imageData.width;
+  let srcIndex = 0,
+    dstIndex = this.offsetOfPixel(x, y),
+    ySkip = this.width - imageData.width;
 
-    for (let y = 0; y < imageData.height; y++, dstIndex += ySkip) {
-        for (let x = 0; x < imageData.width; x++, srcIndex += 4, dstIndex++) {
-            this.data[dstIndex] = imageData.data[srcIndex]; // Use the first (red) channel as the intensity
-        }
+  for (let y = 0; y < imageData.height; y++, dstIndex += ySkip) {
+    for (let x = 0; x < imageData.width; x++, srcIndex += 4, dstIndex++) {
+      this.data[dstIndex] = imageData.data[srcIndex]; // Use the first (red) channel as the intensity
     }
+  }
 
-    return imageData;
+  return imageData;
 };
 
 /**
@@ -423,19 +414,19 @@ CPGreyBmp.prototype.pasteImageData = function (imageData, x, y) {
  * @param {CPGreyBmp} bmp
  */
 CPGreyBmp.prototype.copyPixelsFrom = function (bmp) {
-    if (
-        bmp.width != this.width ||
-        bmp.height != this.height ||
-        bmp.bitDepth != this.bitDepth
-    ) {
-        this.data = bmp.data.slice(0);
+  if (
+    bmp.width != this.width ||
+    bmp.height != this.height ||
+    bmp.bitDepth != this.bitDepth
+  ) {
+    this.data = bmp.data.slice(0);
 
-        this.width = bmp.width;
-        this.height = bmp.height;
-        this.bitDepth = bmp.bitDepth;
-    } else {
-        this.data.set(bmp.data);
-    }
+    this.width = bmp.width;
+    this.height = bmp.height;
+    this.bitDepth = bmp.bitDepth;
+  } else {
+    this.data.set(bmp.data);
+  }
 };
 
 /**
@@ -447,45 +438,45 @@ CPGreyBmp.prototype.copyPixelsFrom = function (bmp) {
  * @returns {Uint8Array}
  */
 CPGreyBmp.prototype.copyRectXOR = function (bmp, rect) {
-    rect = this.getBounds().clipTo(rect);
+  rect = this.getBounds().clipTo(rect);
 
-    var w = rect.getWidth(),
-        h = rect.getHeight(),
-        buffer = new Uint8Array(w * h),
-        outputIndex = 0,
-        bmp1Index = this.offsetOfPixel(rect.left, rect.top),
-        bmp2Index = bmp.offsetOfPixel(rect.left, rect.top),
-        bmp1YSkip = this.width - w,
-        bmp2YSkip = bmp.width - w;
+  var w = rect.getWidth(),
+    h = rect.getHeight(),
+    buffer = new Uint8Array(w * h),
+    outputIndex = 0,
+    bmp1Index = this.offsetOfPixel(rect.left, rect.top),
+    bmp2Index = bmp.offsetOfPixel(rect.left, rect.top),
+    bmp1YSkip = this.width - w,
+    bmp2YSkip = bmp.width - w;
 
-    for (
-        var y = rect.top;
-        y < rect.bottom;
-        y++, bmp1Index += bmp1YSkip, bmp2Index += bmp2YSkip
-    ) {
-        for (var x = 0; x < w; x++, outputIndex++, bmp1Index++, bmp2Index++) {
-            buffer[outputIndex] = this.data[bmp1Index] ^ bmp.data[bmp2Index];
-        }
+  for (
+    var y = rect.top;
+    y < rect.bottom;
+    y++, bmp1Index += bmp1YSkip, bmp2Index += bmp2YSkip
+  ) {
+    for (var x = 0; x < w; x++, outputIndex++, bmp1Index++, bmp2Index++) {
+      buffer[outputIndex] = this.data[bmp1Index] ^ bmp.data[bmp2Index];
     }
+  }
 
-    return buffer;
+  return buffer;
 };
 
 CPGreyBmp.prototype.setRectXOR = function (buffer, rect) {
-    rect = this.getBounds().clipTo(rect);
+  rect = this.getBounds().clipTo(rect);
 
-    var w = rect.getWidth(),
-        h = rect.getHeight(),
-        bmp1Index = this.offsetOfPixel(rect.left, rect.top),
-        bufferIndex = 0,
-        bmp1YSkip = this.width - w;
+  var w = rect.getWidth(),
+    h = rect.getHeight(),
+    bmp1Index = this.offsetOfPixel(rect.left, rect.top),
+    bufferIndex = 0,
+    bmp1YSkip = this.width - w;
 
-    for (var y = 0; y < h; y++) {
-        for (var x = 0; x < w; x++) {
-            this.data[bmp1Index++] ^= buffer[bufferIndex++];
-        }
-        bmp1Index += bmp1YSkip;
+  for (var y = 0; y < h; y++) {
+    for (var x = 0; x < w; x++) {
+      this.data[bmp1Index++] ^= buffer[bufferIndex++];
     }
+    bmp1Index += bmp1YSkip;
+  }
 };
 
 /**
@@ -497,41 +488,37 @@ CPGreyBmp.prototype.setRectXOR = function (buffer, rect) {
  * @param {CPRect} srcRect
  */
 CPGreyBmp.prototype.copyBitmapRect = function (bmp, dstX, dstY, srcRect) {
-    var dstRect = new CPRect(dstX, dstY, 0, 0);
+  var dstRect = new CPRect(dstX, dstY, 0, 0);
 
-    srcRect = srcRect.clone();
+  srcRect = srcRect.clone();
 
-    this.getBounds().clipSourceDest(srcRect, dstRect);
+  this.getBounds().clipSourceDest(srcRect, dstRect);
 
-    var w = dstRect.getWidth() | 0,
-        h = dstRect.getHeight() | 0;
+  var w = dstRect.getWidth() | 0,
+    h = dstRect.getHeight() | 0;
 
-    // Are we just trying to duplicate the bitmap?
-    if (
-        dstRect.left == 0 &&
-        dstRect.top == 0 &&
-        w == this.width &&
-        h == this.height &&
-        w == bmp.width &&
-        h == bmp.height
-    ) {
-        this.copyPixelsFrom(bmp);
-    } else {
-        var dstIndex = this.offsetOfPixel(dstRect.left, dstRect.top),
-            dstYSkip = this.width - w,
-            srcIndex = bmp.offsetOfPixel(srcRect.left, srcRect.top),
-            srcYSkip = bmp.width - w;
+  // Are we just trying to duplicate the bitmap?
+  if (
+    dstRect.left == 0 &&
+    dstRect.top == 0 &&
+    w == this.width &&
+    h == this.height &&
+    w == bmp.width &&
+    h == bmp.height
+  ) {
+    this.copyPixelsFrom(bmp);
+  } else {
+    var dstIndex = this.offsetOfPixel(dstRect.left, dstRect.top),
+      dstYSkip = this.width - w,
+      srcIndex = bmp.offsetOfPixel(srcRect.left, srcRect.top),
+      srcYSkip = bmp.width - w;
 
-        for (
-            var y = 0;
-            y < h;
-            y++, srcIndex += srcYSkip, dstIndex += dstYSkip
-        ) {
-            for (var x = 0; x < w; x++, srcIndex++, dstIndex++) {
-                this.data[dstIndex] = bmp.data[srcIndex];
-            }
-        }
+    for (var y = 0; y < h; y++, srcIndex += srcYSkip, dstIndex += dstYSkip) {
+      for (var x = 0; x < w; x++, srcIndex++, dstIndex++) {
+        this.data[dstIndex] = bmp.data[srcIndex];
+      }
     }
+  }
 };
 
 /**
@@ -539,16 +526,16 @@ CPGreyBmp.prototype.copyBitmapRect = function (bmp, dstX, dstY, srcRect) {
  * @param source CPColorBmp
  */
 CPGreyBmp.prototype.copyRegionHFlip = function (rect, source) {
-    rect = this.getBounds().clipTo(rect);
+  rect = this.getBounds().clipTo(rect);
 
-    for (var y = rect.top; y < rect.bottom; y++) {
-        var dstOffset = this.offsetOfPixel(rect.left, y),
-            srcOffset = source.offsetOfPixel(rect.right - 1, y);
+  for (var y = rect.top; y < rect.bottom; y++) {
+    var dstOffset = this.offsetOfPixel(rect.left, y),
+      srcOffset = source.offsetOfPixel(rect.right - 1, y);
 
-        for (var x = rect.left; x < rect.right; x++, srcOffset -= 2) {
-            this.data[dstOffset++] = source.data[srcOffset++];
-        }
+    for (var x = rect.left; x < rect.right; x++, srcOffset -= 2) {
+      this.data[dstOffset++] = source.data[srcOffset++];
     }
+  }
 };
 
 /**
@@ -556,21 +543,21 @@ CPGreyBmp.prototype.copyRegionHFlip = function (rect, source) {
  * @param source CPColorBmp
  */
 CPGreyBmp.prototype.copyRegionVFlip = function (rect, source) {
-    rect = this.getBounds().clipTo(rect);
+  rect = this.getBounds().clipTo(rect);
 
-    var width = rect.getWidth();
+  var width = rect.getWidth();
 
-    for (var y = rect.top; y < rect.bottom; y++) {
-        var dstOffset = this.offsetOfPixel(rect.left, y),
-            srcOffset = source.offsetOfPixel(
-                rect.left,
-                rect.bottom - 1 - (y - rect.top),
-            );
+  for (var y = rect.top; y < rect.bottom; y++) {
+    var dstOffset = this.offsetOfPixel(rect.left, y),
+      srcOffset = source.offsetOfPixel(
+        rect.left,
+        rect.bottom - 1 - (y - rect.top),
+      );
 
-        for (var x = 0; x < width; x++) {
-            this.data[dstOffset++] = source.data[srcOffset++];
-        }
+    for (var x = 0; x < width; x++) {
+      this.data[dstOffset++] = source.data[srcOffset++];
     }
+  }
 };
 
 /**
@@ -582,31 +569,31 @@ CPGreyBmp.prototype.copyRegionVFlip = function (rect, source) {
  * @param {number} radius - Number of pixels that will be averaged either side of a target pixel.
  */
 function boxBlurLine(src, dst, len, radius) {
-    var pixelCount = 0,
-        pixelSum = 0,
-        dstIndex;
+  var pixelCount = 0,
+    pixelSum = 0,
+    dstIndex;
 
-    for (let i = 0; i < radius && i < len; i++) {
-        pixelSum += src[i];
-        pixelCount++;
+  for (let i = 0; i < radius && i < len; i++) {
+    pixelSum += src[i];
+    pixelCount++;
+  }
+
+  dstIndex = 0;
+  for (let i = 0; i < len; i++) {
+    // New pixel joins the window at the right
+    if (i + radius < len) {
+      pixelSum += src[i + radius];
+      pixelCount++;
     }
 
-    dstIndex = 0;
-    for (let i = 0; i < len; i++) {
-        // New pixel joins the window at the right
-        if (i + radius < len) {
-            pixelSum += src[i + radius];
-            pixelCount++;
-        }
+    dst[dstIndex++] = Math.round(pixelSum / pixelCount);
 
-        dst[dstIndex++] = Math.round(pixelSum / pixelCount);
-
-        // Old pixel leaves the window at the left
-        if (i - radius >= 0) {
-            pixelSum -= src[i - radius];
-            pixelCount--;
-        }
+    // Old pixel leaves the window at the left
+    if (i - radius >= 0) {
+      pixelSum -= src[i - radius];
+      pixelCount--;
     }
+  }
 }
 
 /**
@@ -618,16 +605,16 @@ function boxBlurLine(src, dst, len, radius) {
  * @param {TypedArray} buffer Pixel array
  */
 CPGreyBmp.prototype.copyPixelColumnToArray = function (x, y, len, buffer) {
-    var yJump = this.width,
-        dstOffset = 0,
-        srcOffset = this.offsetOfPixel(x, y);
+  var yJump = this.width,
+    dstOffset = 0,
+    srcOffset = this.offsetOfPixel(x, y);
 
-    for (var i = 0; i < len; i++) {
-        buffer[dstOffset] = this.data[srcOffset];
+  for (var i = 0; i < len; i++) {
+    buffer[dstOffset] = this.data[srcOffset];
 
-        srcOffset += yJump;
-        dstOffset++;
-    }
+    srcOffset += yJump;
+    dstOffset++;
+  }
 };
 
 /**
@@ -639,54 +626,54 @@ CPGreyBmp.prototype.copyPixelColumnToArray = function (x, y, len, buffer) {
  * @param {TypedArray} buffer Pixel array to copy from
  */
 CPGreyBmp.prototype.copyArrayToPixelColumn = function (x, y, len, buffer) {
-    var yJump = this.width,
-        srcOffset = 0,
-        dstOffset = this.offsetOfPixel(x, y);
+  var yJump = this.width,
+    srcOffset = 0,
+    dstOffset = this.offsetOfPixel(x, y);
 
-    for (var i = 0; i < len; i++) {
-        this.data[dstOffset] = buffer[srcOffset];
+  for (var i = 0; i < len; i++) {
+    this.data[dstOffset] = buffer[srcOffset];
 
-        dstOffset += yJump;
-        srcOffset++;
-    }
+    dstOffset += yJump;
+    srcOffset++;
+  }
 };
 
 CPGreyBmp.prototype.boxBlur = function (rect, radiusX, radiusY) {
-    rect = this.getBounds().clipTo(rect);
+  rect = this.getBounds().clipTo(rect);
 
-    let rectWidth = rect.getWidth(),
-        rectHeight = rect.getHeight(),
-        rectLength = Math.max(rectWidth, rectHeight),
-        src = new this.data.constructor(rectLength),
-        dst = new this.data.constructor(rectLength);
+  let rectWidth = rect.getWidth(),
+    rectHeight = rect.getHeight(),
+    rectLength = Math.max(rectWidth, rectHeight),
+    src = new this.data.constructor(rectLength),
+    dst = new this.data.constructor(rectLength);
 
-    for (let y = rect.top; y < rect.bottom; y++) {
-        var pixOffset = this.offsetOfPixel(rect.left, y);
+  for (let y = rect.top; y < rect.bottom; y++) {
+    var pixOffset = this.offsetOfPixel(rect.left, y);
 
-        for (let x = 0; x < rectWidth; x++) {
-            src[x] = this.data[pixOffset++];
-        }
-
-        boxBlurLine(src, dst, rectWidth, radiusX);
-
-        pixOffset = this.offsetOfPixel(rect.left, y);
-
-        for (let x = 0; x < rectWidth; x++) {
-            this.data[pixOffset++] = dst[x];
-        }
+    for (let x = 0; x < rectWidth; x++) {
+      src[x] = this.data[pixOffset++];
     }
 
-    for (let x = rect.left; x < rect.right; x++) {
-        this.copyPixelColumnToArray(x, rect.top, rectHeight, src);
+    boxBlurLine(src, dst, rectWidth, radiusX);
 
-        boxBlurLine(src, dst, rectHeight, radiusY);
+    pixOffset = this.offsetOfPixel(rect.left, y);
 
-        this.copyArrayToPixelColumn(x, rect.top, rectHeight, dst);
+    for (let x = 0; x < rectWidth; x++) {
+      this.data[pixOffset++] = dst[x];
     }
+  }
+
+  for (let x = rect.left; x < rect.right; x++) {
+    this.copyPixelColumnToArray(x, rect.top, rectHeight, src);
+
+    boxBlurLine(src, dst, rectHeight, radiusY);
+
+    this.copyArrayToPixelColumn(x, rect.top, rectHeight, dst);
+  }
 };
 
 CPGreyBmp.prototype.offsetOfPixel = function (x, y) {
-    return y * this.width + x;
+  return y * this.width + x;
 };
 
 /**
@@ -696,41 +683,41 @@ CPGreyBmp.prototype.offsetOfPixel = function (x, y) {
  * @param {number} blockSize - ブロックサイズ（ピクセル）
  */
 CPGreyBmp.prototype.mosaic = function (rect, blockSize) {
-    rect = this.getBounds().clipTo(rect);
-    blockSize = Math.max(1, blockSize | 0);
+  rect = this.getBounds().clipTo(rect);
+  blockSize = Math.max(1, blockSize | 0);
 
-    const width = this.width;
-    const data = this.data;
+  const width = this.width;
+  const data = this.data;
 
-    for (let by = rect.top; by < rect.bottom; by += blockSize) {
-        const yEnd = Math.min(by + blockSize, rect.bottom);
+  for (let by = rect.top; by < rect.bottom; by += blockSize) {
+    const yEnd = Math.min(by + blockSize, rect.bottom);
 
-        for (let bx = rect.left; bx < rect.right; bx += blockSize) {
-            const xEnd = Math.min(bx + blockSize, rect.right);
+    for (let bx = rect.left; bx < rect.right; bx += blockSize) {
+      const xEnd = Math.min(bx + blockSize, rect.right);
 
-            let sum = 0;
-            let count = 0;
+      let sum = 0;
+      let count = 0;
 
-            // --- ブロック内の平均輝度 ---
-            for (let y = by; y < yEnd; y++) {
-                let idx = y * width + bx;
-                for (let x = bx; x < xEnd; x++) {
-                    sum += data[idx++];
-                    count++;
-                }
-            }
-
-            const avg = (sum / count) | 0;
-
-            // --- ブロック全体を同一輝度で塗る ---
-            for (let y = by; y < yEnd; y++) {
-                let idx = y * width + bx;
-                for (let x = bx; x < xEnd; x++) {
-                    data[idx++] = avg;
-                }
-            }
+      // --- ブロック内の平均輝度 ---
+      for (let y = by; y < yEnd; y++) {
+        let idx = y * width + bx;
+        for (let x = bx; x < xEnd; x++) {
+          sum += data[idx++];
+          count++;
         }
+      }
+
+      const avg = (sum / count) | 0;
+
+      // --- ブロック全体を同一輝度で塗る ---
+      for (let y = by; y < yEnd; y++) {
+        let idx = y * width + bx;
+        for (let x = bx; x < xEnd; x++) {
+          data[idx++] = avg;
+        }
+      }
     }
+  }
 };
 
 /**
@@ -750,120 +737,120 @@ CPGreyBmp.prototype.mosaic = function (rect, blockSize) {
  *        小さいほど密／大きいほど疎
  */
 CPGreyBmp.prototype.monoHalftone = function (
-    rect,
-    dotSize,
-    color = 0x000000,
-    density = 1.0,
+  rect,
+  dotSize,
+  color = 0x000000,
+  density = 1.0,
 ) {
-    dotSize = Math.max(2, dotSize | 0);
-    rect = this.getBounds().clipTo(rect);
+  dotSize = Math.max(2, dotSize | 0);
+  rect = this.getBounds().clipTo(rect);
 
-    const w = this.width;
-    const h = this.height;
-    const B = CPGreyBmp.BYTES_PER_PIXEL; // = 1
+  const w = this.width;
+  const h = this.height;
+  const B = CPGreyBmp.BYTES_PER_PIXEL; // = 1
 
-    const src = new Uint8ClampedArray(this.data);
-    const dst = new Uint8ClampedArray(this.data.length);
+  const src = new Uint8ClampedArray(this.data);
+  const dst = new Uint8ClampedArray(this.data.length);
 
-    // 背景：白
-    for (let i = 0; i < dst.length; i++) {
-        dst[i] = 255;
+  // 背景：白
+  for (let i = 0; i < dst.length; i++) {
+    dst[i] = 255;
+  }
+
+  const centerX = w * 0.5;
+  const centerY = h * 0.5;
+
+  const angle = (45 * Math.PI) / 180;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+
+  const step = dotSize * density;
+  const maxR = dotSize * 0.5;
+  const minR = 0.5;
+
+  // 端欠け防止
+  const diag = Math.ceil(Math.sqrt(w * w + h * h));
+  const offsetX = (diag - w) * 0.5;
+  const offsetY = (diag - h) * 0.5;
+
+  for (let gy = -offsetY; gy < h + offsetY; gy += step) {
+    for (let gx = -offsetX; gx < w + offsetX; gx += step) {
+      const cx = gx + step * 0.5;
+      const cy = gy + step * 0.5;
+
+      // 回転
+      const dx = cx - centerX;
+      const dy = cy - centerY;
+      const rx = dx * cos - dy * sin + centerX;
+      const ry = dx * sin + dy * cos + centerY;
+
+      const sx = rx | 0;
+      const sy = ry | 0;
+      if (sx < 0 || sy < 0 || sx >= w || sy >= h) continue;
+
+      const i = sy * w + sx;
+
+      const lum = src[i] / 255; // マスク濃度そのもの
+      const v = 1 - lum;
+      if (v <= 0) continue;
+
+      const radius = minR + (maxR - minR) * Math.pow(v, 0.9);
+      drawDot(rx, ry, radius);
     }
+  }
 
-    const centerX = w * 0.5;
-    const centerY = h * 0.5;
+  this.data.set(dst);
 
-    const angle = (45 * Math.PI) / 180;
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
+  /* ===== 内部 ===== */
 
-    const step = dotSize * density;
-    const maxR = dotSize * 0.5;
-    const minR = 0.5;
+  function drawDot(cx, cy, radius) {
+    const r2 = radius * radius;
 
-    // 端欠け防止
-    const diag = Math.ceil(Math.sqrt(w * w + h * h));
-    const offsetX = (diag - w) * 0.5;
-    const offsetY = (diag - h) * 0.5;
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        if (dx * dx + dy * dy > r2) continue;
 
-    for (let gy = -offsetY; gy < h + offsetY; gy += step) {
-        for (let gx = -offsetX; gx < w + offsetX; gx += step) {
-            const cx = gx + step * 0.5;
-            const cy = gy + step * 0.5;
+        const px = (cx + dx) | 0;
+        const py = (cy + dy) | 0;
+        if (px < 0 || py < 0 || px >= w || py >= h) continue;
 
-            // 回転
-            const dx = cx - centerX;
-            const dy = cy - centerY;
-            const rx = dx * cos - dy * sin + centerX;
-            const ry = dx * sin + dy * cos + centerY;
-
-            const sx = rx | 0;
-            const sy = ry | 0;
-            if (sx < 0 || sy < 0 || sx >= w || sy >= h) continue;
-
-            const i = sy * w + sx;
-
-            const lum = src[i] / 255; // マスク濃度そのもの
-            const v = 1 - lum;
-            if (v <= 0) continue;
-
-            const radius = minR + (maxR - minR) * Math.pow(v, 0.9);
-            drawDot(rx, ry, radius);
-        }
+        const p = py * w + px;
+        dst[p] = 0; // 黒マスク
+      }
     }
-
-    this.data.set(dst);
-
-    /* ===== 内部 ===== */
-
-    function drawDot(cx, cy, radius) {
-        const r2 = radius * radius;
-
-        for (let dy = -radius; dy <= radius; dy++) {
-            for (let dx = -radius; dx <= radius; dx++) {
-                if (dx * dx + dy * dy > r2) continue;
-
-                const px = (cx + dx) | 0;
-                const py = (cy + dy) | 0;
-                if (px < 0 || py < 0 || px >= w || py >= h) continue;
-
-                const p = py * w + px;
-                dst[p] = 0; // 黒マスク
-            }
-        }
-    }
+  }
 };
 
 /**
  * @param {CPRect} rect
  */
 CPGreyBmp.prototype.fillWithNoise = function (rect) {
-    rect = this.getBounds().clipTo(rect);
+  rect = this.getBounds().clipTo(rect);
 
-    var yStride = this.width - rect.getWidth(),
-        pixIndex = this.offsetOfPixel(rect.left, rect.top);
+  var yStride = this.width - rect.getWidth(),
+    pixIndex = this.offsetOfPixel(rect.left, rect.top);
 
-    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
-        for (var x = rect.left; x < rect.right; x++, pixIndex++) {
-            this.data[pixIndex] = (Math.random() * 0x100) | 0; // TODO we might usefully support bitmaps > 8 bits/channel here?
-        }
+  for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+    for (var x = rect.left; x < rect.right; x++, pixIndex++) {
+      this.data[pixIndex] = (Math.random() * 0x100) | 0; // TODO we might usefully support bitmaps > 8 bits/channel here?
     }
+  }
 };
 
 /**
  * @param {CPRect} rect
  */
 CPGreyBmp.prototype.invert = function (rect) {
-    rect = this.getBounds().clipTo(rect);
+  rect = this.getBounds().clipTo(rect);
 
-    var yStride = this.width - rect.getWidth(),
-        pixIndex = this.offsetOfPixel(rect.left, rect.top);
+  var yStride = this.width - rect.getWidth(),
+    pixIndex = this.offsetOfPixel(rect.left, rect.top);
 
-    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
-        for (var x = rect.left; x < rect.right; x++, pixIndex++) {
-            this.data[pixIndex] = ~this.data[pixIndex];
-        }
+  for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+    for (var x = rect.left; x < rect.right; x++, pixIndex++) {
+      this.data[pixIndex] = ~this.data[pixIndex];
     }
+  }
 };
 
 /**
@@ -878,98 +865,98 @@ CPGreyBmp.prototype.invert = function (rect) {
  * @returns {CPRect}
  */
 CPGreyBmp.prototype.getValueBounds = function (initialBounds, value) {
-    var pixIndex,
-        result = initialBounds.clone(),
-        x,
-        y,
-        yStride,
-        found;
+  var pixIndex,
+    result = initialBounds.clone(),
+    x,
+    y,
+    yStride,
+    found;
 
-    // Find the first non-matching row
-    yStride = this.width - result.getWidth();
-    pixIndex = this.offsetOfPixel(result.left, result.top);
+  // Find the first non-matching row
+  yStride = this.width - result.getWidth();
+  pixIndex = this.offsetOfPixel(result.left, result.top);
 
-    for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
-        found = false;
+  for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
+    found = false;
 
-        for (x = result.left; x < result.right; x++, pixIndex++) {
-            if (this.data[pixIndex] != value) {
-                found = true;
-                break;
-            }
-        }
-
-        if (found) {
-            break;
-        }
+    for (x = result.left; x < result.right; x++, pixIndex++) {
+      if (this.data[pixIndex] != value) {
+        found = true;
+        break;
+      }
     }
 
-    result.top = y;
-
-    if (result.top == result.bottom) {
-        // Rect is empty, no opaque pixels in the initialBounds
-        return result;
+    if (found) {
+      break;
     }
+  }
 
-    // Now the last non-matching row
-    pixIndex = this.offsetOfPixel(result.right - 1, result.bottom - 1);
-    for (y = result.bottom - 1; y >= result.top; y--, pixIndex -= yStride) {
-        found = false;
-        for (x = result.right - 1; x >= result.left; x--, pixIndex--) {
-            if (this.data[pixIndex] != value) {
-                found = true;
-                break;
-            }
-        }
+  result.top = y;
 
-        if (found) {
-            break;
-        }
-    }
-
-    result.bottom =
-        y + 1; /* +1 since the bottom/right edges of the rect are exclusive */
-
-    // Now columns from the left
-    yStride = this.width;
-    for (x = result.left; x < result.right; x++) {
-        pixIndex = this.offsetOfPixel(x, result.top);
-
-        found = false;
-        for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
-            if (this.data[pixIndex] != value) {
-                found = true;
-                break;
-            }
-        }
-
-        if (found) {
-            break;
-        }
-    }
-
-    result.left = x;
-
-    // And columns from the right
-    for (x = result.right - 1; x >= result.left; x--) {
-        pixIndex = this.offsetOfPixel(x, result.top);
-
-        found = false;
-        for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
-            if (this.data[pixIndex] != value) {
-                found = true;
-                break;
-            }
-        }
-
-        if (found) {
-            break;
-        }
-    }
-
-    result.right = x + 1;
-
+  if (result.top == result.bottom) {
+    // Rect is empty, no opaque pixels in the initialBounds
     return result;
+  }
+
+  // Now the last non-matching row
+  pixIndex = this.offsetOfPixel(result.right - 1, result.bottom - 1);
+  for (y = result.bottom - 1; y >= result.top; y--, pixIndex -= yStride) {
+    found = false;
+    for (x = result.right - 1; x >= result.left; x--, pixIndex--) {
+      if (this.data[pixIndex] != value) {
+        found = true;
+        break;
+      }
+    }
+
+    if (found) {
+      break;
+    }
+  }
+
+  result.bottom =
+    y + 1; /* +1 since the bottom/right edges of the rect are exclusive */
+
+  // Now columns from the left
+  yStride = this.width;
+  for (x = result.left; x < result.right; x++) {
+    pixIndex = this.offsetOfPixel(x, result.top);
+
+    found = false;
+    for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
+      if (this.data[pixIndex] != value) {
+        found = true;
+        break;
+      }
+    }
+
+    if (found) {
+      break;
+    }
+  }
+
+  result.left = x;
+
+  // And columns from the right
+  for (x = result.right - 1; x >= result.left; x--) {
+    pixIndex = this.offsetOfPixel(x, result.top);
+
+    found = false;
+    for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
+      if (this.data[pixIndex] != value) {
+        found = true;
+        break;
+      }
+    }
+
+    if (found) {
+      break;
+    }
+  }
+
+  result.right = x + 1;
+
+  return result;
 };
 
 /**
@@ -981,57 +968,57 @@ CPGreyBmp.prototype.getValueBounds = function (initialBounds, value) {
  * @param gradientPoints int[]
  */
 CPGreyBmp.prototype.gradientHorzReplace = function (
-    rect,
-    fromX,
-    toX,
-    gradientPoints,
+  rect,
+  fromX,
+  toX,
+  gradientPoints,
 ) {
-    var fromColor = gradientPoints[0] & 0xff,
-        toColor = gradientPoints[1] & 0xff,
-        yStride = this.width - rect.getWidth(),
-        pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
-        h = (rect.bottom - rect.top) | 0;
+  var fromColor = gradientPoints[0] & 0xff,
+    toColor = gradientPoints[1] & 0xff,
+    yStride = this.width - rect.getWidth(),
+    pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
+    h = (rect.bottom - rect.top) | 0;
 
-    if (toX < fromX) {
-        var temp = toX;
-        toX = fromX;
-        fromX = temp;
+  if (toX < fromX) {
+    var temp = toX;
+    toX = fromX;
+    fromX = temp;
 
-        temp = fromColor;
-        fromColor = toColor;
-        toColor = temp;
+    temp = fromColor;
+    fromColor = toColor;
+    toColor = temp;
+  }
+
+  var gradientRange = (toX - fromX) | 0,
+    colorStep = (toColor - fromColor) / gradientRange,
+    jump = Math.max(rect.left - fromX, 0);
+
+  for (var y = 0; y < h; y++, pixIndex += yStride) {
+    // The solid color section before the gradient
+    var x = rect.left;
+
+    for (
+      var xEnd = Math.min(fromX, rect.right) | 0;
+      x < xEnd;
+      x++, pixIndex++
+    ) {
+      this.data[pixIndex] = fromColor;
     }
 
-    var gradientRange = (toX - fromX) | 0,
-        colorStep = (toColor - fromColor) / gradientRange,
-        jump = Math.max(rect.left - fromX, 0);
+    // In the gradient
+    var color1 = fromColor + colorStep * jump;
 
-    for (var y = 0; y < h; y++, pixIndex += yStride) {
-        // The solid color section before the gradient
-        var x = rect.left;
+    for (xEnd = Math.min(toX, rect.right) | 0; x < xEnd; x++, pixIndex++) {
+      this.data[pixIndex] = color1;
 
-        for (
-            var xEnd = Math.min(fromX, rect.right) | 0;
-            x < xEnd;
-            x++, pixIndex++
-        ) {
-            this.data[pixIndex] = fromColor;
-        }
-
-        // In the gradient
-        var color1 = fromColor + colorStep * jump;
-
-        for (xEnd = Math.min(toX, rect.right) | 0; x < xEnd; x++, pixIndex++) {
-            this.data[pixIndex] = color1;
-
-            color1 += colorStep;
-        }
-
-        // The section after the end of the gradient
-        for (; x < rect.right; x++, pixIndex++) {
-            this.data[pixIndex] = toColor;
-        }
+      color1 += colorStep;
     }
+
+    // The section after the end of the gradient
+    for (; x < rect.right; x++, pixIndex++) {
+      this.data[pixIndex] = toColor;
+    }
+  }
 };
 
 /**
@@ -1043,64 +1030,64 @@ CPGreyBmp.prototype.gradientHorzReplace = function (
  * @param gradientPoints int[]
  */
 CPGreyBmp.prototype.gradientVertReplace = function (
-    rect,
-    fromY,
-    toY,
-    gradientPoints,
+  rect,
+  fromY,
+  toY,
+  gradientPoints,
 ) {
-    let fromColor = gradientPoints[0] & 0xff,
-        toColor = gradientPoints[1] & 0xff,
-        yStride = this.width - rect.getWidth(),
-        pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
-        w = (rect.right - rect.left) | 0;
+  let fromColor = gradientPoints[0] & 0xff,
+    toColor = gradientPoints[1] & 0xff,
+    yStride = this.width - rect.getWidth(),
+    pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
+    w = (rect.right - rect.left) | 0;
 
-    if (toY < fromY) {
-        let temp = toY;
-        toY = fromY;
-        fromY = temp;
+  if (toY < fromY) {
+    let temp = toY;
+    toY = fromY;
+    fromY = temp;
 
-        temp = fromColor;
-        fromColor = toColor;
-        toColor = temp;
+    temp = fromColor;
+    fromColor = toColor;
+    toColor = temp;
+  }
+
+  let y = rect.top;
+
+  // The solid color section before the start of the gradient
+  for (
+    let yEnd = Math.min(rect.bottom, fromY) | 0;
+    y < yEnd;
+    y++, pixIndex += yStride
+  ) {
+    for (let x = 0; x < w; x++, pixIndex++) {
+      this.data[pixIndex] = fromColor;
+    }
+  }
+
+  // Inside the gradient
+  var gradientRange = (toY - fromY) | 0,
+    colorStep = (toColor - fromColor) / gradientRange,
+    jump = Math.max(y - fromY, 0),
+    color1 = fromColor + colorStep * jump;
+
+  for (
+    let yEnd = Math.min(rect.bottom, toY) | 0;
+    y < yEnd;
+    y++, pixIndex += yStride
+  ) {
+    for (let x = 0; x < w; x++, pixIndex++) {
+      this.data[pixIndex] = color1;
     }
 
-    let y = rect.top;
+    color1 += colorStep;
+  }
 
-    // The solid color section before the start of the gradient
-    for (
-        let yEnd = Math.min(rect.bottom, fromY) | 0;
-        y < yEnd;
-        y++, pixIndex += yStride
-    ) {
-        for (let x = 0; x < w; x++, pixIndex++) {
-            this.data[pixIndex] = fromColor;
-        }
+  // The section after the end of the gradient
+  for (; y < rect.bottom; y++, pixIndex += yStride) {
+    for (let x = 0; x < w; x++, pixIndex++) {
+      this.data[pixIndex] = toColor;
     }
-
-    // Inside the gradient
-    var gradientRange = (toY - fromY) | 0,
-        colorStep = (toColor - fromColor) / gradientRange,
-        jump = Math.max(y - fromY, 0),
-        color1 = fromColor + colorStep * jump;
-
-    for (
-        let yEnd = Math.min(rect.bottom, toY) | 0;
-        y < yEnd;
-        y++, pixIndex += yStride
-    ) {
-        for (let x = 0; x < w; x++, pixIndex++) {
-            this.data[pixIndex] = color1;
-        }
-
-        color1 += colorStep;
-    }
-
-    // The section after the end of the gradient
-    for (; y < rect.bottom; y++, pixIndex += yStride) {
-        for (let x = 0; x < w; x++, pixIndex++) {
-            this.data[pixIndex] = toColor;
-        }
-    }
+  }
 };
 
 /**
@@ -1114,40 +1101,37 @@ CPGreyBmp.prototype.gradientVertReplace = function (
  * @param gradientPoints int[]
  */
 CPGreyBmp.prototype.gradientReplace = function (
-    rect,
-    fromX,
-    fromY,
-    toX,
-    toY,
-    gradientPoints,
+  rect,
+  fromX,
+  fromY,
+  toX,
+  toY,
+  gradientPoints,
 ) {
-    var yStride = this.width - rect.getWidth(),
-        pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
-        w = (rect.right - rect.left) | 0,
-        fromColor = gradientPoints[0] & 0xff,
-        toColor = gradientPoints[1] & 0xff,
-        // How many pixels vertically does the gradient sequence complete over (+infinity for horizontal gradients!)
-        vertRange =
-            toY - fromY + ((toX - fromX) * (toX - fromX)) / (toY - fromY),
-        // Same for horizontal
-        horzRange =
-            toX - fromX + ((toY - fromY) * (toY - fromY)) / (toX - fromX),
-        horzStep = 1 / horzRange;
+  var yStride = this.width - rect.getWidth(),
+    pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
+    w = (rect.right - rect.left) | 0,
+    fromColor = gradientPoints[0] & 0xff,
+    toColor = gradientPoints[1] & 0xff,
+    // How many pixels vertically does the gradient sequence complete over (+infinity for horizontal gradients!)
+    vertRange = toY - fromY + ((toX - fromX) * (toX - fromX)) / (toY - fromY),
+    // Same for horizontal
+    horzRange = toX - fromX + ((toY - fromY) * (toY - fromY)) / (toX - fromX),
+    horzStep = 1 / horzRange;
 
-    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
-        var // The position the row starts at in the gradient [0.0 ... 1.0)
-            prop = (rect.left - fromX) / horzRange + (y - fromY) / vertRange;
+  for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+    var // The position the row starts at in the gradient [0.0 ... 1.0)
+      prop = (rect.left - fromX) / horzRange + (y - fromY) / vertRange;
 
-        for (var x = 0; x < w; x++, pixIndex++) {
-            var propClamped = Math.min(Math.max(prop, 0.0), 1.0),
-                invPropClamped = 1 - propClamped;
+    for (var x = 0; x < w; x++, pixIndex++) {
+      var propClamped = Math.min(Math.max(prop, 0.0), 1.0),
+        invPropClamped = 1 - propClamped;
 
-            this.data[pixIndex] =
-                fromColor * invPropClamped + toColor * propClamped;
+      this.data[pixIndex] = fromColor * invPropClamped + toColor * propClamped;
 
-            prop += horzStep;
-        }
+      prop += horzStep;
     }
+  }
 };
 
 /**
@@ -1161,51 +1145,49 @@ CPGreyBmp.prototype.gradientReplace = function (
  * @param gradientPoints int[]
  */
 CPGreyBmp.prototype.gradientAlpha = function (
-    rect,
-    fromX,
-    fromY,
-    toX,
-    toY,
-    gradientPoints,
+  rect,
+  fromX,
+  fromY,
+  toX,
+  toY,
+  gradientPoints,
 ) {
-    var yStride = this.width - rect.getWidth(),
-        pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
-        w = (rect.right - rect.left) | 0,
-        fromColor = {
-            c: gradientPoints[0] & 0xff,
-            a: (gradientPoints[0] >> 24) & 0xff,
-        },
-        toColor = {
-            c: gradientPoints[1] & 0xff,
-            a: (gradientPoints[1] >> 24) & 0xff,
-        },
-        // How many pixels vertically does the gradient sequence complete over (+infinity for horizontal gradients!)
-        vertRange =
-            toY - fromY + ((toX - fromX) * (toX - fromX)) / (toY - fromY),
-        // Same for horizontal
-        horzRange =
-            toX - fromX + ((toY - fromY) * (toY - fromY)) / (toX - fromX),
-        horzStep = 1 / horzRange;
+  var yStride = this.width - rect.getWidth(),
+    pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
+    w = (rect.right - rect.left) | 0,
+    fromColor = {
+      c: gradientPoints[0] & 0xff,
+      a: (gradientPoints[0] >> 24) & 0xff,
+    },
+    toColor = {
+      c: gradientPoints[1] & 0xff,
+      a: (gradientPoints[1] >> 24) & 0xff,
+    },
+    // How many pixels vertically does the gradient sequence complete over (+infinity for horizontal gradients!)
+    vertRange = toY - fromY + ((toX - fromX) * (toX - fromX)) / (toY - fromY),
+    // Same for horizontal
+    horzRange = toX - fromX + ((toY - fromY) * (toY - fromY)) / (toX - fromX),
+    horzStep = 1 / horzRange;
 
-    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
-        var // The position the row starts at in the gradient [0.0 ... 1.0)
-            prop = (rect.left - fromX) / horzRange + (y - fromY) / vertRange;
+  for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+    var // The position the row starts at in the gradient [0.0 ... 1.0)
+      prop = (rect.left - fromX) / horzRange + (y - fromY) / vertRange;
 
-        for (var x = 0; x < w; x++, pixIndex++) {
-            var propClamped = Math.min(Math.max(prop, 0.0), 1.0),
-                invPropClamped = 1 - propClamped,
-                // The gradient color to draw
-                color1 = fromColor.c * invPropClamped + toColor.c * propClamped,
-                alpha1 = fromColor.a * invPropClamped + toColor.a * propClamped;
+    for (var x = 0; x < w; x++, pixIndex++) {
+      var propClamped = Math.min(Math.max(prop, 0.0), 1.0),
+        invPropClamped = 1 - propClamped,
+        // The gradient color to draw
+        color1 = fromColor.c * invPropClamped + toColor.c * propClamped,
+        alpha1 = fromColor.a * invPropClamped + toColor.a * propClamped;
 
-            var invAlpha = 255 - alpha1;
+      var invAlpha = 255 - alpha1;
 
-            this.data[pixIndex] =
-                ((color1 * alpha1 + this.data[pixIndex] * invAlpha) / 255) | 0;
+      this.data[pixIndex] =
+        ((color1 * alpha1 + this.data[pixIndex] * invAlpha) / 255) | 0;
 
-            prop += horzStep;
-        }
+      prop += horzStep;
     }
+  }
 };
 
 /**
@@ -1221,48 +1203,48 @@ CPGreyBmp.prototype.gradientAlpha = function (
  * @param {boolean} replace - True if the contents of the destination should be ignored (opaque blend)
  */
 CPGreyBmp.prototype.gradient = function (
-    rect,
-    fromX,
-    fromY,
-    toX,
-    toY,
-    gradientPoints,
-    replace,
+  rect,
+  fromX,
+  fromY,
+  toX,
+  toY,
+  gradientPoints,
+  replace,
 ) {
-    rect = this.getBounds().clipTo(rect);
+  rect = this.getBounds().clipTo(rect);
 
-    // Degenerate case
-    if (fromX == toX && fromY == toY) {
-        return;
-    }
+  // Degenerate case
+  if (fromX == toX && fromY == toY) {
+    return;
+  }
 
-    // Opaque blend if possible
-    if (
-        replace ||
-        (gradientPoints[0] >>> 24 == 255 && gradientPoints[1] >>> 24 == 255)
-    ) {
-        if (fromX == toX) {
-            this.gradientVertReplace(rect, fromY, toY, gradientPoints);
-        } else if (fromY == toY) {
-            this.gradientHorzReplace(rect, fromX, toX, gradientPoints);
-        } else {
-            this.gradientReplace(rect, fromX, fromY, toX, toY, gradientPoints);
-        }
+  // Opaque blend if possible
+  if (
+    replace ||
+    (gradientPoints[0] >>> 24 == 255 && gradientPoints[1] >>> 24 == 255)
+  ) {
+    if (fromX == toX) {
+      this.gradientVertReplace(rect, fromY, toY, gradientPoints);
+    } else if (fromY == toY) {
+      this.gradientHorzReplace(rect, fromX, toX, gradientPoints);
     } else {
-        this.gradientAlpha(rect, fromX, fromY, toX, toY, gradientPoints);
+      this.gradientReplace(rect, fromX, fromY, toX, toY, gradientPoints);
     }
+  } else {
+    this.gradientAlpha(rect, fromX, fromY, toX, toY, gradientPoints);
+  }
 };
 
 CPGreyBmp.prototype.equals = function (that) {
-    if (this.width != that.width || this.height != that.height) {
-        return false;
-    }
+  if (this.width != that.width || this.height != that.height) {
+    return false;
+  }
 
-    for (let pixIndex = 0; pixIndex < this.data.length; pixIndex++) {
-        if (this.data[pixIndex] != that.data[pixIndex]) {
-            return false;
-        }
+  for (let pixIndex = 0; pixIndex < this.data.length; pixIndex++) {
+    if (this.data[pixIndex] != that.data[pixIndex]) {
+      return false;
     }
+  }
 
-    return true;
+  return true;
 };

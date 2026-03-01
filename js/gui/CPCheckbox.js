@@ -23,60 +23,63 @@
 import EventEmitter from "wolfy87-eventemitter";
 
 export default function CPCheckbox(state, title) {
-    var
-        canvas = document.createElement('canvas'),
-        canvasContext = canvas.getContext('2d'),
-        
-        that = this;
-    
-    this.state = state || false;
-    
-    function paint() {
-        var 
-            width = canvas.width,
-            height = canvas.height;
+  var canvas = document.createElement("canvas"),
+    canvasContext = canvas.getContext("2d"),
+    that = this;
 
-        canvasContext.clearRect(0, 0, width, height);
-        
-        canvasContext.beginPath();
-        canvasContext.arc(width / 2 + 1, width / 2 + 1, Math.max(width / 2, 1) - 2, 0, Math.PI * 2);
-        
-        if (that.state) {
-            canvasContext.fill();
-        } else {
-            canvasContext.stroke();
-        }
+  this.state = state || false;
+
+  function paint() {
+    var width = canvas.width,
+      height = canvas.height;
+
+    canvasContext.clearRect(0, 0, width, height);
+
+    canvasContext.beginPath();
+    canvasContext.arc(
+      width / 2 + 1,
+      width / 2 + 1,
+      Math.max(width / 2, 1) - 2,
+      0,
+      Math.PI * 2,
+    );
+
+    if (that.state) {
+      canvasContext.fill();
+    } else {
+      canvasContext.stroke();
     }
+  }
 
-    this.setValue = function(b) {
-        if (this.state != b) {
-            this.state = b;
-            
-            this.emitEvent('valueChange', [b]);
-            
-            paint();
-        }
-    };
-    
-    this.getElement = function() {
-        return canvas;
-    };
-    
-    canvas.addEventListener("mousedown", function(e) {
-        that.setValue(!that.state);
-    });
-    
-    canvas.title = title || "";
-    canvas.className = 'chickenpaint-checkbox';
-    
-    canvas.width = 20;
-    canvas.height = 20;
-    
-    canvas.fillStyle = 'black';
-    canvas.strokeStyle = 'black';
-    
-    paint();
-};
+  this.setValue = function (b) {
+    if (this.state != b) {
+      this.state = b;
+
+      this.emitEvent("valueChange", [b]);
+
+      paint();
+    }
+  };
+
+  this.getElement = function () {
+    return canvas;
+  };
+
+  canvas.addEventListener("mousedown", function (e) {
+    that.setValue(!that.state);
+  });
+
+  canvas.title = title || "";
+  canvas.className = "chickenpaint-checkbox";
+
+  canvas.width = 20;
+  canvas.height = 20;
+
+  canvas.fillStyle = "black";
+  canvas.strokeStyle = "black";
+
+  paint();
+}
 
 CPCheckbox.prototype = Object.create(EventEmitter.prototype);
 CPCheckbox.prototype.constructor = CPCheckbox;

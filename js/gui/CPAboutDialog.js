@@ -22,13 +22,13 @@
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 export default function CPAboutDialog(parent) {
-    // ダイアログのHTML構造
-    var dialog = document.createElement("div");
-    dialog.classList.add("modal", "fade", "chickenpaint-about-dialog");
-    dialog.setAttribute("tabindex", "-1");
-    dialog.setAttribute("role", "dialog");
+  // ダイアログのHTML構造
+  var dialog = document.createElement("div");
+  dialog.classList.add("modal", "fade", "chickenpaint-about-dialog");
+  dialog.setAttribute("tabindex", "-1");
+  dialog.setAttribute("role", "dialog");
 
-    dialog.innerHTML = `
+  dialog.innerHTML = `
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -127,20 +127,20 @@ Includes Material Design icons by Google - <a href="https://fonts.google.com/" t
         </div>
     `;
 
-    parent.appendChild(dialog);
+  parent.appendChild(dialog);
 
-    // Bootstrap 5 の Modal インスタンスを作成
-    var modalInstance = new bootstrap.Modal(dialog);
+  // Bootstrap 5 の Modal インスタンスを作成
+  var modalInstance = new bootstrap.Modal(dialog);
 
-    // モーダルのクローズ時にダイアログを削除
-    dialog.addEventListener("hidden.bs.modal", () => {
-        dialog.remove();
-    });
+  // モーダルのクローズ時にダイアログを削除
+  dialog.addEventListener("hidden.bs.modal", () => {
+    dialog.remove();
+  });
 
-    // モーダル表示用のメソッドを返す
-    return {
-        show: function () {
-            modalInstance.show();
-        },
-    };
+  // モーダル表示用のメソッドを返す
+  return {
+    show: function () {
+      modalInstance.show();
+    },
+  };
 }

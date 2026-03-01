@@ -33,412 +33,398 @@ import CPSwatchesPalette from "./CPSwatchesPalette.js";
 import { _ } from "../languages/lang.js";
 
 export default function CPPaletteManager(cpController) {
-    const palettes = {
-            tool: new CPToolPalette(cpController),
-            color: new CPColorPalette(cpController),
-            swatches: new CPSwatchesPalette(cpController),
-            stroke: new CPStrokePalette(cpController),
-            brush: new CPBrushPalette(cpController),
-            layers: new CPLayersPalette(cpController),
-            misc: new CPMiscPalette(cpController),
-            textures: new CPTexturePalette(cpController),
-        },
-        defaultCollapse = {
-            tool: false,
-            color: false,
-            misc: false,
-        },
-        collapseDownwards = {
-            color: true,
-            textures: true,
-            layers: true,
-        },
-        parentElem = document.createElement("div"),
-        that = this;
+  const palettes = {
+      tool: new CPToolPalette(cpController),
+      color: new CPColorPalette(cpController),
+      swatches: new CPSwatchesPalette(cpController),
+      stroke: new CPStrokePalette(cpController),
+      brush: new CPBrushPalette(cpController),
+      layers: new CPLayersPalette(cpController),
+      misc: new CPMiscPalette(cpController),
+      textures: new CPTexturePalette(cpController),
+    },
+    defaultCollapse = {
+      tool: false,
+      color: false,
+      misc: false,
+    },
+    collapseDownwards = {
+      color: true,
+      textures: true,
+      layers: true,
+    },
+    parentElem = document.createElement("div"),
+    that = this;
 
-    let paletteFrames = [],
-        hiddenFrames = [];
+  let paletteFrames = [],
+    hiddenFrames = [];
 
-    this.palettes = palettes;
+  this.palettes = palettes;
 
-    function getPaletteDisplayArea() {
-        // Use the canvas as a positioning guide to avoid overlapping scrollbars
-        let canvas = parentElem
-            .closest(".chickenpaint")
-            .querySelector(".chickenpaint-canvas");
+  function getPaletteDisplayArea() {
+    // Use the canvas as a positioning guide to avoid overlapping scrollbars
+    let canvas = parentElem
+      .closest(".chickenpaint")
+      .querySelector(".chickenpaint-canvas");
 
-        return { width: canvas.offsetWidth, height: canvas.offsetHeight };
+    return { width: canvas.offsetWidth, height: canvas.offsetHeight };
+  }
+
+  function showPalette(palette, show) {
+    let palElement = palette.getElement();
+
+    if (show) {
+      if (!parentElem.contains(palElement)) {
+        parentElem.appendChild(palElement);
+      }
+    } else {
+      if (parentElem.contains(palElement)) {
+        parentElem.removeChild(palElement);
+      }
+    }
+    that.emitEvent("paletteVisChange", [palette.name, show]);
+
+    // FIXME: focus hack
+    // controller.canvas.grabFocus(); TODO
+  }
+
+  this.showPaletteByName = function (paletteName, show) {
+    let palette = palettes[paletteName];
+
+    if (palette) {
+      showPalette(palette, show);
+    }
+  };
+
+  this.togglePalettes = function () {
+    const mainMenu = cpController.mainGUI.getMainMenu();
+    const menuElement = mainMenu.getElement();
+    const togglePalettesBtn = menuElement.querySelector(
+      '.widget-nav [data-action="CPTogglePalettes"]',
+    );
+
+    if (hiddenFrames.length === 0) {
+      let palettes = parentElem.querySelectorAll(".chickenpaint-palette");
+      palettes.forEach(function (palette) {
+        that.showPaletteByName(palette.getAttribute("data-paletteName"), false);
+        hiddenFrames.push(palette);
+      });
+      togglePalettesBtn.classList.remove("selected");
+    } else {
+      for (let i = 0; i < hiddenFrames.length; i++) {
+        let frame = hiddenFrames[i];
+        that.showPaletteByName(frame.getAttribute("data-paletteName"), true);
+      }
+      hiddenFrames = [];
+      togglePalettesBtn.classList.add("selected");
+    }
+  };
+  //選択範囲がある時は選択解除アイコンを青色で表示する
+  this.updateDeselectIcon = function () {
+    const mainMenu = cpController.mainGUI.getMainMenu();
+
+    const menuElement = mainMenu.getElement();
+    const menuDeselectIcon = menuElement.querySelector(".deselectIcon");
+    // console.log("updateDeselectIcon called",deselectIcon);
+    const paletteElement = palettes.brush.getElement();
+    const paletteDeselectIcon =
+      paletteElement.querySelector(".icon-md-deselect");
+    const paletteDdeselectButton =
+      paletteElement.querySelector(".deselectButton");
+    const iconColor = "rgb(49, 130, 216)";
+    if (!(menuDeselectIcon && paletteDeselectIcon && paletteDdeselectButton)) {
+      return;
+    }
+    if (!cpController.artwork.getSelection().isEmpty()) {
+      menuDeselectIcon.style.color = iconColor;
+      paletteDeselectIcon.style.color = iconColor;
+      paletteDdeselectButton.style.boxShadow = `0 0 1px 1px ${iconColor}`;
+    } else {
+      menuDeselectIcon.style.color = "";
+      paletteDeselectIcon.style.color = "";
+      paletteDdeselectButton.style.boxShadow = "";
+    }
+  };
+
+  /**
+   * Pop palettes that are currently outside the visible area back into view.
+   */
+  this.constrainPalettes = function () {
+    let windowDim = getPaletteDisplayArea();
+
+    for (let i in palettes) {
+      let palette = palettes[i];
+
+      /* Move palettes that are more than half out of the frame back into it */
+      if (palette.getX() + palette.getWidth() / 2 > windowDim.width) {
+        palette.setLocation(
+          windowDim.width - palette.getWidth(),
+          palette.getY(),
+        );
+      }
+
+      if (palette.getY() + palette.getHeight() / 2 > windowDim.height) {
+        palette.setLocation(
+          palette.getX(),
+          windowDim.height - palette.getHeight(),
+        );
+      }
     }
 
-    function showPalette(palette, show) {
-        let palElement = palette.getElement();
+    //Move small palettes to the front so that they aren't completely hidden
+    //palettes.swatches.moveToFront();
 
-        if (show) {
-            if (!parentElem.contains(palElement)) {
-                parentElem.appendChild(palElement);
-            }
-        } else {
-            if (parentElem.contains(palElement)) {
-                parentElem.removeChild(palElement);
-            }
-        }
-        that.emitEvent("paletteVisChange", [palette.name, show]);
+    //Special handling for the swatches palette being under the brush palette:
+    let widthToSpare =
+      windowDim.width -
+        palettes.tool.getWidth() -
+        palettes.misc.getWidth() -
+        palettes.stroke.getWidth() -
+        palettes.color.getWidth() -
+        palettes.brush.getWidth() -
+        15 >
+      0;
 
-        // FIXME: focus hack
-        // controller.canvas.grabFocus(); TODO
+    if (
+      palettes.swatches.getX() + palettes.swatches.getWidth() ==
+        palettes.brush.getX() + palettes.brush.getWidth() &&
+      Math.abs(palettes.swatches.getY() - palettes.brush.getY()) < 20
+    ) {
+      palettes.swatches.setLocation(
+        palettes.brush.getX() -
+          palettes.swatches.getWidth() -
+          (widthToSpare ? 5 : 1),
+        0,
+      );
     }
 
-    this.showPaletteByName = function (paletteName, show) {
-        let palette = palettes[paletteName];
+    //Special handling for layers palette being too damn tall:
+    if (
+      palettes.layers.getY() + palettes.layers.getHeight() >
+      windowDim.height
+    ) {
+      palettes.layers.setHeight(
+        Math.max(windowDim.height - palettes.layers.getY(), 200),
+      );
+    }
+  };
 
-        if (palette) {
-            showPalette(palette, show);
-        }
-    };
+  /**
+   * Rearrange the palettes from scratch into a useful arrangement.
+   */
+  this.arrangePalettes = function () {
+    let windowDim = getPaletteDisplayArea(),
+      haveWidthToSpare;
+    const smallScreenMode = cpController.getSmallScreenMode();
+    const mainGUI = cpController.mainGUI;
+    const mainMenu = mainGUI.getMainMenu();
+    const menuElement = mainMenu.getElement();
+    const smallScreenItem = menuElement.querySelector(
+      '.dropdown-item[data-action="CPToggleSetSmallScreenMode"]',
+    );
+    //モバイルモード時は、メニューにチェックマークを付ける
+    if (smallScreenItem) {
+      if (smallScreenMode) {
+        smallScreenItem.classList.add("selected");
+      } else {
+        smallScreenItem.classList.remove("selected");
+      }
+    }
+    const mobileBtn = menuElement.querySelector(
+      '.widget-nav [data-action="CPToggleSetSmallScreenMode"]',
+    );
+    if (mobileBtn) {
+      mobileBtn.className = "widget-toggler mobile selected";
+      mobileBtn.dataset.checkbox = "true";
+      mobileBtn.type = "button";
+      mobileBtn.classList.add("selected");
+      mobileBtn.dataset.selected = "true";
+      // まず既存の内容をクリア
+      mobileBtn.textContent = "";
+      // span要素を作成
+      const span = document.createElement("span");
+      span.textContent = smallScreenMode ? _("PC mode") : _("Mobile mode");
 
-    this.togglePalettes = function () {
-        const mainMenu = cpController.mainGUI.getMainMenu();
-        const menuElement = mainMenu.getElement();
-        const togglePalettesBtn = menuElement.querySelector(
-            '.widget-nav [data-action="CPTogglePalettes"]'
+      // ボタンに追加
+      mobileBtn.appendChild(span);
+    }
+
+    if (smallScreenMode) {
+      palettes.tool.setLocation(0, 0);
+      palettes.misc.setLocation(
+        palettes.tool.getX() + palettes.tool.getWidth() + 1,
+        0,
+      );
+
+      const BrushLocationY =
+        windowDim.width -
+          (palettes.tool.getWidth() +
+            palettes.misc.getWidth() +
+            palettes.brush.getWidth()) <=
+        16
+          ? palettes.misc.getY() + palettes.misc.getHeight() + 1
+          : 0;
+      palettes.brush.setLocation(
+        windowDim.width - palettes.brush.getWidth() - 15,
+        BrushLocationY,
+      );
+
+      // palettes.brush.setLocation(windowDim.width - palettes.brush.getWidth() - 15, palettes.misc.getY() + palettes.misc.getHeight() + 1);
+
+      let layersY = 330;
+
+      palettes.textures.setWidth(windowDim.width - palettes.textures.getX());
+
+      palettes.layers.setLocation(
+        palettes.brush.getX() +
+          palettes.brush.getWidth() -
+          palettes.layers.getWidth(),
+        palettes.textures.getY() - palettes.layers.getHeight(),
+      );
+      const layerPaletteHeight = Math.max(
+        palettes.textures.getY() - layersY - 1,
+        370,
+      );
+      palettes.layers.setHeight(layerPaletteHeight);
+      // palettes.layers.setHeight(palettes.textures.getY() - layersY - 1);
+      palettes.layers.setWidth(218);
+
+      palettes.stroke.setLocation(
+        palettes.misc.getX(),
+        palettes.misc.getY() + palettes.misc.getHeight() + 1,
+      );
+      palettes.swatches.setLocation(
+        palettes.stroke.getX(),
+        palettes.stroke.getY() + palettes.stroke.getHeight() + 1,
+      );
+    } else {
+      haveWidthToSpare =
+        windowDim.width -
+          palettes.tool.getWidth() -
+          palettes.misc.getWidth() -
+          palettes.stroke.getWidth() -
+          palettes.color.getWidth() -
+          palettes.brush.getWidth() -
+          15 >
+        0;
+
+      palettes.brush.setLocation(
+        windowDim.width - palettes.brush.getWidth() - 15,
+        0,
+      );
+
+      let bottomOfBrush = palettes.brush.getY() + palettes.brush.getHeight(),
+        layersY =
+          windowDim.height - bottomOfBrush > 300
+            ? bottomOfBrush + 2
+            : bottomOfBrush;
+
+      palettes.layers.setSize(
+        palettes.brush.getWidth() + (haveWidthToSpare ? 30 : 0),
+        windowDim.height - layersY,
+      );
+      palettes.layers.setLocation(
+        palettes.brush.getX() +
+          palettes.brush.getWidth() -
+          palettes.layers.getWidth(),
+        layersY,
+      );
+
+      palettes.tool.setLocation(0, 0);
+
+      palettes.misc.setLocation(
+        palettes.tool.getX() +
+          palettes.tool.getWidth() +
+          (haveWidthToSpare ? 5 : 1),
+        0,
+      );
+
+      if (haveWidthToSpare) {
+        palettes.stroke.setLocation(
+          palettes.misc.getX() +
+            palettes.misc.getWidth() +
+            (haveWidthToSpare ? 5 : 1),
+          0,
         );
-
-        if (hiddenFrames.length === 0) {
-            let palettes = parentElem.querySelectorAll(".chickenpaint-palette");
-            palettes.forEach(function (palette) {
-                that.showPaletteByName(
-                    palette.getAttribute("data-paletteName"),
-                    false
-                );
-                hiddenFrames.push(palette);
-            });
-            togglePalettesBtn.classList.remove("selected");
-        } else {
-            for (let i = 0; i < hiddenFrames.length; i++) {
-                let frame = hiddenFrames[i];
-                that.showPaletteByName(
-                    frame.getAttribute("data-paletteName"),
-                    true
-                );
-            }
-            hiddenFrames = [];
-            togglePalettesBtn.classList.add("selected");
-        }
-    };
-    //選択範囲がある時は選択解除アイコンを青色で表示する
-    this.updateDeselectIcon = function () {
-        const mainMenu = cpController.mainGUI.getMainMenu();
-
-        const menuElement = mainMenu.getElement();
-        const menuDeselectIcon = menuElement.querySelector(".deselectIcon");
-        // console.log("updateDeselectIcon called",deselectIcon);
-        const paletteElement = palettes.brush.getElement();
-        const paletteDeselectIcon =
-            paletteElement.querySelector(".icon-md-deselect");
-        const paletteDdeselectButton =
-            paletteElement.querySelector(".deselectButton");
-        const iconColor = "rgb(49, 130, 216)";
-        if (
-            !(menuDeselectIcon && paletteDeselectIcon && paletteDdeselectButton)
-        ) {
-            return;
-        }
-        if (!cpController.artwork.getSelection().isEmpty()) {
-            menuDeselectIcon.style.color = iconColor;
-            paletteDeselectIcon.style.color = iconColor;
-            paletteDdeselectButton.style.boxShadow = `0 0 1px 1px ${iconColor}`;
-        } else {
-            menuDeselectIcon.style.color = "";
-            paletteDeselectIcon.style.color = "";
-            paletteDdeselectButton.style.boxShadow = "";
-        }
-    };
-
-    /**
-     * Pop palettes that are currently outside the visible area back into view.
-     */
-    this.constrainPalettes = function () {
-        let windowDim = getPaletteDisplayArea();
-
-        for (let i in palettes) {
-            let palette = palettes[i];
-
-            /* Move palettes that are more than half out of the frame back into it */
-            if (palette.getX() + palette.getWidth() / 2 > windowDim.width) {
-                palette.setLocation(
-                    windowDim.width - palette.getWidth(),
-                    palette.getY()
-                );
-            }
-
-            if (palette.getY() + palette.getHeight() / 2 > windowDim.height) {
-                palette.setLocation(
-                    palette.getX(),
-                    windowDim.height - palette.getHeight()
-                );
-            }
-        }
-
-        //Move small palettes to the front so that they aren't completely hidden
-        //palettes.swatches.moveToFront();
-
-        //Special handling for the swatches palette being under the brush palette:
-        let widthToSpare =
-            windowDim.width -
-                palettes.tool.getWidth() -
-                palettes.misc.getWidth() -
-                palettes.stroke.getWidth() -
-                palettes.color.getWidth() -
-                palettes.brush.getWidth() -
-                15 >
-            0;
-
-        if (
-            palettes.swatches.getX() + palettes.swatches.getWidth() ==
-                palettes.brush.getX() + palettes.brush.getWidth() &&
-            Math.abs(palettes.swatches.getY() - palettes.brush.getY()) < 20
-        ) {
-            palettes.swatches.setLocation(
-                palettes.brush.getX() -
-                    palettes.swatches.getWidth() -
-                    (widthToSpare ? 5 : 1),
-                0
-            );
-        }
-
-        //Special handling for layers palette being too damn tall:
-        if (
-            palettes.layers.getY() + palettes.layers.getHeight() >
-            windowDim.height
-        ) {
-            palettes.layers.setHeight(
-                Math.max(windowDim.height - palettes.layers.getY(), 200)
-            );
-        }
-    };
-
-    /**
-     * Rearrange the palettes from scratch into a useful arrangement.
-     */
-    this.arrangePalettes = function () {
-        let windowDim = getPaletteDisplayArea(),
-            haveWidthToSpare;
-        const smallScreenMode = cpController.getSmallScreenMode();
-        const mainGUI = cpController.mainGUI;
-        const mainMenu = mainGUI.getMainMenu();
-        const menuElement = mainMenu.getElement();
-        const smallScreenItem = menuElement.querySelector(
-            '.dropdown-item[data-action="CPToggleSetSmallScreenMode"]'
+      } else {
+        palettes.stroke.setLocation(
+          palettes.misc.getX(),
+          palettes.misc.getY() + palettes.misc.getHeight() + 1,
         );
-        //モバイルモード時は、メニューにチェックマークを付ける
-        if (smallScreenItem) {
-            if (smallScreenMode) {
-                smallScreenItem.classList.add("selected");
-            } else {
-                smallScreenItem.classList.remove("selected");
-            }
-        }
-        const mobileBtn = menuElement.querySelector(
-            '.widget-nav [data-action="CPToggleSetSmallScreenMode"]'
-        );
-        if (mobileBtn) {
-            mobileBtn.className = "widget-toggler mobile selected";
-            mobileBtn.dataset.checkbox = "true";
-            mobileBtn.type = "button";
-            mobileBtn.classList.add("selected");
-            mobileBtn.dataset.selected = "true";
-            // まず既存の内容をクリア
-            mobileBtn.textContent = "";
-            // span要素を作成
-            const span = document.createElement("span");
-            span.textContent = smallScreenMode
-                ? _("PC mode")
-                : _("Mobile mode");
+      }
 
-            // ボタンに追加
-            mobileBtn.appendChild(span);
-        }
+      palettes.swatches.setLocation(
+        Math.max(
+          palettes.brush.getX() -
+            palettes.swatches.getWidth() -
+            (haveWidthToSpare ? 5 : 1),
+          palettes.tool.getX() + palettes.tool.getWidth(),
+        ),
+        0,
+      );
 
-        if (smallScreenMode) {
-            palettes.tool.setLocation(0, 0);
-            palettes.misc.setLocation(
-                palettes.tool.getX() + palettes.tool.getWidth() + 1,
-                0
-            );
+      palettes.textures.setWidth(
+        Math.min(palettes.layers.getX() - palettes.textures.getX(), 490),
+      );
+    }
 
-            const BrushLocationY =
-                windowDim.width -
-                    (palettes.tool.getWidth() +
-                        palettes.misc.getWidth() +
-                        palettes.brush.getWidth()) <=
-                16
-                    ? palettes.misc.getY() + palettes.misc.getHeight() + 1
-                    : 0;
-            palettes.brush.setLocation(
-                windowDim.width - palettes.brush.getWidth() - 15,
-                BrushLocationY
-            );
+    palettes.textures.setLocation(
+      palettes.color.getX() + palettes.color.getWidth() + 4,
+      windowDim.height - palettes.textures.getHeight(),
+    );
 
-            // palettes.brush.setLocation(windowDim.width - palettes.brush.getWidth() - 15, palettes.misc.getY() + palettes.misc.getHeight() + 1);
+    palettes.color.setLocation(
+      0,
+      Math.max(
+        palettes.tool.getY() + palettes.tool.getHeight(),
+        windowDim.height - palettes.color.getHeight(),
+      ),
+    );
+  };
 
-            let layersY = 330;
+  /**
+   * パレット名ごとのデフォルト折りたたみ状態
+   * @type {Object.<string, boolean>}
+   */
+  cpController.on("smallScreen", function (smallScreenMode) {
+    for (let paletteName in palettes) {
+      let palette = palettes[paletteName];
 
-            palettes.textures.setWidth(
-                windowDim.width - palettes.textures.getX()
-            );
+      const shouldCollapse =
+        smallScreenMode &&
+        (!(paletteName in defaultCollapse) || defaultCollapse[paletteName]);
 
-            palettes.layers.setLocation(
-                palettes.brush.getX() +
-                    palettes.brush.getWidth() -
-                    palettes.layers.getWidth(),
-                palettes.textures.getY() - palettes.layers.getHeight()
-            );
-            const layerPaletteHeight = Math.max(
-                palettes.textures.getY() - layersY - 1,
-                370
-            );
-            palettes.layers.setHeight(layerPaletteHeight);
-            // palettes.layers.setHeight(palettes.textures.getY() - layersY - 1);
-            palettes.layers.setWidth(218);
+      palette.toggleCollapse(shouldCollapse);
+    }
+  });
 
-            palettes.stroke.setLocation(
-                palettes.misc.getX(),
-                palettes.misc.getY() + palettes.misc.getHeight() + 1
-            );
-            palettes.swatches.setLocation(
-                palettes.stroke.getX(),
-                palettes.stroke.getY() + palettes.stroke.getHeight() + 1
-            );
-        } else {
-            haveWidthToSpare =
-                windowDim.width -
-                    palettes.tool.getWidth() -
-                    palettes.misc.getWidth() -
-                    palettes.stroke.getWidth() -
-                    palettes.color.getWidth() -
-                    palettes.brush.getWidth() -
-                    15 >
-                0;
+  this.getElement = function () {
+    return parentElem;
+  };
 
-            palettes.brush.setLocation(
-                windowDim.width - palettes.brush.getWidth() - 15,
-                0
-            );
+  parentElem.className = "chickenpaint-palettes";
 
-            let bottomOfBrush =
-                    palettes.brush.getY() + palettes.brush.getHeight(),
-                layersY =
-                    windowDim.height - bottomOfBrush > 300
-                        ? bottomOfBrush + 2
-                        : bottomOfBrush;
+  for (let paletteName in palettes) {
+    let palette = palettes[paletteName],
+      palElement = palette.getElement();
 
-            palettes.layers.setSize(
-                palettes.brush.getWidth() + (haveWidthToSpare ? 30 : 0),
-                windowDim.height - layersY
-            );
-            palettes.layers.setLocation(
-                palettes.brush.getX() +
-                    palettes.brush.getWidth() -
-                    palettes.layers.getWidth(),
-                layersY
-            );
-
-            palettes.tool.setLocation(0, 0);
-
-            palettes.misc.setLocation(
-                palettes.tool.getX() +
-                    palettes.tool.getWidth() +
-                    (haveWidthToSpare ? 5 : 1),
-                0
-            );
-
-            if (haveWidthToSpare) {
-                palettes.stroke.setLocation(
-                    palettes.misc.getX() +
-                        palettes.misc.getWidth() +
-                        (haveWidthToSpare ? 5 : 1),
-                    0
-                );
-            } else {
-                palettes.stroke.setLocation(
-                    palettes.misc.getX(),
-                    palettes.misc.getY() + palettes.misc.getHeight() + 1
-                );
-            }
-
-            palettes.swatches.setLocation(
-                Math.max(
-                    palettes.brush.getX() -
-                        palettes.swatches.getWidth() -
-                        (haveWidthToSpare ? 5 : 1),
-                    palettes.tool.getX() + palettes.tool.getWidth()
-                ),
-                0
-            );
-
-            palettes.textures.setWidth(
-                Math.min(palettes.layers.getX() - palettes.textures.getX(), 490)
-            );
-        }
-
-        palettes.textures.setLocation(
-            palettes.color.getX() + palettes.color.getWidth() + 4,
-            windowDim.height - palettes.textures.getHeight()
-        );
-
-        palettes.color.setLocation(
-            0,
-            Math.max(
-                palettes.tool.getY() + palettes.tool.getHeight(),
-                windowDim.height - palettes.color.getHeight()
-            )
-        );
-    };
-
-    /**
-     * パレット名ごとのデフォルト折りたたみ状態
-     * @type {Object.<string, boolean>}
-     */
-    cpController.on("smallScreen", function (smallScreenMode) {
-        for (let paletteName in palettes) {
-            let palette = palettes[paletteName];
-
-            const shouldCollapse =
-                smallScreenMode &&
-                (!(paletteName in defaultCollapse) ||
-                    defaultCollapse[paletteName]);
-
-            palette.toggleCollapse(shouldCollapse);
-        }
+    palette.on("paletteVisChange", function () {
+      showPalette(this, false);
     });
 
-    this.getElement = function () {
-        return parentElem;
-    };
-
-    parentElem.className = "chickenpaint-palettes";
-
-    for (let paletteName in palettes) {
-        let palette = palettes[paletteName],
-            palElement = palette.getElement();
-
-        palette.on("paletteVisChange", function () {
-            showPalette(this, false);
-        });
-
-        if (paletteName in collapseDownwards) {
-            palette.setCollapseDownwards(true);
-        }
-
-        palElement.setAttribute("data-paletteName", paletteName);
-        paletteFrames.push(palElement);
+    if (paletteName in collapseDownwards) {
+      palette.setCollapseDownwards(true);
     }
 
-    for (let paletteName in palettes) {
-        let palElement = palettes[paletteName].getElement();
+    palElement.setAttribute("data-paletteName", paletteName);
+    paletteFrames.push(palElement);
+  }
 
-        parentElem.appendChild(palElement);
-    }
+  for (let paletteName in palettes) {
+    let palElement = palettes[paletteName].getElement();
+
+    parentElem.appendChild(palElement);
+  }
 }
 
 CPPaletteManager.prototype = Object.create(EventEmitter.prototype);

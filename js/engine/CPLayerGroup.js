@@ -20,7 +20,7 @@
 	along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import CPLayer from './CPLayer.js';
+import CPLayer from "./CPLayer.js";
 import CPRect from "../util/CPRect.js";
 
 /**
@@ -29,15 +29,15 @@ import CPRect from "../util/CPRect.js";
  * @param {number} blendMode
  * @constructor
  */
-export default function CPLayerGroup(name="", blendMode=0) {
-	CPLayer.call(this, name);
+export default function CPLayerGroup(name = "", blendMode = 0) {
+  CPLayer.call(this, name);
 
-	/**
-	 * @type {CPLayer[]}
-	 */
-	this.layers = [];
-	this.expanded = true;
-	this.blendMode = blendMode;
+  /**
+   * @type {CPLayer[]}
+   */
+  this.layers = [];
+  this.expanded = true;
+  this.blendMode = blendMode;
 }
 
 CPLayerGroup.prototype = Object.create(CPLayer.prototype);
@@ -50,83 +50,83 @@ CPLayerGroup.prototype.constructor = CPLayerGroup;
  * @param {CPLayer[]} list
  * @returns {CPLayer[]}
  */
-CPLayerGroup.prototype.getLinearizedLayerList = function(respectCollapse, list=[]) {
-	list = list || [];
+CPLayerGroup.prototype.getLinearizedLayerList = function (
+  respectCollapse,
+  list = [],
+) {
+  list = list || [];
 
-	for (let layer of this.layers) {
-		if (layer instanceof CPLayerGroup && (layer.expanded || !respectCollapse)) {
-			layer.getLinearizedLayerList(respectCollapse, list);
-		}
-		list.push(layer);
-	}
+  for (let layer of this.layers) {
+    if (layer instanceof CPLayerGroup && (layer.expanded || !respectCollapse)) {
+      layer.getLinearizedLayerList(respectCollapse, list);
+    }
+    list.push(layer);
+  }
 
-	return list;
+  return list;
 };
 
-CPLayerGroup.prototype.clearLayers = function() {
-	this.layers = [];
+CPLayerGroup.prototype.clearLayers = function () {
+  this.layers = [];
 };
 
-CPLayerGroup.prototype.addLayer = function(layer) {
-	layer.parent = this;
-	this.layers.push(layer);
+CPLayerGroup.prototype.addLayer = function (layer) {
+  layer.parent = this;
+  this.layers.push(layer);
 };
 
-CPLayerGroup.prototype.insertLayer = function(index, layer) {
-	layer.parent = this;
-	this.layers.splice(index, 0, layer);
+CPLayerGroup.prototype.insertLayer = function (index, layer) {
+  layer.parent = this;
+  this.layers.splice(index, 0, layer);
 };
 
-CPLayerGroup.prototype.removeLayer = function(layer) {
-	var
-		index = this.layers.indexOf(layer);
+CPLayerGroup.prototype.removeLayer = function (layer) {
+  var index = this.layers.indexOf(layer);
 
-	if (index > -1) {
-		this.layers.splice(index, 1);
-	}
+  if (index > -1) {
+    this.layers.splice(index, 1);
+  }
 };
 
-CPLayerGroup.prototype.removeLayerAtIndex = function(index) {
-	var
-		layer = this.layers[index];
+CPLayerGroup.prototype.removeLayerAtIndex = function (index) {
+  var layer = this.layers[index];
 
-	if (layer) {
-		this.layers.splice(index, 1);
-	}
+  if (layer) {
+    this.layers.splice(index, 1);
+  }
 
-	return layer;
+  return layer;
 };
 
-CPLayerGroup.prototype.setLayerAtIndex = function(index, layer) {
-	var
-		oldLayer = this.layers[index];
+CPLayerGroup.prototype.setLayerAtIndex = function (index, layer) {
+  var oldLayer = this.layers[index];
 
-	layer.parent = this;
-	this.layers[index] = layer;
+  layer.parent = this;
+  this.layers[index] = layer;
 
-	return oldLayer;
+  return oldLayer;
 };
 
-CPLayerGroup.prototype.setExpanded = function(expanded) {
-	this.expanded = expanded;
+CPLayerGroup.prototype.setExpanded = function (expanded) {
+  this.expanded = expanded;
 };
 
-CPLayerGroup.prototype.getExpanded = function() {
-	return this.expanded;
+CPLayerGroup.prototype.getExpanded = function () {
+  return this.expanded;
 };
 
 /**
  * Get the index of the given layer in this group, or -1 if the layer is not in the group.
- * 
+ *
  * @param {CPLayer} layer
  * @returns {number}
  */
-CPLayerGroup.prototype.indexOf = function(layer) {
-	return this.layers.indexOf(layer);
+CPLayerGroup.prototype.indexOf = function (layer) {
+  return this.layers.indexOf(layer);
 };
 
 function sum(a, b) {
-	return a + b;
+  return a + b;
 }
 
 /**
@@ -134,21 +134,20 @@ function sum(a, b) {
  *
  * @returns {number}
  */
-CPLayerGroup.prototype.getMemoryUsed = function() {
-	return this.layers.map(layer => layer.getMemoryUsed()).reduce(sum, 0);
+CPLayerGroup.prototype.getMemoryUsed = function () {
+  return this.layers.map((layer) => layer.getMemoryUsed()).reduce(sum, 0);
 };
 
-CPLayerGroup.prototype.clone = function() {
-	var
-		result = new CPLayerGroup(this.name, this.blendMode);
+CPLayerGroup.prototype.clone = function () {
+  var result = new CPLayerGroup(this.name, this.blendMode);
 
-	CPLayer.prototype.copyFrom.call(result, this);
+  CPLayer.prototype.copyFrom.call(result, this);
 
-	result.expanded = this.expanded;
-	result.layers = this.layers.map(layer => layer.clone());
-	result.layers.forEach(layer => layer.parent = result);
+  result.expanded = this.expanded;
+  result.layers = this.layers.map((layer) => layer.clone());
+  result.layers.forEach((layer) => (layer.parent = result));
 
-	return result;
+  return result;
 };
 
 /**
@@ -159,11 +158,12 @@ CPLayerGroup.prototype.clone = function() {
  *
  * @returns {CPRect}
  */
-CPLayerGroup.prototype.getNonTransparentBounds = function(initialBounds) {
-	var
-		nonTransparentRect = new CPRect(0, 0, 0, 0);
-	
-	this.layers.forEach(layer => nonTransparentRect.union(layer.getNonTransparentBounds(initialBounds)));
+CPLayerGroup.prototype.getNonTransparentBounds = function (initialBounds) {
+  var nonTransparentRect = new CPRect(0, 0, 0, 0);
 
-	return nonTransparentRect;
+  this.layers.forEach((layer) =>
+    nonTransparentRect.union(layer.getNonTransparentBounds(initialBounds)),
+  );
+
+  return nonTransparentRect;
 };

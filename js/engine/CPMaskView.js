@@ -35,24 +35,28 @@ import EventEmitter from "wolfy87-eventemitter";
  * @param {CPRect} rect
  */
 function copyGreyscaleRectToImageData(imageData, greyscale, rect) {
-	var
-		srcIndex = rect.top * greyscale.width + rect.left,
-		dstIndex = srcIndex * CPColorBmp.BYTES_PER_PIXEL,
+  var srcIndex = rect.top * greyscale.width + rect.left,
+    dstIndex = srcIndex * CPColorBmp.BYTES_PER_PIXEL,
+    width = rect.getWidth(),
+    height = rect.getHeight(),
+    srcYSkip = greyscale.width - width,
+    dstYSkip = srcYSkip * CPColorBmp.BYTES_PER_PIXEL;
 
-		width = rect.getWidth(),
-		height = rect.getHeight(),
-
-		srcYSkip = greyscale.width - width,
-		dstYSkip = srcYSkip * CPColorBmp.BYTES_PER_PIXEL;
-
-	for (let y = 0; y < height; y++, srcIndex += srcYSkip, dstIndex += dstYSkip) {
-		for (let x = 0; x < width; x++, srcIndex++, dstIndex += CPColorBmp.BYTES_PER_PIXEL) {
-			imageData.data[dstIndex + CPColorBmp.RED_BYTE_OFFSET] = greyscale.data[srcIndex];
-			imageData.data[dstIndex + CPColorBmp.GREEN_BYTE_OFFSET] = greyscale.data[srcIndex];
-			imageData.data[dstIndex + CPColorBmp.BLUE_BYTE_OFFSET] = greyscale.data[srcIndex];
-			imageData.data[dstIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = 0xFF;
-		}
-	}
+  for (let y = 0; y < height; y++, srcIndex += srcYSkip, dstIndex += dstYSkip) {
+    for (
+      let x = 0;
+      x < width;
+      x++, srcIndex++, dstIndex += CPColorBmp.BYTES_PER_PIXEL
+    ) {
+      imageData.data[dstIndex + CPColorBmp.RED_BYTE_OFFSET] =
+        greyscale.data[srcIndex];
+      imageData.data[dstIndex + CPColorBmp.GREEN_BYTE_OFFSET] =
+        greyscale.data[srcIndex];
+      imageData.data[dstIndex + CPColorBmp.BLUE_BYTE_OFFSET] =
+        greyscale.data[srcIndex];
+      imageData.data[dstIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = 0xff;
+    }
+  }
 }
 
 /**
@@ -62,67 +66,75 @@ function copyGreyscaleRectToImageData(imageData, greyscale, rect) {
  * Emits a "changeLayer" event if the mask view attaches to a different target layer.
  */
 export default class CPMaskView extends EventEmitter {
-	
-	/**
-	 * @param {CPLayer} layer
-	 * @param {function} prepareMask
-	 */
-	constructor(layer, prepareMask) {
-		super();
+  /**
+   * @param {CPLayer} layer
+   * @param {function} prepareMask
+   */
+  constructor(layer, prepareMask) {
+    super();
 
-		this.layer = layer;
-		this.buffer = layer.mask.getImageData(0, 0, layer.mask.width, layer.mask.height);
-		this.invalidRect = new CPRect(0, 0, 0, 0); // Buffer starts off valid
+    this.layer = layer;
+    this.buffer = layer.mask.getImageData(
+      0,
+      0,
+      layer.mask.width,
+      layer.mask.height,
+    );
+    this.invalidRect = new CPRect(0, 0, 0, 0); // Buffer starts off valid
 
-		/**
-		 * Routine that must be called before the pixels in the mask will be valid.
-		 *
-		 * @type {Function}
-		 */
-		this.prepareMask = prepareMask;
-	}
+    /**
+     * Routine that must be called before the pixels in the mask will be valid.
+     *
+     * @type {Function}
+     */
+    this.prepareMask = prepareMask;
+  }
 
-	close() {
-		this.buffer = null;
-		this.layer = null;
+  close() {
+    this.buffer = null;
+    this.layer = null;
 
-		this.emitEvent("changeLayer");
-	}
+    this.emitEvent("changeLayer");
+  }
 
-	setLayer(layer) {
-		this.layer = layer;
-		this.invalidRect = layer.getBounds();
+  setLayer(layer) {
+    this.layer = layer;
+    this.invalidRect = layer.getBounds();
 
-		this.emitEvent("changeLayer");
-	}
+    this.emitEvent("changeLayer");
+  }
 
-	isOpen() {
-		return this.layer != null;
-	}
+  isOpen() {
+    return this.layer != null;
+  }
 
-	/**
-	 * Mark a rectangle as changed (the mask has been painted on)
-	 *
-	 * @param {CPRect} rect
-	 */
-	invalidateRect(rect) {
-		this.invalidRect.union(rect);
-	}
+  /**
+   * Mark a rectangle as changed (the mask has been painted on)
+   *
+   * @param {CPRect} rect
+   */
+  invalidateRect(rect) {
+    this.invalidRect.union(rect);
+  }
 
-	/**
-	 * Get the pixels of the mask as an ImageData object, or null if this view has already been closed.
-	 *
-	 * @returns {ImageData}
-	 */
-	getImageData() {
-		this.prepareMask();
+  /**
+   * Get the pixels of the mask as an ImageData object, or null if this view has already been closed.
+   *
+   * @returns {ImageData}
+   */
+  getImageData() {
+    this.prepareMask();
 
-		if (!this.invalidRect.isEmpty() && this.layer && this.layer.mask) {
-			copyGreyscaleRectToImageData(this.buffer, this.layer.mask, this.invalidRect);
+    if (!this.invalidRect.isEmpty() && this.layer && this.layer.mask) {
+      copyGreyscaleRectToImageData(
+        this.buffer,
+        this.layer.mask,
+        this.invalidRect,
+      );
 
-			this.invalidRect.makeEmpty();
-		}
+      this.invalidRect.makeEmpty();
+    }
 
-		return this.buffer;
-	}
+    return this.buffer;
+  }
 }

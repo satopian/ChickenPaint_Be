@@ -21,20 +21,18 @@
 */
 
 export function createCanvas(width, height) {
-	var
-		canvas = document.createElement("canvas");
-	
-	canvas.width = width;
-	canvas.height = height;
-	
-	return canvas;
+  var canvas = document.createElement("canvas");
+
+  canvas.width = width;
+  canvas.height = height;
+
+  return canvas;
 }
 
 export function createImageData(width, height) {
-	// return new ImageData(this.width, this.height); // Doesn't work on old IE
-	var
-		canvas = document.createElement("canvas"),
-		context = canvas.getContext("2d");
-	
-	return context.createImageData(width, height);
+  // return new ImageData(this.width, this.height); // Doesn't work on old IE
+  var canvas = document.createElement("canvas"),
+    context = canvas.getContext("2d");
+
+  return context.createImageData(width, height);
 }

@@ -24,12 +24,12 @@ import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
 export default function CPEdge(parent, controller) {
-    // ダイアログ要素を作成
-    const dialog = document.createElement("div");
-    dialog.classList.add("modal", "fade");
-    dialog.setAttribute("tabindex", "-1");
-    dialog.setAttribute("role", "dialog");
-    dialog.innerHTML = `
+  // ダイアログ要素を作成
+  const dialog = document.createElement("div");
+  dialog.classList.add("modal", "fade");
+  dialog.setAttribute("tabindex", "-1");
+  dialog.setAttribute("role", "dialog");
+  dialog.innerHTML = `
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -52,79 +52,79 @@ export default function CPEdge(parent, controller) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_(
-                        "Cancel",
+                      "Cancel",
                     )}</button>
                     <button type="button" class="btn btn-primary chickenpaint-apply-aberration-settings" data-bs-dismiss="modal">${_(
-                        "Ok",
+                      "Ok",
                     )}</button>
                 </div>
             </div>
         </div>
     `;
 
-    const edgeWidthElem = dialog.querySelector(
-        ".chickenpaint-aberration-edgeWidth",
+  const edgeWidthElem = dialog.querySelector(
+    ".chickenpaint-aberration-edgeWidth",
+  );
+  const applyButton = dialog.querySelector(
+    ".chickenpaint-apply-aberration-settings",
+  );
+
+  // Bootstrap 5: Modalコンストラクタを使用してモーダルを初期化
+  const modal = new bootstrap.Modal(dialog);
+
+  this.show = function () {
+    // ハンバガーメニューとモーダルの二重表示防止
+    const collapseElement = document.getElementById(
+      "chickenpaint-main-menu-content",
     );
-    const applyButton = dialog.querySelector(
-        ".chickenpaint-apply-aberration-settings",
+    if (collapseElement && collapseElement.classList.contains("show")) {
+      const bsCollapse = new bootstrap.Collapse(collapseElement, {
+        toggle: false,
+      });
+      bsCollapse.hide();
+    }
+    // モーダルを表示
+    modal.show();
+  };
+
+  // 縁取り幅のデフォルト値を設定
+  edgeWidthElem.value = 5;
+
+  // モーダルが閉じられた後にダイアログを削除
+  dialog.addEventListener("hidden.bs.modal", () => {
+    dialog.remove();
+  });
+
+  // 「OK」ボタンのクリックイベント
+  applyButton?.addEventListener("click", () => {
+    const edgeWidth = Math.max(
+      1,
+      Math.min(128, parseInt(edgeWidthElem?.value, 10) || 0),
     );
 
-    // Bootstrap 5: Modalコンストラクタを使用してモーダルを初期化
-    const modal = new bootstrap.Modal(dialog);
+    const replaceWithInnerFill = dialog.querySelector(
+      "#replaceWithInnerFill",
+    )?.checked;
+    controller.getArtwork().edge(edgeWidth, replaceWithInnerFill);
+    controller.setModalShown(false);
 
-    this.show = function () {
-        // ハンバガーメニューとモーダルの二重表示防止
-        const collapseElement = document.getElementById(
-            "chickenpaint-main-menu-content",
-        );
-        if (collapseElement && collapseElement.classList.contains("show")) {
-            const bsCollapse = new bootstrap.Collapse(collapseElement, {
-                toggle: false,
-            });
-            bsCollapse.hide();
-        }
-        // モーダルを表示
-        modal.show();
-    };
+    modal.hide(); // モーダルを手動で閉じる
+  });
 
-    // 縁取り幅のデフォルト値を設定
-    edgeWidthElem.value = 5;
+  // モーダルが表示されたときに、入力フィールドにフォーカス
+  dialog.addEventListener("shown.bs.modal", () => {
+    controller.setModalShown(true);
+    edgeWidthElem?.focus();
+  });
 
-    // モーダルが閉じられた後にダイアログを削除
-    dialog.addEventListener("hidden.bs.modal", () => {
-        dialog.remove();
-    });
+  // Enterキーが押されたときの処理
+  dialog.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // フォーム送信を防ぐ
+      applyButton?.click(); // OKボタンをクリックしたことにする
+    }
+  });
 
-    // 「OK」ボタンのクリックイベント
-    applyButton?.addEventListener("click", () => {
-        const edgeWidth = Math.max(
-            1,
-            Math.min(128, parseInt(edgeWidthElem?.value, 10) || 0),
-        );
-
-        const replaceWithInnerFill = dialog.querySelector(
-            "#replaceWithInnerFill",
-        )?.checked;
-        controller.getArtwork().edge(edgeWidth, replaceWithInnerFill);
-        controller.setModalShown(false);
-
-        modal.hide(); // モーダルを手動で閉じる
-    });
-
-    // モーダルが表示されたときに、入力フィールドにフォーカス
-    dialog.addEventListener("shown.bs.modal", () => {
-        controller.setModalShown(true);
-        edgeWidthElem?.focus();
-    });
-
-    // Enterキーが押されたときの処理
-    dialog.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault(); // フォーム送信を防ぐ
-            applyButton?.click(); // OKボタンをクリックしたことにする
-        }
-    });
-
-    // 親要素にダイアログを追加
-    parent.appendChild(dialog);
+  // 親要素にダイアログを追加
+  parent.appendChild(dialog);
 }

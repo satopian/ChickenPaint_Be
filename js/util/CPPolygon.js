@@ -20,22 +20,21 @@
 	along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import CPTransform from './CPTransform.js';
+import CPTransform from "./CPTransform.js";
 
 export default function CPPolygon(points) {
-	this.points = points || [];
+  this.points = points || [];
 }
 
-CPPolygon.prototype.clone = function() {
-	var
-		result = new CPPolygon(new Array(this.points.length));
+CPPolygon.prototype.clone = function () {
+  var result = new CPPolygon(new Array(this.points.length));
 
-	for (var i = 0; i < this.points.length; i++) {
-		// Deep clone
-		result.points[i] = {x : this.points[i].x, y : this.points[i].y};
-	}
+  for (var i = 0; i < this.points.length; i++) {
+    // Deep clone
+    result.points[i] = { x: this.points[i].x, y: this.points[i].y };
+  }
 
-	return result;
+  return result;
 };
 
 /**
@@ -44,15 +43,14 @@ CPPolygon.prototype.clone = function() {
  * @param {CPTransform} affineTransform
  * @returns {CPPolygon}
  */
-CPPolygon.prototype.getTransformed = function(affineTransform) {
-	var
-		result = new CPPolygon(new Array(this.points.length));
+CPPolygon.prototype.getTransformed = function (affineTransform) {
+  var result = new CPPolygon(new Array(this.points.length));
 
-	for (var i = 0; i < this.points.length; i++) {
-		result.points[i] = affineTransform.getTransformedPoint(this.points[i]);
-	}
+  for (var i = 0; i < this.points.length; i++) {
+    result.points[i] = affineTransform.getTransformedPoint(this.points[i]);
+  }
 
-	return result;
+  return result;
 };
 
 /**
@@ -60,17 +58,16 @@ CPPolygon.prototype.getTransformed = function(affineTransform) {
  *
  * @returns {{x: number, y: number}}
  */
-CPPolygon.prototype.getCenter = function() {
-	var
-		centerX = this.points[0].x,
-		centerY = this.points[0].y;
+CPPolygon.prototype.getCenter = function () {
+  var centerX = this.points[0].x,
+    centerY = this.points[0].y;
 
-	for (var i = 1; i < this.points.length; i++) {
-		centerX += this.points[i].x;
-		centerY += this.points[i].y;
-	}
+  for (var i = 1; i < this.points.length; i++) {
+    centerX += this.points[i].x;
+    centerY += this.points[i].y;
+  }
 
-	return {x: centerX / this.points.length, y: centerY / this.points.length};
+  return { x: centerX / this.points.length, y: centerY / this.points.length };
 };
 
 /**
@@ -79,15 +76,22 @@ CPPolygon.prototype.getCenter = function() {
  * @param point
  * @returns {boolean}
  */
-CPPolygon.prototype.containsPoint = function(point) {
-	var i, j, contained = false;
+CPPolygon.prototype.containsPoint = function (point) {
+  var i,
+    j,
+    contained = false;
 
-	for (i = 0, j = this.points.length - 1; i < this.points.length; j = i++) {
-		if (((this.points[i].y > point.y) != (this.points[j].y > point.y)) &&
-				(point.x < (this.points[j].x - this.points[i].x) * (point.y - this.points[i].y) / (this.points[j].y - this.points[i].y) + this.points[i].x)) {
-			contained = !contained;
-		}
-	}
+  for (i = 0, j = this.points.length - 1; i < this.points.length; j = i++) {
+    if (
+      this.points[i].y > point.y != this.points[j].y > point.y &&
+      point.x <
+        ((this.points[j].x - this.points[i].x) * (point.y - this.points[i].y)) /
+          (this.points[j].y - this.points[i].y) +
+          this.points[i].x
+    ) {
+      contained = !contained;
+    }
+  }
 
-	return contained;
+  return contained;
 };

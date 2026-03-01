@@ -24,12 +24,12 @@ import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
 export default function CPMosaicDialog(parent, controller) {
-    // ダイアログ要素を作成
-    const dialog = document.createElement("div");
-    dialog.classList.add("modal", "fade");
-    dialog.setAttribute("tabindex", "-1");
-    dialog.setAttribute("role", "dialog");
-    dialog.innerHTML = `
+  // ダイアログ要素を作成
+  const dialog = document.createElement("div");
+  dialog.classList.add("modal", "fade");
+  dialog.setAttribute("tabindex", "-1");
+  dialog.setAttribute("role", "dialog");
+  dialog.innerHTML = `
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -52,73 +52,73 @@ export default function CPMosaicDialog(parent, controller) {
                     </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">${_(
-                        "Cancel"
+                      "Cancel",
                     )}</button>
                     <button type="button" class="btn btn-primary chickenpaint-apply-aberration-settings" data-bs-dismiss="modal">${_(
-                        "Ok"
+                      "Ok",
                     )}</button>
                 </div>
             </div>
         </div>
     `;
 
-    const blockSizeElem = dialog.querySelector(".chickenpaint-block-size");
-    const applyButton = dialog.querySelector(
-        ".chickenpaint-apply-aberration-settings"
+  const blockSizeElem = dialog.querySelector(".chickenpaint-block-size");
+  const applyButton = dialog.querySelector(
+    ".chickenpaint-apply-aberration-settings",
+  );
+
+  // Bootstrap 5: Modalコンストラクタを使用してモーダルを初期化
+  const modal = new bootstrap.Modal(dialog);
+
+  this.show = function () {
+    // ハンバガーメニューとモーダルの二重表示防止
+    const collapseElement = document.getElementById(
+      "chickenpaint-main-menu-content",
     );
+    if (collapseElement && collapseElement.classList.contains("show")) {
+      const bsCollapse = new bootstrap.Collapse(collapseElement, {
+        toggle: false,
+      });
+      bsCollapse.hide();
+    }
+    // モーダルを表示
+    modal.show();
+  };
 
-    // Bootstrap 5: Modalコンストラクタを使用してモーダルを初期化
-    const modal = new bootstrap.Modal(dialog);
+  // ブロックサイズの初期値を設定
+  blockSizeElem.value = 6;
 
-    this.show = function () {
-        // ハンバガーメニューとモーダルの二重表示防止
-        const collapseElement = document.getElementById(
-            "chickenpaint-main-menu-content"
-        );
-        if (collapseElement && collapseElement.classList.contains("show")) {
-            const bsCollapse = new bootstrap.Collapse(collapseElement, {
-                toggle: false,
-            });
-            bsCollapse.hide();
-        }
-        // モーダルを表示
-        modal.show();
-    };
+  // モーダルが閉じられた後にダイアログを削除
+  dialog.addEventListener("hidden.bs.modal", () => {
+    dialog.remove();
+  });
 
-    // ブロックサイズの初期値を設定
-    blockSizeElem.value = 6;
+  // 「OK」ボタンのクリックイベント
+  applyButton?.addEventListener("click", () => {
+    let blocksize = parseInt(blockSizeElem?.value, 10);
+    blocksize = Math.max(2, Math.min(2000, blocksize || 1)); // 2から2000の範囲に制限
+    // チェックONなら結合レイヤーを追加して全体に適用
+    const createMergedLayer =
+      dialog.querySelector("#createMergedLayer")?.checked;
+    controller.getArtwork().mosaic(blocksize, createMergedLayer);
+    controller.setModalShown(false);
+    modal.hide(); // モーダルを手動で閉じる
+  });
 
-    // モーダルが閉じられた後にダイアログを削除
-    dialog.addEventListener("hidden.bs.modal", () => {
-        dialog.remove();
-    });
+  // モーダルが表示されたときに、入力フィールドにフォーカス
+  dialog.addEventListener("shown.bs.modal", () => {
+    controller.setModalShown(true);
+    blockSizeElem?.focus();
+  });
 
-    // 「OK」ボタンのクリックイベント
-    applyButton?.addEventListener("click", () => {
-        let blocksize = parseInt(blockSizeElem?.value, 10);
-        blocksize = Math.max(2, Math.min(2000, blocksize||1)); // 2から2000の範囲に制限
-        // チェックONなら結合レイヤーを追加して全体に適用
-        const createMergedLayer =
-            dialog.querySelector("#createMergedLayer")?.checked;
-        controller.getArtwork().mosaic(blocksize, createMergedLayer);
-        controller.setModalShown(false);
-        modal.hide(); // モーダルを手動で閉じる
-    });
+  // Enterキーが押されたときの処理
+  dialog.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // フォーム送信を防ぐ
+      applyButton?.click(); // OKボタンをクリックしたことにする
+    }
+  });
 
-    // モーダルが表示されたときに、入力フィールドにフォーカス
-    dialog.addEventListener("shown.bs.modal", () => {
-        controller.setModalShown(true);
-        blockSizeElem?.focus();
-    });
-
-    // Enterキーが押されたときの処理
-    dialog.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault(); // フォーム送信を防ぐ
-            applyButton?.click(); // OKボタンをクリックしたことにする
-        }
-    });
-
-    // 親要素にダイアログを追加
-    parent.appendChild(dialog);
+  // 親要素にダイアログを追加
+  parent.appendChild(dialog);
 }
