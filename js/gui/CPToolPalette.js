@@ -241,7 +241,9 @@ export default function CPToolPalette(cpController) {
 
         // クリックされた時に処理を実行
         if (button.commandDoubleClick) {
-          cpController.actionPerformed({ action: button.commandDoubleClick });
+          cpController.actionPerformed({
+            action: button.commandDoubleClick,
+          });
         }
       }
     });

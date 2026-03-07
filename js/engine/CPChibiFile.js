@@ -762,7 +762,6 @@ const yieldToMain = () => {
  */
 export function save(artwork, options = {}) {
   const savedb = options.savedb || false;
-  const savedbFromMenu = options.savedbFromMenu || false;
 
   return new Promise(async (overallResolve, overallReject) => {
     try {
@@ -778,15 +777,10 @@ export function save(artwork, options = {}) {
         serializeFileHeaderChunk(artwork, version, layers.length),
       ];
 
-      for (const [i, layer] of layers.entries()) {
+      for (const layer of layers) {
         chunks.push(serializeLayerChunk(layer));
 
-        const shouldYield =
-          !savedb || savedbFromMenu ? (i + 1) % 2 === 0 : true;
-
-        if (shouldYield) {
-          await yieldToMain();
-        }
+        await yieldToMain();
       }
 
       chunks.push(serializeEndChunk());
@@ -802,7 +796,7 @@ export function save(artwork, options = {}) {
       );
 
       // stepサイズ
-      const step = (!savedb || savedbFromMenu ? 1024 : 128) * 1024;
+      const step = 64 * 1024;
 
       // chunkを順番に刻んで流す
       for (let ci = 0; ci < chunks.length; ci++) {
@@ -819,10 +813,7 @@ export function save(artwork, options = {}) {
 
           deflator.push(slice, isLast);
 
-          // 描画停止防止：必ずyield
-          if (!isLast) {
-            await yieldToMain();
-          }
+          await yieldToMain();
         }
 
         // chunk参照を切ってGC促進
