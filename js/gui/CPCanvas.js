@@ -1874,9 +1874,8 @@ export default function CPCanvas(controller) {
         return null;
     }
   }
-
-  // キーボードでの移動を有効にする
-  document.addEventListener("keydown", function (e) {
+  const handleArrowKeyNavigation_keyDoun = (e) => {
+    // キーボードでの移動を有効にする
     const topMode = modeStack.peek();
     const delta = getArrowKeyDelta(e.key);
     if (!delta) return;
@@ -1898,7 +1897,7 @@ export default function CPCanvas(controller) {
       artwork.move(dx, dy, copyMode);
       e.preventDefault();
     }
-  });
+  };
 
   function CPRotateCanvasMode() {
     var firstClick,
@@ -2639,7 +2638,9 @@ export default function CPCanvas(controller) {
   let brushStartX = 0;
   let lastX = 0;
   let isDragging = false;
-  canvas.addEventListener("pointerdown", (e) => {
+  const handle_dragzoom_pointerdown = (e) => {
+    console.log("pointerdown", e);
+    // ペンでズーム
     if (
       !e.altKey &&
       ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
@@ -2649,15 +2650,18 @@ export default function CPCanvas(controller) {
       penZoomActive = true;
       penStartX = e.clientX;
     }
-
+  };
+  const handle_brushsize_pointerdown = (e) => {
+    // Ctrl + Alt でブラシサイズ変更
     if ((e.ctrlKey || e.metaKey) && e.altKey && e.buttons === 1) {
       brushStartX = e.clientX;
       isDragging = true;
       lastX = e.clientX; // ← ここで初期化
     }
-  });
+  };
 
-  canvas.addEventListener("pointermove", (e) => {
+  // ペンでズーム
+  const handle_dragzoom_pointermove = (e) => {
     if (
       !e.altKey &&
       ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
@@ -2684,6 +2688,9 @@ export default function CPCanvas(controller) {
 
       e.preventDefault();
     }
+  };
+
+  const handle_brushsize_pointermove = (e) => {
     // Ctrl + Alt でブラシサイズ変更
     if ((e.ctrlKey || e.metaKey) && e.altKey && e.buttons === 1) {
       const dx = e.clientX - lastX;
@@ -2705,13 +2712,12 @@ export default function CPCanvas(controller) {
       controller.setBrushSize(size + delta);
       e.preventDefault();
     }
-  });
-
-  canvas.addEventListener("pointerup", (e) => {
+  };
+  const handle_dragzoom_pointerup = (e) => {
     if (e.pointerType !== "touch") {
       penZoomActive = false;
     }
-  });
+  };
   //ピンチズーム
   let pinchStartDistance = 0;
   let pinchStartZoom = 1;
@@ -2837,6 +2843,8 @@ export default function CPCanvas(controller) {
   let isTimeSaveReserved = false; // 時間による保存予約フラグ    // Called when all mouse/pointer buttons are released
 
   function handlePointerUp(e) {
+    handle_dragzoom_pointerup(e);
+
     isPointerDown = false;
     //オートセーブ処理
     countPointerUp++; // カウントアップ
@@ -2863,6 +2871,9 @@ export default function CPCanvas(controller) {
 
   // Called when the first button on the pointer is depressed / pen touches the surface
   function handlePointerDown(e) {
+    handle_dragzoom_pointerdown(e);
+    handle_brushsize_pointerdown(e);
+
     isPointerDown = true;
 
     if (sawPen && !isTouchInputAllowed && e.pointerType === "touch") {
@@ -2894,6 +2905,8 @@ export default function CPCanvas(controller) {
 
   //高精細描画モードを条件に応じて使用する(描画カクツキ対策)
   function handlePointerMoveWrapper(e) {
+    handle_dragzoom_pointermove(e);
+    handle_brushsize_pointermove(e);
     // 使用するイベントを動的に切り替え
     const isFreehand = isPointerDown
       ? modeStack.peek() instanceof CPFreehandMode
@@ -2944,6 +2957,7 @@ export default function CPCanvas(controller) {
 
   function handleKeyDown(e) {
     modeStack.keyDown(e);
+    handleArrowKeyNavigation_keyDoun(e);
   }
 
   function handleKeyUp(e) {

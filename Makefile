@@ -2,10 +2,10 @@
 
 ENGINE_SOURCE = js/engine/* js/util/*
 
-all :clean build cat_min 
+all :format clean build cat_min 
 build:temp/ChickenPaint.js
 cat_min:chickenpaint/js/chickenpaint.min.js
-dev: clean_dist dist/index.html
+dev: format clean_dist dist/index.html
 format:
 	npx prettier --write "js/**/*.js"
 ifdef OSASCRIPT
