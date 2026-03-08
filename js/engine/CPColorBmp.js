@@ -1397,17 +1397,23 @@ CPColorBmp.prototype.copyRegionVFlip = function (rect, source) {
 };
 
 /**
- * @param {CPRect} rect
- * @param {number} color
+ * 指定された矩形範囲内を指定色で、不透明度をランダムに変えて塗り潰し（アルファノイズ）。
+ * * @param {CPRect} rect - 塗りつぶす対象の矩形範囲。
+ * @param {number} color - ノイズの基本色（RGB: 0xRRGGBB）。デフォルトは 0 (黒)。
+ 
+ * * @description
+ * このメソッドは、各ピクセルのアルファチャンネル（透明度）に 0〜255 のランダムな値を割り当てます。
+ * ピクセルごとに「透明」から「現在の色」までのノイズが発生します。
  */
 CPColorBmp.prototype.fillWithNoise = function (rect, color = 0) {
   rect = this.getBounds().clipTo(rect);
 
+  // 指定された色からRGB成分を抽出
   const r = (color >> 16) & 0xff;
   const g = (color >> 8) & 0xff;
   const b = color & 0xff;
 
-  var value,
+  var alphaValue,
     yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL,
     pixIndex = this.offsetOfPixel(rect.left, rect.top);
 
@@ -1417,21 +1423,19 @@ CPColorBmp.prototype.fillWithNoise = function (rect, color = 0) {
       x < rect.right;
       x++, pixIndex += CPColorBmp.BYTES_PER_PIXEL
     ) {
-      value = (Math.random() * 0x100) | 0;
+      // 0〜255のランダムな不透明度を生成
+      alphaValue = (Math.random() * 0x100) | 0;
 
-      const k = 1 - value / 255;
+      // RGBは指定の色で固定
+      this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] = r;
+      this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] = g;
+      this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET] = b;
 
-      this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] =
-        (255 - (255 - r) * k) | 0;
-      this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] =
-        (255 - (255 - g) * k) | 0;
-      this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET] =
-        (255 - (255 - b) * k) | 0;
-      this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = 0xff;
+      // アルファチャンネルにノイズを適用
+      this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = alphaValue;
     }
   }
 };
-
 /**
  * Replace the pixels in the given rect with the given horizontal gradient.
  *
