@@ -2631,68 +2631,26 @@ export default function CPCanvas(controller) {
     transform.translate(-cx, 0);
   }
 
-  // ペンでズーム
-  let penZoomActive = false;
-  let penStartX = 0;
-  //ペンでブラシサイズ変更
+  // Ctrl + Alt でブラシサイズ変更
   let brushStartX = 0;
   let lastX = 0;
   let isDragging = false;
-  // ペンでズーム
-  const handle_dragzoom_pointerdown = (e) => {
-    if (
-      !e.altKey &&
-      ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
-        (e.ctrlKey && key.isPressed("space"))) &&
-      e.pointerType !== "touch"
-    ) {
-      penZoomActive = true;
-      penStartX = e.clientX;
-    }
+  const is_brushsize_change_allowed = (e) => {
+    return (e.ctrlKey || e.metaKey) && e.altKey;
   };
   // Ctrl + Alt でブラシサイズ変更
   const handle_brushsize_pointerdown = (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.altKey && e.buttons === 1) {
+    if (is_brushsize_change_allowed(e)) {
       brushStartX = e.clientX;
       isDragging = true;
       lastX = e.clientX; // ← ここで初期化
     }
   };
 
-  // ペンでズーム
-  const handle_dragzoom_pointermove = (e) => {
-    if (
-      !e.altKey &&
-      ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
-        (e.ctrlKey && key.isPressed("space"))) &&
-      penZoomActive &&
-      e.pointerType !== "touch" &&
-      e.buttons === 1
-    ) {
-      const deltaX = e.clientX - penStartX;
-
-      if (Math.abs(deltaX) > 10) {
-        const factor = deltaX > 0 ? 1.15 : 1 / 1.15;
-
-        // ペンの現在位置をキャンバス座標に変換
-        const canvasPoint = mouseCoordToCanvas({
-          x: e.pageX,
-          y: e.pageY,
-        });
-
-        zoomOnPoint(that.getZoom() * factor, canvasPoint.x, canvasPoint.y);
-
-        penStartX = e.clientX; // 連続ズーム対応
-      }
-
-      e.preventDefault();
-    }
-  };
-
   // Ctrl + Alt でブラシサイズ変更
   const handle_brushsize_pointermove = (e) => {
     // Ctrl + Alt でブラシサイズ変更
-    if ((e.ctrlKey || e.metaKey) && e.altKey && e.buttons === 1) {
+    if (is_brushsize_change_allowed(e) && e.buttons === 1) {
       const dx = e.clientX - lastX;
       lastX = e.clientX;
 
@@ -2710,6 +2668,46 @@ export default function CPCanvas(controller) {
       }
 
       controller.setBrushSize(size + delta);
+      e.preventDefault();
+    }
+  };
+
+  let penZoomActive = false;
+  let penStartX = 0;
+  // ペンでズーム
+  const is_dragzoom_allowed = (e) => {
+    return (
+      !e.altKey &&
+      ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
+        (e.ctrlKey && key.isPressed("space"))) &&
+      e.pointerType !== "touch"
+    );
+  };
+  const handle_dragzoom_pointerdown = (e) => {
+    if (is_dragzoom_allowed(e)) {
+      penZoomActive = true;
+      penStartX = e.clientX;
+    }
+  };
+  // ペンでズーム
+  const handle_dragzoom_pointermove = (e) => {
+    if (is_dragzoom_allowed(e) && e.buttons === 1) {
+      const deltaX = e.clientX - penStartX;
+
+      if (Math.abs(deltaX) > 10) {
+        const factor = deltaX > 0 ? 1.15 : 1 / 1.15;
+
+        // ペンの現在位置をキャンバス座標に変換
+        const canvasPoint = mouseCoordToCanvas({
+          x: e.pageX,
+          y: e.pageY,
+        });
+
+        zoomOnPoint(that.getZoom() * factor, canvasPoint.x, canvasPoint.y);
+
+        penStartX = e.clientX; // 連続ズーム対応
+      }
+
       e.preventDefault();
     }
   };
@@ -2872,18 +2870,18 @@ export default function CPCanvas(controller) {
 
   // Called when the first button on the pointer is depressed / pen touches the surface
   function handlePointerDown(e) {
-    handle_dragzoom_pointerdown(e);
     handle_brushsize_pointerdown(e);
+    if (is_dragzoom_allowed(e)) {
+      // ペンでズームの条件を満たす場合
+      handle_dragzoom_pointerdown(e);
+      return;
+    }
 
     isPointerDown = true;
 
     if (sawPen && !isTouchInputAllowed && e.pointerType === "touch") {
       //タッチインプットが許可されていないモードの時はペン対応デバイスのタッチイベントを無視する
       // Palm rejection for devices that support pens
-      return;
-    }
-    if (key.isPressed("z")) {
-      // ズーム中は描画しない
       return;
     }
 
@@ -2906,7 +2904,11 @@ export default function CPCanvas(controller) {
 
   //高精細描画モードを条件に応じて使用する(描画カクツキ対策)
   function handlePointerMoveWrapper(e) {
-    handle_dragzoom_pointermove(e);
+    if (is_dragzoom_allowed(e)) {
+      // ペンでズームの条件を満たす場合
+      handle_dragzoom_pointermove(e);
+      return;
+    }
     handle_brushsize_pointermove(e);
     // 使用するイベントを動的に切り替え
     const isFreehand = isPointerDown
