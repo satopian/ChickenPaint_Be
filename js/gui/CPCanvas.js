@@ -2638,9 +2638,8 @@ export default function CPCanvas(controller) {
   let brushStartX = 0;
   let lastX = 0;
   let isDragging = false;
+  // ペンでズーム
   const handle_dragzoom_pointerdown = (e) => {
-    console.log("pointerdown", e);
-    // ペンでズーム
     if (
       !e.altKey &&
       ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
@@ -2651,8 +2650,8 @@ export default function CPCanvas(controller) {
       penStartX = e.clientX;
     }
   };
+  // Ctrl + Alt でブラシサイズ変更
   const handle_brushsize_pointerdown = (e) => {
-    // Ctrl + Alt でブラシサイズ変更
     if ((e.ctrlKey || e.metaKey) && e.altKey && e.buttons === 1) {
       brushStartX = e.clientX;
       isDragging = true;
@@ -2690,6 +2689,7 @@ export default function CPCanvas(controller) {
     }
   };
 
+  // Ctrl + Alt でブラシサイズ変更
   const handle_brushsize_pointermove = (e) => {
     // Ctrl + Alt でブラシサイズ変更
     if ((e.ctrlKey || e.metaKey) && e.altKey && e.buttons === 1) {
@@ -2713,6 +2713,7 @@ export default function CPCanvas(controller) {
       e.preventDefault();
     }
   };
+  // ペンでズーム
   const handle_dragzoom_pointerup = (e) => {
     if (e.pointerType !== "touch") {
       penZoomActive = false;
