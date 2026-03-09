@@ -1250,7 +1250,7 @@ export default function CPCanvas(controller) {
       }
     };
 
-    this.mouseDrag = throttle(25, function (e) {
+    this.mouseDrag = throttle(50, function (e) {
       if (this.capture) {
         var p = coordToDocument({ x: mouseX, y: mouseY }),
           moveFloat = { x: p.x - lastPoint.x, y: p.y - lastPoint.y },
@@ -1497,7 +1497,7 @@ export default function CPCanvas(controller) {
       }
     };
 
-    this.mouseDrag = throttle(40, function (e) {
+    this.mouseDrag = throttle(80, function (e) {
       const MIN_SCALE = 0.001;
 
       if (this.capture) {
