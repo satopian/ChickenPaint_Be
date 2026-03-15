@@ -1045,7 +1045,7 @@ export default function ChickenPaint(options) {
         isSupported: function () {
           return options.allowDownload !== false;
         },
-        modifies: { gui: true },
+        modifies: { document: true },
       },
       CPSend: {
         action: function () {
@@ -1538,7 +1538,10 @@ export default function ChickenPaint(options) {
       if (
         curMode == ChickenPaint.M_TRANSFORM &&
         (action.modifies.document || action.modifies.mode) &&
-        ["CPTransformAccept", "CPTransformReject"].indexOf(e.action) == -1
+        //DBへのバックアップの時はダイヤログを出さない
+        !["CPTransformAccept", "CPTransformReject", "CPSaveDB"].includes(
+          e.action,
+        )
       ) {
         if (e.action == "CPUndo") {
           actions.CPTransformReject.action();
@@ -1547,12 +1550,9 @@ export default function ChickenPaint(options) {
         } else {
           // Prompt the user to finish their transform before starting something else
           let dialog = new CPConfirmTransformDialog(uiElem, this);
-
           /* If they decide to finish up with the transform, we can apply the original action they
            * attempted afterwards.
            */
-          // dialog.on("accept", this.actionPerformed.bind(this, e));
-          // dialog.on("reject", this.actionPerformed.bind(this, e));
           dialog.on("accept", () => {
             this.actionPerformed(e); // 元アクション
             dialog.hide(); // モーダルを閉じる

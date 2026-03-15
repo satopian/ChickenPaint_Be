@@ -228,6 +228,8 @@ export default function CPCanvas(controller) {
     isPinchZoomAllowed = false,
     isTouchInputAllowed = false,
     sawTouchWithPressure = false,
+    is_transformMode = false,
+    is_moveToolMode = false,
     /* The area of the document that should have its layers fused and repainted to the screen
      * (i.e. an area modified by drawing tools).
      *
@@ -1876,7 +1878,6 @@ export default function CPCanvas(controller) {
   }
   const handleArrowKeyNavigation_keyDoun = (e) => {
     // キーボードでの移動を有効にする
-    const topMode = modeStack.peek();
     const delta = getArrowKeyDelta(e.key);
     if (!delta) return;
 
@@ -1888,11 +1889,11 @@ export default function CPCanvas(controller) {
     }
 
     //変形操作中のキーボードでの移動を有効にする
-    if (topMode === transformMode) {
+    if (is_transformMode) {
       transformMode.moveByKey(dx, dy);
       e.preventDefault();
       //移動ツール選択時にキーボードで1pxずつ移動できるようにする
-    } else if (topMode === moveToolMode) {
+    } else if (is_moveToolMode) {
       const copyMode = e.altKey;
       artwork.move(dx, dy, copyMode);
       e.preventDefault();
@@ -2856,7 +2857,11 @@ export default function CPCanvas(controller) {
     const shouldSaveByTime =
       isTimeSaveReserved && countPointerUp > lastSavedCount;
 
-    if (shouldSaveByCount || shouldSaveByTime) {
+    if (
+      //重い変形処理の時に重いオートセーブを実行しない
+      !is_transformMode &&
+      (shouldSaveByCount || shouldSaveByTime)
+    ) {
       executeDBSave();
     }
 
@@ -3316,6 +3321,8 @@ export default function CPCanvas(controller) {
       mode === ChickenPaint.M_MOVE_TOOL ||
       mode === ChickenPaint.M_ROTATE_CANVAS ||
       mode === ChickenPaint.M_PAN_CANVAS;
+    is_transformMode = mode === ChickenPaint.M_TRANSFORM;
+    is_moveToolMode = mode === ChickenPaint.M_MOVE_TOOL;
 
     if (isPinchZoomAllowed) {
       // ピンチズームが許可されているモードの時にのみピンチズームのためのイベントを登録
