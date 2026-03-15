@@ -2860,6 +2860,7 @@ export default function CPCanvas(controller) {
     if (
       //重い変形処理の時に重いオートセーブを実行しない
       !is_transformMode &&
+      !is_moveToolMode &&
       (shouldSaveByCount || shouldSaveByTime)
     ) {
       executeDBSave();
