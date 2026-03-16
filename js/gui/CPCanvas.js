@@ -1244,7 +1244,7 @@ export default function CPCanvas(controller) {
       ) {
         lastPoint = coordToDocument({ x: mouseX, y: mouseY });
 
-        copyMode = e.altKey;
+        copyMode = !e.ctrlKey && !e.metaKey && e.altKey;
         firstMove = true;
         this.capture = true;
 
@@ -1894,7 +1894,7 @@ export default function CPCanvas(controller) {
       e.preventDefault();
       //移動ツール選択時にキーボードで1pxずつ移動できるようにする
     } else if (is_moveToolMode) {
-      const copyMode = e.altKey;
+      const copyMode = !e.ctrlKey && !e.metaKey && e.altKey;
       artwork.move(dx, dy, copyMode);
       e.preventDefault();
     }
