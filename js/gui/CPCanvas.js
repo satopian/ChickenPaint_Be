@@ -1490,9 +1490,8 @@ export default function CPCanvas(controller) {
 
     let maintainAspectCheckd = false;
     this.mouseDown = function (e, button, pressure) {
-      const paletteManager = controller.mainGUI.getPaletteManager();
       //ブラシパレットの要素を取得
-      const brushpalette = paletteManager.palettes.brush.getElement();
+      const brushpalette = controller.getBrushPaletteElement();
       //縦横比固定のチェックボックスの要素を取得
       const maintainAspectCheckbox = brushpalette.querySelector(
         "#chickenpaint-t-maintainAspectCheckbox",
