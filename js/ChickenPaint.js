@@ -1371,6 +1371,12 @@ export default function ChickenPaint(options) {
     canvas.setModalShown(shown);
   };
 
+  //ブラシパレットの要素を取得
+  this.getBrushPaletteElement = function () {
+    const paletteManager = mainGUI.getPaletteManager();
+    return paletteManager.palettes.brush.getElement();
+  };
+
   this.isPanOrRotateMode = function () {
     return canvas.isPanOrRotateMode();
   };

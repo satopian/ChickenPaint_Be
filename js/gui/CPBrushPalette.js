@@ -137,10 +137,18 @@ export default function CPBrushPalette(controller) {
   let currentMode = null;
   function updatePanelByMode(mode) {
     hideAllPanels();
-    const checkbox = selectPanel.getElement().querySelector(".form-check"); //
+    const maintainAspectCheckbox = selectPanel
+      .getElement()
+      .querySelector("#chickenpaint-s-maintainAspectCheckboxGroup"); //
+    const duplicateSelectionCheckbox = selectPanel
+      .getElement()
+      .querySelector("#chickenpaint-s-duplicateSelectionCheckboxGroup"); //
 
-    if (checkbox) {
-      checkbox.style.display = "none"; // 非表示にする
+    if (maintainAspectCheckbox instanceof HTMLElement) {
+      maintainAspectCheckbox.style.display = "none"; // 非表示にする
+    }
+    if (duplicateSelectionCheckbox instanceof HTMLElement) {
+      duplicateSelectionCheckbox.style.display = "none"; // 非表示にする
     }
     switch (mode) {
       case ChickenPaint.M_GRADIENTFILL:
@@ -151,12 +159,15 @@ export default function CPBrushPalette(controller) {
         break;
       case ChickenPaint.M_RECT_SELECTION:
         selectPanel.getElement().style.display = "block";
-        if (checkbox instanceof HTMLElement) {
-          checkbox.style.display = ""; // 表示する
+        if (maintainAspectCheckbox instanceof HTMLElement) {
+          maintainAspectCheckbox.style.display = ""; // 表示する
         }
         break;
       case ChickenPaint.M_MOVE_TOOL:
         selectPanel.getElement().style.display = "block";
+        if (duplicateSelectionCheckbox instanceof HTMLElement) {
+          duplicateSelectionCheckbox.style.display = ""; // 表示する
+        }
         break;
       case ChickenPaint.M_ROTATE_CANVAS:
       case ChickenPaint.M_PAN_CANVAS:
@@ -684,8 +695,14 @@ function CPTransformPanel(controller) {
   });
 
   // ローカル変数から直接リスナーを追加
-  maintainAspectCheckbox.addEventListener("change", () => {
-    maintainAspectCheckbox.blur(); // フォーカス解除
+
+  panel.addEventListener("change", (e) => {
+    if (
+      e.target instanceof HTMLElement &&
+      e.target.classList.contains("form-check-input")
+    ) {
+      e.target.blur();
+    }
   });
 }
 // 選択パネル
@@ -752,9 +769,27 @@ function CPSelectionPanel(controller) {
       _("Constrain"),
       false,
     );
-
-  panel.appendChild(maintainAspectGroup);
   // パネルに追加
+  panel.appendChild(maintainAspectGroup);
+  let {
+    wrapper: duplicateSelectionGroup,
+    checkbox: duplicateSelectionCheckbox,
+  } = createBootstrapCheckbox(
+    "chickenpaint-s-duplicateSelectionCheckbox",
+    _("Duplicate"),
+    false,
+  );
+  // パネルに追加
+  panel.appendChild(duplicateSelectionGroup);
+
+  panel.addEventListener("change", (e) => {
+    if (
+      e.target instanceof HTMLElement &&
+      e.target.classList.contains("form-check-input")
+    ) {
+      e.target.blur();
+    }
+  });
 }
 //Bootstrapのチェックボックスを作成
 function createBootstrapCheckbox(id, title, checked = false) {
@@ -779,6 +814,7 @@ function createBootstrapCheckbox(id, title, checked = false) {
   // ラッパー div
   const wrapper = document.createElement("div");
   wrapper.className = "form-check";
+  wrapper.id = id + "Group";
   wrapper.appendChild(checkbox);
   wrapper.appendChild(label);
 

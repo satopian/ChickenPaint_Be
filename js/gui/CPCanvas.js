@@ -1137,10 +1137,10 @@ export default function CPCanvas(controller) {
       selectingButton = -1;
 
     let maintainAspectCheckd = false;
+
     this.mouseDown = function (e, button, pressure) {
-      const paletteManager = controller.mainGUI.getPaletteManager();
       //ブラシパレットの要素を取得
-      const brushpalette = paletteManager.palettes.brush.getElement();
+      const brushpalette = controller.getBrushPaletteElement();
       //縦横比固定のチェックボックスの要素を取得
       const maintainAspectCheckbox = brushpalette.querySelector(
         "#chickenpaint-s-maintainAspectCheckbox",
@@ -1234,8 +1234,23 @@ export default function CPCanvas(controller) {
     var lastPoint,
       copyMode,
       firstMove = false;
+    let duplicateSelectionChecked = false;
 
     this.mouseDown = function (e, button, pressure) {
+      const brushpalette = controller.getBrushPaletteElement();
+
+      //選択範囲の複製のチェックボックスの要素を取得
+      const duplicateSelectionCheckbox = brushpalette.querySelector(
+        "#chickenpaint-s-duplicateSelectionCheckbox",
+      );
+
+      if (
+        duplicateSelectionCheckbox &&
+        duplicateSelectionCheckbox instanceof HTMLInputElement
+      ) {
+        duplicateSelectionChecked = duplicateSelectionCheckbox.checked;
+      }
+
       if (
         !this.capture &&
         button == BUTTON_PRIMARY &&
@@ -1244,7 +1259,8 @@ export default function CPCanvas(controller) {
       ) {
         lastPoint = coordToDocument({ x: mouseX, y: mouseY });
 
-        copyMode = !e.ctrlKey && !e.metaKey && e.altKey;
+        copyMode =
+          (!e.ctrlKey && !e.metaKey && e.altKey) || duplicateSelectionChecked;
         firstMove = true;
         this.capture = true;
 
@@ -1275,6 +1291,20 @@ export default function CPCanvas(controller) {
     });
 
     this.mouseUp = function (e, button, pressure) {
+      const brushpalette = controller.getBrushPaletteElement();
+
+      //選択範囲の複製のチェックボックスの要素を取得
+      const duplicateSelectionCheckbox = brushpalette.querySelector(
+        "#chickenpaint-s-duplicateSelectionCheckbox",
+      );
+
+      if (
+        duplicateSelectionCheckbox &&
+        duplicateSelectionCheckbox instanceof HTMLInputElement
+      ) {
+        duplicateSelectionCheckbox.checked = false;
+      }
+
       if (this.capture && button == BUTTON_PRIMARY) {
         this.capture = false;
         if (this.transient) {
