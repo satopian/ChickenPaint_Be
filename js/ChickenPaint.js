@@ -521,7 +521,20 @@ export default function ChickenPaint(options) {
         action: function () {
           const layer = that.artwork.getActiveLayer();
 
-          if (that.artwork.transformAffineBegin() == null) {
+          if (!layer.visible) {
+            //非表示レイヤーを変形しようとした時にエラーメッセージを出す
+            that.showLayerNotification(
+              layer,
+              _("Whoops! This layer is currently hidden."),
+              "layer",
+            );
+          } else if (layer.alpha == 0) {
+            that.showLayerNotification(
+              layer,
+              _("Whoops! This layer's opacity is currently 0%."),
+              "opacity",
+            );
+          } else if (that.artwork.transformAffineBegin() == null) {
             that.showLayerNotification(
               layer,
               _("Whoops! All of the selected pixels are transparent!"),
@@ -536,7 +549,7 @@ export default function ChickenPaint(options) {
           const layer = that.artwork.getActiveLayer();
 
           if (!layer.visible) {
-            //非表示レイヤーを変形しようとした時にエラーメッセージを出す
+            //非表示レイヤー
             that.showLayerNotification(
               layer,
               _("Whoops! This layer is currently hidden."),
