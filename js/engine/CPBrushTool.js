@@ -1292,10 +1292,10 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
     if (imgW === 0 || imgH === 0) return;
 
     // ===== パラメータ =====
-    const radius = 2; // にじみ
-    const mixRate = 0.2; // 混色
-    const alphaDecay = 0.98; // α減衰
-    const diffThreshold = 10; // 差分しきい値
+    const radius = 2;
+    const mixRate = 0.25; // 色の混ざり
+    const alphaMix = 0.1; // αの追従（0.05〜0.2推奨）
+    const alphaDecay = 0.98; // 減衰
 
     // ===== ブラシ中心 =====
     const cx = width / 2;
@@ -1307,8 +1307,9 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         let px = imageRect.left + x;
         let py = imageRect.top + y;
 
-        // ===== 周囲サンプリング =====
-        let sum = 0;
+        // ===== サンプリング =====
+        let sumColor = 0;
+        let sumAlpha = 0;
         let count = 0;
 
         for (let i = 0; i < 8; i++) {
@@ -1321,18 +1322,21 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
           if (sx < 0 || sy < 0 || sx >= imgW || sy >= imgH) continue;
 
           let sample = sampleData[sy * imgW + sx];
+
+          let grey = sample & 0xff;
           let a = sample >> 8;
 
-          if (a === 0) continue;
-
-          sum += sample & 0xff;
+          sumColor += grey * a;
+          sumAlpha += a;
           count++;
         }
 
-        // 透明なら何もしない
         if (count === 0) continue;
 
-        let grey1 = (sum / count) | 0;
+        // ===== 平均（色とαセット） =====
+        let grey1 = sumAlpha > 0 ? (sumColor / sumAlpha) | 0 : 0;
+
+        let alpha1Sample = (sumAlpha / count) | 0;
 
         // ===== ブラシ側 =====
         let brush = brushData[srcOffset];
@@ -1341,9 +1345,9 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
 
         // ===== 差分チェック =====
         let diff = grey1 - grey2;
-        if (Math.abs(diff) < diffThreshold) continue;
+        if (Math.abs(diff) < 2 && Math.abs(alpha1Sample - alpha2) < 2) continue;
 
-        // ===== 混色 =====
+        // ===== 色の混合 =====
         let mixed = grey2 + diff * mixRate;
 
         // 彩度
@@ -1356,12 +1360,18 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         let dist = Math.sqrt(dx * dx + dy * dy);
         let falloff = 1 - dist / maxDist;
         falloff = Math.max(0, falloff);
-
-        // 柔らかく
         falloff = falloff * falloff;
 
         // ===== 不透明度 =====
-        let newAlpha = Math.max(1, alpha2 * alphaDecay * falloff);
+
+        let newAlpha = alpha2 + (alpha1Sample - alpha2) * alphaMix;
+
+        // 減衰
+        newAlpha *= alphaDecay * falloff;
+
+        if (newAlpha > alpha2) newAlpha = alpha2;
+
+        if (newAlpha < 1) newAlpha = 0;
 
         brushData[srcOffset] = (newAlpha << 8) | (mixed | 0);
       }
