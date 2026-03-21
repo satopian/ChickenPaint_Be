@@ -915,7 +915,10 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
    * @param {CPColorFloat} brushColor - 全て透明だった場合に返される現在のブラシ色（fallback用）
    * @returns {CPColorFloat} 算出された平均色、またはブラシ色
    */
-  static _sampleRGB(image, x, y, dx, dy, brushColor) {
+  static _sampleRGB(image, x, y, dx, dy, brushColor, options = {}) {
+	//混色ブラシ?
+    const noFallback = options.noFallback || false;
+
     const imgW = image.width;
     const imgH = image.height;
     const imgData = image.data;
@@ -965,11 +968,11 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
       process(x - rdx7, y - rdy7);
     }
 
-    // 全て透明ならブラシ色を返す (If all sampled pixels are transparent, return the brush color as fallback)
+    // 全て透明なら
     if (count === 0) {
-      return brushColor;
+      // if (noFallback) return null; //（混色ブラシ用）
+      return brushColor; // 従来（水彩）
     }
-
     // RGB成分の平均値を算出
     const avgR = (rSum / count) | 0;
     const avgG = (gSum / count) | 0;
@@ -1293,9 +1296,8 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
 
     // ===== パラメータ =====
     const radius = 2;
-    const mixRate = 0.25; // 色の混ざり
-    const alphaMix = 0.1; // αの追従（0.05〜0.2推奨）
-    const alphaDecay = 0.98; // 減衰
+    const mixRate = 0.15; // 色の混ざり具合
+    const alphaDecay = 0.95; // 描画ごとの減衰
 
     // ===== ブラシ中心 =====
     const cx = width / 2;
@@ -1307,73 +1309,28 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         let px = imageRect.left + x;
         let py = imageRect.top + y;
 
-        // ===== サンプリング =====
-        let sumColor = 0;
-        let sumAlpha = 0;
-        let count = 0;
+        let color = CPBrushToolWatercolor._sampleRGB(
+          maskToSample,
+          px,
+          py,
+          radius,
+          radius,
+          null,
+          { noFallback: true },
+        );
 
-        for (let i = 0; i < 8; i++) {
-          let ox = (Math.random() * 2 - 1) * radius;
-          let oy = (Math.random() * 2 - 1) * radius;
+        if (!color) continue;
 
-          let sx = (px + ox) | 0;
-          let sy = (py + oy) | 0;
-
-          if (sx < 0 || sy < 0 || sx >= imgW || sy >= imgH) continue;
-
-          let sample = sampleData[sy * imgW + sx];
-
-          let grey = sample & 0xff;
-          let a = sample >> 8;
-
-          sumColor += grey * a;
-          sumAlpha += a;
-          count++;
-        }
-
-        if (count === 0) continue;
-
-        // ===== 平均（色とαセット） =====
-        let grey1 = sumAlpha > 0 ? (sumColor / sumAlpha) | 0 : 0;
-
-        let alpha1Sample = (sumAlpha / count) | 0;
-
-        // ===== ブラシ側 =====
-        let brush = brushData[srcOffset];
-        let grey2 = brush & 0xff;
-        let alpha2 = brush >> 8;
-
-        // ===== 差分チェック =====
-        let diff = grey1 - grey2;
-        if (Math.abs(diff) < 2 && Math.abs(alpha1Sample - alpha2) < 2) continue;
-
-        // ===== 色の混合 =====
-        let mixed = grey2 + diff * mixRate;
-
-        // 彩度
-        mixed = mixed * 0.98 + grey2 * 0.02;
-
-        // ===== エッジぼかし =====
-        let dx = x - cx;
-        let dy = y - cy;
-
-        let dist = Math.sqrt(dx * dx + dy * dy);
-        let falloff = 1 - dist / maxDist;
-        falloff = Math.max(0, falloff);
-        falloff = falloff * falloff;
-
-        // ===== 不透明度 =====
-
-        let newAlpha = alpha2 + (alpha1Sample - alpha2) * alphaMix;
+        // 水彩の結果をそのまま使う
+        let grey = color.getGrey();
+        let alpha = color.getAlpha();
 
         // 減衰
-        newAlpha *= alphaDecay * falloff;
+        alpha *= alphaDecay;
 
-        if (newAlpha > alpha2) newAlpha = alpha2;
+        if (alpha < 1) alpha = 0;
 
-        if (newAlpha < 1) newAlpha = 0;
-
-        brushData[srcOffset] = (newAlpha << 8) | (mixed | 0);
+        brushData[srcOffset] = (alpha << 8) | (grey | 0);
       }
     }
   }
