@@ -235,7 +235,7 @@ function createDrawingTools() {
 
   tools[ChickenPaint.T_BLENDER] = new CPBrushInfo({
     toolNb: ChickenPaint.T_BLENDER,
-    size: 20,
+    size: 30,
     alpha: 60,
     isAA: false,
     minSpacing: 0.5,

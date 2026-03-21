@@ -1277,35 +1277,93 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
    * @param {number} alpha1 - 0-255 controls how much paint is picked up from the image
    */
   _accumulatePaintFromMask(maskToSample, brushRect, imageRect, alpha1) {
+    if (!maskToSample || !maskToSample.data) return;
+    if (alpha1 <= 0) return;
+
     let brushData = this._brushBuffer.data,
       sampleData = maskToSample.data,
       width = imageRect.getWidth(),
       height = imageRect.getHeight(),
       srcOffset = brushRect.left + brushRect.top * this._brushBuffer.width,
-      dstOffset = maskToSample.offsetOfPixel(imageRect.left, imageRect.top),
-      srcYSkip = this._brushBuffer.width - width,
-      dstYSkip = maskToSample.width - width;
+      srcYSkip = this._brushBuffer.width - width;
 
-    if (alpha1 <= 0) {
-      return;
-    }
+    let imgW = maskToSample.width | 0;
+    let imgH = maskToSample.height | 0;
+    if (imgW === 0 || imgH === 0) return;
 
-    for (
-      let y = 0;
-      y < height;
-      y++, srcOffset += srcYSkip, dstOffset += dstYSkip
-    ) {
-      for (let x = 0; x < width; x++, srcOffset++, dstOffset++) {
-        let grey1 = sampleData[dstOffset],
-          grey2 = brushData[srcOffset],
-          alpha2 = grey2 >> 8,
-          newAlpha = (alpha1 + alpha2 - (alpha1 * alpha2) / 255) | 0,
-          realAlpha = ((alpha1 * 255) / newAlpha) | 0,
-          invAlpha = 255 - realAlpha;
+    // ===== パラメータ =====
+    const radius = 2; // にじみ
+    const mixRate = 0.2; // 混色
+    const alphaDecay = 0.98; // α減衰
+    const diffThreshold = 10; // 差分しきい値
 
-        brushData[srcOffset] =
-          (newAlpha << 8) |
-          (grey1 + ((grey2 & 0xff) * invAlpha - grey1 * invAlpha) / 255);
+    // ===== ブラシ中心 =====
+    const cx = width / 2;
+    const cy = height / 2;
+    const maxDist = Math.max(cx, cy);
+
+    for (let y = 0; y < height; y++, srcOffset += srcYSkip) {
+      for (let x = 0; x < width; x++, srcOffset++) {
+        let px = imageRect.left + x;
+        let py = imageRect.top + y;
+
+        // ===== 周囲サンプリング =====
+        let sum = 0;
+        let count = 0;
+
+        for (let i = 0; i < 8; i++) {
+          let ox = (Math.random() * 2 - 1) * radius;
+          let oy = (Math.random() * 2 - 1) * radius;
+
+          let sx = (px + ox) | 0;
+          let sy = (py + oy) | 0;
+
+          if (sx < 0 || sy < 0 || sx >= imgW || sy >= imgH) continue;
+
+          let sample = sampleData[sy * imgW + sx];
+          let a = sample >> 8;
+
+          if (a === 0) continue;
+
+          sum += sample & 0xff;
+          count++;
+        }
+
+        // 透明なら何もしない
+        if (count === 0) continue;
+
+        let grey1 = (sum / count) | 0;
+
+        // ===== ブラシ側 =====
+        let brush = brushData[srcOffset];
+        let grey2 = brush & 0xff;
+        let alpha2 = brush >> 8;
+
+        // ===== 差分チェック =====
+        let diff = grey1 - grey2;
+        if (Math.abs(diff) < diffThreshold) continue;
+
+        // ===== 混色 =====
+        let mixed = grey2 + diff * mixRate;
+
+        // 彩度
+        mixed = mixed * 0.98 + grey2 * 0.02;
+
+        // ===== エッジぼかし =====
+        let dx = x - cx;
+        let dy = y - cy;
+
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        let falloff = 1 - dist / maxDist;
+        falloff = Math.max(0, falloff);
+
+        // 柔らかく
+        falloff = falloff * falloff;
+
+        // ===== 不透明度 =====
+        let newAlpha = Math.max(1, alpha2 * alphaDecay * falloff);
+
+        brushData[srcOffset] = (newAlpha << 8) | (mixed | 0);
       }
     }
   }
