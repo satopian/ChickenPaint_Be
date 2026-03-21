@@ -916,7 +916,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
    * @returns {CPColorFloat} 算出された平均色、またはブラシ色
    */
   static _sampleRGB(image, x, y, dx, dy, brushColor, options = {}) {
-	//混色ブラシ?
+    //混色ブラシ?
     const noFallback = options.noFallback || false;
 
     const imgW = image.width;

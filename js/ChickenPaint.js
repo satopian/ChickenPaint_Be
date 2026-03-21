@@ -239,7 +239,7 @@ function createDrawingTools() {
     alpha: 60,
     isAA: false,
     minSpacing: 0.5,
-    spacing: 0.1,
+    spacing: 0.12,
     pressureSize: false,
     pressureAlpha: true,
     tip: CPBrushInfo.TIP_ROUND_AIRBRUSH,
@@ -247,7 +247,7 @@ function createDrawingTools() {
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 8,
     resat: 0.0,
-    bleed: 0.12,
+    bleed: 0.16,
   });
 
   return tools;
