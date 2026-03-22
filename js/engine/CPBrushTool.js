@@ -970,7 +970,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
 
     // 全て透明なら
     if (count === 0) {
-      // if (noFallback) return null; //（混色ブラシ用）
+      if (noFallback) return null; //（混色ブラシ用）
       return brushColor; // 従来（水彩）
     }
     // RGB成分の平均値を算出
@@ -1316,7 +1316,6 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
           radius,
           radius,
           null,
-          { noFallback: true },
         );
 
         if (!color) continue;
