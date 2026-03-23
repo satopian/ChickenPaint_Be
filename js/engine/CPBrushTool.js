@@ -1316,6 +1316,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
           radius,
           radius,
           null,
+          { noFallback: true },
         );
 
         if (!color) continue;
