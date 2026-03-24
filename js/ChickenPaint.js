@@ -247,7 +247,7 @@ function createDrawingTools() {
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 8,
     resat: 0.0,
-    bleed: 0.18,
+    bleed: 0.12,
   });
 
   return tools;

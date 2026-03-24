@@ -1584,15 +1584,13 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
    * 1. 透明な筆でもキャンバスを書き換える。
    * 2. アルファ値の計算を「加算」から「補間 (Lerp)」に変更し、透明を引っ張れるようにする。
    * 3. 計算途中の | 0 をやめ、滑らかなグラデーションを維持する。
-   * * @param {CPColorBmp} destImage - Image that is being drawn onto
+   * @param {CPColorBmp} destImage - Image that is being drawn onto
    * @param {CPRect} brushRect
    * @param {CPRect} imageRect
    * @param {Uint8Array} brushShape - Brush opacity map which defines its shape, of the same width as brushBuffer
    * @param {number} alpha 0-255 brush alpha (筆圧)
-   *//**
-   * @override
    * 境界線の灰色（濁り）を完全に除去するBlenderロジック。
-   * 透明から色へ、色から透明へ、どちらのドラッグでも鮮やかさを維持します。
+   * 透明から色へ、色から透明へ、どちらのドラッグでも鮮やかさを維持。
    */
   _paintToColorStrokeBuffer(
     destImage,
