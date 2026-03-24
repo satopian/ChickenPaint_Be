@@ -235,11 +235,11 @@ function createDrawingTools() {
 
   tools[ChickenPaint.T_BLENDER] = new CPBrushInfo({
     toolNb: ChickenPaint.T_BLENDER,
-    size: 30,
+    size: 50,
     alpha: 60,
     isAA: false,
     minSpacing: 0.5,
-    spacing: 0.12,
+    spacing: 0.08,
     pressureSize: false,
     pressureAlpha: true,
     tip: CPBrushInfo.TIP_ROUND_AIRBRUSH,
@@ -247,7 +247,7 @@ function createDrawingTools() {
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 8,
     resat: 0.0,
-    bleed: 0.16,
+    bleed: 0.18,
   });
 
   return tools;

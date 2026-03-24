@@ -790,29 +790,30 @@ class CPBrushToolDirectBrush extends CPBrushTool {
         let color1 = strokeData[srcOffset],
           alpha1 = color1 >>> 24;
 
-        if (alpha1 > 0) {
-          let alpha2 = undoData[dstOffset + CPColorBmp.ALPHA_BYTE_OFFSET],
-            newAlpha = (alpha1 + alpha2 - (alpha1 * alpha2) / 255) | 0,
-            realAlpha = ((alpha1 * 255) / newAlpha) | 0,
-            invAlpha = 255 - realAlpha;
-
-          destImageData[dstOffset] =
-            ((((color1 >> 16) & 0xff) * realAlpha +
-              undoData[dstOffset] * invAlpha) /
-              255) |
-            0;
-          destImageData[dstOffset + 1] =
-            ((((color1 >> 8) & 0xff) * realAlpha +
-              undoData[dstOffset + 1] * invAlpha) /
-              255) |
-            0;
-          destImageData[dstOffset + 2] =
-            (((color1 & 0xff) * realAlpha +
-              undoData[dstOffset + 2] * invAlpha) /
-              255) |
-            0;
-          destImageData[dstOffset + 3] = newAlpha;
+        if (alpha1 <= 0) {
+          continue;
         }
+
+        let alpha2 = undoData[dstOffset + CPColorBmp.ALPHA_BYTE_OFFSET],
+          newAlpha = (alpha1 + alpha2 - (alpha1 * alpha2) / 255) | 0,
+          realAlpha = ((alpha1 * 255) / newAlpha) | 0,
+          invAlpha = 255 - realAlpha;
+
+        destImageData[dstOffset] =
+          ((((color1 >> 16) & 0xff) * realAlpha +
+            undoData[dstOffset] * invAlpha) /
+            255) |
+          0;
+        destImageData[dstOffset + 1] =
+          ((((color1 >> 8) & 0xff) * realAlpha +
+            undoData[dstOffset + 1] * invAlpha) /
+            255) |
+          0;
+        destImageData[dstOffset + 2] =
+          (((color1 & 0xff) * realAlpha + undoData[dstOffset + 2] * invAlpha) /
+            255) |
+          0;
+        destImageData[dstOffset + 3] = newAlpha;
       }
     }
   }
@@ -1023,31 +1024,32 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
       for (let x = 0; x < width; x++, brushOffset++, imageOffset++) {
         let alpha1 = ((brushShape[brushOffset] * alpha) / 255) | 0;
 
-        if (alpha1 > 0) {
-          let color2 = strokeData[imageOffset],
-            alpha2 = color2 >>> 24,
-            newAlpha = (alpha1 + alpha2 - (alpha1 * alpha2) / 255) | 0,
-            realAlpha = ((alpha1 * 255) / newAlpha) | 0,
-            invAlpha = 255 - realAlpha;
-
-          // The usual alpha blending formula C = A * alpha + B * (1 - alpha)
-          // has to rewritten in the form C = A + (1 - alpha) * B - (1 - alpha) *A
-          // that way the rounding up errors won't cause problems
-          strokeData[imageOffset] =
-            (newAlpha << 24) |
-            ((((color1 >> 16) & 0xff) +
-              (((color2 >> 16) & 0xff) * invAlpha -
-                ((color1 >> 16) & 0xff) * invAlpha) /
-                255) <<
-              16) |
-            ((((color1 >> 8) & 0xff) +
-              (((color2 >> 8) & 0xff) * invAlpha -
-                ((color1 >> 8) & 0xff) * invAlpha) /
-                255) <<
-              8) |
-            ((color1 & 0xff) +
-              ((color2 & 0xff) * invAlpha - (color1 & 0xff) * invAlpha) / 255);
+        if (alpha1 <= 0) {
+          continue;
         }
+        let color2 = strokeData[imageOffset],
+          alpha2 = color2 >>> 24,
+          newAlpha = (alpha1 + alpha2 - (alpha1 * alpha2) / 255) | 0,
+          realAlpha = ((alpha1 * 255) / newAlpha) | 0,
+          invAlpha = 255 - realAlpha;
+
+        // The usual alpha blending formula C = A * alpha + B * (1 - alpha)
+        // has to rewritten in the form C = A + (1 - alpha) * B - (1 - alpha) *A
+        // that way the rounding up errors won't cause problems
+        strokeData[imageOffset] =
+          (newAlpha << 24) |
+          ((((color1 >> 16) & 0xff) +
+            (((color2 >> 16) & 0xff) * invAlpha -
+              ((color1 >> 16) & 0xff) * invAlpha) /
+              255) <<
+            16) |
+          ((((color1 >> 8) & 0xff) +
+            (((color2 >> 8) & 0xff) * invAlpha -
+              ((color1 >> 8) & 0xff) * invAlpha) /
+              255) <<
+            8) |
+          ((color1 & 0xff) +
+            ((color2 & 0xff) * invAlpha - (color1 & 0xff) * invAlpha) / 255);
       }
     }
   }
@@ -1272,6 +1274,62 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
   }
 
   /**
+   * @override
+   * 筆が作った色と透明度を、直接キャンバスの指定領域に転送（上書き）します。
+   * undoImage を参照しないことで、同じストローク内で「一度消した場所を再度消す」ことが可能になります。
+   */
+  mergeOntoImage(destImage, undoImage, color) {
+    let strokeData = this._strokeBuffer.data,
+      strokedRegion = this._strokedRegion,
+      destData = destImage.data,
+      width = strokedRegion.getWidth() | 0,
+      height = strokedRegion.getHeight() | 0,
+      // バッファ内での開始位置を計算
+      srcOffset = this._strokeBuffer.offsetOfPixel(
+        strokedRegion.left,
+        strokedRegion.top,
+      ),
+      // キャンバス内での開始位置を計算
+      dstOffset = destImage.offsetOfPixel(
+        strokedRegion.left,
+        strokedRegion.top,
+      ),
+      // 行ごとのスキップ幅（Stride）を計算
+      srcYStride = (this._strokeBuffer.width - width) | 0,
+      dstYStride = ((destImage.width - width) * CPColorBmp.BYTES_PER_PIXEL) | 0;
+
+    for (
+      let y = 0;
+      y < height;
+      y++, srcOffset += srcYStride, dstOffset += dstYStride
+    ) {
+      for (
+        let x = 0;
+        x < width;
+        x++, srcOffset++, dstOffset += CPColorBmp.BYTES_PER_PIXEL
+      ) {
+        // 1. strokeData から Oil クラスで混合済みの色 (ARGB 32bit) を取り出す
+        let paintColor = strokeData[srcOffset];
+
+        // 2. 筆が持っているアルファ値 (0-255) を抽出
+        // ※ >>> 24 で最上位バイトを取り出す
+        let sAlpha = paintColor >>> 24;
+
+        // 3. 筆が通った場所 (sAlpha > 0) であれば、キャンバスの値を上書き
+        // ※ もし完全に透明を引っ張りたい場合、Oil側の _paintTo... で
+        //    透明でも Alpha=1 程度を strokeData に残すようにするとより確実です
+        if (sAlpha > 0) {
+          // undoImage は使わず、destData を直接書き換える
+          destData[dstOffset] = (paintColor >> 16) & 0xff; // Red
+          destData[dstOffset + 1] = (paintColor >> 8) & 0xff; // Green
+          destData[dstOffset + 2] = paintColor & 0xff; // Blue
+          destData[dstOffset + 3] = sAlpha; // Alpha (ここでキャンバスが透明になる)
+        }
+      }
+    }
+  }
+
+  /**
    * Sample intensities from the image and mix them into the brush.
    *
    * @param {CPColorBmp} maskToSample
@@ -1296,13 +1354,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
 
     // ===== パラメータ =====
     const radius = 2;
-    const mixRate = 0.15; // 色の混ざり具合
     const alphaDecay = 0.95; // 描画ごとの減衰
-
-    // ===== ブラシ中心 =====
-    const cx = width / 2;
-    const cy = height / 2;
-    const maxDist = Math.max(cx, cy);
 
     for (let y = 0; y < height; y++, srcOffset += srcYSkip) {
       for (let x = 0; x < width; x++, srcOffset++) {
@@ -1319,18 +1371,13 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
           { noFallback: true },
         );
 
-        if (!color) continue;
-
-        // 水彩の結果をそのまま使う
-        let grey = color.getGrey();
-        let alpha = color.getAlpha();
-
-        // 減衰
-        alpha *= alphaDecay;
-
-        if (alpha < 1) alpha = 0;
-
-        brushData[srcOffset] = (alpha << 8) | (grey | 0);
+        // color が null (透明) の場合、透明な色として扱う
+        let sampleAlpha = color ? color.getAlpha() : 0;
+        let sampleGrey = color ? color.getGrey() : 0; // 色は何でも良いが0(黒)など
+        // 減衰処理
+        sampleAlpha *= alphaDecay;
+        // 筆のデータに書き込む（nullでもcontinueせず、0を書き込む）
+        brushData[srcOffset] = ((sampleAlpha | 0) << 8) | (sampleGrey | 0);
       }
     }
   }
@@ -1459,29 +1506,30 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
             255) |
           0;
 
-        if (alpha1 > 0) {
-          let color2 = brushData[srcOffset],
-            alpha2 = color2 >>> 24,
-            newAlpha = (alpha1 + alpha2 - (alpha1 * alpha2) / 255) | 0,
-            realAlpha = ((alpha1 * 255) / newAlpha) | 0,
-            invAlpha = 255 - realAlpha,
-            color1Red = sampleData[dstOffset + CPColorBmp.RED_BYTE_OFFSET],
-            color1Green = sampleData[dstOffset + CPColorBmp.GREEN_BYTE_OFFSET],
-            color1Blue = sampleData[dstOffset + CPColorBmp.BLUE_BYTE_OFFSET];
-
-          brushData[srcOffset] =
-            (newAlpha << 24) |
-            ((color1Red +
-              (((color2 >> 16) & 0xff) * invAlpha - color1Red * invAlpha) /
-                255) <<
-              16) |
-            ((color1Green +
-              (((color2 >> 8) & 0xff) * invAlpha - color1Green * invAlpha) /
-                255) <<
-              8) |
-            (color1Blue +
-              ((color2 & 0xff) * invAlpha - color1Blue * invAlpha) / 255);
+        if (alpha1 <= 0) {
+          continue;
         }
+        let color2 = brushData[srcOffset],
+          alpha2 = color2 >>> 24,
+          newAlpha = (alpha1 + alpha2 - (alpha1 * alpha2) / 255) | 0,
+          realAlpha = ((alpha1 * 255) / newAlpha) | 0,
+          invAlpha = 255 - realAlpha,
+          color1Red = sampleData[dstOffset + CPColorBmp.RED_BYTE_OFFSET],
+          color1Green = sampleData[dstOffset + CPColorBmp.GREEN_BYTE_OFFSET],
+          color1Blue = sampleData[dstOffset + CPColorBmp.BLUE_BYTE_OFFSET];
+
+        brushData[srcOffset] =
+          (newAlpha << 24) |
+          ((color1Red +
+            (((color2 >> 16) & 0xff) * invAlpha - color1Red * invAlpha) /
+              255) <<
+            16) |
+          ((color1Green +
+            (((color2 >> 8) & 0xff) * invAlpha - color1Green * invAlpha) /
+              255) <<
+            8) |
+          (color1Blue +
+            ((color2 & 0xff) * invAlpha - color1Blue * invAlpha) / 255);
       }
     }
   }
@@ -1533,12 +1581,18 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
   /**
    * Mixes the paint on the current brush with the pixels of the layer, and writes the result into the
    * strokeBuffer.
-   *
-   * @param {CPColorBmp} destImage - Image that is being drawn onto
+   * 1. 透明な筆でもキャンバスを書き換える。
+   * 2. アルファ値の計算を「加算」から「補間 (Lerp)」に変更し、透明を引っ張れるようにする。
+   * 3. 計算途中の | 0 をやめ、滑らかなグラデーションを維持する。
+   * * @param {CPColorBmp} destImage - Image that is being drawn onto
    * @param {CPRect} brushRect
    * @param {CPRect} imageRect
    * @param {Uint8Array} brushShape - Brush opacity map which defines its shape, of the same width as brushBuffer
-   * @param {number} alpha 0-255 brush alpha
+   * @param {number} alpha 0-255 brush alpha (筆圧)
+   *//**
+   * @override
+   * 境界線の灰色（濁り）を完全に除去するBlenderロジック。
+   * 透明から色へ、色から透明へ、どちらのドラッグでも鮮やかさを維持します。
    */
   _paintToColorStrokeBuffer(
     destImage,
@@ -1552,6 +1606,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
       destImageData = destImage.data;
 
     this._strokedRegion.union(imageRect);
+    let mixPower = alpha / 255;
 
     for (
       let y = imageRect.top, brushY = brushRect.top;
@@ -1573,37 +1628,57 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
           layerOffset += CPColorBmp.BYTES_PER_PIXEL,
           strokeOffset++
       ) {
-        let color1 = brushData[bufferOffset],
-          alpha1 =
-            (((color1 >>> 24) * brushShape[bufferOffset] * alpha) /
-              (255 * 255)) |
-            0;
+        let color1 = brushData[bufferOffset];
+        let bAlphaActual = color1 >>> 24; // 筆が今持っているアルファ
+        let shape = brushShape[bufferOffset];
 
-        if (alpha1 > 0) {
-          let alpha2 =
-              destImageData[layerOffset + CPColorBmp.ALPHA_BYTE_OFFSET],
-            newAlpha = (alpha1 + alpha2 - (alpha1 * alpha2) / 255) | 0,
-            color2Red = destImageData[layerOffset + CPColorBmp.RED_BYTE_OFFSET],
-            color2Green =
-              destImageData[layerOffset + CPColorBmp.GREEN_BYTE_OFFSET],
-            color2Blue =
-              destImageData[layerOffset + CPColorBmp.BLUE_BYTE_OFFSET],
-            realAlpha = ((alpha1 * 255) / newAlpha) | 0,
-            invAlpha = 255 - realAlpha;
+        if (shape <= 0) continue;
 
-          strokeData[strokeOffset] =
-            (newAlpha << 24) |
-            ((((color1 >> 16) & 0xff) +
-              (color2Red * invAlpha - ((color1 >> 16) & 0xff) * invAlpha) /
-                255) <<
-              16) |
-            ((((color1 >> 8) & 0xff) +
-              (color2Green * invAlpha - ((color1 >> 8) & 0xff) * invAlpha) /
-                255) <<
-              8) |
-            ((color1 & 0xff) +
-              (color2Blue * invAlpha - (color1 & 0xff) * invAlpha) / 255);
+        let mixRatio = (shape / 255) * mixPower;
+
+        // 1. キャンバスの状態を取得
+        let r2 = destImageData[layerOffset + CPColorBmp.RED_BYTE_OFFSET],
+          g2 = destImageData[layerOffset + CPColorBmp.GREEN_BYTE_OFFSET],
+          b2 = destImageData[layerOffset + CPColorBmp.BLUE_BYTE_OFFSET],
+          alpha2 = destImageData[layerOffset + CPColorBmp.ALPHA_BYTE_OFFSET];
+
+        // 2. アルファ値の計算（透明を引きずるための補間）
+        let newAlpha = alpha2 + (bAlphaActual - alpha2) * mixRatio;
+
+        // 3. RGBの混合（濁り/灰色化の徹底防止ガード）
+        let r1 = (color1 >> 16) & 0xff,
+          g1 = (color1 >> 8) & 0xff,
+          b1 = color1 & 0xff;
+
+        let newR, newG, newB;
+
+        if (bAlphaActual <= 0) {
+          // 筆が透明な場所から来た場合：
+          // キャンバスの色を一切汚さない（黒を混ぜない）。
+          // 色はそのまま(r2, g2, b2)で、不透明度だけが下がる。
+          newR = r2;
+          newG = g2;
+          newB = b2;
+        } else if (alpha2 <= 0) {
+          // キャンバスが透明な場所へ行く場合：
+          // 下地の「隠れた黒」を無視して、筆が持つ色(r1, g1, b1)を100%維持。
+          newR = r1;
+          newG = g1;
+          newB = b1;
+        } else {
+          // 【通常】両方に色がある場合のみ、キャンバスの不透明度を重みにして混ぜる。
+          let canvasWeight = mixRatio * (alpha2 / 255);
+          newR = r2 + (r1 - r2) * canvasWeight;
+          newG = g2 + (g1 - g2) * canvasWeight;
+          newB = b2 + (b1 - b2) * canvasWeight;
         }
+
+        // 4. パッキングして strokeBuffer へ（オーバライドしたMergeがこれを使う）
+        strokeData[strokeOffset] =
+          ((newAlpha | 0) << 24) |
+          ((newR | 0) << 16) |
+          ((newG | 0) << 8) |
+          (newB | 0);
       }
     }
   }
