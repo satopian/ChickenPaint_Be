@@ -1579,18 +1579,16 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
   }
 
   /**
-   * Mixes the paint on the current brush with the pixels of the layer, and writes the result into the
-   * strokeBuffer.
-   * 1. 透明な筆でもキャンバスを書き換える。
-   * 2. アルファ値の計算を「加算」から「補間 (Lerp)」に変更し、透明を引っ張れるようにする。
-   * 3. 計算途中の | 0 をやめ、滑らかなグラデーションを維持する。
-   * @param {CPColorBmp} destImage - Image that is being drawn onto
-   * @param {CPRect} brushRect
-   * @param {CPRect} imageRect
-   * @param {Uint8Array} brushShape - Brush opacity map which defines its shape, of the same width as brushBuffer
-   * @param {number} alpha 0-255 brush alpha (筆圧)
-   * 境界線の灰色（濁り）を完全に除去するBlenderロジック。
-   * 透明から色へ、色から透明へ、どちらのドラッグでも鮮やかさを維持。
+   * 筆の絵具とレイヤーを混合します。
+   * 透明な箇所からドラッグすれば色が消え透明が広がります。
+   * 色がある場所同士では混ざります。
+   * 透明の中にある白や黒とはまざりません。
+   *
+   * @param {CPColorBmp} destImage - 描画対象のレイヤー画像
+   * @param {CPRect} brushRect - 筆の矩形領域
+   * @param {CPRect} imageRect - 描画対象の矩形領域
+   * @param {Uint8Array} brushShape - 筆の形状マップ (0-255)
+   * @param {number} alpha - 混合強度 (0-255)
    */
   _paintToColorStrokeBuffer(
     destImage,
@@ -1643,35 +1641,34 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         // 2. アルファ値の計算（透明を引きずるための補間）
         let newAlpha = alpha2 + (bAlphaActual - alpha2) * mixRatio;
 
-        // 3. RGBの混合（濁り/灰色化の徹底防止ガード）
+        // 3. RGBの混合（濁り/灰色化防止）
         let r1 = (color1 >> 16) & 0xff,
           g1 = (color1 >> 8) & 0xff,
           b1 = color1 & 0xff;
 
         let newR, newG, newB;
 
-        if (bAlphaActual <= 0) {
-          // 筆が透明な場所から来た場合：
-          // キャンバスの色を一切汚さない（黒を混ぜない）。
-          // 色はそのまま(r2, g2, b2)で、不透明度だけが下がる。
-          newR = r2;
-          newG = g2;
-          newB = b2;
-        } else if (alpha2 <= 0) {
-          // キャンバスが透明な場所へ行く場合：
-          // 下地の「隠れた黒」を無視して、筆が持つ色(r1, g1, b1)を100%維持。
+        if (alpha2 <= 0) {
+          // 背景が元々透明：筆の色(r1)を100%維持（裏の黒を混ぜない）
           newR = r1;
           newG = g1;
           newB = b1;
+        } else if (bAlphaActual <= 0) {
+          // 筆が現在透明（透明側から来た）：
+          // 色はキャンバス側(r2)を維持したまま、newAlphaだけが下がる。
+          // これにより「色が黒ずむことなく、そのまま消えていく」表現になります。
+          newR = r2;
+          newG = g2;
+          newB = b2;
         } else {
-          // 【通常】両方に色がある場合のみ、キャンバスの不透明度を重みにして混ぜる。
-          let canvasWeight = mixRatio * (alpha2 / 255);
-          newR = r2 + (r1 - r2) * canvasWeight;
-          newG = g2 + (g1 - g2) * canvasWeight;
-          newB = b2 + (b1 - b2) * canvasWeight;
+          // 両方に色がある場合：背景の不透明度を重みにして混ぜる（濁り防止）
+          let a2Weight = mixRatio * (alpha2 / 255);
+          newR = r2 + (r1 - r2) * a2Weight;
+          newG = g2 + (g1 - g2) * a2Weight;
+          newB = b2 + (b1 - b2) * a2Weight;
         }
 
-        // 4. パッキングして strokeBuffer へ（オーバライドしたMergeがこれを使う）
+        // 4. パッキングして strokeBuffer へ
         strokeData[strokeOffset] =
           ((newAlpha | 0) << 24) |
           ((newR | 0) << 16) |
