@@ -956,6 +956,10 @@ export default function CPCanvas(controller) {
       }
     };
 
+    this.mouseMove = function (e, pressure) {
+      setCursor(CURSOR_CROSSHAIR);
+    };
+
     this.mouseDrag = function (e) {
       if (this.capture) {
         var pf = coordToDocument({ x: mouseX, y: mouseY });
@@ -963,6 +967,7 @@ export default function CPCanvas(controller) {
         if (artwork.isPointWithin(pf.x, pf.y)) {
           controller.setCurColor(new CPColor(artwork.colorPicker(pf.x, pf.y)));
         }
+        setCursor(CURSOR_CROSSHAIR);
 
         return true;
       }

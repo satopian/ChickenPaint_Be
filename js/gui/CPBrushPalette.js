@@ -107,7 +107,8 @@ export default function CPBrushPalette(controller) {
     transformPanel = new CPTransformPanel(controller),
     selectPanel = new CPSelectionPanel(controller),
     panPanel = new CPPanPanel(controller),
-    floodFillPanel = new CPfloodFillPanel(controller),
+    floodFillPanel = new CPFloodFillPanel(controller),
+    colorPickerPanel = new CPColorPickerPanel(controller),
     body = this.getBodyElement();
 
   //touchmoveイベントのデフォルトの動作をキャンセル
@@ -125,6 +126,7 @@ export default function CPBrushPalette(controller) {
   body.appendChild(selectPanel.getElement());
   body.appendChild(panPanel.getElement());
   body.appendChild(floodFillPanel.getElement());
+  body.appendChild(colorPickerPanel.getElement());
 
   function hideAllPanels() {
     brushPanel.getElement().style.display = "none";
@@ -133,6 +135,7 @@ export default function CPBrushPalette(controller) {
     selectPanel.getElement().style.display = "none";
     panPanel.getElement().style.display = "none";
     floodFillPanel.getElement().style.display = "none";
+    colorPickerPanel.getElement().style.display = "none";
   }
   let currentMode = null;
   function updatePanelByMode(mode) {
@@ -176,6 +179,9 @@ export default function CPBrushPalette(controller) {
       case ChickenPaint.M_FLOODFILL:
         floodFillPanel.getElement().style.display = "block";
         break;
+      case ChickenPaint.M_COLOR_PICKER:
+        colorPickerPanel.getElement().style.display = "block";
+        break;
       default:
         brushPanel.getElement().style.display = "block";
         break;
@@ -188,19 +194,24 @@ export default function CPBrushPalette(controller) {
 
   document.addEventListener("keydown", (e) => {
     if (
-      e.key.toLocaleLowerCase() === "r" ||
-      (!e.ctrlKey && e.key.toLocaleLowerCase() === "z") ||
+      e.key.toLowerCase() === "r" ||
+      (!(e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") ||
       e.key === " "
     ) {
       hideAllPanels();
       panPanel.getElement().style.display = "block";
     }
+    if (!(e.ctrlKey || e.metaKey) && e.altKey) {
+      hideAllPanels();
+      colorPickerPanel.getElement().style.display = "block";
+    }
   });
   document.addEventListener("keyup", (e) => {
     if (
-      e.key.toLocaleLowerCase() === "r" ||
-      e.key.toLocaleLowerCase() === "z" ||
-      e.key === " "
+      e.key.toLowerCase() === "r" ||
+      e.key.toLowerCase() === "z" ||
+      e.key === " " ||
+      e.key.toLowerCase() === "alt"
     ) {
       hideAllPanels();
       updatePanelByMode(currentMode);
@@ -982,7 +993,7 @@ function CPPanPanel(controller) {
     }
   });
 }
-function CPfloodFillPanel(controller) {
+function CPFloodFillPanel(controller) {
   let panel = document.createElement("div");
   let formGroup = document.createElement("div");
   let label = document.createElement("label");
@@ -1049,4 +1060,77 @@ function CPfloodFillPanel(controller) {
   };
 
   fillWithInitialValues();
+}
+
+function CPColorPickerPanel(controller) {
+  let panel = document.createElement("div");
+  panel.className = "chickenpaint-colorPicker-panel";
+  panel.style.display = "none";
+
+  let formGroup = document.createElement("div");
+  formGroup.className = "form-group";
+
+  let label = document.createElement("label");
+  label.textContent = _("Color picker"); // 「スポイト」
+  formGroup.appendChild(label);
+
+  // --- ラジオボタンのグループコンテナ ---
+  let btnGroup = document.createElement("div");
+  btnGroup.id = "chickenpaint-colorPickerSampleColorRadioGroup";
+
+  // スタイルの適用: 余白の調整
+  btnGroup.style.padding = "8px";
+  btnGroup.style.marginTop = "5px";
+
+  const options = [
+    {
+      id: "cp-pick-merged",
+      text: _("Pick displayed color"),
+      value: "merged",
+      checked: true,
+    },
+    {
+      id: "cp-pick-layer",
+      text: _("Pick color from layer"),
+      value: "layer",
+      checked: false,
+    },
+  ];
+
+  options.forEach((option) => {
+    let checkDiv = document.createElement("div");
+    checkDiv.className = "form-check mb-2";
+
+    let input = document.createElement("input");
+    input.type = "radio";
+    input.className = "form-check-input";
+    input.name = "cpColorPickerMode";
+    input.id = option.id;
+    input.value = option.value;
+    input.checked = option.checked;
+
+    let labelCheck = document.createElement("label");
+    labelCheck.className = "form-check-label";
+    labelCheck.setAttribute("for", option.id);
+    labelCheck.textContent = option.text;
+
+    input.addEventListener("change", (e) => {
+      if (e.target.checked) {
+        input.blur();
+        // "merged" なら true、"layer" なら false を渡す
+        const isMerged = e.target.value === "merged";
+        controller.setColorPickerSampleAllLayers(isMerged);
+      }
+    });
+    checkDiv.appendChild(input);
+    checkDiv.appendChild(labelCheck);
+    btnGroup.appendChild(checkDiv);
+  });
+
+  formGroup.appendChild(btnGroup);
+  panel.appendChild(formGroup);
+
+  this.getElement = function () {
+    return panel;
+  };
 }

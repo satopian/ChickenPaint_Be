@@ -231,6 +231,7 @@ export default function CPArtwork(_width, _height) {
     rebuildMaskThumbnail = new Set(),
     rebuildImageThumbnail = new Set(),
     thumbnailRebuildTimer = null,
+    colorPickerSampleAllLayers = true,
     /**
      * @type {number}
      */
@@ -241,6 +242,10 @@ export default function CPArtwork(_width, _height) {
    */
 
   this.texture = null;
+
+  this.setColorPickerSampleAllLayers = function (merged) {
+    colorPickerSampleAllLayers = !!merged;
+  };
   /**
    * We use this routine to suppress the updating of a thumbnail while the user is still drawing.
    */
@@ -1376,7 +1381,11 @@ export default function CPArtwork(_width, _height) {
     if (maskEditingMode && curLayer.mask) {
       return CPColor.greyToRGB(curLayer.mask.getPixel(~~x, ~~y));
     } else {
-      return fusion.getPixel(~~x, ~~y) & 0xffffff;
+      if (colorPickerSampleAllLayers) {
+        return fusion.getPixel(~~x, ~~y) & 0xffffff;
+      } else {
+        return curLayer.image.getPixel(~~x, ~~y) & 0xffffff;
+      }
     }
   };
 

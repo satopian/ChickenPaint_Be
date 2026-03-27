@@ -1374,6 +1374,9 @@ export default function ChickenPaint(options) {
   this.setFloodFillReferAllLayers = function (checked) {
     canvas.setFloodFillReferAllLayers(checked);
   };
+  this.setColorPickerSampleAllLayers = function (merged) {
+    that.artwork.setColorPickerSampleAllLayers(merged);
+  };
 
   /**
    * モーダルの表示状態を設定します。
