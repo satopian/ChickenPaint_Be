@@ -374,7 +374,10 @@ export default function CPCanvas(controller) {
     const is_moveToolMode = modeStack.peek() === moveToolMode;
 
     const spacePressed = key.isPressed("space");
-    if (
+
+    if (spacePressed && !(e.ctrlKey || e.metaKey)) {
+      setCursor(CURSOR_PANNABLE);
+    } else if (
       !is_moveToolMode &&
       !spacePressed &&
       (button == BUTTON_SECONDARY ||
@@ -436,7 +439,9 @@ export default function CPCanvas(controller) {
     ) {
       //スペースキーのみの時は通常のパン
       // We can start the pan mode before the mouse button is even pressed, so that the "grabbable" cursor appears
+
       modeStack.push(panMode, true);
+
       modeStack.peek().keyDown(e);
       e.preventDefault();
       return true;
