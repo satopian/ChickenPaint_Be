@@ -14627,3 +14627,17 @@ fieldset:disabled .btn {
 .chickenpaint .modal-content .form-group label {
     margin: 0 0 3px 0;
 }
+
+/* スポイト色の取得先選択のラジオボタンのラベル */
+#chickenpaint-colorPickerSampleColorRadioGroup .form-check-label {
+    padding: 2px 5px; /* 上下2px、左右に少し余裕を持たせると綺麗です */
+    border-radius: 5px;
+    background-color: transparent;
+}
+
+/* スポイト色の取得先選択のラジオボタンのラベルがチェックされた時 */
+#chickenpaint-colorPicker-method-merged:checked + .form-check-label,
+#chickenpaint-colorPicker-method-layer:checked + .form-check-label {
+    background-color: var(--bs-primary);
+    color: #fff;
+}
