@@ -204,10 +204,19 @@ export default function CPBrushPalette(controller) {
     if (!(e.ctrlKey || e.metaKey) && e.altKey) {
       hideAllPanels();
       colorPickerPanel.getElement().style.display = "block";
+    } else if ((e.ctrlKey || e.metaKey) && e.altKey) {
+      hideAllPanels();
+      updatePanelByMode(currentMode);
     }
   });
   document.addEventListener("keyup", (e) => {
     if (
+      key.alt && // altはキーダウン
+      (e.key.toLowerCase() === "control" || e.key.toLowerCase() === "meta")
+    ) {
+      hideAllPanels();
+      colorPickerPanel.getElement().style.display = "block";
+    } else if (
       e.key.toLowerCase() === "r" ||
       e.key.toLowerCase() === "z" ||
       e.key === " " ||
@@ -1084,19 +1093,18 @@ function CPColorPickerPanel(controller) {
 
   const options = [
     {
-      id: "cp-pick-merged",
+      id: "chickenpaint-colorPicker-method-merged",
       text: _("Pick displayed color"),
       value: "merged",
       checked: true,
     },
     {
-      id: "cp-pick-layer",
+      id: "chickenpaint-colorPicker-method-layer",
       text: _("Pick color from layer"),
       value: "layer",
       checked: false,
     },
   ];
-
   options.forEach((option) => {
     let checkDiv = document.createElement("div");
     checkDiv.className = "form-check mb-2";

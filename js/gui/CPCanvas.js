@@ -334,13 +334,14 @@ export default function CPCanvas(controller) {
   CPDefaultMode.prototype.constructor = CPDefaultMode;
 
   CPDefaultMode.prototype.mouseDown = function (e, button, pressure) {
-    var spacePressed = key.isPressed("space");
+    const spacePressed = key.isPressed("space");
 
     if (
       !spacePressed &&
       (button == BUTTON_SECONDARY ||
         (button == BUTTON_PRIMARY && !(e.ctrlKey || e.metaKey) && e.altKey))
     ) {
+      setCursor(CURSOR_CROSSHAIR);
       modeStack.push(colorPickerMode, true);
       // Avoid infinite recursion by only delivering the event to the new mode (don't let it bubble back to us!)
       modeStack.peek().mouseDown(e, button, pressure);
@@ -366,7 +367,21 @@ export default function CPCanvas(controller) {
   };
 
   let previousMode = null; // 以前のモードを記憶して、あとで復帰させる
+
+  CPDefaultMode.prototype.mouseMove = function (e, button) {
+    const spacePressed = key.isPressed("space");
+    if (
+      !spacePressed &&
+      (button == BUTTON_SECONDARY ||
+        (button == BUTTON_PRIMARY && !(e.ctrlKey || e.metaKey) && e.altKey))
+    ) {
+      //スポイトの十字カーソル
+      setCursor(CURSOR_CROSSHAIR);
+    }
+  };
+
   CPDefaultMode.prototype.keyDown = function (e) {
+    const spacePressed = key.isPressed("space");
     if (
       !e.altKey &&
       ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
@@ -375,6 +390,15 @@ export default function CPCanvas(controller) {
       setCursor(CURSOR_ZOOM_IN);
       // console.log("Zooming in with Ctrl+Space or Ctrl+Z");
 
+      if (modeStack.peek() === curDrawMode) {
+        previousMode = curDrawMode;
+        modeStack.pop();
+      }
+      e.preventDefault();
+      return true;
+    } else if (!spacePressed && !(e.ctrlKey || e.metaKey) && e.altKey) {
+      //スポイトの十字カーソル
+      setCursor(CURSOR_CROSSHAIR);
       if (modeStack.peek() === curDrawMode) {
         previousMode = curDrawMode;
         modeStack.pop();
@@ -399,8 +423,12 @@ export default function CPCanvas(controller) {
       modeStack.peek().keyDown(e);
       e.preventDefault();
       return true;
+    } else if (e.ctrlKey || e.metaKey) {
+      if (previousMode) {
+        modeStack.setUserMode(previousMode); // 元モード復帰
+        previousMode = null;
+      }
     }
-
     if (
       modeStack.peek() === rectSelectionMode ||
       modeStack.peek() === moveToolMode
@@ -437,9 +465,23 @@ export default function CPCanvas(controller) {
 
   CPDefaultMode.prototype.keyUp = function (e) {
     if (
+      key.alt && // altはキーダウン
+      (e.key.toLowerCase() === "control" || e.key.toLowerCase() === "meta")
+    ) {
+      //スポイトの十字カーソル
+      setCursor(CURSOR_CROSSHAIR);
+      if (modeStack.peek() === curDrawMode) {
+        previousMode = curDrawMode;
+        modeStack.pop();
+      }
+      e.preventDefault();
+      return true;
+    } else if (
       e.key === " " ||
       e.key.toLowerCase() === "control" ||
-      e.key.toLowerCase() === "z"
+      e.key.toLowerCase() === "meta" ||
+      e.key.toLowerCase() === "z" ||
+      e.key.toLowerCase() === "alt"
     ) {
       setCursor(CURSOR_DEFAULT); // ズーム解除時にカーソルを戻す
       if (previousMode) {
