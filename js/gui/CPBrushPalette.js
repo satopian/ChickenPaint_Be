@@ -1091,10 +1091,6 @@ function CPColorPickerPanel(controller) {
   let btnGroup = document.createElement("div");
   btnGroup.id = "chickenpaint-colorPickerSampleColorRadioGroup";
 
-  // スタイルの適用: 余白の調整
-  btnGroup.style.padding = "8px";
-  btnGroup.style.marginTop = "5px";
-
   const options = [
     {
       id: "chickenpaint-colorPicker-method-merged",
