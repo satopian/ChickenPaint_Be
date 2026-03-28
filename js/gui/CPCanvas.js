@@ -335,8 +335,10 @@ export default function CPCanvas(controller) {
 
   CPDefaultMode.prototype.mouseDown = function (e, button, pressure) {
     const spacePressed = key.isPressed("space");
+    const is_moveToolMode = modeStack.peek() === moveToolMode;
 
     if (
+      !is_moveToolMode &&
       !spacePressed &&
       (button == BUTTON_SECONDARY ||
         (button == BUTTON_PRIMARY && !(e.ctrlKey || e.metaKey) && e.altKey))
@@ -369,8 +371,11 @@ export default function CPCanvas(controller) {
   let previousMode = null; // 以前のモードを記憶して、あとで復帰させる
 
   CPDefaultMode.prototype.mouseMove = function (e, button) {
+    const is_moveToolMode = modeStack.peek() === moveToolMode;
+
     const spacePressed = key.isPressed("space");
     if (
+      !is_moveToolMode &&
       !spacePressed &&
       (button == BUTTON_SECONDARY ||
         (button == BUTTON_PRIMARY && !(e.ctrlKey || e.metaKey) && e.altKey))
@@ -382,6 +387,8 @@ export default function CPCanvas(controller) {
 
   CPDefaultMode.prototype.keyDown = function (e) {
     const spacePressed = key.isPressed("space");
+    const is_moveToolMode = modeStack.peek() === moveToolMode;
+
     if (
       !e.altKey &&
       ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
@@ -396,12 +403,22 @@ export default function CPCanvas(controller) {
       }
       e.preventDefault();
       return true;
-    } else if (!spacePressed && !(e.ctrlKey || e.metaKey) && e.altKey) {
+    } else if (
+      !is_moveToolMode &&
+      !spacePressed &&
+      !(e.ctrlKey || e.metaKey) &&
+      e.altKey
+    ) {
       //スポイトの十字カーソル
       setCursor(CURSOR_CROSSHAIR);
       if (modeStack.peek() === curDrawMode) {
+        //描画モード
         previousMode = curDrawMode;
-        modeStack.pop();
+        modeStack.pop(); //現在のモードを解除
+      } else if (modeStack.peek() === panMode) {
+        //手のひらツール
+        previousMode = panMode;
+        modeStack.pop(); //現在のモードを解除
       }
       e.preventDefault();
       return true;

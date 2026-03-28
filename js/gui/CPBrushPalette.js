@@ -201,7 +201,8 @@ export default function CPBrushPalette(controller) {
       hideAllPanels();
       panPanel.getElement().style.display = "block";
     }
-    if (!(e.ctrlKey || e.metaKey) && e.altKey) {
+    const is_moove_toll = currentMode === ChickenPaint.M_MOVE_TOOL;
+    if (!is_moove_toll && !(e.ctrlKey || e.metaKey) && e.altKey) {
       hideAllPanels();
       colorPickerPanel.getElement().style.display = "block";
     } else if ((e.ctrlKey || e.metaKey) && e.altKey) {
@@ -210,7 +211,10 @@ export default function CPBrushPalette(controller) {
     }
   });
   document.addEventListener("keyup", (e) => {
+    const is_moove_toll = currentMode === ChickenPaint.M_MOVE_TOOL;
+
     if (
+      !is_moove_toll &&
       key.alt && // altはキーダウン
       (e.key.toLowerCase() === "control" || e.key.toLowerCase() === "meta")
     ) {
