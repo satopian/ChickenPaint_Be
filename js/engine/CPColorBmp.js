@@ -93,11 +93,20 @@ CPColorBmp.prototype.cloneRect = function (rect) {
  *
  * @returns {number} 32-bit integer in ARGB format
  */
-CPColorBmp.prototype.getPixel = function (x, y) {
+CPColorBmp.prototype.getPixel = function (x, y, options = {}) {
+  const colorPicker = options.colorPicker || false;
   x = Math.max(0, Math.min(this.width - 1, x));
   y = Math.max(0, Math.min(this.height - 1, y));
 
   var pixIndex = this.offsetOfPixel(x, y);
+
+  // アルファ値（透明度）を取得
+  var alpha = this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET];
+
+  // 完全に透明（0）なら、白を返す
+  if (colorPicker && alpha === 0) {
+    return 0xffffffff;
+  }
 
   return (
     (this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] << 24) |

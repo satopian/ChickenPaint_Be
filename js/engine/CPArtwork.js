@@ -1382,9 +1382,11 @@ export default function CPArtwork(_width, _height) {
       return CPColor.greyToRGB(curLayer.mask.getPixel(~~x, ~~y));
     } else {
       if (colorPickerSampleAllLayers) {
-        return fusion.getPixel(~~x, ~~y) & 0xffffff;
+        return fusion.getPixel(~~x, ~~y, { colorPicker: true }) & 0xffffff;
       } else {
-        return curLayer.image.getPixel(~~x, ~~y) & 0xffffff;
+        return (
+          curLayer.image.getPixel(~~x, ~~y, { colorPicker: true }) & 0xffffff
+        );
       }
     }
   };
