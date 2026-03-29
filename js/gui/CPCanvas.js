@@ -390,6 +390,7 @@ export default function CPCanvas(controller) {
   };
 
   CPDefaultMode.prototype.keyDown = function (e) {
+    if (e.repeat) return; // キーが押され続けている場合は無視
     const spacePressed = key.isPressed("space");
     const is_moveToolMode = modeStack.peek() === moveToolMode;
 
