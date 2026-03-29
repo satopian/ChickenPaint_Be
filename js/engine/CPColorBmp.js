@@ -91,7 +91,7 @@ CPColorBmp.prototype.cloneRect = function (rect) {
 /**
  * Pixel access with friendly clipping.
  *
- * @returns {number} 32-bit integer in ARGB format
+ * @returns {number|null} 32-bit integer in ARGB format
  */
 CPColorBmp.prototype.getPixel = function (x, y, options = {}) {
   const colorPicker = options.colorPicker || false;
@@ -103,9 +103,9 @@ CPColorBmp.prototype.getPixel = function (x, y, options = {}) {
   // アルファ値（透明度）を取得
   var alpha = this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET];
 
-  // 完全に透明（0）なら、白を返す
+  // カラーピッカー使用時に完全に透明（0）なら、nullを返す
   if (colorPicker && alpha === 0) {
-    return 0xffffffff;
+    return null;
   }
 
   return (

@@ -1375,22 +1375,21 @@ export default function CPArtwork(_width, _height) {
    *
    * @param {number} x
    * @param {number} y
-   * @returns {number}
+   * @returns {number|null} RGB color (0xRRGGBB), or null if the coordinates are on a fully transparent pixel
    */
   this.colorPicker = function (x, y) {
+    // マスク編集モードの処理
     if (maskEditingMode && curLayer.mask) {
       return CPColor.greyToRGB(curLayer.mask.getPixel(~~x, ~~y));
-    } else {
-      if (colorPickerSampleAllLayers) {
-        return fusion.getPixel(~~x, ~~y, { colorPicker: true }) & 0xffffff;
-      } else {
-        return (
-          curLayer.image.getPixel(~~x, ~~y, { colorPicker: true }) & 0xffffff
-        );
-      }
     }
-  };
 
+    // サンプリング対象の決定
+    const target = colorPickerSampleAllLayers ? fusion : curLayer.image;
+    const color = target.getPixel(~~x, ~~y, { colorPicker: true });
+
+    // 透明なら null、色があれば RGB 部分を抽出
+    return color === null ? null : color & 0xffffff;
+  };
   this.setSelection = function (rect) {
     curSelection.set(rect);
     // Ensure we never have fractional coordinates in our selections:

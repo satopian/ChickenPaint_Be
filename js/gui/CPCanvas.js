@@ -1027,8 +1027,10 @@ export default function CPCanvas(controller) {
     this.mouseDrag = function (e) {
       if (this.capture) {
         var pf = coordToDocument({ x: mouseX, y: mouseY });
-
-        if (artwork.isPointWithin(pf.x, pf.y)) {
+        if (
+          artwork.isPointWithin(pf.x, pf.y) &&
+          artwork.colorPicker(pf.x, pf.y) !== null //取得色が透明以外の時
+        ) {
           controller.setCurColor(new CPColor(artwork.colorPicker(pf.x, pf.y)));
         }
         setCursor(CURSOR_CROSSHAIR);
