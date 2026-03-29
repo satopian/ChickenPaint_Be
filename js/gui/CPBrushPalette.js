@@ -137,6 +137,7 @@ export default function CPBrushPalette(controller) {
     floodFillPanel.getElement().style.display = "none";
     colorPickerPanel.getElement().style.display = "none";
   }
+
   let currentMode = null;
   function updatePanelByMode(mode) {
     hideAllPanels();
@@ -193,6 +194,7 @@ export default function CPBrushPalette(controller) {
   });
 
   document.addEventListener("keydown", (e) => {
+    if (e.repeat) return; // キーが押され続けている場合は無視
     if (
       e.key.toLowerCase() === "r" ||
       (!(e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") ||
@@ -1130,6 +1132,33 @@ function CPColorPickerPanel(controller) {
         controller.setColorPickerSampleAllLayers(isMerged);
       }
     });
+
+    // Alt押下時にFirefoxでラベルがクリックできなくなるためJavascriptで制御
+    panel.addEventListener(
+      "click",
+      (e) => {
+        // ALTキーが押されているか確認
+        if (e.altKey) {
+          const label = e.target.closest("label");
+          if (!label) return;
+
+          // labelのfor属性から対応するinputを探す
+          const targetId = label.getAttribute("for");
+          if (!targetId) return;
+
+          const input = panel.querySelector(`#${targetId}`);
+          if (input && input.type === "radio" && !input.checked) {
+            // チェックされていなかったら
+            input.checked = true;
+            // changeイベントをトリガー
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+            e.preventDefault();
+          }
+        }
+      },
+      true,
+    ); // キャプチャフェーズ(true)でラベルクリックをブラウザより先に処理する
+
     checkDiv.appendChild(input);
     checkDiv.appendChild(labelCheck);
     btnGroup.appendChild(checkDiv);
