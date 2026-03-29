@@ -14676,7 +14676,7 @@ fieldset:disabled .btn {
   background-color: var(--bs-primary);
   color: #fff;
 }
-/* ラジオボタンのサークルを消してラベルだけにする */
+/* ラジオボタンのサークルの位置を調整 */
 input#chickenpaint-colorPicker-method-merged,
 input#chickenpaint-colorPicker-method-layer {
   margin: 10px 0;
