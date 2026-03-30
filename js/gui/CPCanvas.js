@@ -375,15 +375,15 @@ export default function CPCanvas(controller) {
     const spacePressed = key.isPressed("space");
 
     //パンモード･回転モードのカーソルを表示
-    if ((spacePressed || key.isPressed("r")) && !(e.ctrlKey || e.metaKey)) {
-      setCursor(CURSOR_PANNABLE);
-    } else if (
+    if (
       (spacePressed && (e.ctrlKey || e.metaKey)) ||
       (key.isPressed("z") && !(e.ctrlKey || e.metaKey))
     ) {
       setCursor(CURSOR_ZOOM_IN);
-    } else if (
-      //スポイトのカーソルを表示
+      return true;
+    }
+    //スポイトのカーソルを表示
+    if (
       !is_moveToolMode &&
       !spacePressed &&
       (button == BUTTON_SECONDARY ||
@@ -504,13 +504,28 @@ export default function CPCanvas(controller) {
       e.preventDefault();
       return true;
     } else if (
+      //スペース押下中にctrlが離された時はパンカーソルにする
+      (key.isPressed("space") && e.key.toLowerCase() === "control") ||
+      e.key.toLowerCase() === "meta"
+    ) {
+      setCursor(CURSOR_PANNABLE);
+    } else if (
       e.key === " " ||
       e.key.toLowerCase() === "control" ||
       e.key.toLowerCase() === "meta" ||
       e.key.toLowerCase() === "z" ||
       e.key.toLowerCase() === "alt"
     ) {
-      setCursor(CURSOR_DEFAULT); // ズーム解除時にカーソルを戻す
+      if (
+        modeStack.peek() === panMode ||
+        modeStack.peek() === rotateCanvasMode
+      ) {
+        //もともとパンモードだった時はパンカーソルのままにする
+        setCursor(CURSOR_PANNABLE);
+      } else {
+        setCursor(CURSOR_DEFAULT); // カーソルをデフォルトに戻す
+      }
+
       if (previousMode) {
         modeStack.setUserMode(previousMode); // 元モード復帰
         previousMode = null;
@@ -1079,6 +1094,7 @@ export default function CPCanvas(controller) {
     var panningX, panningY, panningOffset, panningButton;
 
     this.keyDown = function (e) {
+      if (e.repeat) return; // キーが押され続けている場合は無視
       if (!(e.ctrlKey || e.metaKey) && e.key === " ") {
         // If we're not already panning, then advertise that a left-click would pan
         if (!this.capture) {
@@ -1102,7 +1118,8 @@ export default function CPCanvas(controller) {
     this.mouseDown = function (e, button, pressure) {
       if (this.capture) {
         return true;
-      } else if (
+      }
+      if (
         button == BUTTON_WHEEL ||
         (key.isPressed("space") &&
           !(e.ctrlKey || e.metaKey) &&
@@ -1144,9 +1161,7 @@ export default function CPCanvas(controller) {
         // 他モードに切り替わってたら何もしない
         if (modeStack.peek() !== this) return true;
 
-        if (key.isPressed("space") && (e.ctrlKey || e.metaKey)) {
-          setCursor(CURSOR_ZOOM_IN);
-        } else if (
+        if (
           this.transient &&
           !key.isPressed("space") &&
           !(e.ctrlKey || e.metaKey)
