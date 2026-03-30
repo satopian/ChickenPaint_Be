@@ -688,9 +688,10 @@ export default function CPMainMenu(controller, mainGUI) {
           small.textContent = presentShortcutText(entry.shortcut);
           entryElem.appendChild(small);
           key(entry.shortcut, (e) => {
-            menuItemClicked(entryElem);
             e.preventDefault();
             e.stopPropagation();
+            if (e.repeat) return false;
+            menuItemClicked(entryElem);
             return false;
           });
         }
