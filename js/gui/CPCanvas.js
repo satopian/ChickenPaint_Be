@@ -378,6 +378,11 @@ export default function CPCanvas(controller) {
     if ((spacePressed || key.isPressed("r")) && !(e.ctrlKey || e.metaKey)) {
       setCursor(CURSOR_PANNABLE);
     } else if (
+      (spacePressed && (e.ctrlKey || e.metaKey)) ||
+      (key.isPressed("z") && !(e.ctrlKey || e.metaKey))
+    ) {
+      setCursor(CURSOR_ZOOM_IN);
+    } else if (
       //スポイトのカーソルを表示
       !is_moveToolMode &&
       !spacePressed &&
@@ -1021,7 +1026,15 @@ export default function CPCanvas(controller) {
     };
 
     this.mouseMove = function (e, pressure) {
-      setCursor(CURSOR_CROSSHAIR);
+      if (modeStack.peek() !== this) return true;
+      if (
+        !key.isPressed("r") ||
+        !key.isPressed("space") ||
+        !key.isPressed("z")
+      ) {
+        setCursor(CURSOR_CROSSHAIR);
+      }
+      return true;
     };
 
     this.mouseDrag = function (e) {
@@ -1131,7 +1144,13 @@ export default function CPCanvas(controller) {
         // 他モードに切り替わってたら何もしない
         if (modeStack.peek() !== this) return true;
 
-        if (this.transient && !key.isPressed("space")) {
+        if (key.isPressed("space") && (e.ctrlKey || e.metaKey)) {
+          setCursor(CURSOR_ZOOM_IN);
+        } else if (
+          this.transient &&
+          !key.isPressed("space") &&
+          !(e.ctrlKey || e.metaKey)
+        ) {
           setCursor(CURSOR_DEFAULT);
           modeStack.pop();
         } else {
@@ -1392,7 +1411,7 @@ export default function CPCanvas(controller) {
   CPMoveToolMode.prototype.mouseMove = function (e) {
     // 他のモードがトップなら何もしない
     if (modeStack.peek() !== this) return true;
-    if (!key.isPressed("r") || !key.isPressed("space")) {
+    if (!key.isPressed("r") || !key.isPressed("space") || !key.isPressed("z")) {
       setCursor(CURSOR_MOVE);
     }
     return true;
