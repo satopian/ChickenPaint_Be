@@ -538,7 +538,11 @@ export default function CPMainMenu(controller, mainGUI) {
     const checkbox = target.dataset.checkbox === "true";
     let selected;
 
-    if (controller.isActionAllowed(action)) {
+    if (!action) return;
+
+    if (action === "CPTransform" || controller.isActionAllowed(action)) {
+      //変形モードは、メニューのグレーアウト状態に関わらず実行し、
+      //処理の開始時にバリデーションを行う。
       if (checkbox) {
         target.classList.toggle("selected");
         selected = target.classList.contains("selected");
@@ -836,6 +840,7 @@ export default function CPMainMenu(controller, mainGUI) {
   bar.addEventListener("click", (e) => {
     const target = e.target.closest("[data-action]");
     if (!target) return;
+    console.log(target);
 
     menuItemClicked(target);
     e.preventDefault();

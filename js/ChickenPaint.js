@@ -536,20 +536,13 @@ export default function ChickenPaint(options) {
         },
         modifies: { mode: true },
         allowed: function () {
-          if (!canvas.checkCurrentLayerIsVisible()) {
-            return;
-          }
-
+          //ここのバリデーションはメニューのグレーアウト判定にのみで
+          //変形モードに入る前のバリデーションは、変形モードの開始アクション内で行う。
           const layer = that.artwork.getActiveLayer();
-          if (that.artwork.transformAffineBegin() == null) {
-            that.showLayerNotification(
-              layer,
-              _("Whoops! All of the selected pixels are transparent!"),
-              "layer",
-            );
-          } else {
-            return layer.getEffectiveAlpha() != 0;
-          }
+          return (
+            that.artwork.transformAffineBegin() !== null &&
+            layer.getEffectiveAlpha() != 0
+          );
         },
       },
       CPTransformAccept: {
@@ -1356,7 +1349,6 @@ export default function ChickenPaint(options) {
   };
   this.setColorPickerSampleAllLayers = function (merged) {
     that.artwork.setColorPickerSampleAllLayers(merged);
-    canvas.setColorPickerSampleAllLayers(merged);
   };
 
   /**
