@@ -1360,7 +1360,7 @@ export default function CPCanvas(controller) {
         !this.capture &&
         button == BUTTON_PRIMARY &&
         !key.isPressed("space") &&
-        checkCurrentLayerIsVisible()
+        that.checkCurrentLayerIsVisible()
       ) {
         lastPoint = coordToDocument({ x: mouseX, y: mouseY });
 
@@ -2221,7 +2221,7 @@ export default function CPCanvas(controller) {
     }
   }
 
-  function checkCurrentLayerIsVisible() {
+  this.checkCurrentLayerIsVisible = () => {
     var activeLayer = artwork.getActiveLayer();
 
     if (!(activeLayer.visible && activeLayer.ancestorsAreVisible())) {
@@ -2264,7 +2264,7 @@ export default function CPCanvas(controller) {
       return false;
     }
 
-    return checkCurrentLayerIsVisible();
+    return that.checkCurrentLayerIsVisible();
   }
 
   /**
