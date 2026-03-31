@@ -275,7 +275,8 @@ export default function CPCanvas(controller) {
     floodFillReferAllLayers = true,
     currentSelection = true,
     curBrush = 0,
-    isPointerDown = false;
+    isPointerDown = false,
+    colorPickerSampleAllLayers = false;
   Math.sign =
     Math.sign ||
     function (x) {
@@ -1026,6 +1027,10 @@ export default function CPCanvas(controller) {
         ((button == BUTTON_PRIMARY && (!this.transient || e.altKey)) ||
           button == BUTTON_SECONDARY)
       ) {
+        //スポイトの取得元が非表示レイヤーの時は取得しない
+        if (!colorPickerSampleAllLayers && !that.checkCurrentLayerIsVisible()) {
+          return false;
+        }
         mouseButton = button;
         this.capture = true;
 
@@ -1089,6 +1094,10 @@ export default function CPCanvas(controller) {
 
   CPColorPickerMode.prototype = Object.create(CPMode.prototype);
   CPColorPickerMode.prototype.constructor = CPColorPickerMode;
+
+  this.setColorPickerSampleAllLayers = function (checked) {
+    colorPickerSampleAllLayers = !!checked;
+  };
 
   function CPPanCanvasMode() {
     var panningX, panningY, panningOffset, panningButton;
@@ -2243,7 +2252,7 @@ export default function CPCanvas(controller) {
     }
 
     return true;
-  }
+  };
 
   /**
    * Check that we should be drawing to the current layer, and let the user know if they are being blocked by the

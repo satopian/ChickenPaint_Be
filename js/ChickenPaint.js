@@ -1356,6 +1356,7 @@ export default function ChickenPaint(options) {
   };
   this.setColorPickerSampleAllLayers = function (merged) {
     that.artwork.setColorPickerSampleAllLayers(merged);
+    canvas.setColorPickerSampleAllLayers(merged);
   };
 
   /**
