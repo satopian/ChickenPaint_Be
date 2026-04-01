@@ -1406,29 +1406,21 @@ CPColorBmp.prototype.copyRegionVFlip = function (rect, source) {
 };
 
 /**
- * 指定された矩形範囲に、指定色によるノイズを重ねる（アルファブレンド）。
- *
+ * 単色ノイズ
+ * 指定された矩形範囲に、指定色のノイズを一定の不透明度で重ねる（通常合成）。
  * @param {CPRect} rect - ノイズを適用する矩形範囲。
- * @param {number} color - ノイズの色（RGB: 0xRRGGBB）。デフォルトは 0 (黒)。
- * @description
- * 各ピクセルに対してランダムな不透明度を持つ指定色を合成。
- * - 元の画像がある場合：指定色がランダムな強さで上に重なる（Source Over）。
- * - 透明な領域の場合：不透明度がランダムな指定色のノイズになる。
- * 最終的なアルファ値は、元の値とノイズの強さの大きい方が採用される。
+ * @param {number} color - ノイズの色 (0xRRGGBB)。
+ * @param {number} opacity - ノイズの不透明度 (0.0〜1.0)。デフォルトは 1.0。
  */
-CPColorBmp.prototype.fillWithNoise = function (rect, color = 0) {
+CPColorBmp.prototype.fillWithNoise = function (rect, color = 0, opacity = 1) {
   rect = this.getBounds().clipTo(rect);
 
   const r = (color >> 16) & 0xff;
   const g = (color >> 8) & 0xff;
   const b = color & 0xff;
 
-  var noiseA,
-    oldR,
-    oldG,
-    oldB,
-    oldA,
-    invNoiseA,
+  var srcA = opacity,
+    invSrcA = 1 - srcA,
     yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL,
     pixIndex = this.offsetOfPixel(rect.left, rect.top);
 
@@ -1438,33 +1430,33 @@ CPColorBmp.prototype.fillWithNoise = function (rect, color = 0) {
       x < rect.right;
       x++, pixIndex += CPColorBmp.BYTES_PER_PIXEL
     ) {
-      // 1. ノイズとしての不透明度を生成 (0.0〜1.0)
-      noiseA = Math.random();
-      invNoiseA = 1 - noiseA;
+      // 1. 各ピクセルごとに不透明度をランダムにする場合はここを Math.random() * opacity に。
+      var currentSrcA = Math.random() * srcA;
+      var currentInvSrcA = 1 - currentSrcA;
 
-      // 2. 元の画素情報を取得
-      oldR = this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET];
-      oldG = this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET];
-      oldB = this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET];
-      oldA = this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET];
+      var oldR = this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET];
+      var oldG = this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET];
+      var oldB = this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET];
+      var oldA = this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
 
-      // 3. 通常のアルファブレンド（Source Over）
-      // 計算式: 新しい色 * noiseA + 元の色 * (1 - noiseA)
-      this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] =
-        (r * noiseA + oldR * invNoiseA) | 0;
-      this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] =
-        (g * noiseA + oldG * invNoiseA) | 0;
-      this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET] =
-        (b * noiseA + oldB * invNoiseA) | 0;
+      // 新しいアルファ値を計算（Source Over）
+      var outA = currentSrcA + oldA * currentInvSrcA;
 
-      // 4. アルファ値の計算
-      // 「塗りつぶし」としての使い勝手を優先し、ノイズを乗せた後は
-      // 元の不透明度に関わらず、生成されたノイズの強さ以上に不透明にする処理
-      // (元のAと新しいAの、重なり合った不透明度を算出)
-      this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = Math.max(
-        oldA,
-        (noiseA * 255) | 0,
-      );
+      if (outA > 0) {
+        // 合成後の色を計算
+        this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] = Math.round(
+          (r * currentSrcA + oldR * oldA * currentInvSrcA) / outA,
+        );
+        this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] = Math.round(
+          (g * currentSrcA + oldG * oldA * currentInvSrcA) / outA,
+        );
+        this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET] = Math.round(
+          (b * currentSrcA + oldB * oldA * currentInvSrcA) / outA,
+        );
+        this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = Math.round(
+          outA * 255,
+        );
+      }
     }
   }
 };
@@ -1847,6 +1839,7 @@ CPColorBmp.prototype.gradient = function (
 };
 
 /**
+ * カラーノイズ
  * 指定された矩形範囲に、一定の不透明度でカラーノイズを重ねる（通常合成）。
  * @param {CPRect} rect - ノイズを適用する矩形範囲。
  * @param {number} opacity - ノイズの不透明度 (0.0〜1.0)。デフォルトは 0.65。
@@ -1883,7 +1876,7 @@ CPColorBmp.prototype.fillWithColorNoise = function (rect, opacity = 0.65) {
       var outA = srcA + oldA * invSrcA;
 
       if (outA > 0) {
-        // 合成後の色を計算（Math.roundでくすみを防止）
+        // 合成後の色を計算
         this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] = Math.round(
           (noiseR * srcA + oldR * oldA * invSrcA) / outA,
         );
@@ -1900,6 +1893,7 @@ CPColorBmp.prototype.fillWithColorNoise = function (rect, opacity = 0.65) {
     }
   }
 };
+
 /**
  * @param {CPRect} rect
  */
