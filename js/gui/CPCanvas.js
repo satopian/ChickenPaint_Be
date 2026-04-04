@@ -1107,7 +1107,7 @@ export default function CPCanvas(controller) {
     };
 
     CPColorPickerMode.prototype.getBrushPreviewOval = function () {
-      var brushSize = 90;
+      var brushSize = 120;
       const halfBrushSize = brushSize / 2;
 
       return new CPRect(
