@@ -1023,186 +1023,182 @@ export default function CPCanvas(controller) {
     this.curColor = null;
     this.oldPreviewRect = null;
     this.shouldPaintBrushPreview = false;
-
-    CPColorPickerMode.prototype.mouseDown = function (e, button, pressure) {
-      if (this.capture) {
-        return true;
-      } else if (
-        !key.isPressed("space") &&
-        ((button == BUTTON_PRIMARY && (!this.transient || e.altKey)) ||
-          button == BUTTON_SECONDARY)
-      ) {
-        //スポイトの取得元が非表示レイヤーの時は取得しない
-        if (!colorPickerSampleAllLayers && !that.checkCurrentLayerIsVisible()) {
-          return false;
-        }
-        this.mouseButton = button;
-        this.capture = true;
-
-        setCursor(CURSOR_CROSSHAIR);
-
-        this.mouseDrag(e);
-
-        return true;
-      } else if (this.transient) {
-        // If we're not sampling and we get a button not intended for us, we probably shouldn't be on the stack
-        modeStack.pop();
-      }
-    };
-
-    this.mouseMove = function (e, pressure) {
-      if (modeStack.peek() !== this) return true;
-      if (
-        !key.isPressed("r") ||
-        !key.isPressed("space") ||
-        !key.isPressed("z")
-      ) {
-        setCursor(CURSOR_CROSSHAIR);
-      }
-      return true;
-    };
-
-    CPColorPickerMode.prototype.mouseDrag = function (e) {
-      this.queueBrushPreview();
-
-      if (this.capture) {
-        var pf = coordToDocument({ x: mouseX, y: mouseY });
-        if (
-          artwork.isPointWithin(pf.x, pf.y) &&
-          artwork.colorPicker(pf.x, pf.y) !== null //取得色が透明以外の時
-        ) {
-          this.curColor = new CPColor(artwork.colorPicker(pf.x, pf.y));
-          controller.setCurColor(this.curColor);
-        }
-        setCursor(CURSOR_CROSSHAIR);
-
-        return true;
-      }
-    };
-
-    CPColorPickerMode.prototype.mouseUp = function (e, button, pressure) {
-      if (this.capture && button == this.mouseButton) {
-        this.mouseButton = -1;
-        this.capture = false;
-        setCursor(CURSOR_DEFAULT);
-
-        //最後のプレビューの範囲を破棄
-        if (this.oldPreviewRect != null) {
-          repaintRect(this.oldPreviewRect);
-          this.oldPreviewRect = null;
-        }
-        // --------------------------------------------------
-
-        if (this.transient) {
-          modeStack.pop();
-        }
-
-        return true;
-      }
-    };
-
-    CPColorPickerMode.prototype.enter = function () {
-      CPMode.prototype.enter.call(this);
-      this.mouseButton = -1;
-    };
-
-    CPColorPickerMode.prototype.getBrushPreviewOval = function () {
-      var brushSize = 120;
-      const halfBrushSize = brushSize / 2;
-
-      return new CPRect(
-        mouseX - halfBrushSize,
-        mouseY - halfBrushSize,
-        mouseX + halfBrushSize,
-        mouseY + halfBrushSize,
-      );
-    };
-
-    /**
-     * Queues up the brush preview oval to be drawn.
-     */
-    CPColorPickerMode.prototype.queueBrushPreview = function () {
-      /* If we're not the top-most mode, it's unlikely that left clicking will drawing for us, so don't consider
-       * painting the brush preview
-       */
-      if (modeStack.peek() != this) {
-        return;
-      }
-
-      this.shouldPaintBrushPreview = true;
-
-      var rect = this.getBrushPreviewOval();
-
-      rect.grow(2, 2);
-
-      // If a brush preview was drawn previously, stretch the repaint region to remove that old copy
-      if (this.oldPreviewRect != null) {
-        rect.union(this.oldPreviewRect);
-        this.oldPreviewRect = null;
-      }
-
-      repaintRect(rect);
-    };
-
-    CPColorPickerMode.prototype.paint = function () {
-      if (!this.capture || !canvasContext) {
-        return;
-      }
-
-      if (this.shouldPaintBrushPreview) {
-        this.shouldPaintBrushPreview = false;
-        var r = this.getBrushPreviewOval();
-        var cx = (r.left + r.right) / 2;
-        var cy = (r.top + r.bottom) / 2;
-        var radius = r.getWidth() / 2;
-
-        canvasContext.save();
-        canvasContext.globalCompositeOperation = "source-over";
-        canvasContext.globalAlpha = 1.0;
-
-        if (this.curColor) {
-          // 輝度計算
-          var rgb = this.curColor.getRgb();
-          var red = (rgb >> 16) & 0xff;
-          var green = (rgb >> 8) & 0xff;
-          var blue = rgb & 0xff;
-
-          // 標準的な輝度（Luminance）計算式
-          var luminance = 0.299 * red + 0.587 * green + 0.114 * blue;
-
-          // 1. 外側の縁
-          // 取得した色が明るければ黒の縁、暗ければ白の縁を描く
-          canvasContext.strokeStyle =
-            luminance > 128 ? "rgba(0, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.3)";
-          canvasContext.lineWidth = 20;
-          canvasContext.beginPath();
-          canvasContext.arc(cx, cy, radius, 0, Math.PI * 2);
-          canvasContext.stroke();
-
-          // 2. 内側の色
-          var colorStr = "#" + ("000000" + rgb.toString(16)).slice(-6);
-          canvasContext.strokeStyle = colorStr;
-          canvasContext.lineWidth = 18;
-          canvasContext.beginPath();
-          canvasContext.arc(cx, cy, radius, 0, Math.PI * 2);
-          canvasContext.stroke();
-        }
-
-        canvasContext.restore();
-
-        r.grow(10, 10);
-
-        if (this.oldPreviewRect == null) {
-          this.oldPreviewRect = r;
-        } else {
-          this.oldPreviewRect.union(r);
-        }
-      }
-    };
   }
 
   CPColorPickerMode.prototype = Object.create(CPMode.prototype);
   CPColorPickerMode.prototype.constructor = CPColorPickerMode;
+
+  CPColorPickerMode.prototype.mouseDown = function (e, button, pressure) {
+    if (this.capture) {
+      return true;
+    } else if (
+      !key.isPressed("space") &&
+      ((button == BUTTON_PRIMARY && (!this.transient || e.altKey)) ||
+        button == BUTTON_SECONDARY)
+    ) {
+      //スポイトの取得元が非表示レイヤーの時は取得しない
+      if (!colorPickerSampleAllLayers && !that.checkCurrentLayerIsVisible()) {
+        return false;
+      }
+      this.mouseButton = button;
+      this.capture = true;
+
+      setCursor(CURSOR_CROSSHAIR);
+
+      this.mouseDrag(e);
+
+      return true;
+    } else if (this.transient) {
+      // If we're not sampling and we get a button not intended for us, we probably shouldn't be on the stack
+      modeStack.pop();
+    }
+  };
+
+  this.mouseMove = function (e, pressure) {
+    if (modeStack.peek() !== this) return true;
+    if (!key.isPressed("r") || !key.isPressed("space") || !key.isPressed("z")) {
+      setCursor(CURSOR_CROSSHAIR);
+    }
+    return true;
+  };
+
+  CPColorPickerMode.prototype.mouseDrag = function (e) {
+    this.queueBrushPreview();
+
+    if (this.capture) {
+      var pf = coordToDocument({ x: mouseX, y: mouseY });
+      if (
+        artwork.isPointWithin(pf.x, pf.y) &&
+        artwork.colorPicker(pf.x, pf.y) !== null //取得色が透明以外の時
+      ) {
+        this.curColor = new CPColor(artwork.colorPicker(pf.x, pf.y));
+        controller.setCurColor(this.curColor);
+      }
+      setCursor(CURSOR_CROSSHAIR);
+
+      return true;
+    }
+  };
+
+  CPColorPickerMode.prototype.mouseUp = function (e, button, pressure) {
+    if (this.capture && button == this.mouseButton) {
+      this.mouseButton = -1;
+      this.capture = false;
+      setCursor(CURSOR_DEFAULT);
+
+      //最後のプレビューの範囲を破棄
+      if (this.oldPreviewRect != null) {
+        repaintRect(this.oldPreviewRect);
+        this.oldPreviewRect = null;
+      }
+      // --------------------------------------------------
+
+      if (this.transient) {
+        modeStack.pop();
+      }
+
+      return true;
+    }
+  };
+
+  CPColorPickerMode.prototype.enter = function () {
+    CPMode.prototype.enter.call(this);
+    this.mouseButton = -1;
+  };
+
+  CPColorPickerMode.prototype.getBrushPreviewOval = function () {
+    var brushSize = 120;
+    const halfBrushSize = brushSize / 2;
+
+    return new CPRect(
+      mouseX - halfBrushSize,
+      mouseY - halfBrushSize,
+      mouseX + halfBrushSize,
+      mouseY + halfBrushSize,
+    );
+  };
+
+  /**
+   * Queues up the brush preview oval to be drawn.
+   */
+  CPColorPickerMode.prototype.queueBrushPreview = function () {
+    /* If we're not the top-most mode, it's unlikely that left clicking will drawing for us, so don't consider
+     * painting the brush preview
+     */
+    if (modeStack.peek() != this) {
+      return;
+    }
+
+    this.shouldPaintBrushPreview = true;
+
+    var rect = this.getBrushPreviewOval();
+
+    rect.grow(2, 2);
+
+    // If a brush preview was drawn previously, stretch the repaint region to remove that old copy
+    if (this.oldPreviewRect != null) {
+      rect.union(this.oldPreviewRect);
+      this.oldPreviewRect = null;
+    }
+
+    repaintRect(rect);
+  };
+
+  CPColorPickerMode.prototype.paint = function () {
+    if (!this.capture || !canvasContext) {
+      return;
+    }
+
+    if (this.shouldPaintBrushPreview) {
+      this.shouldPaintBrushPreview = false;
+      var r = this.getBrushPreviewOval();
+      var cx = (r.left + r.right) / 2;
+      var cy = (r.top + r.bottom) / 2;
+      var radius = r.getWidth() / 2;
+
+      canvasContext.save();
+      canvasContext.globalCompositeOperation = "source-over";
+      canvasContext.globalAlpha = 1.0;
+
+      if (this.curColor) {
+        // 輝度計算
+        var rgb = this.curColor.getRgb();
+        var red = (rgb >> 16) & 0xff;
+        var green = (rgb >> 8) & 0xff;
+        var blue = rgb & 0xff;
+
+        // 標準的な輝度（Luminance）計算式
+        var luminance = 0.299 * red + 0.587 * green + 0.114 * blue;
+
+        // 1. 外側の縁
+        // 取得した色が明るければ黒の縁、暗ければ白の縁を描く
+        canvasContext.strokeStyle =
+          luminance > 128 ? "rgba(0, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.3)";
+        canvasContext.lineWidth = 20;
+        canvasContext.beginPath();
+        canvasContext.arc(cx, cy, radius, 0, Math.PI * 2);
+        canvasContext.stroke();
+
+        // 2. 内側の色
+        var colorStr = "#" + ("000000" + rgb.toString(16)).slice(-6);
+        canvasContext.strokeStyle = colorStr;
+        canvasContext.lineWidth = 18;
+        canvasContext.beginPath();
+        canvasContext.arc(cx, cy, radius, 0, Math.PI * 2);
+        canvasContext.stroke();
+      }
+
+      canvasContext.restore();
+
+      r.grow(10, 10);
+
+      if (this.oldPreviewRect == null) {
+        this.oldPreviewRect = r;
+      } else {
+        this.oldPreviewRect.union(r);
+      }
+    }
+  };
 
   this.setColorPickerSampleAllLayers = function (checked) {
     colorPickerSampleAllLayers = !!checked;
