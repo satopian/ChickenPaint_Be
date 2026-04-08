@@ -1174,7 +1174,7 @@ export default function CPCanvas(controller) {
         // 取得した色が明るければ黒の縁、暗ければ白の縁を描く
         canvasContext.strokeStyle =
           luminance > 128 ? "rgba(0, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.3)";
-        canvasContext.lineWidth = 20;
+        canvasContext.lineWidth = 18;
         canvasContext.beginPath();
         canvasContext.arc(cx, cy, radius, 0, Math.PI * 2);
         canvasContext.stroke();
@@ -1182,7 +1182,7 @@ export default function CPCanvas(controller) {
         // 2. 内側の色
         var colorStr = "#" + ("000000" + rgb.toString(16)).slice(-6);
         canvasContext.strokeStyle = colorStr;
-        canvasContext.lineWidth = 18;
+        canvasContext.lineWidth = 16;
         canvasContext.beginPath();
         canvasContext.arc(cx, cy, radius, 0, Math.PI * 2);
         canvasContext.stroke();
