@@ -951,7 +951,7 @@ export default function CPCanvas(controller) {
       }
     };
 
-    this.mouseMove = function (e, pressure) {
+    this.mouseMove = throttle(50, function (e, pressure) {
       if (this.capture) {
         let p = coordToDocument({ x: mouseX, y: mouseY });
 
@@ -967,7 +967,7 @@ export default function CPCanvas(controller) {
         // Draw the normal brush preview while not in the middle of a bezier operation
         CPDrawingMode.prototype.mouseMove.call(this, e, pressure);
       }
-    };
+    });
 
     this.paint = function () {
       if (this.capture) {
