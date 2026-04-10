@@ -232,6 +232,17 @@ export default function CPBrushPalette(controller) {
       updatePanelByMode(currentMode);
     }
   });
+  document.addEventListener("mousedown", (e) => {
+    if (e.button === 2 && controller.isColorPickerMode()) {
+      hideAllPanels();
+      colorPickerPanel.getElement().style.display = "block";
+    }
+  });
+  document.addEventListener("mouseup", (e) => {
+    if (e.button !== 2) return;
+    hideAllPanels();
+    updatePanelByMode(currentMode);
+  });
 }
 
 CPBrushPalette.prototype = Object.create(CPPalette.prototype);

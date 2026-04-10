@@ -1367,8 +1367,14 @@ export default function ChickenPaint(options) {
     return paletteManager.palettes.brush.getElement();
   };
 
+  //パンまたは回転モードかどうかを判定
   this.isPanOrRotateMode = function () {
     return canvas.isPanOrRotateMode();
+  };
+
+  //カラーピッカーモードかどうかを判定
+  this.isColorPickerMode = function () {
+    return canvas.isColorPickerMode();
   };
 
   function setMode(newMode) {

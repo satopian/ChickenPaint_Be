@@ -2781,6 +2781,10 @@ export default function CPCanvas(controller) {
   this.isPanOrRotateMode = function () {
     return isPinchZoomAllowed;
   };
+  //カラーピッカーモードかどうかを判定
+  this.isColorPickerMode = function () {
+    return modeStack.peek() === colorPickerMode;
+  };
 
   /**
    * Get the current pen pressure, given a pointer event.
