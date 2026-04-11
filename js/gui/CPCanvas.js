@@ -1003,8 +1003,10 @@ export default function CPCanvas(controller) {
         canvasContext.moveTo(~~p0.x, ~~p0.y);
         canvasContext.lineTo(~~p1.x, ~~p1.y);
 
-        canvasContext.moveTo(~~p2.x, ~~p2.y);
-        canvasContext.lineTo(~~p3.x, ~~p3.y);
+        if (dragBezierMode === BEZIER_STATE_POINT_2) {
+          canvasContext.moveTo(~~p2.x, ~~p2.y);
+          canvasContext.lineTo(~~p3.x, ~~p3.y);
+        }
 
         canvasContext.stroke();
       } else {
