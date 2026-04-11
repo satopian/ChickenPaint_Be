@@ -909,12 +909,22 @@ export default function CPCanvas(controller) {
 
     this.mouseUp = function (e, button, pressure) {
       if (this.capture && button == BUTTON_PRIMARY) {
+        //現在のマウス座標を取得（mouseMoveを待たずにここで更新するため）
+        let p = coordToDocument({ x: mouseX, y: mouseY });
         switch (dragBezierMode) {
           case BEZIER_STATE_INITIAL:
-            dragBezierMode = BEZIER_STATE_POINT_1;
+            dragBezierP1 = p;
+            dragBezierP2 = p;
+            setTimeout(() => {
+              //モード切り替えを30ms遅延させる
+              dragBezierMode = BEZIER_STATE_POINT_1;
+              that.repaintAll(); // モードが変わった瞬間に再描画
+            }, 30);
             break;
           case BEZIER_STATE_POINT_1:
             dragBezierMode = BEZIER_STATE_POINT_2;
+            dragBezierP2 = p;
+            that.repaintAll();
             break;
           case BEZIER_STATE_POINT_2:
             this.capture = false;
@@ -951,7 +961,7 @@ export default function CPCanvas(controller) {
       }
     };
 
-    this.mouseMove = throttle(80, function (e, pressure) {
+    this.mouseMove = function (e, pressure) {
       if (this.capture) {
         let p = coordToDocument({ x: mouseX, y: mouseY });
 
@@ -969,7 +979,7 @@ export default function CPCanvas(controller) {
         // Draw the normal brush preview while not in the middle of a bezier operation
         CPDrawingMode.prototype.mouseMove.call(this, e, pressure);
       }
-    });
+    };
 
     this.paint = function () {
       if (this.capture) {
@@ -999,16 +1009,17 @@ export default function CPCanvas(controller) {
         for (let i = 1; i < BEZIER_POINTS_PREVIEW; i++) {
           canvasContext.lineTo(x[i], y[i]);
         }
-
+        canvasContext.stroke();
+        canvasContext.beginPath();
         canvasContext.moveTo(~~p0.x, ~~p0.y);
         canvasContext.lineTo(~~p1.x, ~~p1.y);
-
+        canvasContext.stroke();
         if (dragBezierMode === BEZIER_STATE_POINT_2) {
+          canvasContext.beginPath();
           canvasContext.moveTo(~~p2.x, ~~p2.y);
           canvasContext.lineTo(~~p3.x, ~~p3.y);
+          canvasContext.stroke();
         }
-
-        canvasContext.stroke();
       } else {
         // Paint the regular brush preview
         CPDrawingMode.prototype.paint.call(this);
