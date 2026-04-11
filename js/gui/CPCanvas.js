@@ -951,12 +951,14 @@ export default function CPCanvas(controller) {
       }
     };
 
-    this.mouseMove = throttle(50, function (e, pressure) {
+    this.mouseMove = throttle(80, function (e, pressure) {
       if (this.capture) {
         let p = coordToDocument({ x: mouseX, y: mouseY });
 
         if (dragBezierMode == BEZIER_STATE_POINT_1) {
           dragBezierP1 = p;
+          // p2の最初の位置をp1と同じにして、bzeerのプレビューが急激に変わらないようにする
+          dragBezierP2 = p;
         } else if (dragBezierMode == BEZIER_STATE_POINT_2) {
           dragBezierP2 = p;
         }
