@@ -872,7 +872,28 @@ export default function CPCanvas(controller) {
       dragBezierP2,
       dragBezierP3;
 
+    this.cancelBezier = function () {
+      if (this.capture) {
+        this.capture = false;
+        dragBezierMode = BEZIER_STATE_INITIAL;
+
+        // プレビューを消去するために再描画
+        that.repaintAll();
+
+        // ブラシのプレビューを復活させる
+        if (this.drawBrushPreview) {
+          this.drawBrushPreview();
+        }
+        return true;
+      }
+      return false;
+    };
+
     this.mouseDown = function (e, button, pressure) {
+      if (this.capture && button == BUTTON_SECONDARY) {
+        this.cancelBezier();
+        return true;
+      }
       if (
         !this.capture &&
         button == BUTTON_PRIMARY &&
@@ -909,7 +930,7 @@ export default function CPCanvas(controller) {
 
     this.mouseUp = function (e, button, pressure) {
       if (this.capture && button == BUTTON_PRIMARY) {
-        //現在のマウス座標を取得（mouseMoveを待たずにここで更新するため）
+        // / 現在のマウス座標を取得（mouseMoveを待たずにここで更新するため）
         let p = coordToDocument({ x: mouseX, y: mouseY });
         switch (dragBezierMode) {
           case BEZIER_STATE_INITIAL:
@@ -978,6 +999,12 @@ export default function CPCanvas(controller) {
       } else {
         // Draw the normal brush preview while not in the middle of a bezier operation
         CPDrawingMode.prototype.mouseMove.call(this, e, pressure);
+      }
+    };
+    this.keyDown = function (e) {
+      if (this.capture && e.key === "Escape") {
+        this.cancelBezier();
+        return true;
       }
     };
 
