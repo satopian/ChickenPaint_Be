@@ -1482,15 +1482,6 @@ export default function CPLayersPalette(controller) {
       e.stopPropagation();
     });
 
-    // エスケープキーを押した時にhide
-    textBox.addEventListener("keyup", function (e) {
-      if (e.key === "Escape") {
-        // Escape
-        that.hide();
-      }
-      e.stopPropagation();
-    });
-
     // 入力ボックスがフォーカスを失った時に名前変更処理を実行
     textBox.addEventListener("blur", function (e) {
       if (layer) {

@@ -464,6 +464,14 @@ export default function ChickenPaint(options) {
 
       CPUndo: {
         action: function () {
+          if (
+            typeof canvas.bezierMode === "object" &&
+            canvas.bezierMode.capture
+          ) {
+            canvas.bezierMode.cancelBezier();
+            return;
+          }
+
           that.artwork.undo();
         },
         modifies: { document: true },

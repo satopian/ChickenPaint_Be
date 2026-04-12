@@ -872,6 +872,7 @@ export default function CPCanvas(controller) {
       dragBezierP2,
       dragBezierP3;
 
+    this.capture = false;
     this.cancelBezier = function () {
       if (this.capture) {
         this.capture = false;
@@ -999,12 +1000,6 @@ export default function CPCanvas(controller) {
       } else {
         // Draw the normal brush preview while not in the middle of a bezier operation
         CPDrawingMode.prototype.mouseMove.call(this, e, pressure);
-      }
-    };
-    this.keyDown = function (e) {
-      if (this.capture && e.key === "Escape") {
-        this.cancelBezier();
-        return true;
       }
     };
 
@@ -2076,10 +2071,6 @@ export default function CPCanvas(controller) {
         }
 
         controller.actionPerformed({ action: "CPTransformAccept" });
-
-        return true;
-      } else if (e.key === "Escape") {
-        controller.actionPerformed({ action: "CPTransformReject" });
 
         return true;
       }
@@ -3676,6 +3667,7 @@ export default function CPCanvas(controller) {
   drawingModes = [new CPFreehandMode(), new CPLineMode(), new CPBezierMode()];
 
   curDrawMode = drawingModes[CPBrushInfo.STROKE_MODE_FREEHAND];
+  this.bezierMode = drawingModes[CPBrushInfo.STROKE_MODE_BEZIER];
 
   // The default mode will handle the events that no other modes are interested in
   modeStack.setDefaultMode(defaultMode);
