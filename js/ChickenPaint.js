@@ -464,18 +464,28 @@ export default function ChickenPaint(options) {
 
       CPUndo: {
         action: function () {
-          if (
-            typeof canvas.bezierMode === "object" &&
-            canvas.bezierMode.capture
-          ) {
+          const is_bezieractive =
+            typeof canvas.bezierMode === "object" && canvas.bezierMode.capture;
+          if (is_bezieractive) {
             canvas.bezierMode.cancelBezier();
-            return;
+          } else {
+            that.artwork.undo();
           }
-
-          that.artwork.undo();
         },
         modifies: { document: true },
-        allowed: "isUndoAllowed",
+
+        allowed: function () {
+          // 関数の外にある処理ではなく再計算）
+          const isBezierActive =
+            typeof canvas.bezierMode === "object" && canvas.bezierMode.capture;
+
+          // 状態に応じて、バリデーション
+          if (isBezierActive) {
+            return true;
+          } else {
+            return that.artwork.isUndoAllowed(); // 通常時ならUndo可能かチェックする
+          }
+        },
       },
       CPRedo: {
         action: function () {
