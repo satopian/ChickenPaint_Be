@@ -476,14 +476,18 @@ export default function ChickenPaint(options) {
 
         allowed: function () {
           // 関数の外にある処理ではなく再計算）
+          //Bezier操作中
           const isBezierActive =
             typeof canvas.bezierMode === "object" && canvas.bezierMode.capture;
+          //変形操作中
+          const isTransformActive = curMode == ChickenPaint.M_TRANSFORM;
 
           // 状態に応じて、バリデーション
-          if (isBezierActive) {
+          if (isBezierActive || isTransformActive) {
             return true;
           } else {
-            return that.artwork.isUndoAllowed(); // 通常時ならUndo可能かチェックする
+            // 通常時はUndo可能かチェック
+            return that.artwork.isUndoAllowed();
           }
         },
       },
