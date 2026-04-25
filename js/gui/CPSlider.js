@@ -31,9 +31,12 @@ export default function CPSlider(
   maxValue,
   centerMode,
   expMode,
-  defaultWidth = 150,
-  expModeFactor = 3.0, //低い値の時にスライダーの動作を細やかにする係数
+  defaultWidth = 0,
+  expModeFactor = 0, //低い値の時にスライダーの動作を細やかにする係数
+  fractionalStep = false,
 ) {
+  defaultWidth = defaultWidth ? defaultWidth : 150;
+  expModeFactor = expModeFactor ? expModeFactor : 3.0;
   const PRECISE_DRAG_SCALE = 4,
     DRAG_MODE_IDLE = 0,
     DRAG_MODE_NORMAL = 1,
@@ -172,47 +175,43 @@ export default function CPSlider(
         }
         let diff = (e.pageX - dragPreciseX) / PRECISE_DRAG_SCALE;
         if (diff !== 0) {
+          /* (0.5刻み対応) */
           let unrounded = that.value + diff;
-          let rounded = Math.floor(unrounded);
-
-          that.setValue(rounded);
+          that.setValue(unrounded);
 
           /* Tweak the "old mouseX" position such that the fractional part of the value we were unable to set
            * will be accumulated
            */
-          dragPreciseX = e.pageX - (unrounded - rounded) * PRECISE_DRAG_SCALE;
+          dragPreciseX =
+            e.pageX - (unrounded - that.value) * PRECISE_DRAG_SCALE;
         }
         break;
     }
   }
 
-  canvas.addEventListener("pointerup", (e) => {
-    if (dragMode === DRAG_MODE_IDLE) {
-      canvas.releasePointerCapture(e.pointerId);
-      return canvas.removeEventListener("pointermove", pointerDragged);
-    }
-    if (dragMode !== DRAG_MODE_IDLE) {
-      switch (dragMode) {
-        case DRAG_MODE_NORMAL:
-          if (e.button === 0 && !e.shiftKey) {
-            dragMode = DRAG_MODE_IDLE;
-          }
-          break;
-        case DRAG_MODE_PRECISE:
-          if (e.button == 2 || (e.button === 0 && e.shiftKey)) {
-            dragMode = DRAG_MODE_IDLE;
-          }
-          break;
-        default:
-          return;
-      }
-    }
+  const handlePointerUp = (e) => {
+    // ドラッグ状態を解除
+    dragMode = DRAG_MODE_IDLE;
+
+    // ブラウザからのポインターキャプチャを解放
     canvas.releasePointerCapture(e.pointerId);
-    return canvas.removeEventListener("pointermove", pointerDragged);
-  });
+
+    //  pointermoveイベントのリスナーを削除
+    canvas.removeEventListener("pointermove", pointerDragged);
+  };
+  canvas.addEventListener("pointerup", handlePointerUp);
+  canvas.addEventListener("pointercancel", handlePointerUp);
 
   this.setValue = function (_value) {
-    _value = ~~Math.max(minValue, Math.min(maxValue, _value));
+    _value = Math.max(minValue, Math.min(maxValue, _value));
+
+    if (fractionalStep && _value <= 5) {
+      // 0.5単位で丸める（例: 1.2 → 1.0, 1.3 → 1.5）
+      _value = Math.round(_value * 2) / 2;
+    } else {
+      // 10以上のときは従来通り整数にする
+      _value = Math.floor(_value);
+    }
 
     if (this.value != _value) {
       this.value = _value;

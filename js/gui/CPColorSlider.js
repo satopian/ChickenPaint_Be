@@ -132,6 +132,7 @@ export default class CPColorSlider {
     this._canvas.releasePointerCapture(e.pointerId);
     this._capturedMouse = false;
     this._canvas.removeEventListener("pointerup", this._handleEndDrag);
+    this._canvas.removeEventListener("pointercancel", this._handleEndDrag);
     this._canvas.removeEventListener("pointermove", this._handleMousePickColor);
   }
 
@@ -140,6 +141,7 @@ export default class CPColorSlider {
       this._capturedMouse = true;
       this._canvas.setPointerCapture(e.pointerId);
       this._canvas.addEventListener("pointerup", this._handleEndDrag);
+      this._canvas.addEventListener("pointercancel", this._handleEndDrag);
       this._canvas.addEventListener("pointermove", this._handleMousePickColor);
     }
 

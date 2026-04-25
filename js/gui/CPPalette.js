@@ -231,6 +231,7 @@ export default function CPPalette(cpController, className, title, options) {
       }
       headElement.addEventListener("pointermove", paletteHeaderPointerMove);
       headElement.addEventListener("pointerup", paletteHeaderPointerUp);
+      headElement.addEventListener("pointercancel", paletteHeaderPointerUp);
     }
   }
 
@@ -261,6 +262,7 @@ export default function CPPalette(cpController, className, title, options) {
     }
     headElement.removeEventListener("pointermove", paletteHeaderPointerMove);
     headElement.removeEventListener("pointerup", paletteHeaderPointerUp);
+    headElement.removeEventListener("pointercancel", paletteHeaderPointerUp);
   }
 
   function vertHandlePointerMove(e) {
@@ -278,6 +280,7 @@ export default function CPPalette(cpController, className, title, options) {
     dragAction = false;
     vertHandle.removeEventListener("pointermove", vertHandlePointerMove);
     vertHandle.removeEventListener("pointerup", vertHandlePointerUp);
+    vertHandle.removeEventListener("pointercancel", vertHandlePointerUp);
   }
 
   function vertHandlePointerDown(e) {
@@ -289,6 +292,7 @@ export default function CPPalette(cpController, className, title, options) {
     vertHandle.setPointerCapture(e.pointerId);
     vertHandle.addEventListener("pointermove", vertHandlePointerMove);
     vertHandle.addEventListener("pointerup", vertHandlePointerUp);
+    vertHandle.addEventListener("pointercancel", vertHandlePointerUp);
   }
 
   function addVertResizeHandle() {
@@ -314,6 +318,7 @@ export default function CPPalette(cpController, className, title, options) {
     dragAction = false;
     horzHandle.removeEventListener("pointermove", horzHandlePointerMove);
     horzHandle.removeEventListener("pointerup", horzHandlePointerUp);
+    horzHandle.removeEventListener("pointercancel", horzHandlePointerUp);
   }
 
   function horzHandlePointerDown(e) {
@@ -324,6 +329,7 @@ export default function CPPalette(cpController, className, title, options) {
     horzHandle.setPointerCapture(e.pointerId);
     horzHandle.addEventListener("pointermove", horzHandlePointerMove);
     horzHandle.addEventListener("pointerup", horzHandlePointerUp);
+    horzHandle.addEventListener("pointercancel", horzHandlePointerUp);
   }
 
   function addHorzResizeHandle() {

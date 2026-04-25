@@ -79,17 +79,17 @@ function createDrawingTools() {
 
   tools[ChickenPaint.T_PENCIL] = new CPBrushInfo({
     toolNb: ChickenPaint.T_PENCIL,
-    size: 16,
-    alpha: 255,
+    size: 1.5,
+    alpha: 205,
     isAA: true,
     minSpacing: 0.5,
     spacing: 0.05,
-    pressureSize: false,
+    pressureSize: true,
     pressureAlpha: true,
     tip: CPBrushInfo.TIP_ROUND_AA,
     brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
     paintMode: CPBrushInfo.PAINT_MODE_OPACITY,
-    smoothing: 0.02,
+    smoothing: 0.06,
   });
 
   tools[ChickenPaint.T_ERASER] = new CPBrushInfo({
@@ -109,8 +109,8 @@ function createDrawingTools() {
 
   tools[ChickenPaint.T_PEN] = new CPBrushInfo({
     toolNb: ChickenPaint.T_PEN,
-    size: 2,
-    alpha: 100,
+    size: 1.5,
+    alpha: 225,
     isAA: true,
     minSpacing: 0.5,
     spacing: 0.05,
@@ -120,7 +120,7 @@ function createDrawingTools() {
     brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 2,
-    smoothing: 0.02,
+    smoothing: 0.06,
   });
 
   tools[ChickenPaint.T_SOFTERASER] = new CPBrushInfo({

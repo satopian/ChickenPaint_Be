@@ -834,6 +834,7 @@ export default function CPLayersPalette(controller) {
 
               layerContainer.addEventListener("pointermove", onPointerDragged);
               layerContainer.addEventListener("pointerup", onPointerUp);
+              layerContainer.addEventListener("pointercancel", onPointerUp);
             } else if (e.button === BUTTON_SECONDARY && !layerChanged) {
               e.preventDefault();
               showContextMenu(e);
@@ -888,6 +889,7 @@ export default function CPLayersPalette(controller) {
 
       layerContainer.removeEventListener("pointermove", onPointerDragged);
       layerContainer.removeEventListener("pointerup", onPointerUp);
+      layerContainer.removeEventListener("pointercancel", onPointerUp);
     }
 
     function startLayerDrag() {

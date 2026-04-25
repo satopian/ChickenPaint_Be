@@ -30,7 +30,6 @@
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "random-js": "^2.1.0",
-    "uuid": "^9.0.1",
     "wolfy87-eventemitter": "^5.2.9"
   },
   "browser": {
