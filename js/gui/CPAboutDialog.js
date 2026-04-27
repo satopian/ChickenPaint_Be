@@ -85,7 +85,10 @@ Includes these MIT-licensed libraries:
 
     Includes the <a target="_blank" href="https://benalman.com/projects/jquery-throttle-debounce-plugin/" rel="noopener">jQuery throttle-debounce</a> library
     Copyright (c) 2010 "Cowboy" Ben Alman
-    
+
+    Includes the <a target="_blank" href="https://github.com/ckknight/random-js/" rel="noopener">random-js</a> library
+    Copyright (c) Cameron Knight
+
     Includes the <a target="_blank" href="https://github.com/Stuk/jszip/" rel="noopener">JSZip</a> library
     Copyright (c) 2009-2016
     Stuart Knightley,

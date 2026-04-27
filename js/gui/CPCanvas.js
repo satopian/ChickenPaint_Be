@@ -3262,7 +3262,13 @@ export default function CPCanvas(controller) {
     }
     modeStack.keyUp(e);
   }
-
+  const handleVisibilityChange = () => {
+    if (previousMode) {
+      modeStack.setUserMode(previousMode); // 元モード復帰
+      previousMode = null;
+    }
+    setCursor(CURSOR_DEFAULT);
+  };
   // Get the DOM element for the canvas area
   this.getElement = function () {
     return canvasContainer;
@@ -3711,6 +3717,7 @@ export default function CPCanvas(controller) {
   canvas.addEventListener("wheel", handleMouseWheel, { passive: false });
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
 
   /* Workaround for Chrome Mac bug that causes canvas to be disposed and never recreated when tab is switched into the
    * background https://bugs.chromium.org/p/chromium/issues/detail?id=588434

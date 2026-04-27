@@ -138,7 +138,7 @@ export default function CPBrushPalette(controller) {
     colorPickerPanel.getElement().style.display = "none";
   }
 
-  let currentMode = null;
+  let currentMode = 0;
   function updatePanelByMode(mode) {
     hideAllPanels();
     const maintainAspectCheckbox = selectPanel
@@ -190,6 +190,7 @@ export default function CPBrushPalette(controller) {
   }
   controller.on("modeChange", function (mode) {
     currentMode = mode;
+    hideAllPanels();
     updatePanelByMode(mode);
   });
 
@@ -232,6 +233,10 @@ export default function CPBrushPalette(controller) {
       updatePanelByMode(currentMode);
     }
   });
+  document.addEventListener("visibilitychange", (e) => {
+    hideAllPanels();
+    updatePanelByMode(currentMode);
+  });
   document.addEventListener("mousedown", (e) => {
     if (e.button === 2 && controller.isColorPickerMode()) {
       hideAllPanels();
@@ -267,9 +272,9 @@ function CPBrushPanel(controller) {
       false,
       _("Control brush opacity with pen pressure"),
     ),
-    alphaSlider = new CPSlider(1, 255, false, true),
+    alphaSlider = new CPSlider(0, 255, false, false),
     sizeCB = new CPCheckbox(true, _("Control brush size with pen pressure")),
-    sizeSlider = new CPSlider(1, 150, false, true, 0, 3.6, true),
+    sizeSlider = new CPSlider(1, 150, false, true, 0, 3.8, true),
     scatteringCB = new CPCheckbox(
       false,
       _("Control brush scattering with pen pressure"),

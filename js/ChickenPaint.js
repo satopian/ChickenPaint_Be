@@ -79,8 +79,8 @@ function createDrawingTools() {
 
   tools[ChickenPaint.T_PENCIL] = new CPBrushInfo({
     toolNb: ChickenPaint.T_PENCIL,
-    size: 1.5,
-    alpha: 205,
+    size: 2,
+    alpha: 235,
     isAA: true,
     minSpacing: 0.5,
     spacing: 0.05,
@@ -89,7 +89,7 @@ function createDrawingTools() {
     tip: CPBrushInfo.TIP_ROUND_AA,
     brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
     paintMode: CPBrushInfo.PAINT_MODE_OPACITY,
-    smoothing: 0.06,
+    smoothing: 0.05,
   });
 
   tools[ChickenPaint.T_ERASER] = new CPBrushInfo({
@@ -109,8 +109,8 @@ function createDrawingTools() {
 
   tools[ChickenPaint.T_PEN] = new CPBrushInfo({
     toolNb: ChickenPaint.T_PEN,
-    size: 1.5,
-    alpha: 225,
+    size: 2,
+    alpha: 250,
     isAA: true,
     minSpacing: 0.5,
     spacing: 0.05,
@@ -120,7 +120,7 @@ function createDrawingTools() {
     brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 2,
-    smoothing: 0.06,
+    smoothing: 0.05,
   });
 
   tools[ChickenPaint.T_SOFTERASER] = new CPBrushInfo({
@@ -313,6 +313,11 @@ export default function ChickenPaint(options) {
 
   const uiElem = options.uiElem;
 
+  // Prevent double-click iOS page zoom events
+  document.addEventListener("dblclick", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  });
   //ブラウザデフォルトのキー操作をキャンセル
   document.addEventListener("keydown", (e) => {
     const keys = ["+", ";", "=", "-", "s", "h", "r", "o"];
@@ -321,8 +326,10 @@ export default function ChickenPaint(options) {
       e.key === "Enter"
     ) {
       e.preventDefault();
+      e.stopPropagation();
     }
   });
+
   //長押しでコンテキストメニューを開かない
   uiElem.addEventListener(
     "contextmenu",
@@ -1663,12 +1670,6 @@ export default function ChickenPaint(options) {
     if (!uiElem) {
       return;
     }
-
-    // Prevent double-click iOS page zoom events
-    uiElem.addEventListener("dblclick", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    });
 
     that.artwork.on("editModeChanged", onEditModeChanged);
 

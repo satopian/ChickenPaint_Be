@@ -63,6 +63,14 @@ export default function CPSlider(
 
   centerMode = centerMode || false;
 
+  const boundaryValue = 5; // 均等表示の境目
+
+  // 値がboundaryValueになるときのスライダー上の位置（0.0〜1.0）を自動計算して、均等エリアの幅を決める
+  const boundaryProp = Math.pow(
+    (boundaryValue - minValue) / valueRange,
+    1 / expModeFactor,
+  );
+
   function paint() {
     let width = canvas.width || defaultWidth;
     let height = canvas.height;
@@ -107,14 +115,26 @@ export default function CPSlider(
 
       canvasContext.restore();
     } else {
-      let barProp = (that.value - minValue) / valueRange,
-        barWidth;
+      let barProp;
 
       if (expMode) {
-        barProp = Math.pow(barProp, 1 / expModeFactor);
+        if (that.value <= boundaryValue) {
+          // 均等エリアの描画
+          barProp =
+            ((that.value - minValue) / (boundaryValue - minValue)) *
+            boundaryProp;
+        } else {
+          // 指数エリアの描画
+          // 「本来の指数計算での位置」に戻す
+          barProp = Math.pow(
+            (that.value - minValue) / valueRange,
+            1 / expModeFactor,
+          );
+        }
+      } else {
+        barProp = (that.value - minValue) / valueRange;
       }
-
-      barWidth = barProp * width;
+      let barWidth = barProp * width;
 
       canvasContext.save();
       canvasContext.save();
@@ -153,12 +173,24 @@ export default function CPSlider(
     let left = canvas.getBoundingClientRect().left + window.scrollX;
     let proportion = (e.pageX - left) / width;
 
-    if (expMode) {
-      // Give the user finer control over the low values
-      proportion = Math.pow(Math.max(proportion, 0.0), expModeFactor);
-    }
+    let finalValue;
 
-    that.setValue(proportion * valueRange + minValue);
+    if (expMode) {
+      if (proportion <= boundaryProp) {
+        // 均等エリア：
+        finalValue =
+          minValue + (proportion / boundaryProp) * (boundaryValue - minValue);
+      } else {
+        // 指数エリア：boundaryValue以上
+        // ここで0にリセットせず、本来のカーブの「boundaryValue以降の形」を維持する
+        // 元々の計算式に戻し、最小値をminValueではなく「指数の底」として扱う
+        finalValue =
+          Math.pow(proportion, expModeFactor) * valueRange + minValue;
+      }
+    } else {
+      finalValue = proportion * valueRange + minValue;
+    }
+    that.setValue(finalValue);
   }
 
   function pointerDragged(e) {
