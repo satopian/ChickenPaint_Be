@@ -314,10 +314,14 @@ export default function ChickenPaint(options) {
   const uiElem = options.uiElem;
 
   // Prevent double-click iOS page zoom events
-  document.addEventListener("dblclick", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-  });
+  document.addEventListener(
+    "dblclick",
+    function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    { capture: true, passive: false },
+  );
   //ブラウザデフォルトのキー操作をキャンセル
   document.addEventListener("keydown", (e) => {
     const keys = ["+", ";", "=", "-", "s", "h", "r", "o"];
@@ -337,7 +341,7 @@ export default function ChickenPaint(options) {
       e.preventDefault();
       e.stopPropagation();
     },
-    { passive: false },
+    { capture: true, passive: false },
   );
 
   let that = this,

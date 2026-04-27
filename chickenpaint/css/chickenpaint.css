@@ -14691,3 +14691,7 @@ input#chickenpaint-colorPicker-method-layer {
 .chickenpaint .navbar .dropdown-item {
   cursor: pointer;
 }
+/* ダブルタップズームを無効化 */ 
+body{
+  touch-action: manipulation;
+}
