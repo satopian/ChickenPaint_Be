@@ -42,6 +42,13 @@ export default function CPColorPalette(cpController) {
 
   body.appendChild(topSection);
   body.appendChild(colorShow.getElement());
+  body.addEventListener(
+    "touchmove",
+    (e) => {
+      e.preventDefault(); // デフォルトの動作をキャンセル
+    },
+    { passive: false },
+  );
 }
 
 function CPColorShow(controller) {

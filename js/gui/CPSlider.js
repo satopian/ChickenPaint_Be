@@ -51,6 +51,13 @@ export default function CPSlider(
     that = this;
 
   this.value = undefined;
+  canvas.addEventListener(
+    "touchmove",
+    (e) => {
+      e.preventDefault(); // デフォルトの動作をキャンセル
+    },
+    { passive: false },
+  );
 
   /**
    * Either a string to draw on the slider, or a function(value) which receives the current value of the slider and

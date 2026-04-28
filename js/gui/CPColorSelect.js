@@ -58,6 +58,13 @@ export default class CPColorSelect {
 
     canvas.className = "chickenpaint-colorpicker-select";
     canvas.setAttribute("touch-action", "none");
+    canvas.addEventListener(
+      "touchmove",
+      (e) => {
+        e.preventDefault();
+      },
+      { passive: false },
+    );
 
     canvas.width = CANVAS_WIDTH;
     canvas.height = CANVAS_HEIGHT;
