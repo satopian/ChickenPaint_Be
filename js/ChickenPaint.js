@@ -318,9 +318,8 @@ export default function ChickenPaint(options) {
     "dblclick",
     function (e) {
       e.preventDefault();
-      e.stopPropagation();
     },
-    { capture: true, passive: false },
+    { capture: false, passive: false },
   );
   //ブラウザデフォルトのキー操作をキャンセル
   document.addEventListener("keydown", (e) => {
@@ -330,18 +329,15 @@ export default function ChickenPaint(options) {
       e.key === "Enter"
     ) {
       e.preventDefault();
-      e.stopPropagation();
     }
   });
-
   //長押しでコンテキストメニューを開かない
   uiElem.addEventListener(
     "contextmenu",
     (e) => {
       e.preventDefault();
-      e.stopPropagation();
     },
-    { capture: true, passive: false },
+    { capture: false, passive: false },
   );
 
   let that = this,
