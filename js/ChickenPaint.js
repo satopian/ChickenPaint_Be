@@ -187,17 +187,17 @@ function createDrawingTools() {
   tools[ChickenPaint.T_WATER] = new CPBrushInfo({
     toolNb: ChickenPaint.T_WATER,
     size: 30,
-    alpha: 50,
+    alpha: 60,
     isAA: false,
     minSpacing: 0.5,
-    spacing: 0.02,
+    spacing: 0.03,
     pressureSize: false,
     pressureAlpha: true,
     tip: CPBrushInfo.TIP_ROUND_AA,
     brushMode: CPBrushInfo.BRUSH_MODE_WATER,
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 8,
-    resat: 0.3,
+    resat: 0.25,
     bleed: 0.6,
   });
 
@@ -565,7 +565,7 @@ export default function ChickenPaint(options) {
         },
         modifies: { mode: true },
         allowed: function () {
-          //ここのバリデーションはメニューのグレーアウト判定にのみで
+          //ここのバリデーションはメニューのグレーアウト判定のみで
           //変形モードに入る前のバリデーションは、変形モードの開始アクション内で行う。
           const layer = that.artwork.getActiveLayer();
           return (

@@ -272,7 +272,7 @@ function CPBrushPanel(controller) {
       false,
       _("Control brush opacity with pen pressure"),
     ),
-    alphaSlider = new CPSlider(0, 255, false, false),
+    alphaSlider = new CPSlider(0, 255, false, true),
     sizeCB = new CPCheckbox(true, _("Control brush size with pen pressure")),
     sizeSlider = new CPSlider(1, 150, false, true, 0, 3.8, true),
     scatteringCB = new CPCheckbox(
