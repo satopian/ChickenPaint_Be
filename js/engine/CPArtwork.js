@@ -1480,7 +1480,7 @@ export default function CPArtwork(_width, _height) {
    *
    * @param {number} color - ARGB color to fill with
    */
-  this.fill = function (color, clear) {
+  this.fill = function (color, clear = false) {
     let r = this.getSelectionAutoSelect(),
       target = getActiveImage(),
       texture = this.texture; // ブラシ用 texture を取得

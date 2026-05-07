@@ -197,8 +197,8 @@ function createDrawingTools() {
     brushMode: CPBrushInfo.BRUSH_MODE_WATER,
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 8,
-    resat: 0.25,
-    bleed: 0.6,
+    resat: 0.3,
+    bleed: 0.35,
   });
 
   tools[ChickenPaint.T_BLUR] = new CPBrushInfo({
@@ -247,7 +247,7 @@ function createDrawingTools() {
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 8,
     resat: 0.0,
-    bleed: 0.12,
+    bleed: 0.15,
   });
 
   return tools;
@@ -288,7 +288,7 @@ function createDrawingTools() {
  *                                              force - Enter full screen mode at startup and do not provide option to leave
  *                                              disable - Don't allow full screen mode at all
  *
- *
+ * @property {boolean} [allowFullScreen]
  * @property {string} resourcesRoot - URL to the directory that contains the gfx/css etc directories (relative to the
  *                                    page that ChickenPaint is loaded on)
  *
@@ -339,6 +339,8 @@ export default function ChickenPaint(options) {
     },
     { capture: false, passive: false },
   );
+
+  this.mainGUI = null;
 
   let that = this,
     /**
@@ -1756,15 +1758,15 @@ export default function ChickenPaint(options) {
       chiLoad(autosave.bytes).then((artwork) => {
         this.artwork = artwork;
 
-        // パレットのBlobがある場合、それをURLとして偽装してLoaderに渡す
+        // パレットのBlobがある場合、それをURLとしてLoaderに渡す
         if (autosave.swatches) {
           const tempSwatchesUrl = URL.createObjectURL(autosave.swatches);
 
           // loader用の設定を書き換え
           let restoreOptions = Object.assign({}, options);
           restoreOptions.loadSwatchesUrl = tempSwatchesUrl;
-          restoreOptions.loadImageUrl = null; // 画像は既にchiLoadしたので不要
-          restoreOptions.loadChibiFileUrl = null;
+          restoreOptions.loadImageUrl = ""; // 画像は既にchiLoadしたので不要
+          restoreOptions.loadChibiFileUrl = "";
 
           let loader = new CPResourceLoader(restoreOptions);
           loader.on("loadingComplete", (resources) => {
