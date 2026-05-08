@@ -150,7 +150,7 @@ export default function CPShortcutsDialog(parent) {
     `;
 
   // Destroy the modal upon close
-  dialog.querySelector(".btn-close").addEventListener("click", () => {
+  dialog.querySelector(".btn-close")?.addEventListener("click", () => {
     dialog.remove();
   });
 

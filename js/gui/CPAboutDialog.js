@@ -141,9 +141,8 @@ Includes Material Design icons by Google - <a href="https://fonts.google.com/" t
   });
 
   // モーダル表示用のメソッドを返す
-  return {
-    show: function () {
-      modalInstance.show();
-    },
+  this.show = () => {
+    modalInstance.show();
+    return this; // これを書くと new ... .show() のあとにさらに繋げられる
   };
 }

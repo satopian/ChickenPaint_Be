@@ -526,7 +526,7 @@ export default function CPArtwork(_width, _height) {
           this.height,
           this.getDefaultLayerName(false),
         );
-        newLayer.image.clearAll(EMPTY_LAYER_COLOR);
+        newLayer.image?.clearAll(EMPTY_LAYER_COLOR);
     }
 
     addUndo(new CPActionAddLayer(parentGroup, newLayerIndex, newLayer));
@@ -890,7 +890,11 @@ export default function CPArtwork(_width, _height) {
         let destImage = curLayer.image,
           lockAlpha = curLayer.getLockAlpha();
 
-        if (curBrush.brushMode == CPBrushInfo.BRUSH_MODE_ERASE && lockAlpha) {
+        if (
+          curBrush &&
+          curBrush.brushMode == CPBrushInfo.BRUSH_MODE_ERASE &&
+          lockAlpha
+        ) {
           // We're erasing with locked alpha, so the only sensible thing to do is paint white...
 
           // FIXME: it would be nice to be able to set the paper color
@@ -940,7 +944,7 @@ export default function CPArtwork(_width, _height) {
       that.height,
       this.getDefaultLayerName(false),
     );
-    layer.image.clearAll(EMPTY_LAYER_COLOR);
+    layer.image?.clearAll(EMPTY_LAYER_COLOR);
     this.addLayerObject(this.getLayersRoot(), layer);
     //アクティブレイヤーにセット
     this.setActiveLayer(layer, false);
@@ -1004,7 +1008,7 @@ export default function CPArtwork(_width, _height) {
         first = true,
         blendRect = this.getBounds();
 
-      fusion.clearAll(blendRect, 0x00ffffff); // Transparent white
+      fusion.clearAll(blendRect); // Transparent white
 
       for (let i = 0; i <= lastMultiplyLayerIndex; i++) {
         let layer = layers[i];

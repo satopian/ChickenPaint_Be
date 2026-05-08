@@ -86,7 +86,9 @@ export default function CPMosaicDialog(parent, controller) {
   };
 
   // ブロックサイズの初期値を設定
-  blockSizeElem.value = 6;
+  if (blockSizeElem instanceof HTMLInputElement) {
+    blockSizeElem.value = "6";
+  }
 
   // モーダルが閉じられた後にダイアログを削除
   dialog.addEventListener("hidden.bs.modal", () => {

@@ -78,7 +78,9 @@ export default function CPGridDialog(parent, canvas) {
   };
 
   // グリッドサイズの初期値を設定
-  gridSizeElem.value = canvas.getGridSize();
+  if (gridSizeElem instanceof HTMLInputElement) {
+    gridSizeElem.value = canvas.getGridSize();
+  }
 
   // モーダルが閉じられた後にダイアログを削除
   dialog.addEventListener("hidden.bs.modal", () => {
@@ -86,7 +88,10 @@ export default function CPGridDialog(parent, canvas) {
   });
 
   // 「OK」ボタンのクリックイベント
-  applyButton.addEventListener("click", () => {
+  applyButton?.addEventListener("click", () => {
+    if (!gridSizeElem) {
+      return;
+    }
     const gridSize = parseInt(gridSizeElem.value, 10);
     canvas.setGridSize(gridSize);
     canvas.setModalShown(false);
@@ -103,7 +108,7 @@ export default function CPGridDialog(parent, canvas) {
   dialog.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault(); // フォーム送信を防ぐ
-      applyButton.click(); // OKボタンをクリックしたことにする
+      applyButton?.click(); // OKボタンをクリックしたことにする
     }
   });
 

@@ -702,7 +702,7 @@ export default function CPMainMenu(controller, mainGUI) {
 
         const li = document.createElement("li");
         li.appendChild(entryElem);
-        dropdownMenu.appendChild(li);
+        dropdownMenu?.appendChild(li);
       });
       menuElem.appendChild(div);
     });

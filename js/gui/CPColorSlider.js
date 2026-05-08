@@ -85,7 +85,7 @@ export default class CPColorSlider {
     canvas.className = "chickenpaint-colorpicker-slider";
 
     this._canvasContext = canvas.getContext("2d");
-    this._imageData = this._canvasContext.createImageData(WIDTH, HEIGHT);
+    this._imageData = this._canvasContext?.createImageData(WIDTH, HEIGHT);
 
     // Workaround for Chrome bug https://bugs.chromium.org/p/chromium/issues/detail?id=1350157:
     this._canvasContext.getImageData(0, 0, 1, 1);

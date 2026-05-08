@@ -73,7 +73,7 @@ export default class CPColorSelect {
     canvas.style.height = CONTROL_HEIGHT + "px";
 
     this._canvasContext = canvas.getContext("2d");
-    this._imageData = this._canvasContext.createImageData(
+    this._imageData = this._canvasContext?.createImageData(
       CANVAS_WIDTH,
       CANVAS_HEIGHT,
     );

@@ -95,9 +95,13 @@ export default function CPchromaticAberration(parent, controller) {
   };
 
   // オフセットの初期値を設定
-  aberrationSizeXElem.value = 3;
-  aberrationSizeYElem.value = 3;
-
+  if (
+    aberrationSizeXElem instanceof HTMLInputElement &&
+    aberrationSizeYElem instanceof HTMLInputElement
+  ) {
+    aberrationSizeXElem.value = "3";
+    aberrationSizeYElem.value = "3";
+  }
   // モーダルが閉じられた後にダイアログを削除
   dialog.addEventListener("hidden.bs.modal", () => {
     dialog.remove();

@@ -147,7 +147,7 @@ export default function CPSendDialog(
   });
 
   resourceSaver.on("savingFailure", function (serverMessage) {
-    progressElem.classList.add("progress-bar-danger");
+    progressElem?.classList.add("progress-bar-danger");
     let errorMessage = _(
       "Sorry, your drawing could not be saved, please try again later.",
     );

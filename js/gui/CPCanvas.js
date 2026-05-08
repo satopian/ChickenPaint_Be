@@ -630,9 +630,9 @@ export default function CPCanvas(controller) {
 
       var r = this.getBrushPreviewOval();
 
-      canvasContext.beginPath();
+      canvasContext?.beginPath();
 
-      canvasContext.arc(
+      canvasContext?.arc(
         (r.left + r.right) / 2,
         (r.top + r.bottom) / 2,
         r.getWidth() / 2,
@@ -640,7 +640,7 @@ export default function CPCanvas(controller) {
         Math.PI * 2,
       );
 
-      canvasContext.stroke();
+      canvasContext?.stroke();
 
       r.grow(2, 2);
 
@@ -835,7 +835,7 @@ export default function CPCanvas(controller) {
     };
 
     this.paint = function () {
-      if (this.capture) {
+      if (this.capture && canvasContext) {
         canvasContext.lineWidth = LINE_PREVIEW_WIDTH;
         canvasContext.beginPath();
         canvasContext.moveTo(dragLineFrom.x, dragLineFrom.y);
@@ -1024,23 +1024,24 @@ export default function CPCanvas(controller) {
           y = new Array(BEZIER_POINTS_PREVIEW);
 
         bezier.compute(x, y, BEZIER_POINTS_PREVIEW);
-
-        canvasContext.beginPath();
-
-        canvasContext.moveTo(x[0], y[0]);
-        for (let i = 1; i < BEZIER_POINTS_PREVIEW; i++) {
-          canvasContext.lineTo(x[i], y[i]);
-        }
-        canvasContext.stroke();
-        canvasContext.beginPath();
-        canvasContext.moveTo(~~p0.x, ~~p0.y);
-        canvasContext.lineTo(~~p1.x, ~~p1.y);
-        canvasContext.stroke();
-        if (dragBezierMode === BEZIER_STATE_POINT_2) {
+        if (canvasContext) {
           canvasContext.beginPath();
-          canvasContext.moveTo(~~p2.x, ~~p2.y);
-          canvasContext.lineTo(~~p3.x, ~~p3.y);
+
+          canvasContext.moveTo(x[0], y[0]);
+          for (let i = 1; i < BEZIER_POINTS_PREVIEW; i++) {
+            canvasContext.lineTo(x[i], y[i]);
+          }
           canvasContext.stroke();
+          canvasContext.beginPath();
+          canvasContext.moveTo(~~p0.x, ~~p0.y);
+          canvasContext.lineTo(~~p1.x, ~~p1.y);
+          canvasContext.stroke();
+          if (dragBezierMode === BEZIER_STATE_POINT_2) {
+            canvasContext.beginPath();
+            canvasContext.moveTo(~~p2.x, ~~p2.y);
+            canvasContext.lineTo(~~p3.x, ~~p3.y);
+            canvasContext.stroke();
+          }
         }
       } else {
         // Paint the regular brush preview
@@ -3324,9 +3325,9 @@ export default function CPCanvas(controller) {
 
     /* Clip drawing to the area of the screen we want to repaint */
     if (!repaintRegion.isEmpty()) {
-      canvasContext.save();
+      canvasContext?.save();
 
-      if (canvasContext.clipTo) {
+      if (canvasContext && canvasContext.clipTo) {
         canvasContext.beginPath();
 
         repaintRegion.left = repaintRegion.left | 0;
@@ -3355,7 +3356,7 @@ export default function CPCanvas(controller) {
         imageData = artwork.fusionLayers().getImageData();
       }
 
-      artworkCanvasContext.putImageData(
+      artworkCanvasContext?.putImageData(
         imageData,
         0,
         0,
@@ -3367,39 +3368,44 @@ export default function CPCanvas(controller) {
 
       artworkUpdateRegion.makeEmpty();
     }
+    if (canvasContext) {
+      canvasContext.fillStyle = "#606060";
+      canvasContext.fillRect(0, 0, canvas.width, canvas.height);
 
-    canvasContext.fillStyle = "#606060";
-    canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+      // Transform the coordinate system to bring the document into the right position on the screen (translate/zoom/etc)
+      canvasContext.save();
+      {
+        if (transform.m) {
+          canvasContext.setTransform(
+            transform.m[0],
+            transform.m[1],
+            transform.m[2],
+            transform.m[3],
+            transform.m[4],
+            transform.m[5],
+          );
 
-    // Transform the coordinate system to bring the document into the right position on the screen (translate/zoom/etc)
-    canvasContext.save();
-    {
-      canvasContext.setTransform(
-        transform.m[0],
-        transform.m[1],
-        transform.m[2],
-        transform.m[3],
-        transform.m[4],
-        transform.m[5],
-      );
+          canvasContext.fillStyle = checkerboardPattern;
+          canvasContext.fillRect(0, 0, artwork.width, artwork.height);
 
-      canvasContext.fillStyle = checkerboardPattern;
-      canvasContext.fillRect(0, 0, artwork.width, artwork.height);
-
-      canvasContext.drawImage(
-        artworkCanvas,
-        0,
-        0,
-        artworkCanvas.width,
-        artworkCanvas.height,
-      );
+          canvasContext.drawImage(
+            artworkCanvas,
+            0,
+            0,
+            artworkCanvas.width,
+            artworkCanvas.height,
+          );
+        }
+      }
+      canvasContext.restore();
     }
-    canvasContext.restore();
 
     // The rest of the drawing happens using the original screen coordinate system
     setContrastingDrawStyle(canvasContext, "stroke");
 
-    canvasContext.lineWidth = 1.0;
+    if (canvasContext) {
+      canvasContext.lineWidth = 1.0;
+    }
 
     const isEmpty = artwork.getSelection().isEmpty();
     //選択範囲かかった時と空になった時だけ選択解除アイコンの色を更新
@@ -3442,29 +3448,33 @@ export default function CPCanvas(controller) {
         const w = Math.ceil(x1 - x0);
         const h = Math.ceil(y1 - y0);
 
-        canvasContext.save();
-        canvasContext.globalCompositeOperation = "source-over";
-        canvasContext.fillStyle = "rgba(96, 96, 96, 0.035)";
-        canvasContext.beginPath();
+        if (canvasContext) {
+          canvasContext.save();
+          canvasContext.globalCompositeOperation = "source-over";
+          canvasContext.fillStyle = "rgba(96, 96, 96, 0.035)";
+          canvasContext.beginPath();
 
-        // キャンバス全体を矩形として塗る
-        canvasContext.rect(0, 0, canvas.width, canvas.height);
+          // キャンバス全体を矩形として塗る
+          canvasContext.rect(0, 0, canvas.width, canvas.height);
 
-        // 順番に点を結ぶ
-        canvasContext.moveTo(pts[0].x, pts[0].y);
-        for (let i = 1; i < pts.length; i++) {
-          canvasContext.lineTo(pts[i].x, pts[i].y);
+          // 順番に点を結ぶ
+          canvasContext.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) {
+            canvasContext.lineTo(pts[i].x, pts[i].y);
+          }
+          canvasContext.closePath(); // 最後の点と最初を結ぶ
+
+          // even-odd で外側だけ塗る
+          canvasContext.fill("evenodd");
+          canvasContext.restore();
         }
-        canvasContext.closePath(); // 最後の点と最初を結ぶ
-
-        // even-odd で外側だけ塗る
-        canvasContext.fill("evenodd");
-        canvasContext.restore();
       }
       // === 点線枠の描画 ===
-      canvasContext.setLineDash([3, 2]);
-      plotSelectionRect(canvasContext, artwork.getSelection());
-      canvasContext.setLineDash([]);
+      if (canvasContext) {
+        canvasContext.setLineDash([3, 2]);
+        plotSelectionRect(canvasContext, artwork.getSelection());
+        canvasContext.setLineDash([]);
+      }
     }
     // Draw grid
     if (showGrid) {
@@ -3475,15 +3485,15 @@ export default function CPCanvas(controller) {
        * do not paint it.
        */
       if (gridVisualPitch > 2) {
-        canvasContext.beginPath();
+        canvasContext?.beginPath();
 
         // Vertical lines
         for (let i = gridSize - 1; i < bounds.right; i += gridSize) {
           let p1 = coordToDisplay({ x: i, y: bounds.top }),
             p2 = coordToDisplay({ x: i, y: bounds.bottom });
 
-          canvasContext.moveTo(p1.x + 0.5, p1.y + 0.5);
-          canvasContext.lineTo(p2.x + 0.5, p2.y + 0.5);
+          canvasContext?.moveTo(p1.x + 0.5, p1.y + 0.5);
+          canvasContext?.lineTo(p2.x + 0.5, p2.y + 0.5);
         }
 
         // Horizontal lines
@@ -3491,23 +3501,24 @@ export default function CPCanvas(controller) {
           let p1 = coordToDisplay({ x: 0, y: i }),
             p2 = coordToDisplay({ x: bounds.right, y: i });
 
-          canvasContext.moveTo(p1.x + 0.5, p1.y + 0.5);
-          canvasContext.lineTo(p2.x + 0.5, p2.y + 0.5);
+          canvasContext?.moveTo(p1.x + 0.5, p1.y + 0.5);
+          canvasContext?.lineTo(p2.x + 0.5, p2.y + 0.5);
         }
 
-        canvasContext.stroke();
+        canvasContext?.stroke();
       }
     }
 
     // Additional drawing by the current mode
     modeStack.paint(canvasContext);
-
-    canvasContext.globalCompositeOperation = "source-over";
+    if (canvasContext) {
+      canvasContext.globalCompositeOperation = "source-over";
+    }
 
     if (drawingWasClipped) {
       repaintRegion.makeEmpty();
 
-      canvasContext.restore();
+      canvasContext?.restore();
     }
   };
 
@@ -3687,7 +3698,7 @@ export default function CPCanvas(controller) {
   canvas.className = "chickenpaint-canvas";
   canvas.setAttribute("touch-action", "none");
 
-  if (!canvasContext.setLineDash) {
+  if (canvasContext && !canvasContext.setLineDash) {
     canvasContext.setLineDash = function () {}; // For IE 10 and older
   }
 

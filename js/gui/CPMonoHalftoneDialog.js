@@ -86,7 +86,9 @@ export default function CPchromaticAberration(parent, controller) {
   };
 
   // ドットサイズの初期値を設定
-  dotSizeElem.value = 15;
+  if (dotSizeElem instanceof HTMLInputElement) {
+    dotSizeElem.value = "15";
+  }
 
   // モーダルが閉じられた後にダイアログを削除
   dialog.addEventListener("hidden.bs.modal", () => {

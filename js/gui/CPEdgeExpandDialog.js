@@ -88,7 +88,9 @@ export default function CPEdge(parent, controller) {
   };
 
   // 縁取り幅のデフォルト値を設定
-  edgeWidthElem.value = 5;
+  if (edgeWidthElem instanceof HTMLInputElement) {
+    edgeWidthElem.value = "5";
+  }
 
   // モーダルが閉じられた後にダイアログを削除
   dialog.addEventListener("hidden.bs.modal", () => {
