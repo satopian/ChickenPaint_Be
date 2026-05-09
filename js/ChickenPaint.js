@@ -65,6 +65,7 @@ import {
   _,
 } from "./languages/lang.js";
 import CPUserPreferences from "./gui/CPUserPreferences.js";
+import CPCanvas from "./gui/CPCanvas.js";
 
 function isSmallScreen() {
   return Boolean(
@@ -187,7 +188,7 @@ function createDrawingTools() {
   tools[ChickenPaint.T_WATER] = new CPBrushInfo({
     toolNb: ChickenPaint.T_WATER,
     size: 30,
-    alpha: 50,
+    alpha: 60,
     isAA: false,
     minSpacing: 0.5,
     spacing: 0.03,
