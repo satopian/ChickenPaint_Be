@@ -20,7 +20,7 @@ async function performAction(mode, callback) {
     const request = indexedDB.open(DB_NAME, 1);
 
     request.onupgradeneeded = (e) => {
-      const db = e.target.result;
+      const db = e.target?.result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME);
       }
@@ -31,7 +31,6 @@ async function performAction(mode, callback) {
       const transaction = db.transaction(STORE_NAME, mode);
       const store = transaction.objectStore(STORE_NAME);
 
-      // callback(store) が返すのが「操作リクエスト（putやgetなど）」です
       const opRequest = callback(store);
 
       let result;
@@ -100,7 +99,7 @@ export async function CPGetChiAutosaveFromDB() {
 
 /**
  * 復元が完了した、あるいは不要になった場合に「復元済み」とする (Clear)
- * ※次に保存(backup)した時に上書きされるので、必須ではありません。
+ * ※次に保存(backup)した時に上書きされるので、必須ではない。
  */
 export async function CPClearChiAutosaveFromDB() {
   // 復元可能なバックアップが存在することを示すフラグをlocalStorageから削除

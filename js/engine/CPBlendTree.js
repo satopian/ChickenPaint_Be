@@ -32,10 +32,10 @@ import CPRect from "../util/CPRect.js";
  *
  * @param {number} width
  * @param {number} height
- * @param {(CPLayer|CPLayerGroup)} layer
+ * @param {(CPLayer|CPLayerGroup|null)} layer
  * @constructor
  */
-function CPBlendNode(width, height, layer) {
+function CPBlendNode(width, height, layer = null) {
   if (layer) {
     this.isGroup = layer instanceof CPLayerGroup;
     this.image = layer.image;
@@ -231,7 +231,7 @@ export default function CPBlendTree(
 
       // Do we need to create a clipping group?
       if (childLayer instanceof CPImageLayer && nextChild && nextChild.clip) {
-        let clippingGroupNode = new CPBlendNode(width, height, null),
+        let clippingGroupNode = new CPBlendNode(width, height),
           j;
 
         clippingGroupNode.blendMode = childLayer.blendMode;
@@ -508,6 +508,9 @@ export default function CPBlendTree(
     for (let i = 0; i < treeNode.layers.length; i++) {
       let child = treeNode.layers[i],
         childNode = blendTreeInternal(child);
+      if (!childNode) {
+        continue;
+      }
 
       if (groupIsEmpty) {
         // If the fusion is currently empty then there's nothing to blend, replace the fusion with the contents of the bottom layer instead

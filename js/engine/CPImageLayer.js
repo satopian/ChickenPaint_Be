@@ -89,11 +89,12 @@ CPImageLayer.prototype.copyFrom = function (layer) {
   CPLayer.prototype.copyFrom.call(this, layer);
 
   this.clip = layer.clip;
-
-  if (!this.image) {
-    this.image = layer.image.clone();
-  } else {
-    this.image.copyPixelsFrom(layer.image);
+  if (layer.image) {
+    if (!this.image) {
+      this.image = layer.image.clone();
+    } else {
+      this.image.copyPixelsFrom(layer.image);
+    }
   }
 };
 
