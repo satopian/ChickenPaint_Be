@@ -74,7 +74,7 @@ function convertRgbToHsv(rgb, hsv) {
 /**
  *
  * @param {Object} hsv
- * @returns {int}
+ * @returns {Number}
  */
 function convertHsvToRgb(hsv) {
   // no saturation means it's just a shade of grey

@@ -22,6 +22,7 @@
 
 import EventEmitter from "wolfy87-eventemitter";
 import { _ } from "../languages/lang.js";
+import ChickenPaint from "../ChickenPaint.js";
 
 const DRAG_START_THRESHOLD = 5;
 
@@ -33,7 +34,7 @@ function distanceGreaterThan(a, b, threshold) {
 
 /**
  *
- * @param {ChickenPaint} cpController
+ * @param {typeof ChickenPaint} cpController
  * @param {String} className
  * @param {String} title
  * @param {Object} [options]

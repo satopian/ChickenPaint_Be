@@ -19,10 +19,12 @@
     You should have received a copy of the GNU General Public License
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
+import CPColorBmp from "./CPColorBmp.js";
+import CPGreyBmp from "./CPGreyBmp.js";
 
 /**
  *
- * @param {(CPColorBmp|CPGreyBmp)} bmp
+ * @param {(typeof CPColorBmp|typeof CPGreyBmp)} bmp
  * @param int x - Position of the clipboard bmp within the document
  * @param int y
  * @constructor

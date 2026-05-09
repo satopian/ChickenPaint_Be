@@ -27,7 +27,7 @@ const MAX_SQUEEZE = 10;
 /**
  *
  * @param {Uint8Array} brush
- * @param {CPBrushInfo} brushInfo
+ * @param {typeof CPBrushInfo} brushInfo
  */
 function buildBrush(brush, brushInfo) {
   // let intSize = Math.ceil(brushInfo.curSize),
@@ -58,7 +58,7 @@ function buildBrush(brush, brushInfo) {
 
 /**
  * @param {Uint8Array} brush
- * @param {CPBrushInfo} brushInfo
+ * @param {typeof CPBrushInfo} brushInfo
  */
 function buildBrushAA(brush, brushInfo) {
   // 1px以下の極小ブラシ処理
@@ -124,7 +124,7 @@ function buildBrushAA(brush, brushInfo) {
 
 /**
  * @param {Uint8Array} brush
- * @param {CPBrushInfo} brushInfo
+ * @param {typeof CPBrushInfo} brushInfo
  */
 function buildBrushSquare(brush, brushInfo) {
   if (brushInfo.curSize < 2) {
@@ -158,7 +158,7 @@ function buildBrushSquare(brush, brushInfo) {
 
 /**
  * @param {Uint8Array} brush
- * @param {CPBrushInfo} brushInfo
+ * @param {typeof CPBrushInfo} brushInfo
  */
 function buildBrushSquareAA(brush, brushInfo) {
   if (brushInfo.curSize < 1) {
@@ -220,7 +220,7 @@ function buildBrushSquareAA(brush, brushInfo) {
 /**
  *
  * @param {Uint8Array} brush
- * @param {CPBrushInfo} brushInfo
+ * @param {typeof CPBrushInfo} brushInfo
  */
 function buildBrushSoft(brush, brushInfo) {
   if (brushInfo.curSize < 1) {
@@ -298,7 +298,7 @@ export default function CPBrushManager() {
    *
    * The resulting brush array is 1 pixel larger than the original one in both dimensions.
    *
-   * @param {CPBrushInfo} brushInfo
+   * @param {typeof CPBrushInfo} brushInfo
    * @param {number} dx
    * @param {number} dy
    *
@@ -363,7 +363,7 @@ export default function CPBrushManager() {
   /**
    * Build and return a brush that conforms to the given brush settings.
    *
-   * @param {CPBrushInfo} brushInfo
+   * @param {typeof CPBrushInfo} brushInfo
    *
    * @returns {Uint8Array}
    */
@@ -461,7 +461,7 @@ export default function CPBrushManager() {
    *
    * @param {number} x - Image coordinate of center of brush dab
    * @param {number} y - Image coordinate of center of brush dab
-   * @param {CPBrushInfo} brushInfo - Brush appearance parameters
+   * @param {typeof CPBrushInfo} brushInfo - Brush appearance parameters
    *
    * @returns {CPBrushDab}
    */

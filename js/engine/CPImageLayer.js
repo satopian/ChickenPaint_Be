@@ -71,7 +71,7 @@ CPImageLayer.createFromImage = function (image, name) {
 /**
  * Returns an independent copy of this layer.
  *
- * @returns {CPImageLayer}
+ * @returns {typeof CPImageLayer}
  */
 CPImageLayer.prototype.clone = function () {
   var result = new CPImageLayer(0, 0, this.name);
@@ -83,7 +83,7 @@ CPImageLayer.prototype.clone = function () {
 
 /**
  *
- * @param {CPImageLayer} layer
+ * @param {typeof CPImageLayer} layer
  */
 CPImageLayer.prototype.copyFrom = function (layer) {
   CPLayer.prototype.copyFrom.call(this, layer);
@@ -113,7 +113,7 @@ CPImageLayer.prototype.hasAlpha = function () {
 /**
  * Do we have any semi-transparent pixels in the given rectangle?
  *
- * @param {CPRect} rect
+ * @param {typeof CPRect} rect
  * @returns {boolean}
  */
 CPImageLayer.prototype.hasAlphaInRect = function (rect) {
@@ -126,7 +126,7 @@ CPImageLayer.prototype.hasAlphaInRect = function (rect) {
 
 /**
  *
- * @param {CPColorBmp} that
+ * @param {typeof CPColorBmp} that
  */
 CPImageLayer.prototype.copyImageFrom = function (that) {
   this.image.copyPixelsFrom(that);
@@ -135,7 +135,7 @@ CPImageLayer.prototype.copyImageFrom = function (that) {
 /**
  * If this layer is clipped, return the layer that this layer is clipped to, otherwise return null.
  *
- * @returns {CPImageLayer}
+ * @returns {typeof CPImageLayer}
  */
 CPImageLayer.prototype.getClippingBase = function () {
   if (this.clip && this.parent) {
@@ -175,16 +175,16 @@ CPImageLayer.prototype.setClip = function (clip) {
  *
  * Ignores the layer alpha and visibility properties, you may want to check .getEffectiveAlpha() > 0 before calling.
  *
- * @param {CPRect} initialBounds - The rect to search within
+ * @param {typeof CPRect} initialBounds - The rect to search within
  *
- * @returns {CPRect}
+ * @returns {typeof CPRect}
  */
 CPImageLayer.prototype.getNonTransparentBounds = function (initialBounds) {
   return this.image.getNonTransparentBounds(initialBounds);
 };
 
 /**
- * @returns {CPRect}
+ * @returns {typeof CPRect}
  */
 CPImageLayer.prototype.getBounds = function () {
   return new CPRect(0, 0, this.image.width, this.image.height);
@@ -223,7 +223,7 @@ CPImageLayer.prototype.rebuildImageThumbnail = function () {
 /**
  * Get the image thumbnail for this layer (or build one if one was not already built)
  *
- * @returns {CPColorBmp}
+ * @returns {typeof CPColorBmp}
  */
 CPImageLayer.prototype.getImageThumbnail = function () {
   if (!this.imageThumbnail) {

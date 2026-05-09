@@ -116,11 +116,11 @@ export default function CPTexturePalette(controller) {
   let TEXTURE_PREVIEW_SIZE = 64,
     TEXTURE_SWATCH_BUTTON_SIZE = 32,
     /**
-     * @type {CPGreyBmp}
+     * @type {typeof CPGreyBmp}
      */
     selectedTexture,
     /**
-     * @type {CPGreyBmp}
+     * @type {typeof CPGreyBmp}
      */
     processedTexture,
     mirror = false,
@@ -269,7 +269,7 @@ export default function CPTexturePalette(controller) {
    * @param {number} brightnessFactor - A multiplier for brightness (0.0 to 1.0)
    * @param {number} contrastFactor - A multiplier for contrast (0.0 to 1.0)
    *
-   * @returns {CPGreyBmp} - A grayscale bitmap filled with random noise and adjusted brightness/contrast
+   * @returns {typeof CPGreyBmp} - A grayscale bitmap filled with random noise and adjusted brightness/contrast
    */
   function makeNoiseTexture(size) {
     const brightnessFactor = 0.65;
@@ -514,7 +514,7 @@ export default function CPTexturePalette(controller) {
 
   /**
    *
-   * @param {CPGreyBmp} texture
+   * @param {typeof CPGreyBmp} texture
    * @param {number} width
    * @param {number} height
    * @constructor
@@ -525,7 +525,7 @@ export default function CPTexturePalette(controller) {
       that = this;
 
     /**
-     * @param {CPGreyBmp} texture
+     * @param {typeof CPGreyBmp} texture
      */
     this.setTexture = function (texture) {
       this.texture = texture;

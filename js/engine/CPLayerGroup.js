@@ -33,7 +33,7 @@ export default function CPLayerGroup(name = "", blendMode = 0) {
   CPLayer.call(this, name);
 
   /**
-   * @type {CPLayer[]}
+   * @type {typeof CPLayer[]}
    */
   this.layers = [];
   this.expanded = true;
@@ -47,8 +47,8 @@ CPLayerGroup.prototype.constructor = CPLayerGroup;
  * Returns an array of layers in this group in display order, excluding this group itself.
  *
  * @param {boolean} respectCollapse - Set to true to omit the children of collapsed groups
- * @param {CPLayer[]} list
- * @returns {CPLayer[]}
+ * @param {typeof CPLayer[]} list
+ * @returns {typeof CPLayer[]}
  */
 CPLayerGroup.prototype.getLinearizedLayerList = function (
   respectCollapse,
@@ -116,7 +116,7 @@ CPLayerGroup.prototype.getExpanded = function () {
 /**
  * Get the index of the given layer in this group, or -1 if the layer is not in the group.
  *
- * @param {CPLayer} layer
+ * @param {typeof CPLayer} layer
  * @returns {number}
  */
 CPLayerGroup.prototype.indexOf = function (layer) {
@@ -152,9 +152,9 @@ CPLayerGroup.prototype.clone = function () {
  * Get a rectangle that encloses any non-transparent pixels in the layer within the given initialBounds (or an empty
  * rect if the pixels inside the given bounds are 100% transparent).
  *
- * @param {CPRect} initialBounds - The rect to search within
+ * @param {typeof CPRect} initialBounds - The rect to search within
  *
- * @returns {CPRect}
+ * @returns {typeof CPRect}
  */
 CPLayerGroup.prototype.getNonTransparentBounds = function (initialBounds) {
   var nonTransparentRect = new CPRect(0, 0, 0, 0);

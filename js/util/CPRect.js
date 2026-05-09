@@ -66,9 +66,9 @@ CPRect.prototype.getUnion = function (that) {
 /**
  * Returns the intersection of this rectangle and another rectangle.
  *
- * @param {CPRect} that - The other rectangle to intersect with.
+ * @param {typeof CPRect} that - The other rectangle to intersect with.
  * @param {boolean} [returnNullIfEmpty=false] - If true, returns null when intersection is empty.
- * @returns {CPRect|null} - The intersection rectangle, or null if empty and returnNullIfEmpty is true.
+ * @returns {typeof CPRect|null} - The intersection rectangle, or null if empty and returnNullIfEmpty is true.
  */
 CPRect.prototype.getIntersection = function (that, returnNullIfEmpty = false) {
   const left = Math.max(this.left, that.left);
@@ -86,7 +86,7 @@ CPRect.prototype.getIntersection = function (that, returnNullIfEmpty = false) {
 /**
  * Clip this rectangle to fit within `that`.
  *
- * @returns {CPRect} A reference to this rectangle for chaining
+ * @returns {typeof CPRect} A reference to this rectangle for chaining
  */
 CPRect.prototype.clipTo = function (that) {
   if (!this.isEmpty()) {
@@ -185,7 +185,7 @@ CPRect.prototype.isEmpty = function () {
 /**
  * Set this rectangle's coordinates to a copy of that ones.
  *
- * @param {CPRect} thatRect
+ * @param {typeof CPRect} thatRect
  */
 CPRect.prototype.set = function (thatRect) {
   this.left = thatRect.left;
@@ -197,7 +197,7 @@ CPRect.prototype.set = function (thatRect) {
 /**
  * Get an independent copy of this rectangle.
  *
- * @returns {CPRect}
+ * @returns {typeof CPRect}
  */
 CPRect.prototype.clone = function () {
   return new CPRect(this.left, this.top, this.right, this.bottom);
@@ -209,7 +209,7 @@ CPRect.prototype.clone = function () {
  * @param {number} x
  * @param {number} y
  *
- * @returns {CPRect} This rectangle for chaining
+ * @returns {typeof CPRect} This rectangle for chaining
  */
 CPRect.prototype.translate = function (x, y) {
   this.left += x;
@@ -285,7 +285,7 @@ CPRect.prototype.toPoints = function () {
 /**
  * Round the rectangle coordinates to the nearest integer.
  *
- * @returns {CPRect} This rectangle for chaining
+ * @returns {typeof CPRect} This rectangle for chaining
  */
 CPRect.prototype.roundNearest = function () {
   this.left = Math.round(this.left);
@@ -299,7 +299,7 @@ CPRect.prototype.roundNearest = function () {
 /**
  * Round the rectangle coordinates to integers so that the old rectangle is contained by the new one.
  *
- * @returns {CPRect} This rectangle for chaining
+ * @returns {typeof CPRect} This rectangle for chaining
  */
 CPRect.prototype.roundContain = function () {
   this.left = Math.floor(this.left);
@@ -315,7 +315,7 @@ CPRect.prototype.roundContain = function () {
  *
  * @param {{x: number, y: number}[]} points
  *
- * @returns {CPRect}
+ * @returns {typeof CPRect}
  */
 CPRect.createBoundingBox = function (points) {
   if (points.length === 0) {
@@ -338,7 +338,7 @@ CPRect.createBoundingBox = function (points) {
  * Subtract that rectangle from this one and return an array of CPRects to represent the resulting area (possibly
  * empty).
  *
- * @param {CPRect} that
+ * @param {typeof CPRect} that
  * @returns {CPRect[]}
  */
 CPRect.prototype.subtract = function (that) {

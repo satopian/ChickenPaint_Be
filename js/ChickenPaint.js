@@ -198,7 +198,7 @@ function createDrawingTools() {
     brushMode: CPBrushInfo.BRUSH_MODE_WATER,
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 8,
-    resat: 0.5,
+    resat: 0.35,
     bleed: 0.65,
   });
 
@@ -276,7 +276,7 @@ function createDrawingTools() {
  * @property {string} [loadImageUrl]     - URL of PNG/JPEG image to load for editing (optional)
  * @property {string} [loadChibiFileUrl] - URL of .chi file to load for editing (optional). Used in preference to loadImage.
  * @property {string} [loadSwatchesUrl]  - URL of an .aco palette to load (optional)
- * @property {CPArtwork} [artwork]       - Artwork to load into ChickenPaint (if you've already created one)
+ * @property {typeof CPArtwork} [artwork]       - Artwork to load into ChickenPaint (if you've already created one)
  *
  * @property {boolean} [allowMultipleSends] - Allow the drawing to be sent to the server multiple times (saving does not
  *                                          immediately end drawing session).
@@ -345,16 +345,16 @@ export default function ChickenPaint(options) {
 
   let that = this,
     /**
-     * @type {CPCanvas}
+     * @type {typeof CPCanvas}
      */
     canvas,
     /**
-     * @type {CPMainGUI}
+     * @type {typeof CPMainGUI}
      */
     mainGUI,
     /**
      *
-     * @type {CPColor}
+     * @type {typeof CPColor}
      */
     curColor = new CPColor(0),
     curMaskColor = 0xff,
@@ -1225,7 +1225,7 @@ export default function ChickenPaint(options) {
   }
 
   /**
-   * @returns {CPArtwork}
+   * @returns {typeof CPArtwork}
    */
   this.getArtwork = function () {
     return this.artwork;

@@ -117,7 +117,7 @@ export default function CPLayersPalette(controller) {
     /**
      * An array of layers in display order, with the layers inside collapsed groups not present.
      *
-     * @type {CPLayer[]}
+     * @type {typeof CPLayer[]}
      */
     linearizedLayers = null,
     body = this.getBodyElement(),
@@ -136,7 +136,7 @@ export default function CPLayersPalette(controller) {
   /**
    *
    * @param {number} displayIndex
-   * @returns {CPLayer}
+   * @returns {typeof CPLayer}
    */
   function getLayerFromDisplayIndex(displayIndex) {
     return linearizedLayers[displayIndex];
@@ -144,7 +144,7 @@ export default function CPLayersPalette(controller) {
 
   /**
    *
-   * @param {CPLayer} layer
+   * @param {typeof CPLayer} layer
    * @returns {number}
    */
   function getDisplayIndexFromLayer(layer) {
@@ -180,7 +180,7 @@ export default function CPLayersPalette(controller) {
         /**
          * The image layer currently being dragged, or null if no drag is in progress.
          *
-         * @type {?CPLayer}
+         * @type {?typeof CPLayer}
          */
         layer: null,
 
@@ -224,7 +224,7 @@ export default function CPLayersPalette(controller) {
       /**
        * The layer we right-clicked on to open the dropdown
        *
-       * @type {CPLayer}
+       * @type {typeof CPLayer}
        */
       dropdownLayer = null,
       /**
@@ -266,7 +266,7 @@ export default function CPLayersPalette(controller) {
      * @typedef {Object} CPDropTarget
      *
      * @property {number} displayIndex - The index of the layer to insert near
-     * @property {CPLayer} layer - The layer to insert near
+     * @property {typeof CPLayer} layer - The layer to insert near
      * @property {string} direction - "under", "over" or "inside", the direction to insert relative to the target
      */
 
@@ -562,7 +562,7 @@ export default function CPLayersPalette(controller) {
      * Create a DOM element for the given layer
      *
      * @param {number} index
-     * @param {CPLayer} layer
+     * @param {typeof CPLayer} layer
      */
     function buildLayer(index, layer) {
       let layerDiv = document.createElement("div"),
@@ -969,7 +969,7 @@ export default function CPLayersPalette(controller) {
     /**
      * The properties of the given layer have changed, rebuild it.
      *
-     * @param {CPLayer} layer
+     * @param {typeof CPLayer} layer
      */
     this.layerChanged = function (layer) {
       let index = getDisplayIndexFromLayer(layer),
@@ -1066,7 +1066,7 @@ export default function CPLayersPalette(controller) {
     /**
      * Call when the selected layer changes.
      *
-     * @param {CPLayer} newLayer
+     * @param {typeof CPLayer} newLayer
      * @param {boolean} maskSelected
      */
     this.activeLayerChanged = function (newLayer, maskSelected) {
@@ -1362,7 +1362,7 @@ export default function CPLayersPalette(controller) {
   /**
    * Called when the properties of one layer has been updated and we should rebuild/repaint it.
    *
-   * @param {CPLayer} layer
+   * @param {typeof CPLayer} layer
    */
   function onChangeLayer(layer) {
     artwork = this;
@@ -1376,7 +1376,7 @@ export default function CPLayersPalette(controller) {
   /**
    * Called when the thumbnail of one layer has been updated.
    *
-   * @param {CPLayer} layer
+   * @param {typeof CPLayer} layer
    */
   function onChangeLayerImageThumb(layer) {
     artwork = this;
@@ -1387,7 +1387,7 @@ export default function CPLayersPalette(controller) {
   /**
    * Called when the thumbnail of one layer has been updated.
    *
-   * @param {CPLayer} layer
+   * @param {typeof CPLayer} layer
    */
   function onChangeLayerMaskThumb(layer) {
     artwork = this;
@@ -1398,8 +1398,8 @@ export default function CPLayersPalette(controller) {
   /**
    * Called when the selected layer changes.
    *
-   * @param {CPLayer} oldLayer
-   * @param {CPLayer} newLayer
+   * @param {typeof CPLayer} oldLayer
+   * @param {typeof CPLayer} newLayer
    * @param {boolean} maskSelected
    */
   function onChangeActiveLayer(oldLayer, newLayer, maskSelected) {
@@ -1548,7 +1548,7 @@ export default function CPLayersPalette(controller) {
   /**
    * Show a notification for a specific layer with a message.
    *
-   * @param {CPLayer} layer - The layer for which the notification is shown
+   * @param {typeof CPLayer} layer - The layer for which the notification is shown
    * @param {string} message - The message to display in the notification
    * @param {string} where - The location for the notification (e.g., "opacity")
    */

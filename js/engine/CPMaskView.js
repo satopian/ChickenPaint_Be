@@ -23,7 +23,7 @@
 import CPRect from "../util/CPRect.js";
 import CPColorBmp from "./CPColorBmp.js";
 import CPGreyBmp from "./CPGreyBmp.js";
-
+import CPLayer from "./CPLayer.js";
 import EventEmitter from "wolfy87-eventemitter";
 
 /**
@@ -31,8 +31,8 @@ import EventEmitter from "wolfy87-eventemitter";
  * Both images must be the same size.
  *
  * @param {ImageData} imageData
- * @param {CPGreyBmp} greyscale
- * @param {CPRect} rect
+ * @param {typeof CPGreyBmp} greyscale
+ * @param {typeof CPRect} rect
  */
 function copyGreyscaleRectToImageData(imageData, greyscale, rect) {
   var srcIndex = rect.top * greyscale.width + rect.left,
@@ -67,7 +67,7 @@ function copyGreyscaleRectToImageData(imageData, greyscale, rect) {
  */
 export default class CPMaskView extends EventEmitter {
   /**
-   * @param {CPLayer} layer
+   * @param {typeof CPLayer} layer
    * @param {function} prepareMask
    */
   constructor(layer, prepareMask) {
@@ -111,7 +111,7 @@ export default class CPMaskView extends EventEmitter {
   /**
    * Mark a rectangle as changed (the mask has been painted on)
    *
-   * @param {CPRect} rect
+   * @param {typeof CPRect} rect
    */
   invalidateRect(rect) {
     this.invalidRect.union(rect);

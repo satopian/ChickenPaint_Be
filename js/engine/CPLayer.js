@@ -108,7 +108,7 @@ export default function CPLayer(name) {
 
 /**
  *
- * @param {CPLayer} layer
+ * @param {typeof CPLayer} layer
  */
 CPLayer.prototype.copyFrom = function (layer) {
   this.name = layer.name;
@@ -168,7 +168,7 @@ CPLayer.prototype.getEffectiveAlpha = function () {
 /**
  * Get the mask for this layer, or null if the mask is not present or hidden.
  *
- * @returns {?CPGreyBmp}
+ * @returns {?typeof CPGreyBmp}
  */
 CPLayer.prototype.getEffectiveMask = function () {
   if (this.maskVisible) {
@@ -257,7 +257,7 @@ CPLayer.prototype.ancestorsAreVisible = function () {
 /**
  * Returns true if this layer has the given group as one of its ancestors.
  *
- * @param {CPLayerGroup} group
+ * @param {typeof CPLayerGroup} group
  * @returns {boolean}
  */
 CPLayer.prototype.hasAncestor = function (group) {
@@ -274,9 +274,9 @@ CPLayer.prototype.clone = function () {
  * Get a rectangle that encloses any non-transparent pixels in the layer within the given initialBounds (or an empty
  * rect if the pixels inside the given bounds are 100% transparent).
  *
- * @param {CPRect} initialBounds - The rect to search within
+ * @param {typeof CPRect} initialBounds - The rect to search within
  *
- * @returns {CPRect}
+ * @returns {typeof CPRect}
  */
 CPLayer.prototype.getNonTransparentBounds = function (initialBounds) {
   return new CPRect(0, 0, 0, 0);
@@ -312,7 +312,7 @@ CPLayer.prototype.rebuildMaskThumbnail = function () {
  * Get the mask thumbnail for this layer (or build one if one was not already built). If the layer has no mask, null
  * is returned.
  *
- * @returns {?CPGreyBmp}
+ * @returns {?typeof CPGreyBmp}
  */
 CPLayer.prototype.getMaskThumbnail = function () {
   if (!this.maskThumbnail && this.mask) {
