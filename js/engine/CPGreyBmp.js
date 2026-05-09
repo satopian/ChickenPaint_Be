@@ -85,7 +85,7 @@ CPGreyBmp.prototype.cloneRect = function (rect) {
 /**
  * Pixel access with friendly clipping.
  *
- * @returns {int} Pixel value
+ * @returns {Number} Pixel value
  */
 CPGreyBmp.prototype.getPixel = function (x, y) {
   x = Math.max(0, Math.min(this.width - 1, x));

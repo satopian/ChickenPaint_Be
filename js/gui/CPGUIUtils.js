@@ -5,11 +5,14 @@
  * @returns {CanvasPattern}
  */
 export function createCheckerboardPattern(canvasContext) {
-  var checkerboardCanvas = document.createElement("canvas"),
-    checkerboardContext = checkerboardCanvas.getContext("2d"),
-    imageData = checkerboardContext.createImageData(64, 64),
-    data = imageData.data,
-    pixelOffset = 0;
+  const checkerboardCanvas = document.createElement("canvas");
+  const checkerboardContext = checkerboardCanvas.getContext("2d");
+  if (!checkerboardContext) {
+    throw new Error("2D context unavailable");
+  }
+  const imageData = checkerboardContext.createImageData(64, 64);
+  const data = imageData.data;
+  let pixelOffset = 0;
 
   for (var j = 0; j < 64; j++) {
     for (var i = 0; i < 64; i++) {

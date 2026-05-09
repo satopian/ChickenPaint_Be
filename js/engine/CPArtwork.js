@@ -2257,6 +2257,9 @@ export default function CPArtwork(_width, _height) {
     endPaintingInteraction(false);
   };
 
+  /**
+   *  * @return {boolean}
+   */
   this.hasAlpha = function () {
     return fusion.hasAlpha();
   };

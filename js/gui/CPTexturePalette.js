@@ -68,6 +68,10 @@ function loadTextures(textureFilename, width, height, textureCount, then) {
         willReadFrequently: true,
       });
 
+    if (!canvasContext) {
+      return;
+    }
+
     canvas.width = img.width;
     canvas.height = img.height;
 

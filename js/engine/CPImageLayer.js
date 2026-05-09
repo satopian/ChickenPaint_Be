@@ -100,6 +100,7 @@ CPImageLayer.prototype.copyFrom = function (layer) {
 
 /**
  * Do we have any non-opaque pixels in the entire layer?
+ * @returns {boolean}
  */
 CPImageLayer.prototype.hasAlpha = function () {
   if (this.alpha != 100) {

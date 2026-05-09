@@ -838,7 +838,7 @@ export default function CPMainMenu(controller, mainGUI) {
   }
 
   bar.addEventListener("click", (e) => {
-    const target = e.target.closest("[data-action]");
+    const target = e.target?.closest("[data-action]");
     if (!target) return;
 
     menuItemClicked(target);

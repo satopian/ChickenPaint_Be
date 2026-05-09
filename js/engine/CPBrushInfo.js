@@ -23,21 +23,21 @@
 /**
  * @param {Object} properties - Non-default properties to set on the brush
  *
- * @property {int} alpha - The user-chosen alpha of this brush
+ * @property  {Number} alpha - The user-chosen alpha of this brush
  * @property {float} alphaScale - A scale factor applied to curAlpha before drawing
- * @property {int} curAlpha - The current alpha after pen pressure etc. has been applied
+ * @property  {Number} curAlpha - The current alpha after pen pressure etc. has been applied
  *
- * @property {int} spacing
- * @property {int} minSpacing
+ * @property  {Number} spacing
+ * @property  {Number} minSpacing
  *
- * @property {int} size - The user-chosen size of this brush
- * @property {int} curSize - The current size of the brush after pen pressure has been applied
+ * @property  {Number} size - The user-chosen size of this brush
+ * @property  {Number} curSize - The current size of the brush after pen pressure has been applied
  *
- * @property {int} brushMode - Selects the CPBrushTool that will be used to render the brush (CPBrushInfo.BRUSH_MODE_*)
- * @property {int} paintMode - Controls how paint builds up on the canvas during painting (for brush modes that don't
+ * @property  {Number} brushMode - Selects the CPBrushTool that will be used to render the brush (CPBrushInfo.BRUSH_MODE_*)
+ * @property  {Number} paintMode - Controls how paint builds up on the canvas during painting (for brush modes that don't
  * override the default paintDab() function). (CPBrushInfo.PAINT_MODE_*)
- * @property {int} strokeMode - How stroke points will be connected during drawing (CPBrushInfo.STROKE_MODE_*)
- * @property {int} tip - Kind of brush tip to be used (CPBrushInfo.TIP_*)
+ * @property  {Number} strokeMode - How stroke points will be connected during drawing (CPBrushInfo.STROKE_MODE_*)
+ * @property  {Number} tip - Kind of brush tip to be used (CPBrushInfo.TIP_*)
  *
  * @property {number} scattering
  * @property {number} curScattering

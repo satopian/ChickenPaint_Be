@@ -199,15 +199,15 @@ export default function CPSwatchesPalette(controller) {
       let swatch = e.target;
 
       if (
-        !/^<button data-color=/i.test(swatch.outerHTML) ||
-        !/chickenpaint-color-swatch/.test(swatch.className)
+        !/^<button data-color=/i.test(swatch?.outerHTML) ||
+        !/chickenpaint-color-swatch/.test(swatch?.className)
       ) {
         return; //<button data-color=で始まらない場合もreturn
       }
 
       if (
         e.button == 0 /* Left */ &&
-        swatch.getAttribute("data-color") !== undefined
+        swatch?.getAttribute("data-color") !== undefined
       ) {
         controller.setCurColor(
           new CPColor(parseInt(swatch.getAttribute("data-color"), 10)),
@@ -223,8 +223,8 @@ export default function CPSwatchesPalette(controller) {
       let swatch = e.target;
 
       if (
-        !/^<button data-color=/i.test(swatch.outerHTML) ||
-        !/chickenpaint-color-swatch/.test(swatch.className)
+        !/^<button data-color=/i.test(swatch?.outerHTML) ||
+        !/chickenpaint-color-swatch/.test(swatch?.className)
       ) {
         return; //<button data-color=で始まらない場合もreturn
       }

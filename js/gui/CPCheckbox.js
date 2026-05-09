@@ -33,6 +33,9 @@ export default function CPCheckbox(state, title) {
     var width = canvas.width,
       height = canvas.height;
 
+    if (!canvasContext) {
+      return;
+    }
     canvasContext.clearRect(0, 0, width, height);
 
     canvasContext.beginPath();

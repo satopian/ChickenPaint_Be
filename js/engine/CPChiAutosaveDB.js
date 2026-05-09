@@ -99,7 +99,7 @@ export async function CPGetChiAutosaveFromDB() {
 
 /**
  * 復元が完了した、あるいは不要になった場合に「復元済み」とする (Clear)
- * ※次に保存(backup)した時に上書きされるので、必須ではない。
+ * ※次に保存(backup)した時に上書きされるので、必須ではありません。
  */
 export async function CPClearChiAutosaveFromDB() {
   // 復元可能なバックアップが存在することを示すフラグをlocalStorageから削除

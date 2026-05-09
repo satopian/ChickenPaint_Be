@@ -110,6 +110,9 @@ export default function CPSendDialog(
   let that = this;
 
   resourceSaver.on("savingProgress", function (progress, message) {
+    if (!progressMessageElem || !progressElem) {
+      return;
+    }
     progressMessageElem.textContent = message;
     progressElem.setAttribute("aria-valuenow", progress * 100);
     progressElem.style.width = progress * 100 + "%";
@@ -117,31 +120,47 @@ export default function CPSendDialog(
 
   resourceSaver.on("savingComplete", function () {
     // "saving" ステージを非表示にする
-    dialog.querySelector(".modal-content[data-stage='saving']").style.display =
-      "none";
+    const stage_saving = dialog.querySelector(
+      ".modal-content[data-stage='saving']",
+    );
+    if (stage_saving instanceof HTMLElement) {
+      stage_saving.style.display = "none";
+    }
 
     // CPContinue と CPExit のサポートを確認して、適切なステージを表示する
     if (controller.isActionSupported("CPContinue")) {
       if (controller.isActionSupported("CPExit")) {
         // "success-not-previously-posted" ステージを表示
-        dialog.querySelector(
+        const not_previously_posted = dialog.querySelector(
           ".modal-content[data-stage='success-not-previously-posted']",
-        ).style.display = "block";
+        );
+        if (not_previously_posted instanceof HTMLElement) {
+          not_previously_posted.style.display = "block";
+        }
       } else {
         // "success-already-posted" ステージを表示
-        dialog.querySelector(
+        const already_posted = dialog.querySelector(
           ".modal-content[data-stage='success-already-posted']",
-        ).style.display = "block";
+        );
+        if (already_posted instanceof HTMLElement) {
+          already_posted.style.display = "block";
+        }
       }
     } else {
       // "success-redirect" ステージを表示
-      dialog.querySelector(
+      const redirect = dialog.querySelector(
         ".modal-content[data-stage='success-redirect']",
-      ).style.display = "block";
+      );
+      if (redirect instanceof HTMLElement) {
+        redirect.style.display = "block";
+      }
       if (savedbFromMenu) {
-        dialog.querySelector(
+        const savedb_from_menu = dialog.querySelector(
           ".modal-footer button[data-stage='success-savedb-from-menu']",
-        ).style.display = "block";
+        );
+        if (savedb_from_menu instanceof HTMLElement) {
+          savedb_from_menu.style.display = "block";
+        }
       }
     }
   });
@@ -152,6 +171,9 @@ export default function CPSendDialog(
       "Sorry, your drawing could not be saved, please try again later.",
     );
 
+    if (!progressMessageElem || !progressError) {
+      return;
+    }
     if (serverMessage) {
       serverMessage = serverMessage.replace(/^CHIBIERROR\s*/, "");
       if (serverMessage.length > 0) {
@@ -163,11 +185,11 @@ export default function CPSendDialog(
     progressMessageElem.innerHTML = errorMessage;
   });
 
-  dialog
-    .querySelector(".chickenpaint-send-cancel")
-    .addEventListener("click", function () {
-      resourceSaver.cancel();
-    });
+  const send_cancel = dialog.querySelector(".chickenpaint-send-cancel");
+
+  send_cancel?.addEventListener("click", function () {
+    resourceSaver.cancel();
+  });
 
   let postButton = dialog.querySelector(".chickenpaint-post-drawing");
   if (postButton) {

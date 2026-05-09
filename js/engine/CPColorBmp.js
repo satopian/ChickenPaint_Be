@@ -1839,6 +1839,7 @@ CPColorBmp.prototype.gradient = function (
 };
 
 /**
+ * カラーノイズ
  * 指定された矩形範囲に、一定の不透明度でカラーノイズを重ねる（通常合成）。
  * @param {CPRect} rect - ノイズを適用する矩形範囲。
  * @param {number} opacity - ノイズの不透明度 (0.0〜1.0)。デフォルトは 0.65。

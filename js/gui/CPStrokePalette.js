@@ -74,7 +74,7 @@ export default function CPStrokePalette(cpController) {
 
     listElem.addEventListener("click", function (e) {
       // クリックされた要素が <li> 内の何らかの要素の場合、親の <li> を取得
-      const liElem = e.target.closest("li");
+      const liElem = e.target?.closest("li");
 
       // 親が <li> であれば処理を行う
       if (liElem) {

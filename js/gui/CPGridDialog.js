@@ -101,7 +101,7 @@ export default function CPGridDialog(parent, canvas) {
   // モーダルが表示されたときに、グリッドサイズの入力フィールドにフォーカス
   dialog.addEventListener("shown.bs.modal", () => {
     canvas.setModalShown(true);
-    gridSizeElem.focus();
+    gridSizeElem?.focus();
   });
 
   // Enterキーが押されたときの処理

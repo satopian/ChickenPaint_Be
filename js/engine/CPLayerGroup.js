@@ -54,8 +54,6 @@ CPLayerGroup.prototype.getLinearizedLayerList = function (
   respectCollapse,
   list = [],
 ) {
-  list = list || [];
-
   for (let layer of this.layers) {
     if (layer instanceof CPLayerGroup && (layer.expanded || !respectCollapse)) {
       layer.getLinearizedLayerList(respectCollapse, list);

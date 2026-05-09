@@ -96,6 +96,10 @@ export default function CPSplashScreen(uiParent, loader, resourcesRoot) {
     var centerX = canvas.width / 2,
       centerY = canvas.height / 2;
 
+    if (!canvasContext) {
+      return;
+    }
+
     canvasContext.fillStyle = "white";
     canvasContext.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -140,6 +144,9 @@ export default function CPSplashScreen(uiParent, loader, resourcesRoot) {
     // Use the canvas dimensions set by the CSS styles
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
+    if (!canvasContext) {
+      return;
+    }
 
     canvasContext.font = fontHeight + "pt sans-serif";
 

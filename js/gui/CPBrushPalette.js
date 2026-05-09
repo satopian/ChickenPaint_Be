@@ -72,6 +72,9 @@ function CPGradientPreview(controller) {
     gradient = controller.getCurGradient();
 
   function paint() {
+    if (!canvasContext || !imageCanvasContext) {
+      return;
+    }
     image.gradient(image.getBounds(), 0, 0, image.width, 0, gradient, true);
     imageCanvasContext.putImageData(image.imageData, 0, 0, 0, 0, w, h);
 
