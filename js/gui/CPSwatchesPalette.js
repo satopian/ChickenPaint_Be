@@ -41,6 +41,10 @@ function fileAPIsSupported() {
   return window.File && window.FileReader && window.FileList && window.Blob;
 }
 
+/**
+ * @this{typeof CPSwatchesPalette & Record<string, any>}
+ */
+
 export default function CPSwatchesPalette(controller) {
   CPPalette.call(this, controller, "swatches", "Color swatches");
 

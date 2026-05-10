@@ -23,6 +23,10 @@
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
+/**
+ * @this{typeof CPGridDialog & Record<string, any>}
+ */
+
 export default function CPGridDialog(parent, canvas) {
   // ダイアログ要素を作成
   const dialog = document.createElement("div");

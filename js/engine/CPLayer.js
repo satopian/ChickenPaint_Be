@@ -29,7 +29,9 @@ import CPRect from "../util/CPRect.js";
  * @param {String} name
  *
  * @constructor
+ * @this {Object & Record<string, any>}
  */
+
 export default function CPLayer(name) {
   /**
    *

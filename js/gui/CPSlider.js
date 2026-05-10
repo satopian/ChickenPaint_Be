@@ -25,7 +25,9 @@ import { _ } from "../languages/lang.js";
 
 /**
  * A simple slider control.
+ * @this{typeof CPSlider  & Record<string, any>}
  */
+
 export default function CPSlider(
   minValue,
   maxValue,

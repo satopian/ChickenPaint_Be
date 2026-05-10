@@ -22,6 +22,10 @@
 
 import EventEmitter from "wolfy87-eventemitter";
 
+/**
+ * @this{typeof CPCheckbox & Record<string, any>}
+ */
+
 export default function CPCheckbox(state, title) {
   var canvas = document.createElement("canvas"),
     canvasContext = canvas.getContext("2d"),

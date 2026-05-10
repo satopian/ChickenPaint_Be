@@ -34,6 +34,7 @@ import { getRotatedCanvas } from "./CPColorBmp.js";
  *
  * @constructor
  * @extends CPBitmap
+ * @this{typeof CPGreyBmp & Record<string, any>}
  */
 export default function CPGreyBmp(width, height, bitDepth) {
   CPBitmap.call(this, width, height);

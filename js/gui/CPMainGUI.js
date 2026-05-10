@@ -28,6 +28,10 @@ import CPMainMenu from "./CPMainMenu.js";
 
 import EventEmitter from "wolfy87-eventemitter";
 
+/**
+ * @this{typeof CPMainGUI & Record<string, any>}
+ */
+
 export default function CPMainGUI(controller, uiElem) {
   let lowerArea = document.createElement("div"),
     canvas = new CPCanvas(controller),

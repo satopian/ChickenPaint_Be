@@ -23,6 +23,10 @@
 import CPPalette from "./CPPalette.js";
 import { _ } from "../languages/lang.js";
 
+/**
+ * @this{typeof CPMiscPalette & Record<string, any>}
+ */
+
 export default function CPMiscPalette(cpController) {
   CPPalette.call(this, cpController, "misc", "Misc");
 

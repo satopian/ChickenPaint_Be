@@ -24,6 +24,10 @@ import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import EventEmitter from "wolfy87-eventemitter";
 import { _ } from "../languages/lang.js";
 
+/**
+ * @this{typeof CPSendDialog  & Record<string, any>}
+ */
+
 export default function CPSendDialog(
   controller,
   parent,

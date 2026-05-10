@@ -113,6 +113,11 @@ CPBlendNode.prototype.addChildren = function (children) {
  *
  * @constructor
  */
+
+/**
+ * @this{typeof CPBlendTree & Record<string, any>}
+ */
+
 export default function CPBlendTree(
   drawingRootGroup,
   width,

@@ -30,6 +30,10 @@ import CPColorSlider from "./CPColorSlider.js";
 
 import EventEmitter from "wolfy87-eventemitter";
 
+/**
+ * @this{typeof CPColorSwatch & Record<string, any>}
+ */
+
 export default function CPColorSwatch(
   initialColor,
   initialAlpha,

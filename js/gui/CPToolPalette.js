@@ -27,6 +27,10 @@ import ChickenPaint from "../ChickenPaint.js";
 
 import { _ } from "../languages/lang.js";
 
+/**
+ * @this{typeof CPToolPalette  & Record<string, any>}
+ */
+
 export default function CPToolPalette(cpController) {
   CPPalette.call(this, cpController, "tool", "Tools");
 

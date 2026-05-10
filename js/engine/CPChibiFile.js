@@ -60,6 +60,10 @@ const OUR_MAJOR_VERSION = 0,
   CHUNK_TAG_GROUP = "GRUP",
   CHUNK_TAG_END = "ZEND";
 
+/**
+ * @constructor
+ * @this {typeof CPChibiFileHeader & Record<string, any>}
+ */
 function CPChibiFileHeader(stream) {
   this.version = stream.readU32BE();
   this.width = stream.readU32BE();
@@ -68,6 +72,10 @@ function CPChibiFileHeader(stream) {
 }
 
 CPChibiFileHeader.FIXED_HEADER_LENGTH = 4 * 4;
+
+/**
+ * @this{typeof ChibiChunkHeader & Record<string, any>	}
+ */
 
 function ChibiChunkHeader(stream) {
   let chunkType = new Array(4);

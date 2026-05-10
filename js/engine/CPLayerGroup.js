@@ -28,6 +28,7 @@ import CPRect from "../util/CPRect.js";
  * @param {string} name
  * @param {number} blendMode
  * @constructor
+ * @this{typeof CPLayerGroup & Record<string, any>}
  */
 export default function CPLayerGroup(name = "", blendMode = 0) {
   CPLayer.call(this, name);

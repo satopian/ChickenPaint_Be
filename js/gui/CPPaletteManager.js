@@ -32,6 +32,10 @@ import CPTexturePalette from "./CPTexturePalette.js";
 import CPSwatchesPalette from "./CPSwatchesPalette.js";
 import { _ } from "../languages/lang.js";
 
+/**
+ * @this{typeof CPPaletteManager & Record<string, any>}
+ */
+
 export default function CPPaletteManager(cpController) {
   const palettes = {
       tool: new CPToolPalette(cpController),

@@ -28,6 +28,10 @@ const Ctrl = macPlatform ? "⌘" : "Ctrl";
 const Alt = macPlatform ? "⌥" : "Alt";
 const ctrlForZoom = macPlatform ? "⌃" : "Ctrl";
 
+/**
+ * @this{typeof CPShortcutsDialog  & Record<string, any>}
+ */
+
 export default function CPShortcutsDialog(parent) {
   const dialog = document.createElement("div");
   dialog.classList.add("modal", "fade", "chickenpaint-shortcuts-dialog");

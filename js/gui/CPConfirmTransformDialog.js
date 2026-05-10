@@ -24,6 +24,10 @@ import EventEmitter from "wolfy87-eventemitter";
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
+/**
+ * @this{typeof CPConfirmTransformDialog & Record<string, any>}
+ */
+
 export default function CPConfirmTransformDialog(parent, controller) {
   // ダイアログ要素を作成
   const dialog = document.createElement("div");

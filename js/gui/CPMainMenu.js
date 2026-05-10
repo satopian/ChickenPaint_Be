@@ -511,6 +511,10 @@ const MENU_ENTRIES = [
   },
 ];
 
+/**
+ * @this{typeof CPMainMenu & Record<string, any>}
+ */
+
 export default function CPMainMenu(controller, mainGUI) {
   const bar = document.createElement("nav");
   bar.className = "navbar navbar-expand-md bg-light";

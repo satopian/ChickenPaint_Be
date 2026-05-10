@@ -30,6 +30,10 @@ export function binaryStringToByteArray(s) {
  *     rotation - Integer [0..3] of the number of 90 degree rotation steps that should be applied to canvas upon opening.
  *     swatches - Array of ARGB integer colors to save as the image swatches (optional)
  */
+/**
+ * @this{typeof CPResourceSaver & Record<string, any>}
+ */
+
 export default function CPResourceSaver(options) {
   var that = this,
     cancelled = false;

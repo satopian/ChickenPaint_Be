@@ -20,6 +20,10 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @this{typeof CPLookUpTable & Record<string, any>}
+ */
+
 export default function CPLookUpTable() {
   this.table = new Uint8Array(256);
 

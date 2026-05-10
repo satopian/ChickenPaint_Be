@@ -28,6 +28,7 @@ import CPGreyBmp from "./CPGreyBmp.js";
  * @param int x - Position of the clipboard bmp within the document
  * @param int y
  * @constructor
+ * @this{typeof CPClip & Record<string, any>}
  */
 export default function CPClip(bmp, x, y) {
   this.bmp = bmp;

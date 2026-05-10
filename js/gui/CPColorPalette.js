@@ -26,6 +26,10 @@ import CPColorSlider from "./CPColorSlider.js";
 import CPColor from "../util/CPColor.js";
 import { _ } from "../languages/lang.js";
 
+/**
+ * @this{typeof CPColorPalette & Record<string, any>}
+ */
+
 export default function CPColorPalette(cpController) {
   CPPalette.call(this, cpController, "color", "Color (picker)");
 

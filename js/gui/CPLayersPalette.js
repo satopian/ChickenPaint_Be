@@ -100,6 +100,10 @@ function computeLayerPredicates(layer, isEditingMask) {
   };
 }
 
+/**
+ * @this{typeof CPLayersPalette & Record<string, any>}
+ */
+
 export default function CPLayersPalette(controller) {
   CPPalette.call(this, controller, "layers", "Layers", {
     resizeHorz: true,

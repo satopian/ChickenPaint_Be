@@ -102,6 +102,10 @@ function CPGradientPreview(controller) {
   paint();
 }
 
+/**
+ * @this{typeof CPBrushPalette & Record<string, any>}
+ */
+
 export default function CPBrushPalette(controller) {
   CPPalette.call(this, controller, "brush", "Tool options");
 

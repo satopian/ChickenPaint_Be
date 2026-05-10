@@ -44,6 +44,11 @@ function distanceGreaterThan(a, b, threshold) {
  *
  * @constructor
  */
+
+/**
+ * @this{typeof CPPalette & Record<string, any>}
+ */
+
 export default function CPPalette(cpController, className, title, options) {
   // Use a shorter version of the title if needed and one is available
   if (

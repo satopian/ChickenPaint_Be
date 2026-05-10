@@ -110,6 +110,10 @@ function loadTextures(textureFilename, width, height, textureCount, then) {
   img.src = textureFilename;
 }
 
+/**
+ * @this{typeof CPTexturePalette  & Record<string, any>}
+ */
+
 export default function CPTexturePalette(controller) {
   CPPalette.call(this, controller, "textures", "Textures");
 

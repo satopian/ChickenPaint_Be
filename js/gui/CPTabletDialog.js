@@ -22,6 +22,10 @@
 
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 
+/**
+ * @this{typeof CPTabletDialog  & Record<string, any>}
+ */
+
 export default function CPTabletDialog(parent) {
   let dialog = document.createElement("div");
   dialog.classList.add("modal", "fade");

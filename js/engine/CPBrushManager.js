@@ -275,6 +275,7 @@ function buildBrushSoft(brush, brushInfo) {
  * Creates and holds one cached brush at a time, with the given parameters.
  *
  * @constructor
+ * @this{typeof CPBrushManager & Record<string, any>}
  */
 export default function CPBrushManager() {
   const BRUSH_MAX_DIM = 401,

@@ -20,6 +20,9 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
+/**
+ * @this{typeof CPAboutDialog & Record<string, any>}
+ */
 
 export default function CPAboutDialog(parent) {
   // ダイアログのHTML構造

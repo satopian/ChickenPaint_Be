@@ -49,6 +49,11 @@
  *
  * @constructor
  */
+
+/**
+ * @this{typeof CPBrushInfo & Record<string, any>}
+ */
+
 export default function CPBrushInfo(properties) {
   var propName;
 

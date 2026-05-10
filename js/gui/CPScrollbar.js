@@ -24,6 +24,8 @@ import EventEmitter from "wolfy87-eventemitter";
 
 /**
  * @param vertical boolean
+ * @this{typeof CPScrollbar & Record<string, any>}
+ *
  */
 export default function CPScrollbar(vertical) {
   let bar = document.createElement("div"),
