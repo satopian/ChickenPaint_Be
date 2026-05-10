@@ -538,6 +538,9 @@ export default function CPTexturePalette(controller) {
     };
 
     this.paint = function () {
+      if (!canvasContext) {
+        return;
+      }
       if (this.texture != null) {
         canvasContext.fillStyle = canvasContext.createPattern(
           this.texture.getAsCanvas(),

@@ -214,7 +214,7 @@ export default function CPArtwork(_width, _height) {
      */
     redoList = [],
     /**
-     * @type {? typeof CPBrushInfo}
+     * @type {?typeof CPBrushInfo}
      */
     curBrush = null,
     lastX = 0.0,

@@ -1004,7 +1004,7 @@ export default function CPCanvas(controller) {
     };
 
     this.paint = function () {
-      if (this.capture) {
+      if (this.capture && canvasContext) {
         let bezier = new CPBezier(),
           p0 = coordToDisplay(dragBezierP0),
           p1 = coordToDisplay(dragBezierP1),
@@ -1024,24 +1024,22 @@ export default function CPCanvas(controller) {
           y = new Array(BEZIER_POINTS_PREVIEW);
 
         bezier.compute(x, y, BEZIER_POINTS_PREVIEW);
-        if (canvasContext) {
-          canvasContext.beginPath();
+        canvasContext.beginPath();
 
-          canvasContext.moveTo(x[0], y[0]);
-          for (let i = 1; i < BEZIER_POINTS_PREVIEW; i++) {
-            canvasContext.lineTo(x[i], y[i]);
-          }
-          canvasContext.stroke();
+        canvasContext.moveTo(x[0], y[0]);
+        for (let i = 1; i < BEZIER_POINTS_PREVIEW; i++) {
+          canvasContext.lineTo(x[i], y[i]);
+        }
+        canvasContext.stroke();
+        canvasContext.beginPath();
+        canvasContext.moveTo(~~p0.x, ~~p0.y);
+        canvasContext.lineTo(~~p1.x, ~~p1.y);
+        canvasContext.stroke();
+        if (dragBezierMode === BEZIER_STATE_POINT_2) {
           canvasContext.beginPath();
-          canvasContext.moveTo(~~p0.x, ~~p0.y);
-          canvasContext.lineTo(~~p1.x, ~~p1.y);
+          canvasContext.moveTo(~~p2.x, ~~p2.y);
+          canvasContext.lineTo(~~p3.x, ~~p3.y);
           canvasContext.stroke();
-          if (dragBezierMode === BEZIER_STATE_POINT_2) {
-            canvasContext.beginPath();
-            canvasContext.moveTo(~~p2.x, ~~p2.y);
-            canvasContext.lineTo(~~p3.x, ~~p3.y);
-            canvasContext.stroke();
-          }
         }
       } else {
         // Paint the regular brush preview

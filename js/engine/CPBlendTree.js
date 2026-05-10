@@ -147,7 +147,7 @@ export default function CPBlendTree(
   /**
    *
    * @param {typeof CPBlendNode} groupNode
-   * @returns {? typeof CPBlendNode|typeof CPBlendNode[]}
+   * @returns {?typeof CPBlendNode|typeof CPBlendNode[]}
    */
   function optimizeGroupNode(groupNode) {
     if (groupNode.layers.length == 0) {
