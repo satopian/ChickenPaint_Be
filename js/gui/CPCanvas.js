@@ -1478,7 +1478,7 @@ export default function CPCanvas(controller) {
     };
 
     this.paint = function () {
-      if (!curRect.isEmpty()) {
+      if (!curRect.isEmpty() && canvasContext) {
         canvasContext.lineWidth = 1;
         plotSelectionRect(canvasContext, curRect);
       }

@@ -86,7 +86,7 @@ export default function CPPaletteManager(cpController) {
         parentElem.removeChild(palElement);
       }
     }
-    that.emitEvent("paletteVisChange", [palette.name, show]);
+    that.emitEvent("paletteVisChange", [palette.paletteName, show]);
 
     // FIXME: focus hack
     // controller.canvas.grabFocus(); TODO

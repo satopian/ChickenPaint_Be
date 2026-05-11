@@ -1155,10 +1155,10 @@ function CPColorPickerPanel(controller) {
     labelCheck.textContent = option.text;
 
     input.addEventListener("change", (e) => {
-      if (e.target.checked) {
+      if (e.target?.checked) {
         input.blur();
         // "merged" なら true、"layer" なら false を渡す
-        const isMerged = e.target.value === "merged";
+        const isMerged = e.target?.value === "merged";
         controller.setColorPickerSampleAllLayers(isMerged);
       }
     });
@@ -1169,7 +1169,7 @@ function CPColorPickerPanel(controller) {
       (e) => {
         // ALTキーが押されているか確認
         if (e.altKey) {
-          const label = e.target.closest("label");
+          const label = e.target?.closest("label");
           if (!label) return;
 
           // labelのfor属性から対応するinputを探す

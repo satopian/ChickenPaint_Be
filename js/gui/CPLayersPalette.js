@@ -440,7 +440,6 @@ export default function CPLayersPalette(controller) {
                 (markerDepth > 0
                   ? 26 + LAYER_IN_GROUP_INDENT * markerDepth
                   : 0);
-
               drag.dropBetweenMarkerElem.style.left = markerLeft + "px";
               drag.dropBetweenMarkerElem.style.width =
                 layerRect.right - positionRootBounds.left - markerLeft + "px";

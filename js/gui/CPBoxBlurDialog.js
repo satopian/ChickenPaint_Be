@@ -119,19 +119,25 @@ export default function CPBoxBlurDialog(parent, controller) {
 
   // モーダルが閉じられた後の処理
   dialog.addEventListener("hidden.bs.modal", () => {
-    document.activeElement?.blur(); // フォーカスを外す
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement?.blur(); // フォーカスを外す
+    }
     dialog.remove(); // ダイアログを削除
   });
 
   // モーダルが表示された時の処理
   dialog.addEventListener("shown.bs.modal", () => {
-    blurAmountElem?.focus(); // フォーカスを入力欄に当てる
+    if (blurAmountElem instanceof HTMLElement) {
+      blurAmountElem?.focus(); // フォーカスを入力欄に当てる
+    }
   });
 
   // エンターキーが押されたときの処理
   dialog.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && dialog.classList.contains("show")) {
-      applyButton?.click(); // OKボタンをクリック
+      if (applyButton instanceof HTMLElement) {
+        applyButton.click(); // OKボタンをクリック
+      }
       e.preventDefault(); // デフォルトのフォーム送信を阻止
     }
   });

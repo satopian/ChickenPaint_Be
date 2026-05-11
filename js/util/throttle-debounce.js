@@ -115,6 +115,10 @@ export function throttle(delay, no_trailing, callback, debounce_mode) {
   // The `wrapper` function encapsulates all of the throttling / debouncing
   // functionality and when executed will limit the rate at which `callback`
   // is executed.
+  /**
+   * @this{typeof wrapper & Record<string, any>}
+   *
+   */
   function wrapper() {
     var that = this,
       elapsed = +new Date() - last_exec,

@@ -118,27 +118,27 @@ export default function CPColor(rgb) {
   /**
    * Color in RGB byte order (no alpha component)
    *
-   * @type {int}
+   * @type {Number}
    */
   this.rgb = 0;
 
   /**
    * Hue 0-359 degrees
    *
-   * @type {int}
+   * @type {Number}
    */
   this.hue = 0;
 
   /**
    * Color saturation 0 - 255
-   * @type {int}
+   * @type {Number}
    */
   this.saturation = 0;
 
   /**
    * Brightness 0 - 255
    *
-   * @type {int}
+   * @type {Number}
    */
   this.value = 0;
 
