@@ -25,7 +25,7 @@ import CPBrushInfo from "../engine/CPBrushInfo.js";
 import { _ } from "../languages/lang.js";
 
 /**
- * @this{typeof CPStrokePalette  & Record<string, any>}
+ * @this{CPStrokePalette  & Record<string, any>}
  */
 
 export default function CPStrokePalette(cpController) {

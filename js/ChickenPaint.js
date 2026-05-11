@@ -276,8 +276,7 @@ function createDrawingTools() {
  * @property {string} [loadImageUrl]     - URL of PNG/JPEG image to load for editing (optional)
  * @property {string} [loadChibiFileUrl] - URL of .chi file to load for editing (optional). Used in preference to loadImage.
  * @property {string} [loadSwatchesUrl]  - URL of an .aco palette to load (optional)
- * @property {typeof CPArtwork} [artwork]       - Artwork to load into ChickenPaint (if you've already created one)
- *
+ * @typedef {CPArtwork & { [key: string]: any }} FlexibleArtwork 
  * @property {boolean} [allowMultipleSends] - Allow the drawing to be sent to the server multiple times (saving does not
  *                                          immediately end drawing session).
  * @property {boolean} [allowDownload]      - Allow the drawing to be saved to the user's computer
@@ -301,9 +300,11 @@ function createDrawingTools() {
 /**
  * Creates an instance of the ChickenPaint drawing app with the specified options.
  *
- * @param {ChickenPaintOptions} options
+ * @param {any} options
  *
  * @throws ChickenPaint.UnsupportedBrowserException if the web browser does not support ChickenPaint
+ * @this {any}
+ *
  */
 export default function ChickenPaint(options) {
   guessLanguage();
@@ -345,16 +346,16 @@ export default function ChickenPaint(options) {
 
   let that = this,
     /**
-     * @type {typeof CPCanvas}
+     * @type {CPCanvas}
      */
     canvas,
     /**
-     * @type {typeof CPMainGUI}
+     * @type {CPMainGUI}
      */
     mainGUI,
     /**
      *
-     * @type {typeof CPColor}
+     * @type {CPColor}
      */
     curColor = new CPColor(0),
     curMaskColor = 0xff,
@@ -1276,7 +1277,7 @@ export default function ChickenPaint(options) {
   };
 
   /**
-   * @returns {CPColor}
+   * @returns {CPColor|null}
    */
   this.getCurColor = function () {
     switch (colorMode) {
@@ -1285,6 +1286,7 @@ export default function ChickenPaint(options) {
       case ChickenPaint.COLOR_MODE_GREYSCALE:
         return new CPColor(CPColor.greyToRGB(curMaskColor));
     }
+    return null;
   };
 
   this.setCurGradient = function (gradient) {

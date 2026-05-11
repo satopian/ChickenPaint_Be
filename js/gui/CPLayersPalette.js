@@ -101,7 +101,7 @@ function computeLayerPredicates(layer, isEditingMask) {
 }
 
 /**
- * @this{typeof CPLayersPalette & Record<string, any>}
+ * @this{CPLayersPalette & Record<string, any>}
  */
 
 export default function CPLayersPalette(controller) {

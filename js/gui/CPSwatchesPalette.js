@@ -42,7 +42,7 @@ function fileAPIsSupported() {
 }
 
 /**
- * @this{typeof CPSwatchesPalette & Record<string, any>}
+ * @this{CPSwatchesPalette & Record<string, any>}
  */
 
 export default function CPSwatchesPalette(controller) {
@@ -82,7 +82,6 @@ export default function CPSwatchesPalette(controller) {
     // swatchElem.setAttribute("data-bs-toggle", "dropdown");
 
     mnuRemove.className = "dropdown-item";
-    mnuRemove.href = "#";
     mnuRemove.textContent = _("Remove");
 
     mnuRemove.addEventListener("click", function (e) {
@@ -93,7 +92,6 @@ export default function CPSwatchesPalette(controller) {
     });
 
     mnuSetToCurrent.className = "dropdown-item";
-    mnuSetToCurrent.href = "#";
     mnuSetToCurrent.textContent = _("Replace with current color");
 
     mnuSetToCurrent.addEventListener("click", function (e) {
