@@ -35,7 +35,7 @@ function distanceGreaterThan(a, b, threshold) {
 /**
  *
  * @param {typeof ChickenPaint} cpController
- * @param {String} className
+ * @param {String} paletteName
  * @param {String} title
  * @param {Object} [options]
  * @param {boolean} options.resizeVert
@@ -49,7 +49,7 @@ function distanceGreaterThan(a, b, threshold) {
  * @this{typeof CPPalette & Record<string, any>}
  */
 
-export default function CPPalette(cpController, className, title, options) {
+export default function CPPalette(cpController, paletteName, title, options) {
   // Use a shorter version of the title if needed and one is available
   if (
     cpController.getSmallScreenMode() &&
@@ -62,7 +62,7 @@ export default function CPPalette(cpController, className, title, options) {
 
   options = options || {};
 
-  this.name = className;
+  this.paletteName = paletteName;
   this.resizeVert = options.resizeVert || false;
   this.resizeHorz = options.resizeHorz || false;
 
@@ -356,7 +356,7 @@ export default function CPPalette(cpController, className, title, options) {
   closeButton.tabIndex = -1;
 
   containerElement.className =
-    "chickenpaint-palette chickenpaint-palette-" + className;
+    "chickenpaint-palette chickenpaint-palette-" + paletteName;
 
   headElement.className = "chickenpaint-palette-head";
   headElement.setAttribute("touch-action", "none");
