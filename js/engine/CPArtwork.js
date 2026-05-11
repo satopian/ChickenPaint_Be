@@ -116,39 +116,39 @@ export default function CPArtwork(_width, _height) {
   const /**
      * The root of the document's hierarchy of layers and layer groups.
      *
-     * @type {typeof CPLayerGroup}
+     * @type {CPLayerGroup}
      */
     layersRoot = new CPLayerGroup("Root", CPBlend.LM_NORMAL),
     /**
      * Our cached strategy for merging the layers together into one for display.
      *
-     * @type {typeof CPBlendTree}
+     * @type {CPBlendTree}
      */
     blendTree = new CPBlendTree(layersRoot, _width, _height, true),
     /**
      * A copy of the current layer's image data that can be used for undo operations.
      *
-     * @type {typeof CPColorBmp}
+     * @type {CPColorBmp}
      */
     undoImage = new CPColorBmp(_width, _height),
     /**
      * The region of the undoImage which is out of date with respect to the content of the layer, and needs updated
      * with prepareForLayerUndo().
      *
-     * @type {typeof CPRect}
+     * @type {CPRect}
      */
     undoImageInvalidRegion = new CPRect(0, 0, _width, _height),
     /**
      * A copy of the current layer's mask that can be used for undo operations.
      *
-     * @type {typeof CPGreyBmp}
+     * @type {CPGreyBmp}
      */
     undoMask = new CPGreyBmp(_width, _height, 8),
     /**
      * The region of the undoMask which is out of date with respect to the content of the layer, and needs updated
      * with prepareForLayerUndo().
      *
-     * @type {typeof CPRect}
+     * @type {CPRect}
      */
     undoMaskInvalidRegion = new CPRect(0, 0, _width, _height),
     /**
@@ -159,13 +159,13 @@ export default function CPArtwork(_width, _height) {
      * Normally we use it as a 16-bit opacity channel per pixel, but some brushes use the full 32-bits per pixel
      * as ARGB.
      *
-     * @type {typeof CPGreyBmp}
+     * @type {CPGreyBmp}
      */
     strokeBuffer = new CPGreyBmp(_width, _height, 32),
     /**
      * The area of dirty data contained by strokeBuffer that should be merged by fusionLayers()
      *
-     * @type {typeof CPRect}
+     * @type {CPRect}
      */
     strokedRegion = new CPRect(0, 0, 0, 0),
     brushManager = new CPBrushManager(),
@@ -175,7 +175,7 @@ export default function CPArtwork(_width, _height) {
     /**
      * The currently selected layer (should never be null)
      *
-     * @type {(typeof CPImageLayer|typeof CPLayerGroup)}
+     * @type {(CPImageLayer|CPLayerGroup)}
      */
     curLayer = layersRoot,
     /**
@@ -187,7 +187,7 @@ export default function CPArtwork(_width, _height) {
     /**
      * If the user is viewing a single mask from the document, we cache the view of that here for later invalidation.
      *
-     * @type {CPMaskView}
+     * @type {CPMaskView|null}
      */
     maskView = null,
     /**
@@ -201,7 +201,7 @@ export default function CPArtwork(_width, _height) {
      * Points to a buffer which represents all the layers merged together. Since this buffer might be an actual
      * layer from the image stack, you must not write to it through here (you'll damage the image).
      *
-     * @type {typeof CPColorBmp}
+     * @type {CPColorBmp|null}
      */
     fusion = null,
     rnd = new CPRandom(),
@@ -282,7 +282,7 @@ export default function CPArtwork(_width, _height) {
   /**
    * Get the root group which contains all the layers of the document.
    *
-   * @returns {typeof CPLayerGroup}
+   * @returns {CPLayerGroup}
    */
   this.getLayersRoot = function () {
     return layersRoot;

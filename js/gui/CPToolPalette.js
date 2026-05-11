@@ -230,14 +230,14 @@ export default function CPToolPalette(cpController) {
     }
 
     listElem.addEventListener("click", function (e) {
-      const liElem = e.target.closest("li"); // クリックされた要素が li の場合、それを取得
+      const liElem = e.target?.closest("li"); // クリックされた要素が li の場合、それを取得
 
       if (liElem) {
         buttonClicked.call(liElem, e); // クリックされた li 要素を引数に渡す
       }
     });
     listElem.addEventListener("dblclick", function (e) {
-      const liElem = e.target.closest("li");
+      const liElem = e.target?.closest("li");
 
       if (liElem) {
         let buttonIndex = parseInt(liElem.getAttribute("data-buttonIndex"), 10);

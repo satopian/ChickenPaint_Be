@@ -71,6 +71,10 @@ function CPGradientPreview(controller) {
     imageCanvasContext = imageCanvas.getContext("2d"),
     gradient = controller.getCurGradient();
 
+  if (!canvasContext) {
+    return;
+  }
+
   function paint() {
     if (!canvasContext || !imageCanvasContext) {
       return;
@@ -487,7 +491,14 @@ CPBrushPalette.CPBrushPreview = function (controller) {
     canvasContext = canvas.getContext("2d"),
     mouseCaptured = false;
 
+  if (!canvasContext) {
+    return;
+  }
+
   function paint() {
+    if (!canvasContext) {
+      return;
+    }
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
     canvasContext.beginPath();

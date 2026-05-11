@@ -290,6 +290,9 @@ export default function CPSlider(
       canvas.width = canvas.width * window.devicePixelRatio;
       canvas.height = canvas.height * window.devicePixelRatio;
     }
+    if (!canvasContext) {
+      return;
+    }
 
     canvasContext.font = canvas.height * 0.47 + "pt sans-serif";
 
