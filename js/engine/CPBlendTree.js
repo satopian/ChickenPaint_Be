@@ -33,7 +33,7 @@ import CPGreyBmp from "./CPGreyBmp.js";
  *
  * @param {number} width
  * @param {number} height
- * @param {(typeof CPLayer|typeof CPLayerGroup|null)} layer
+ * @param {(CPLayer|CPLayerGroup|null)} layer
  * @constructor
  */
 function CPBlendNode(width, height, layer = null) {
@@ -58,13 +58,13 @@ function CPBlendNode(width, height, layer = null) {
   /**
    * For group nodes, this is the rectangle of data which is dirty (due to changes in child nodes) and needs to be re-merged
    *
-   * @type {typeof CPRect}
+   * @type {CPRect}
    */
   this.dirtyRect = new CPRect(0, 0, width, height);
 
   /**
    *
-   * @type {typeof CPBlendNode[]}
+   * @type {CPBlendNode[]}
    */
   this.layers = [];
 
@@ -84,7 +84,7 @@ function CPBlendNode(width, height, layer = null) {
 /**
  * Add zero (null), one (CPBlendNode) or more (CPBlendNode[]) children to this node.
  *
- * @param {(?typeof CPBlendNode|typeof CPBlendNode[])} children
+ * @param {(?CPBlendNode|CPBlendNode[])} children
  */
 CPBlendNode.prototype.addChildren = function (children) {
   if (children != null) {
@@ -106,7 +106,7 @@ CPBlendNode.prototype.addChildren = function (children) {
  * Analyses a stack of layers in a CPLayerGroup and optimizes a drawing scheme for them. Then you can reuse that
  * scheme to blend all the layers together.
  *
- * @param {typeof CPLayerGroup} drawingRootGroup - The root of the layer stack.
+ * @param {CPLayerGroup} drawingRootGroup - The root of the layer stack.
  * @param {number} width - Dimension of layers and final merge result.
  * @param {number} height
  * @param {boolean} requireSimpleFusion - Set to true if the result must have alpha 100 and no mask.
@@ -115,7 +115,7 @@ CPBlendNode.prototype.addChildren = function (children) {
  */
 
 /**
- * @this{typeof CPBlendTree & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPBlendTree(
@@ -127,13 +127,13 @@ export default function CPBlendTree(
   const DEBUG = false;
 
   let /**
-     * @type {typeof CPBlendNode}
+     * @type {CPBlendNode}
      */
     drawTree,
     /**
      * Unused buffers we could re-use instead of allocating more memory.
      *
-     * @type {typeof CPColorBmp[]}
+     * @type {CPColorBmp[]}
      */
     spareBuffers = [],
     /**
@@ -151,8 +151,8 @@ export default function CPBlendTree(
 
   /**
    *
-   * @param {typeof CPBlendNode} groupNode
-   * @returns {?typeof CPBlendNode|typeof CPBlendNode[]}
+   * @param {CPBlendNode} groupNode
+   * @returns {?CPBlendNode|CPBlendNode[]}
    */
   function optimizeGroupNode(groupNode) {
     if (groupNode.layers.length == 0) {
@@ -207,8 +207,8 @@ export default function CPBlendTree(
 
   /**
    *
-   * @param {typeof CPLayer} layer
-   * @returns {typeof CPBlendNode}
+   * @param {CPLayer} layer
+   * @returns {CPBlendNode}
    */
   function createNodeForLayer(layer) {
     let node = new CPBlendNode(width, height, layer);
@@ -221,8 +221,8 @@ export default function CPBlendTree(
   /**
    * Build a CPBlendNode for this CPLayerGroup and return it, or null if this group doesn't draw anything.
    *
-   * @param {typeof CPLayerGroup} layerGroup
-   * @returns {?typeof CPBlendNode|typeof CPBlendNode[]}
+   * @param {CPLayerGroup} layerGroup
+   * @returns {?CPBlendNode|CPBlendNode[]}
    */
   function buildTreeInternal(layerGroup) {
     if (layerGroup.getEffectiveAlpha() == 0) {
@@ -277,8 +277,8 @@ export default function CPBlendTree(
   }
 
   /**
-   * @param {typeof CPBlendNode} node
-   * @param {typeof CPRect} rect
+   * @param {CPBlendNode} node
+   * @param {CPRect} rect
    */
   function invalidateNodeRect(node, rect) {
     if (node) {
@@ -291,8 +291,8 @@ export default function CPBlendTree(
   /**
    * Mark an area of a layer as updated (so next time fusion is called, it must be redrawn).
    *
-   * @param {typeof CPLayer} layer
-   * @param {typeof CPRect} rect
+   * @param {CPLayer} layer
+   * @param {CPRect} rect
    */
   this.invalidateLayerRect = function (layer, rect) {
     let node = nodeForLayer.get(layer);
@@ -351,7 +351,7 @@ export default function CPBlendTree(
   /**
    * Give back temporary merge buffers to our buffer pool.
    *
-   * @param {typeof CPBlendNode} root
+   * @param {CPBlendNode} root
    */
   function resetTreeInternal(root) {
     if (root.isGroup) {
@@ -379,7 +379,7 @@ export default function CPBlendTree(
   /**
    * Call when a property of the layer has changed (opacity, blendMode, visibility)
    *
-   * @param {typeof CPLayer} layer
+   * @param {CPLayer} layer
    * @param {string} propertyName
    */
   this.layerPropertyChanged = function (layer, propertyName) {
@@ -409,7 +409,7 @@ export default function CPBlendTree(
    *
    * @param {CPColorBmp} dest
    * @param {CPColorBmp} source
-   * @param {typeof CPRect} rect
+   * @param {CPRect} rect
    */
   function copyOpaqueImageRect(dest, source, rect) {
     if (rect.getWidth() == dest.width && rect.getHeight() == dest.height) {
@@ -437,7 +437,7 @@ export default function CPBlendTree(
    * @param {CPColorBmp} dest
    * @param {CPColorBmp} source
    * @param {number} sourceAlpha
-   * @param {typeof CPRect} rect
+   * @param {CPRect} rect
    * @param {?CPGreyBmp} mask
    */
   function copyImageRect(dest, source, sourceAlpha, rect, mask) {

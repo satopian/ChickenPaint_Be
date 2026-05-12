@@ -46,7 +46,7 @@ function distanceGreaterThan(a, b, threshold) {
  */
 
 /**
- * @this{typeof CPPalette & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPPalette(cpController, paletteName, title, options) {

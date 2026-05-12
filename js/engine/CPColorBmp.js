@@ -29,7 +29,7 @@ import { createImageData } from "../util/Canvas.js";
  * A 32bpp bitmap class (one byte per channel in RGBA order)
  *
  * @param {(ImageData|number)} width - The width of the bitmap, or the ImageData object to use by reference
- * @param {?number} height - The height of the bitmap
+ * @param {?number} [height=null] - The height of the bitmap
  *
  * @constructor
  * @extends {CPBitmap}
@@ -39,9 +39,9 @@ import { createImageData } from "../util/Canvas.js";
  * @property {CanvasPixelArray} data - The bitmap data array (one byte per channel in RGBA order). We'd prefer this to
  *                                     be Uint8ClampedArray, but IE 10 doesn't support it
  * @property {ImageData} imageData
- * @this{typeof CPColorBmp & Record<string, any>}
+ * @this{any}
  */
-export default function CPColorBmp(width, height) {
+export default function CPColorBmp(width, height = null) {
   if (typeof width == "number") {
     CPBitmap.call(this, width, height);
 
@@ -69,7 +69,7 @@ CPColorBmp.ALPHA_BYTE_OFFSET = 3;
 /**
  * Create an independent copy of this bitmap.
  *
- * @returns {typeof CPColorBmp}
+ * @returns {CPColorBmp}
  */
 CPColorBmp.prototype.clone = function () {
   return this.cloneRect(this.getBounds());
@@ -78,8 +78,8 @@ CPColorBmp.prototype.clone = function () {
 /**
  * Creates a CPColorBmp from a portion of this bitmap
  *
- * @param {typeof CPRect} rect
- * @returns {typeof CPColorBmp}
+ * @param {CPRect} rect
+ * @returns {CPColorBmp}
  */
 CPColorBmp.prototype.cloneRect = function (rect) {
   var result = new CPColorBmp(rect.getWidth(), rect.getHeight());
@@ -139,8 +139,8 @@ CPColorBmp.prototype.setPixel = function (x, y, argb) {
 /**
  * Get an r,g,b,a array of the xor of this bitmap and the given one, within the given rectangle
  *
- * @param {typeof CPColorBmp} bmp
- * @param {typeof CPRect} rect
+ * @param {CPColorBmp} bmp
+ * @param {CPRect} rect
  *
  * @returns {Uint8Array}
  */
@@ -195,10 +195,10 @@ CPColorBmp.prototype.setRectXOR = function (buffer, rect) {
 /**
  * Copy the rectangle at srcRect from bmp onto this image at (dstX, dstY).
  *
- * @param {typeof CPColorBmp} bmp
+ * @param {CPColorBmp} bmp
  * @param {number} dstX
  * @param {number} dstY
- * @param {typeof CPRect} srcRect
+ * @param {CPRect} srcRect
  */
 CPColorBmp.prototype.copyBitmapRect = function (bmp, dstX, dstY, srcRect) {
   var dstRect = new CPRect(dstX, dstY, 0, 0);
@@ -280,7 +280,7 @@ CPColorBmp.prototype.setToSize = function (bmp) {
 
 /**
  *
- * @param {typeof CPColorBmp} bmp
+ * @param {CPColorBmp} bmp
  */
 CPColorBmp.prototype.copyPixelsFrom = function (bmp) {
   this.setToSize(bmp);
@@ -317,7 +317,7 @@ CPColorBmp.prototype.copyPixelsFromGreyscale = function (bmp) {
 /**
  * Use nearest-neighbor (subsampling) to scale that bitmap to replace the pixels of this one.
  *
- * @param {typeof CPColorBmp} that
+ * @param {CPColorBmp} that
  */
 CPColorBmp.prototype.copyScaledNearestNeighbor = function (that) {
   var destPixIndex = 0,
@@ -351,7 +351,7 @@ CPColorBmp.prototype.copyScaledNearestNeighbor = function (that) {
  * The thumbnail will attempt to exaggerate the contribution of thin opaque strokes on a transparent background, in order
  * to make lineart layers more visible.
  *
- * @param {typeof CPColorBmp} that
+ * @param {CPColorBmp} that
  */
 CPColorBmp.prototype.createThumbnailFrom = function (that) {
   const MAX_SAMPLES_PER_OUTPUT_PIXEL = 3,
@@ -842,7 +842,7 @@ CPColorBmp.prototype.mosaic = function (rect, blockSize) {
  * オフセット値は -64 ～ 64 ピクセルの範囲に制限される。
  * アルファ値が 0（完全透明）のピクセルは処理されない。
  *
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  *        色収差を適用する矩形範囲。
  *        ビットマップ範囲外は自動的にクリップされる。
  *
@@ -910,7 +910,7 @@ CPColorBmp.prototype.chromaticAberration = function (rect, offsetX, offsetY) {
  * ・透明に近いほど白扱い
  * ・最後に白だけ透明化
  *
- * @param {typeof CPRect} rect   対象矩形
+ * @param {CPRect} rect   対象矩形
  * @param {number} dotSize ドット基準サイズ（px）
  * @param {number} [density=1.0] ドット配置間隔の倍率（0.5–2.0）
  *        小さいほど密／大きいほど疎
@@ -1024,7 +1024,7 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
  * ・外側境界 1px のみアンチエイリアス
  * ・最後に元画像を α 合成で戻す
  *
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  * @param {number} edgeWidth px
  * @param {number} color 0xRRGGBB
  * @param {boolean} replaceWithInnerFill true で内側を縁取り色で塗りつぶす
@@ -1137,7 +1137,7 @@ CPColorBmp.prototype.edge = function (
  * 描画領域(Alpha > 0)の色を現在の選択色に置換
  * - Alphaは維持する
  * - Alphaが0の場所は一切触らない
- * @param {typeof CPRect} rect - 処理対象の矩形範囲
+ * @param {CPRect} rect - 処理対象の矩形範囲
  * @param {number} color - 0xRRGGBB
  */
 CPColorBmp.prototype.convertToDrawingColor = function (rect, color) {
@@ -1338,7 +1338,7 @@ CPColorBmp.prototype.clearAll = function (color) {
 
 /**
  *
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  * @param {number} color
  */
 CPColorBmp.prototype.clearRect = function (rect, color) {
@@ -1409,7 +1409,7 @@ CPColorBmp.prototype.copyRegionVFlip = function (rect, source) {
 /**
  * 単色ノイズ
  * 指定された矩形範囲に、指定色のノイズを一定の不透明度で重ねる（通常合成）。
- * @param {typeof CPRect} rect - ノイズを適用する矩形範囲。
+ * @param {CPRect} rect - ノイズを適用する矩形範囲。
  * @param {number} color - ノイズの色 (0xRRGGBB)。
  * @param {number} opacity - ノイズの不透明度 (0.0〜1.0)。デフォルトは 1.0。
  */
@@ -1558,7 +1558,7 @@ CPColorBmp.prototype.gradientHorzReplace = function (
 /**
  * Replace the pixels in the given rect with the given vertical gradient.
  *
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  * @param fromY int
  * @param toY int
  * @param gradientPoints int[]
@@ -1798,7 +1798,7 @@ CPColorBmp.prototype.gradientAlpha = function (
  * Draw a gradient which begins at fromX, fromY and ends at toX, toY, clipped to the given rect, on top of the
  * pixels in the bitmap.
  *
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  * @param {Object[]} gradientPoints Array with gradient colors (ARGB integers)
  * @param {number} fromX
  * @param {number} fromY
@@ -1842,7 +1842,7 @@ CPColorBmp.prototype.gradient = function (
 /**
  * カラーノイズ
  * 指定された矩形範囲に、一定の不透明度でカラーノイズを重ねる（通常合成）。
- * @param {typeof CPRect} rect - ノイズを適用する矩形範囲。
+ * @param {CPRect} rect - ノイズを適用する矩形範囲。
  * @param {number} opacity - ノイズの不透明度 (0.0〜1.0)。デフォルトは 0.65。
  */
 CPColorBmp.prototype.fillWithColorNoise = function (rect, opacity = 0.65) {
@@ -1896,7 +1896,7 @@ CPColorBmp.prototype.fillWithColorNoise = function (rect, opacity = 0.65) {
 };
 
 /**
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  */
 CPColorBmp.prototype.invert = function (rect) {
   rect = this.getBounds().clipTo(rect);
@@ -1976,9 +1976,9 @@ CPColorBmp.prototype.brightnessToOpacity = function (rect, color) {
  * Get a rectangle that encloses any non-transparent pixels in the bitmap within the given initialBounds (or an empty
  * rect if the pixels inside the given bounds are 100% transparent).
  *
- * @param {typeof CPRect} initialBounds - The rect to search within (pass getBounds() to search the whole bitmap)
+ * @param {CPRect} initialBounds - The rect to search within (pass getBounds() to search the whole bitmap)
  *
- * @returns {typeof CPRect}
+ * @returns {CPRect}
  */
 CPColorBmp.prototype.getNonTransparentBounds = function (initialBounds) {
   var pixIndex,
@@ -2184,7 +2184,7 @@ CPColorBmp.prototype.getAsPNGBuffer = function (rotation) {
 /**
  * Returns true if any of the pixels in the given rectangle are not opaque.
  *
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  * @returns {boolean}
  */
 CPColorBmp.prototype.hasAlphaInRect = function (rect) {
@@ -2243,7 +2243,7 @@ CPColorBmp.createFromImage = function (image) {
 /**
  * Are all the pixels in this image identical to those of that?
  *
- * @param {typeof CPColorBmp} that
+ * @param {CPColorBmp} that
  */
 CPColorBmp.prototype.equals = function (that) {
   if (this.width != that.width || this.height != that.height) {

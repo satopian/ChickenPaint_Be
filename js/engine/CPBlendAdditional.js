@@ -62,13 +62,13 @@ CPBlend.blendFunctionNameForParameters = function (
 /**
  * Blends the given image on top of the fusion.
  *
- * @param {typeof CPColorBmp} fusion - Image to fuse on top of
+ * @param {CPColorBmp} fusion - Image to fuse on top of
  * @param {boolean} fusionHasTransparency - True if the fusion layer has alpha < 100, or any transparent pixels.
- * @param {typeof CPColorBmp} image - Image that should be drawn on top of the fusion
+ * @param {CPColorBmp} image - Image that should be drawn on top of the fusion
  * @param {number} imageAlpha - Alpha [0...100] to apply to the image
  * @param {number} imageBlendMode - Blending mode (CPBlend.LM_*) to apply to the image
- * @param {typeof CPRect} rect - The rectangle of pixels that should be fused.
- * @param {?typeof CPGreyBmp} mask - An optional mask to apply to the image
+ * @param {CPRect} rect - The rectangle of pixels that should be fused.
+ * @param {?CPGreyBmp} mask - An optional mask to apply to the image
  */
 CPBlend.fuseImageOntoImage = function (
   fusion,
@@ -120,7 +120,7 @@ CPBlend.normalFuseImageOntoImageAtPosition = function (
 /**
  * Multiplies the given alpha into the alpha of the individual pixels of the image.
  *
- * @param {typeof CPColorBmp} image
+ * @param {CPColorBmp} image
  * @param {number} alpha - [0...100] alpha to apply
  */
 CPBlend.multiplyAlphaBy = function (image, alpha) {
@@ -144,7 +144,7 @@ CPBlend.multiplyAlphaBy = function (image, alpha) {
 /**
  * Multiplies the values from the mask, and the given overall alpha, into the alpha channel of the image.
  *
- * @param {typeof CPColorBmp} image
+ * @param {CPColorBmp} image
  * @param {number} alpha
  * @param {CPGreyBmp} mask
  */
@@ -166,10 +166,10 @@ CPBlend.multiplyAlphaByMask = function (image, alpha, mask) {
  * Multiplies the given alpha into the alpha of the individual pixels of the image and stores the
  * resulting pixels into the specified image.
  *
- * @param {typeof CPColorBmp} dest
- * @param {typeof CPColorBmp} image
+ * @param {CPColorBmp} dest
+ * @param {CPColorBmp} image
  * @param {number} alpha - [0...100] alpha to apply
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  */
 CPBlend.copyAndMultiplyAlphaBy = function (dest, image, alpha, rect) {
   if (alpha == 100) {

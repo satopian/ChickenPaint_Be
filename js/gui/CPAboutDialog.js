@@ -21,7 +21,7 @@
 */
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 /**
- * @this{typeof CPAboutDialog & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPAboutDialog(parent) {

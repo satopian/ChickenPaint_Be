@@ -512,7 +512,7 @@ const MENU_ENTRIES = [
 ];
 
 /**
- * @this{typeof CPMainMenu & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPMainMenu(controller, mainGUI) {

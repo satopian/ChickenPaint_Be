@@ -42,7 +42,7 @@ function fileAPIsSupported() {
 }
 
 /**
- * @this{CPSwatchesPalette & Record<string, any>}
+ * @this{any}
  */
 
 export default function CPSwatchesPalette(controller) {

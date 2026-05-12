@@ -29,7 +29,7 @@ const Alt = macPlatform ? "⌥" : "Alt";
 const ctrlForZoom = macPlatform ? "⌃" : "Ctrl";
 
 /**
- * @this{typeof CPShortcutsDialog  & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPShortcutsDialog(parent) {

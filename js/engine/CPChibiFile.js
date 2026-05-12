@@ -62,7 +62,7 @@ const OUR_MAJOR_VERSION = 0,
 
 /**
  * @constructor
- * @this {typeof CPChibiFileHeader & Record<string, any>}
+ * @this {any}
  */
 function CPChibiFileHeader(stream) {
   this.version = stream.readU32BE();
@@ -112,7 +112,7 @@ const LAYER_FLAG_VISIBLE = 1,
 
 class ChibiLayerDecoder {
   /**
-   * @param {typeof ChibiChunkHeader} chunkHeader - The header for the layer chunk to decode
+   * @param {ChibiChunkHeader} chunkHeader - The header for the layer chunk to decode
    * @param {number} width - The width of the document
    * @param {number} height - The height of the document
    */
@@ -307,7 +307,7 @@ class ChibiImageLayerDecoder extends ChibiLayerDecoder {
   /**
    * Create a layer using the properties previously read into this decoder.
    *
-   * @returns {typeof CPImageLayer}
+   * @returns {CPImageLayer}
    */
   createLayer() {
     let layer = new CPImageLayer(this.width, this.height, this.name);
@@ -346,7 +346,7 @@ class ChibiLayerGroupDecoder extends ChibiLayerDecoder {
   /**
    * Create a group using the properties previously read into this decoder.
    *
-   * @returns {typeof CPLayerGroup}
+   * @returns {CPLayerGroup}
    */
   createLayer() {
     let group = new CPLayerGroup(this.name, this.blendMode);
@@ -366,8 +366,8 @@ class ChibiLayerGroupDecoder extends ChibiLayerDecoder {
 /**
  * Write the RGBA pixels of the given bitmap to the stream in ARGB order to match the Chibi specs.
  *
- * @param {typeof ArrayDataStream} stream
- * @param {typeof CPColorBmp} bitmap
+ * @param {ArrayDataStream} stream
+ * @param {CPColorBmp} bitmap
  */
 function writeColorBitmapToStream(stream, bitmap) {
   const src = bitmap.data;
@@ -393,8 +393,8 @@ function writeColorBitmapToStream(stream, bitmap) {
 /**
  * Write the 8-bit greyscale pixels of the given bitmap to the stream.
  *
- * @param {typeof ArrayDataStream} stream
- * @param {typeof CPGreyBmp} bitmap
+ * @param {ArrayDataStream} stream
+ * @param {CPGreyBmp} bitmap
  */
 function writeMaskToStream(stream, bitmap) {
   stream.data.set(bitmap.data, stream.pos);
@@ -403,7 +403,7 @@ function writeMaskToStream(stream, bitmap) {
 
 class CPColorPixelsDecoder {
   /**
-   * @param {typeof CPColorBmp} destImage - Image to decode into.
+   * @param {CPColorBmp} destImage - Image to decode into.
    */
   constructor(destImage) {
     this.bytesRead = 0;
@@ -496,7 +496,7 @@ class CPColorPixelsDecoder {
 class CPMaskDecoder {
   /**
    *
-   * @param {typeof CPGreyBmp} mask - The destination to decode pixels into, must already be the correct size.
+   * @param {CPGreyBmp} mask - The destination to decode pixels into, must already be the correct size.
    */
   constructor(mask) {
     this.bytesRead = 0;
@@ -572,7 +572,7 @@ function chibiVersionToString(version) {
  * Decides which Chibi file version will be required to support the features used by the given artwork, and returns
  * the corresponding version number header.
  *
- * @param {typeof CPArtwork} artwork
+ * @param {CPArtwork} artwork
  * @returns {number}
  */
 function minimumVersionForArtwork(artwork) {
@@ -606,7 +606,7 @@ function writeChunkHeader(stream, tag, chunkSize) {
  *
  * @param {string} chunkTag
  * @param {number} chunkBodySize
- * @returns {typeof ArrayDataStream}
+ * @returns {ArrayDataStream}
  */
 function allocateChunkStream(chunkTag, chunkBodySize) {
   let buffer = new Uint8Array(ChibiChunkHeader.HEADER_LENGTH + chunkBodySize),
@@ -618,7 +618,7 @@ function allocateChunkStream(chunkTag, chunkBodySize) {
 }
 
 /**
- * @param {typeof CPArtwork} artwork
+ * @param {CPArtwork} artwork
  * @param {number} version
  * @param {number} numLayers
  *
@@ -648,7 +648,7 @@ function serializeEndChunk() {
 /**
  * Serialize an layer's header and image data into a byte array buffer, and return it.
  *
- * @param {typeof CPImageLayer|typeof CPLayerGroup} layer
+ * @param {CPImageLayer|CPLayerGroup} layer
  */
 function serializeLayerChunk(layer) {
   const utf8LayerName = new TextEncoder().encode(layer.name);
@@ -762,7 +762,7 @@ const yieldToMain = () => {
 /**
  * Serialize the given artwork to Chibifile format.
  *
- * @param {typeof CPArtwork} artwork
+ * @param {CPArtwork} artwork
  * @param {?Object} options
  * @param {boolean} options.forceOldVersion - Mark this as a version 0.0 (ChibiPaint) drawing even if it uses new features
  *
@@ -877,13 +877,13 @@ export function load(source, options = {}) {
     /**
      * Destination artwork
      *
-     * @type {typeof CPArtwork}
+     * @type {CPArtwork}
      */
     artwork = null,
     /**
      * Group we're currently loading layers into
      *
-     * @type {typeof CPLayerGroup}
+     * @type {CPLayerGroup}
      */
     destGroup = null,
     /**
@@ -901,12 +901,12 @@ export function load(source, options = {}) {
     /**
      * The overall file descriptor
      *
-     * @type {typeof CPChibiFileHeader}
+     * @type {CPChibiFileHeader}
      */
     fileHeader = null,
     /**
      *
-     * @type {typeof ChibiChunkHeader}
+     * @type {ChibiChunkHeader}
      */
     curChunkHeader = null,
     /**

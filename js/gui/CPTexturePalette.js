@@ -111,7 +111,7 @@ function loadTextures(textureFilename, width, height, textureCount, then) {
 }
 
 /**
- * @this{CPTexturePalette  & Record<string, any>}
+ * @this{any}
  */
 
 export default function CPTexturePalette(controller) {
@@ -120,11 +120,11 @@ export default function CPTexturePalette(controller) {
   let TEXTURE_PREVIEW_SIZE = 64,
     TEXTURE_SWATCH_BUTTON_SIZE = 32,
     /**
-     * @type {typeof CPGreyBmp}
+     * @type {CPGreyBmp}
      */
     selectedTexture,
     /**
-     * @type {typeof CPGreyBmp}
+     * @type {CPGreyBmp}
      */
     processedTexture,
     mirror = false,
@@ -136,9 +136,6 @@ export default function CPTexturePalette(controller) {
     texturesPanel = document.createElement("div"),
     body = this.getBodyElement();
 
-  /**
-   * Add an array of textures to the global texture list, and add swatches for them to the UI.
-   */
   function addTextures(newTextures) {
     for (let i = 0; i < newTextures.length; i++) {
       let texture = newTextures[i],
@@ -147,9 +144,8 @@ export default function CPTexturePalette(controller) {
           TEXTURE_SWATCH_BUTTON_SIZE,
           TEXTURE_SWATCH_BUTTON_SIZE,
         );
-
       button.on("click", function () {
-        selectedTexture = this.texture;
+        selectedTexture = button.texture;
         updateSelectedTexture();
       });
 
@@ -270,10 +266,8 @@ export default function CPTexturePalette(controller) {
    * Make a texture consisting of random noise with adjusted brightness and contrast
    *
    * @param {number} size - The width and height of the square texture (e.g., 32 for a 32x32 texture)
-   * @param {number} brightnessFactor - A multiplier for brightness (0.0 to 1.0)
-   * @param {number} contrastFactor - A multiplier for contrast (0.0 to 1.0)
    *
-   * @returns {typeof CPGreyBmp} - A grayscale bitmap filled with random noise and adjusted brightness/contrast
+   * @returns {CPGreyBmp} - A grayscale bitmap filled with random noise and adjusted brightness/contrast
    */
   function makeNoiseTexture(size) {
     const brightnessFactor = 0.65;
@@ -518,18 +512,20 @@ export default function CPTexturePalette(controller) {
 
   /**
    *
-   * @param {typeof CPGreyBmp} texture
+   * @param {CPGreyBmp} texture
    * @param {number} width
    * @param {number} height
    * @constructor
+   * @this {any}
    */
   function CPTextureSwatch(texture, width, height) {
     let canvas = document.createElement("canvas"),
       canvasContext = canvas.getContext("2d"),
       that = this;
+    this.texture = null;
 
     /**
-     * @param {typeof CPGreyBmp} texture
+     * @param {CPGreyBmp} texture
      */
     this.setTexture = function (texture) {
       this.texture = texture;

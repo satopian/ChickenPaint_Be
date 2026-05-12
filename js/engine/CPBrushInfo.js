@@ -51,7 +51,7 @@
  */
 
 /**
- * @this{typeof CPBrushInfo & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPBrushInfo(properties) {

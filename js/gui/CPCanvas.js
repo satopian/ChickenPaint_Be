@@ -182,7 +182,7 @@ CPModeStack.prototype.pop = function () {
   return newTop;
 };
 /**
- * @this{typeof CPCanvas & Record<string, any>}
+ * @this{any}
  */
 
 export default function CPCanvas(controller) {

@@ -30,7 +30,7 @@ import CPRect from "../util/CPRect.js";
  */
 
 /**
- * @this{typeof CPBitmap & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPBitmap(width, height) {

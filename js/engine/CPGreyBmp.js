@@ -34,7 +34,7 @@ import { getRotatedCanvas } from "./CPColorBmp.js";
  *
  * @constructor
  * @extends CPBitmap
- * @this{typeof CPGreyBmp & Record<string, any>}
+ * @this{any}
  */
 export default function CPGreyBmp(width, height, bitDepth) {
   CPBitmap.call(this, width, height);
@@ -61,6 +61,9 @@ CPGreyBmp.prototype.createBitmap = function (width, height, bitDepth) {
   }
 };
 
+/**
+ * @this {any}
+ */
 CPGreyBmp.prototype.clone = function () {
   var result = new CPGreyBmp(this.width, this.height, this.bitDepth);
 
@@ -72,8 +75,8 @@ CPGreyBmp.prototype.clone = function () {
 /**
  * Creates a CPGreyBmp from a portion of this bitmap
  *
- * @param {typeof CPRect} rect
- * @returns {typeof CPGreyBmp}
+ * @param {CPRect} rect
+ * @returns {CPGreyBmp}
  */
 CPGreyBmp.prototype.cloneRect = function (rect) {
   var result = new CPGreyBmp(rect.getWidth(), rect.getHeight(), this.bitDepth);
@@ -119,7 +122,7 @@ CPGreyBmp.prototype.clearAll = function (value) {
 /**
  * Fill the given rectangle with the given value
  *
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  * @param {number} value
  */
 CPGreyBmp.prototype.clearRect = function (rect, value) {
@@ -141,7 +144,7 @@ CPGreyBmp.prototype.clearRect = function (rect, value) {
 /**
  * Use nearest-neighbor (subsampling) to scale that bitmap to replace the pixels of this one.
  *
- * @param {typeof CPGreyBmp} that
+ * @param {CPGreyBmp} that
  */
 CPGreyBmp.prototype.copyScaledNearestNeighbor = function (that) {
   var destPixIndex = 0,
@@ -245,7 +248,7 @@ CPGreyBmp.prototype.floodFillWithBorder = function (
 /**
  * Replace the pixels in this image with a scaled down thumbnail of that image.
  *
- * @param {typeof CPGreyBmp} that
+ * @param {CPGreyBmp} that
  */
 CPGreyBmp.prototype.createThumbnailFrom = function (that) {
   const MAX_SAMPLES_PER_OUTPUT_PIXEL = 3,
@@ -412,7 +415,7 @@ CPGreyBmp.prototype.pasteImageData = function (imageData, x, y) {
 /**
  * Copy pixels from that bitmap.
  *
- * @param {typeof CPGreyBmp} bmp
+ * @param {CPGreyBmp} bmp
  */
 CPGreyBmp.prototype.copyPixelsFrom = function (bmp) {
   if (
@@ -433,8 +436,8 @@ CPGreyBmp.prototype.copyPixelsFrom = function (bmp) {
 /**
  * Get a pixel array of the xor of this bitmap and the given one, within the given rectangle
  *
- * @param {typeof CPGreyBmp} bmp
- * @param {typeof CPRect} rect
+ * @param {CPGreyBmp} bmp
+ * @param {CPRect} rect
  *
  * @returns {Uint8Array}
  */
@@ -483,10 +486,10 @@ CPGreyBmp.prototype.setRectXOR = function (buffer, rect) {
 /**
  * Copy the rectangle at srcRect from bmp onto this image at (dstX, dstY).
  *
- * @param {typeof CPGreyBmp} bmp
+ * @param {CPGreyBmp} bmp
  * @param {number} dstX
  * @param {number} dstY
- * @param {typeof CPRect} srcRect
+ * @param {CPRect} srcRect
  */
 CPGreyBmp.prototype.copyBitmapRect = function (bmp, dstX, dstY, srcRect) {
   var dstRect = new CPRect(dstX, dstY, 0, 0);
@@ -823,7 +826,7 @@ CPGreyBmp.prototype.monoHalftone = function (
 };
 
 /**
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  */
 CPGreyBmp.prototype.fillWithNoise = function (rect) {
   rect = this.getBounds().clipTo(rect);
@@ -839,7 +842,7 @@ CPGreyBmp.prototype.fillWithNoise = function (rect) {
 };
 
 /**
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  */
 CPGreyBmp.prototype.invert = function (rect) {
   rect = this.getBounds().clipTo(rect);
@@ -860,10 +863,10 @@ CPGreyBmp.prototype.invert = function (rect) {
  *
  * This can be used to find a rectangle which encloses the non-white pixels of a mask.
  *
- * @param {typeof CPRect} initialBounds - The rect to search within (pass getBounds() to search the whole bitmap)
+ * @param {CPRect} initialBounds - The rect to search within (pass getBounds() to search the whole bitmap)
  * @param {number} value
  *
- * @returns {typeof CPRect}
+ * @returns {CPRect}
  */
 CPGreyBmp.prototype.getValueBounds = function (initialBounds, value) {
   var pixIndex,
@@ -1025,7 +1028,7 @@ CPGreyBmp.prototype.gradientHorzReplace = function (
 /**
  * Replace the pixels in the given rect with the given vertical gradient.
  *
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  * @param fromY int
  * @param toY int
  * @param gradientPoints int[]
@@ -1195,7 +1198,7 @@ CPGreyBmp.prototype.gradientAlpha = function (
  * Draw a gradient which begins at fromX, fromY and ends at toX, toY, clipped to the given rect, on top of the
  * pixels in the bitmap.
  *
- * @param {typeof CPRect} rect
+ * @param {CPRect} rect
  * @param {Object[]} gradientPoints Array with gradient colors (ARGB integers)
  * @param {number} fromX
  * @param {number} fromY

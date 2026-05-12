@@ -23,7 +23,7 @@
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 /**
- * @this{typeof CPTabletDialog  & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPTabletDialog(parent) {

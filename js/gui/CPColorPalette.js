@@ -27,7 +27,7 @@ import CPColor from "../util/CPColor.js";
 import { _ } from "../languages/lang.js";
 
 /**
- * @this{typeof CPColorPalette & Record<string, any>}
+ * @this{any}
  */
 
 export default function CPColorPalette(cpController) {

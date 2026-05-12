@@ -100,7 +100,7 @@ function memoryUsedByCanvas(canvas) {
  */
 
 /**
- * @this{typeof CPArtwork & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPArtwork(_width, _height) {
@@ -207,7 +207,7 @@ export default function CPArtwork(_width, _height) {
     rnd = new CPRandom(),
     previewOperation = null,
     /**
-     * @type {?typeof CPClip}
+     * @type {?CPClip}
      */
     clipboard = null,
     /**
@@ -219,7 +219,7 @@ export default function CPArtwork(_width, _height) {
      */
     redoList = [],
     /**
-     * @type {?typeof CPBrushInfo}
+     * @type {?CPBrushInfo}
      */
     curBrush = null,
     lastX = 0.0,
@@ -291,7 +291,7 @@ export default function CPArtwork(_width, _height) {
   /**
    * Gets the current selection rect or a rectangle covering the whole canvas if there are no selections
    *
-   * @returns {typeof CPRect}
+   * @returns {CPRect}
    */
   this.getSelectionAutoSelect = function () {
     if (!curSelection.isEmpty()) {
@@ -325,7 +325,7 @@ export default function CPArtwork(_width, _height) {
   /**
    * Notify listeners that the properties of the given layer has changed (opacity, blendMode, etc).
    *
-   * @param {typeof CPLayer} layer
+   * @param {CPLayer} layer
    * @param {string} propertyName
    * @param {boolean} noVisibleEffect - If true, notify listeners that the layer has changed but don't redraw anything.
    *                                    This is useful for properties like "expanded" and "name" which don't change the
@@ -366,8 +366,8 @@ export default function CPArtwork(_width, _height) {
    * Mark the given rectangle on the layer as needing to be re-fused (i.e. we've drawn in this region).
    * Listeners are notified about our updated canvas region.
    *
-   * @param {(typeof CPLayer|typeof CPLayer[])} layers - Layer or layers to invalidate
-   * @param {typeof CPRect} rect - Rect to invalidate. Must have all integer co-ordinates, and the rectangle must be contained
+   * @param {(CPLayer|CPLayer[])} layers - Layer or layers to invalidate
+   * @param {CPRect} rect - Rect to invalidate. Must have all integer co-ordinates, and the rectangle must be contained
    * within the artwork bounds.
    * @param {boolean} invalidateImage - True if drawing happened on the layer's image data
    * @param {boolean} invalidateMask - True if drawing happened on the layer's mask
@@ -432,8 +432,8 @@ export default function CPArtwork(_width, _height) {
    * flag. This is what you want for a typical painting operation (since it'll typically modify only the image the
    * user selected).
    *
-   * @param {typeof CPLayer} layer
-   * @param {typeof CPRect} rect
+   * @param {CPLayer} layer
+   * @param {CPRect} rect
    */
   function invalidateLayerPaint(layer, rect) {
     invalidateLayer(layer, rect, !maskEditingMode, maskEditingMode);
@@ -443,7 +443,7 @@ export default function CPArtwork(_width, _height) {
    * Gets the image that the user has selected for drawing onto (a member of the currently active layer).
    * Can be null if selecting a group's "image".
    *
-   * @returns {?typeof CPColorBmp|typeof CPGreyBmp}
+   * @returns {?CPColorBmp|CPGreyBmp}
    */
   function getActiveImage() {
     return maskEditingMode ? curLayer.mask : curLayer.image;
@@ -497,7 +497,7 @@ export default function CPArtwork(_width, _height) {
    * Add a layer of the specified type (layer, group) on top of the current layer.
    *
    * @param {string} layerType
-   * @returns {typeof CPLayer}
+   * @returns {CPLayer}
    */
   this.addLayer = function (layerType) {
     let parentGroup, newLayerIndex, newLayer;
@@ -542,7 +542,7 @@ export default function CPArtwork(_width, _height) {
   /**
    * Effectively an internal method to be called by CPChibiFile to populate the layer stack.
    *
-   * @param {typeof CPLayerGroup} parent
+   * @param {CPLayerGroup} parent
    * @param {(CPImageLayer|CPLayerGroup)} layer
    */
   this.addLayerObject = function (parent, layer) {
@@ -560,8 +560,8 @@ export default function CPArtwork(_width, _height) {
    * Internal method for CPChibiFile to call to wrap a group around the given number of children on
    * the top of the layer stack.
    *
-   * @param {typeof CPLayerGroup} parent
-   * @param {typeof CPLayerGroup} group
+   * @param {CPLayerGroup} parent
+   * @param {CPLayerGroup} group
    * @param {number} numChildren - Number of layers from the parent group to wrap
    */
   this.addLayerGroupObject = function (parent, group, numChildren) {
@@ -655,7 +655,7 @@ export default function CPArtwork(_width, _height) {
    * Move a layer in the stack from one index to another.
    *
    * @param {(CPImageLayer|CPLayerGroup)} layer
-   * @param {typeof CPLayerGroup} toGroup
+   * @param {CPLayerGroup} toGroup
    * @param {number} toIndex
    */
   this.relocateLayer = function (layer, toGroup, toIndex) {
@@ -666,7 +666,7 @@ export default function CPArtwork(_width, _height) {
 
   /**
    *
-   * @param {typeof CPLayer} layer
+   * @param {CPLayer} layer
    * @param {boolean} visible
    */
   this.setLayerVisibility = function (layer, visible) {
@@ -688,7 +688,7 @@ export default function CPArtwork(_width, _height) {
   /**
    * Expand or collapse the given layer group.
    *
-   * @param {typeof CPLayerGroup} group
+   * @param {CPLayerGroup} group
    * @param {boolean} expand - True to expand, false to collapse
    */
   this.expandLayerGroup = function (group, expand) {
@@ -718,7 +718,7 @@ export default function CPArtwork(_width, _height) {
 
   /**
    *
-   * @param {typeof CPLayer} layer
+   * @param {CPLayer} layer
    * @param {boolean} visible
    */
   this.setLayerMaskVisible = function (layer, visible) {
@@ -737,7 +737,7 @@ export default function CPArtwork(_width, _height) {
   };
 
   /**
-   * @param {typeof CPLayer} layer
+   * @param {CPLayer} layer
    * @param {string} name
    */
   this.setLayerName = function (layer, name) {
@@ -862,8 +862,8 @@ export default function CPArtwork(_width, _height) {
    * Restore the alpha channel of the given image from the undoImage (i.e. restore it to what it was before the
    * current drawing operation started).
    *
-   * @param {typeof CPColorBmp} image
-   * @param {typeof CPRect} rect
+   * @param {CPColorBmp} image
+   * @param {CPRect} rect
    */
   function restoreImageAlpha(image, rect) {
     image.copyAlphaFrom(undoImage, rect);
@@ -959,7 +959,7 @@ export default function CPArtwork(_width, _height) {
    *
    * The image is cached, so repeat calls are cheap.
    *
-   * @returns {typeof CPColorBmp}
+   * @returns {CPColorBmp}
    */
   this.fusionLayers = function () {
     prepareForFusion();
@@ -1201,7 +1201,7 @@ export default function CPArtwork(_width, _height) {
   /**
    * Get the currently active layer (the layer that drawing operations will be applied to))
    *
-   * @returns {typeof CPLayer}
+   * @returns {CPLayer}
    */
   this.getActiveLayer = function () {
     return curLayer;
@@ -1514,9 +1514,9 @@ export default function CPArtwork(_width, _height) {
   /**
    * Fill a rectangle with a texture and a base color
    *
-   * @param {typeof CPColorBmp} target - 描画対象のレイヤー
-   * @param {typeof CPRect} rect - 塗りつぶす範囲
-   * @param {typeof CPGreyBmp} texture - 8bit grayscale texture
+   * @param {CPColorBmp} target - 描画対象のレイヤー
+   * @param {CPRect} rect - 塗りつぶす範囲
+   * @param {CPGreyBmp} texture - 8bit grayscale texture
    * @param {number} color - ARGB color
    */
   function drawTextureRect(target, rect, texture, color) {
@@ -2343,7 +2343,7 @@ export default function CPArtwork(_width, _height) {
   /**
    * Upon creation, adds a layer mask to the given layer.
    *
-   * @param {typeof CPLayer} layer
+   * @param {CPLayer} layer
    *
    * @constructor
    */
@@ -2386,7 +2386,7 @@ export default function CPArtwork(_width, _height) {
   /**
    * Upon creation, removes, or applies and removes, the layer mask on the given layer.
    *
-   * @param {typeof CPLayer} layer
+   * @param {CPLayer} layer
    * @param {boolean} apply
    *
    * @constructor
@@ -2445,9 +2445,9 @@ export default function CPArtwork(_width, _height) {
   /**
    * Upon creation, adds a layer at the given index in the given layer group.
    *
-   * @param {typeof CPLayerGroup} parentGroup
+   * @param {CPLayerGroup} parentGroup
    * @param {number} newLayerIndex
-   * @param {typeof CPLayer} newLayer
+   * @param {CPLayer} newLayer
    *
    * @constructor
    */
@@ -2504,7 +2504,7 @@ export default function CPArtwork(_width, _height) {
   /**
    * Make a copy of the currently selected layer and add the new layer on top of the current layer.
    *
-   * @param {typeof CPLayer} sourceLayer
+   * @param {CPLayer} sourceLayer
    * @constructor
    */
   function CPActionDuplicateLayer(sourceLayer) {
@@ -2545,7 +2545,7 @@ export default function CPArtwork(_width, _height) {
   CPActionDuplicateLayer.prototype.constructor = CPActionDuplicateLayer;
 
   /**
-   * @param {typeof CPLayer} layer
+   * @param {CPLayer} layer
    */
   function CPActionRemoveLayer(layer) {
     let oldGroup = layer.parent,
@@ -2612,7 +2612,7 @@ export default function CPArtwork(_width, _height) {
   /**
    * Merge the given group together to form an image layer.
    *
-   * @param {typeof CPLayerGroup} layerGroup
+   * @param {CPLayerGroup} layerGroup
    * @constructor
    */
   function CPActionMergeGroup(layerGroup) {
@@ -2862,8 +2862,8 @@ export default function CPArtwork(_width, _height) {
   /**
    * Move the layer to the given position in the layer tree.
    *
-   * @param {typeof CPLayer} layer
-   * @param {typeof CPLayerGroup} toGroup - The group that the layer will be a child of after moving
+   * @param {CPLayer} layer
+   * @param {CPLayerGroup} toGroup - The group that the layer will be a child of after moving
    * @param {number} toIndex - The index of the layer inside the destination group that the layer will be below after the
    *                        move.
    * @constructor
@@ -3069,8 +3069,8 @@ export default function CPArtwork(_width, _height) {
     );
 
   /**
-   * @param {typeof CPRect} from
-   * @param {typeof CPRect} to
+   * @param {CPRect} from
+   * @param {CPRect} to
    *
    * @constructor
    */
@@ -3104,12 +3104,12 @@ export default function CPArtwork(_width, _height) {
       /**
        * The layer we're moving (which might be an image layer or a whole group of layers).
        *
-       * @type {typeof CPLayer}
+       * @type {CPLayer}
        */
       this.layer = curLayer;
 
       /**
-       * @type {typeof CPRect}
+       * @type {CPRect}
        */
       this.fromSelection = that.getSelection();
       this.fromMaskMode = maskEditingMode;
@@ -3132,14 +3132,14 @@ export default function CPArtwork(_width, _height) {
       /**
        * The rectangle we transformed onto in a previous iteration.
        *
-       * @type {typeof CPRect}
+       * @type {CPRect}
        */
       this.dstRect = new CPRect(0, 0, 0, 0);
 
       /**
        * @typedef {Object} LayerMoveInfo
        *
-       * @property {typeof CPLayer} layer
+       * @property {CPLayer} layer
        * @property {boolean} moveImage
        * @property {boolean} moveMask
        *
@@ -3191,7 +3191,7 @@ export default function CPArtwork(_width, _height) {
 
       if (this.movingWholeLayer) {
         /**
-         * @type {typeof CPRect}
+         * @type {CPRect}
          */
         this.srcRect = that.getBounds();
 
@@ -3834,7 +3834,7 @@ export default function CPArtwork(_width, _height) {
     /**
      * Get a copy of the initial document rectangle (before the transform was applied)
      *
-     * @returns {typeof CPRect}
+     * @returns {CPRect}
      */
     getInitialTransformRect() {
       return this.srcRect.clone();
@@ -3844,7 +3844,7 @@ export default function CPArtwork(_width, _height) {
      * Get a copy of the initial user selection rectangle (before the transform was applied). Can be empty if
      * the user didn't have anything selected before the transform began.
      *
-     * @returns {typeof CPRect}
+     * @returns {CPRect}
      */
     getInitialSelectionRect() {
       return this.fromSelection.clone();
@@ -4004,7 +4004,7 @@ export default function CPArtwork(_width, _height) {
    *
    * @param {CPImageLayer} layer - Layer to cut from
    * @param {boolean} cutFromMask - True to cut from the mask of the layer, false to cut from the image
-   * @param {typeof CPRect} selection - The cut rectangle co-ordinates
+   * @param {CPRect} selection - The cut rectangle co-ordinates
    */
   function CPActionCut(layer, cutFromMask, selection) {
     const fromImage = cutFromMask ? layer.mask : layer.image,

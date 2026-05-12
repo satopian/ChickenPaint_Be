@@ -276,7 +276,7 @@ function createDrawingTools() {
  * @property {string} [loadImageUrl]     - URL of PNG/JPEG image to load for editing (optional)
  * @property {string} [loadChibiFileUrl] - URL of .chi file to load for editing (optional). Used in preference to loadImage.
  * @property {string} [loadSwatchesUrl]  - URL of an .aco palette to load (optional)
- * @typedef {CPArtwork & { [key: string]: any }} FlexibleArtwork 
+ * @typedef {CPArtwork & { [key: string]: any }} FlexibleArtwork
  * @property {boolean} [allowMultipleSends] - Allow the drawing to be sent to the server multiple times (saving does not
  *                                          immediately end drawing session).
  * @property {boolean} [allowDownload]      - Allow the drawing to be saved to the user's computer

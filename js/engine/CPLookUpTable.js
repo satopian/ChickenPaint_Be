@@ -21,7 +21,7 @@
 */
 
 /**
- * @this{typeof CPLookUpTable & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPLookUpTable() {

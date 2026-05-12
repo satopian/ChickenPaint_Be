@@ -116,7 +116,7 @@ export function throttle(delay, no_trailing, callback, debounce_mode) {
   // functionality and when executed will limit the rate at which `callback`
   // is executed.
   /**
-   * @this{typeof wrapper & Record<string, any>}
+   * @this {any}
    *
    */
   function wrapper() {

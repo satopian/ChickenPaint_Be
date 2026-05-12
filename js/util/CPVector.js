@@ -38,7 +38,7 @@ CPVector.prototype.getLength = function () {
 
 /**
  *
- * @returns {typeof CPVector} This vector for chaining
+ * @returns {CPVector} This vector for chaining
  */
 CPVector.prototype.normalize = function () {
   var length = this.getLength();
@@ -51,7 +51,7 @@ CPVector.prototype.normalize = function () {
 
 /**
  *
- * @param {typeof CPVector} that
+ * @param {CPVector} that
  */
 CPVector.prototype.getDotProduct = function (that) {
   return this.x * that.x + this.y * that.y;
@@ -59,8 +59,8 @@ CPVector.prototype.getDotProduct = function (that) {
 
 /**
  *
- * @param {numeric} scaleFactor
- * @returns {typeof CPVector} This vector for chaining
+ * @param {Number} scaleFactor
+ * @returns {CPVector} This vector for chaining
  */
 CPVector.prototype.scale = function (scaleFactor) {
   this.x *= scaleFactor;
@@ -92,8 +92,8 @@ CPVector.prototype.getPerpendicular = function () {
 /**
  * Add that vector to this one
  *
- * @param {typeof CPVector} that
- * @returns {typeof CPVector} This vector for chaining
+ * @param {CPVector} that
+ * @returns {CPVector} This vector for chaining
  */
 CPVector.prototype.add = function (that) {
   this.x += that.x;
@@ -105,8 +105,8 @@ CPVector.prototype.add = function (that) {
 /**
  * Subtract that vector from this one
  *
- * @param {typeof CPVector} that
- * @returns {typeof CPVector} This vector for chaining
+ * @param {CPVector} that
+ * @returns {CPVector} This vector for chaining
  */
 CPVector.prototype.subtract = function (that) {
   this.x -= that.x;
@@ -118,8 +118,8 @@ CPVector.prototype.subtract = function (that) {
 /**
  * Get the sum of this vector and that one.
  *
- * @param {typeof CPVector} that
- * @returns {typeof CPVector}
+ * @param {CPVector} that
+ * @returns {CPVector}
  */
 CPVector.prototype.getSum = function (that) {
   return new CPVector(this.x + that.x, this.y + that.y);
@@ -131,7 +131,7 @@ CPVector.prototype.getSum = function (that) {
  * @param p1
  * @param p2
  *
- * @returns {typeof CPVector}
+ * @returns {CPVector}
  */
 CPVector.subtractPoints = function (p1, p2) {
   return new CPVector(p1.x - p2.x, p1.y - p2.y);

@@ -33,7 +33,7 @@ import CPSwatchesPalette from "./CPSwatchesPalette.js";
 import { _ } from "../languages/lang.js";
 
 /**
- * @this{typeof CPPaletteManager & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPPaletteManager(cpController) {

@@ -24,7 +24,7 @@ import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
 /**
- * @this{typeof CPEdge & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPEdge(parent, controller) {

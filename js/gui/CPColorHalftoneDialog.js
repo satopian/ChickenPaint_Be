@@ -24,7 +24,7 @@ import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
 /**
- * @this{typeof CPchromaticAberration & Record<string, any>}
+ * @this{any}
  */
 
 export default function CPchromaticAberration(parent, controller) {

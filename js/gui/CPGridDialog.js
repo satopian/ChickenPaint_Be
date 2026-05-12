@@ -24,7 +24,7 @@ import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
 /**
- * @this{typeof CPGridDialog & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPGridDialog(parent, canvas) {
@@ -93,26 +93,29 @@ export default function CPGridDialog(parent, canvas) {
 
   // 「OK」ボタンのクリックイベント
   applyButton?.addEventListener("click", () => {
-    if (!gridSizeElem) {
-      return;
+    if (gridSizeElem instanceof HTMLInputElement) {
+      const gridSize = parseInt(gridSizeElem.value, 10);
+      canvas.setGridSize(gridSize);
+      canvas.setModalShown(false);
+      modal.hide(); // モーダルを手動で閉じる
     }
-    const gridSize = parseInt(gridSizeElem.value, 10);
-    canvas.setGridSize(gridSize);
-    canvas.setModalShown(false);
-    modal.hide(); // モーダルを手動で閉じる
   });
 
   // モーダルが表示されたときに、グリッドサイズの入力フィールドにフォーカス
   dialog.addEventListener("shown.bs.modal", () => {
     canvas.setModalShown(true);
-    gridSizeElem?.focus();
+    if (gridSizeElem instanceof HTMLElement) {
+      gridSizeElem.focus();
+    }
   });
 
   // Enterキーが押されたときの処理
   dialog.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault(); // フォーム送信を防ぐ
-      applyButton?.click(); // OKボタンをクリックしたことにする
+      if (applyButton instanceof HTMLElement) {
+        applyButton.click(); // OKボタンをクリックしたことにする
+      }
     }
   });
 

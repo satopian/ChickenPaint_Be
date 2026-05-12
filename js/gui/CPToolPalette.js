@@ -28,7 +28,7 @@ import ChickenPaint from "../ChickenPaint.js";
 import { _ } from "../languages/lang.js";
 
 /**
- * @this{CPToolPalette  & Record<string, any>}
+ * @this{any}
  */
 
 export default function CPToolPalette(cpController) {
@@ -176,6 +176,9 @@ export default function CPToolPalette(cpController) {
     ],
     listElem = document.createElement("ul");
 
+  /**
+   * @this {any}
+   */
   function buttonClicked(e) {
     if (this.nodeName == "LI") {
       let button = buttons[parseInt(this.getAttribute("data-buttonIndex"), 10)];

@@ -31,7 +31,7 @@ export function binaryStringToByteArray(s) {
  *     swatches - Array of ARGB integer colors to save as the image swatches (optional)
  */
 /**
- * @this{typeof CPResourceSaver & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPResourceSaver(options) {
@@ -87,7 +87,7 @@ export default function CPResourceSaver(options) {
       reportFatal("An error occurred in the getFormDataSize function.");
       return;
     }
-
+    /** @type {any} */
     var requestOptions = {
       method: "POST",
       mode: "same-origin",

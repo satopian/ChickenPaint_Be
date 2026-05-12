@@ -24,7 +24,7 @@ import EventEmitter from "wolfy87-eventemitter";
 
 /**
  * @param vertical boolean
- * @this{typeof CPScrollbar & Record<string, any>}
+ * @this {any}
  *
  */
 export default function CPScrollbar(vertical) {
@@ -85,6 +85,9 @@ export default function CPScrollbar(vertical) {
     return valueIsAdjusting;
   };
 
+  /**
+   * @this {any}
+   */
   function onBarClick(e) {
     if (this == bar) {
       let clickPos = vertical

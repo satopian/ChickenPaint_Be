@@ -13,7 +13,7 @@ import EventEmitter from "wolfy87-eventemitter";
  * loadSwatchesURL - URL of an .aco palette to load (optional)
  */
 /**
- * @this{typeof CPResourceLoader & Record<string, any>}
+ * @this {any}
  */
 
 export default function CPResourceLoader(options) {
