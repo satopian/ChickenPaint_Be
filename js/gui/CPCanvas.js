@@ -136,7 +136,7 @@ CPModeStack.prototype.paint = function (context) {
 /**
  * Add a mode to the top of the mode stack.
  *
- * @param mode {CPMode}
+ * @param mode
  * @param transient {boolean} Set to true if the mode is expected to remove itself from stack upon completion.
  */
 CPModeStack.prototype.push = function (mode, transient) {
