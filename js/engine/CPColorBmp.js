@@ -39,7 +39,7 @@ import { createImageData } from "../util/Canvas.js";
  * @property {CanvasPixelArray} data - The bitmap data array (one byte per channel in RGBA order). We'd prefer this to
  *                                     be Uint8ClampedArray, but IE 10 doesn't support it
  * @property {ImageData} imageData
- * @this{any}
+ * @this {any}
  */
 export default function CPColorBmp(width, height = null) {
   if (typeof width == "number") {

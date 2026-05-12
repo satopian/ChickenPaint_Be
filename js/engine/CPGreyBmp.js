@@ -34,7 +34,7 @@ import { getRotatedCanvas } from "./CPColorBmp.js";
  *
  * @constructor
  * @extends CPBitmap
- * @this{any}
+ * @this {any}
  */
 export default function CPGreyBmp(width, height, bitDepth) {
   CPBitmap.call(this, width, height);
@@ -350,7 +350,7 @@ CPGreyBmp.prototype.applyLUT = function (lut) {
 /**
  * Get the image as Canvas.
  *
- * @param {Number?} imageRotation - 90 degree clockwise rotations to apply to image
+ * @param {int?} imageRotation - 90 degree clockwise rotations to apply to image
  * @returns {HTMLCanvasElement}
  */
 CPGreyBmp.prototype.getAsCanvas = function (imageRotation) {

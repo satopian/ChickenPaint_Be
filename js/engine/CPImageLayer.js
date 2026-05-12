@@ -74,7 +74,7 @@ CPImageLayer.createFromImage = function (image, name) {
  * Returns an independent copy of this layer.
  *
  * @returns {CPImageLayer}
- * @this{any}
+ * @this {any}
  */
 CPImageLayer.prototype.clone = function () {
   var result = new CPImageLayer(0, 0, this.name);

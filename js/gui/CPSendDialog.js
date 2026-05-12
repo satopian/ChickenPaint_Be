@@ -25,7 +25,7 @@ import EventEmitter from "wolfy87-eventemitter";
 import { _ } from "../languages/lang.js";
 
 /**
- * @this{any}
+ * @this {any}
  */
 
 export default function CPSendDialog(

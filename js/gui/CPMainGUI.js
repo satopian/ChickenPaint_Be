@@ -29,7 +29,7 @@ import CPMainMenu from "./CPMainMenu.js";
 import EventEmitter from "wolfy87-eventemitter";
 
 /**
- * @this{any}
+ * @this {any}
  */
 
 export default function CPMainGUI(controller, uiElem) {

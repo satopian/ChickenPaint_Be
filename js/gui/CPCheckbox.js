@@ -23,7 +23,7 @@
 import EventEmitter from "wolfy87-eventemitter";
 
 /**
- * @this{any}
+ * @this {any}
  */
 
 export default function CPCheckbox(state, title) {

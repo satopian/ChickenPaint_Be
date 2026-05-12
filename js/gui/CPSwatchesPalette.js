@@ -42,7 +42,7 @@ function fileAPIsSupported() {
 }
 
 /**
- * @this{any}
+ * @this {any}
  */
 
 export default function CPSwatchesPalette(controller) {

@@ -111,7 +111,7 @@ function loadTextures(textureFilename, width, height, textureCount, then) {
 }
 
 /**
- * @this{any}
+ * @this {any}
  */
 
 export default function CPTexturePalette(controller) {

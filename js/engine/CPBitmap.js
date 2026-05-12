@@ -27,9 +27,6 @@ import CPRect from "../util/CPRect.js";
  * @param width
  * @param height
  * @constructor
- */
-
-/**
  * @this {any}
  */
 

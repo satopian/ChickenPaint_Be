@@ -107,7 +107,7 @@ function CPGradientPreview(controller) {
 }
 
 /**
- * @this{any}
+ * @this {any}
  */
 
 export default function CPBrushPalette(controller) {
