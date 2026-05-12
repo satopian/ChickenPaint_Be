@@ -1497,7 +1497,40 @@ CPBlend.BLEND_MODE_DISPLAY_NAMES = [
 	  "Normal", "Multiply", "Add", "Screen", "Lighten", "Darken", "Subtract", "Dodge", "Burn",
 	  "Overlay", "Hard Light", "Soft Light", "Vivid Light", "Linear Light", "Pin Light", "Passthrough", "Multiply"
 ];
-
 makeLookupTables();
+
+CPBlend.blendFunctionNameForParameters = function (
+  fusionHasTransparency,
+  imageAlpha,
+  imageBlendMode,
+  hasMask,
+) {
+return "";
+};
+
+CPBlend.fuseImageOntoImage = function (
+  fusion,
+  fusionHasTransparency,
+  image,
+  imageAlpha,
+  imageBlendMode,
+  rect,
+  mask,
+  ) {};
+
+  CPBlend.normalFuseImageOntoImageAtPosition = function (
+  fusion,
+  image,
+  destX,
+  destY,
+  sourceRect,
+) {};
+
+CPBlend.multiplyAlphaBy = function (image, alpha) {};
+
+CPBlend.multiplyAlphaByMask = function (image, alpha, mask) {};
+
+CPBlend.copyAndMultiplyAlphaBy = function (dest, image, alpha, rect) {};
+
 `,
 );
