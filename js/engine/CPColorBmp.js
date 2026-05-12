@@ -41,24 +41,22 @@ import { createImageData } from "../util/Canvas.js";
  * @property {ImageData} imageData
  * @this {any}
  */
-export default function CPColorBmp(width, height = null) {
-  if (typeof width == "number") {
-    CPBitmap.call(this, width, height);
+export default class CPColorBmp extends CPBitmap {
+  constructor(width, height = null) {
+    if (typeof width == "number") {
+      super(width, height);
 
-    this.imageData = createImageData(this.width, this.height);
-  } else {
-    var imageData = width;
+      this.imageData = createImageData(this.width, this.height);
+    } else {
+      var imageData = width;
+      super(imageData.width, imageData.height);
 
-    CPBitmap.call(this, imageData.width, imageData.height);
+      this.imageData = imageData;
+    }
 
-    this.imageData = imageData;
+    this.data = this.imageData.data;
   }
-
-  this.data = this.imageData.data;
 }
-
-CPColorBmp.prototype = Object.create(CPBitmap.prototype);
-CPColorBmp.prototype.constructor = CPColorBmp;
 
 CPColorBmp.BYTES_PER_PIXEL = 4;
 CPColorBmp.RED_BYTE_OFFSET = 0;
