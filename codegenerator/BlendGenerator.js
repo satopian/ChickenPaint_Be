@@ -978,7 +978,7 @@ function leftAlign(text) {
  * Adjust the leading tabs on the given tab-indented block of text to make the minimum indent level "indent".
  *
  * @param {string} text
- * @param {int} indent
+ * @param {Number} indent
  * @param {boolean|undefined} includeFirstLine - If false, the first line will have no tabs added to the beginning of it.
  * @returns {string}
  */
@@ -1021,7 +1021,7 @@ function makeBlendOperation(functionName, operation, variant) {
     },
     {
       name: "layerAlpha",
-      type: "int",
+      type: "Number",
     },
     {
       name: "srcRect",
@@ -1032,11 +1032,11 @@ function makeBlendOperation(functionName, operation, variant) {
   if (variant.fusionDifferentSize) {
     parameters.push({
       name: "destX",
-      type: "int",
+      type: "Number",
     });
     parameters.push({
       name: "destY",
-      type: "int",
+      type: "Number",
     });
   }
 
