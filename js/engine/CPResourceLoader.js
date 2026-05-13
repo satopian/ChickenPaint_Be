@@ -16,192 +16,195 @@ import EventEmitter from "wolfy87-eventemitter";
  * @this {any}
  */
 
-export default function CPResourceLoader(options) {
-  var resources = [],
-    completed = {},
-    that = this;
+export default class CPResourceLoader extends EventEmitter {
+  constructor(options) {
+    super();
+    var resources = [],
+      completed = {},
+      that = this;
 
-  if (options.loadChibiFileUrl && ("" + options.loadChibiFileUrl).length > 0) {
-    resources.push({
-      url: options.loadChibiFileUrl,
-      friendly: "drawing layers",
-      name: "layers",
-      required: true,
-    });
-  } else {
-    if (options.loadImageUrl && ("" + options.loadImageUrl).length > 0) {
+    if (
+      options.loadChibiFileUrl &&
+      ("" + options.loadChibiFileUrl).length > 0
+    ) {
       resources.push({
-        url: options.loadImageUrl,
-        friendly: "drawing",
-        name: "flat",
+        url: options.loadChibiFileUrl,
+        friendly: "drawing layers",
+        name: "layers",
         required: true,
       });
-    }
-  }
-
-  if (options.loadSwatchesUrl) {
-    resources.push({
-      url: options.loadSwatchesUrl,
-      friendly: "color swatches",
-      name: "swatches",
-      required: false,
-      noProgress: true, // So short that we may as well keep the smoothie drained
-    });
-  }
-
-  /**
-   *
-   * @param resource
-   * @param resourceData
-   * @returns {Promise}
-   */
-  function decodeResource(resource, resourceData) {
-    switch (resource.name) {
-      case "flat":
-        return new Promise(function (resolve, reject) {
-          let blob = new Blob([resourceData], { type: "image/png" }),
-            imageUrl = window.URL.createObjectURL(blob);
-
-          if (imageUrl) {
-            let image = new Image();
-
-            image.onload = function () {
-              let artwork = new CPArtwork(this.width, this.height),
-                layer = new CPImageLayer(0, 0, "Layer 1");
-
-              layer.image = CPColorBmp.createFromImage(image);
-              artwork.addLayerObject(artwork.getLayersRoot(), layer);
-
-              image = null;
-              window.URL.revokeObjectURL(imageUrl);
-
-              resolve(artwork);
-            };
-
-            image.src = imageUrl;
-          } else {
-            reject(null);
-          }
-        });
-
-      case "swatches":
-        let reader = new AdobeColorTable(),
-          colors = reader.read(resourceData);
-
-        if (colors) {
-          return Promise.resolve(colors);
-        } else {
-          return Promise.reject(null);
-        }
-
-      case "layers":
-        return chiLoad(resourceData);
-
-      default:
-        return Promise.reject(
-          "Unexpected resource type '" + resource.name + "'",
-        );
-    }
-  }
-
-  function reportProgress(resource, progress) {
-    if (progress === null) {
-      that.emitEvent("loadingProgress", [
-        1.0,
-        "Loading your " + resource.friendly + "...",
-      ]);
     } else {
-      that.emitEvent("loadingProgress", [
-        progress,
-        "Loading your " +
-          resource.friendly +
-          " (" +
-          Math.round(progress * 100) +
-          "%)...",
-      ]);
-    }
-  }
-
-  this.load = function () {
-    if (resources.length == 0) {
-      that.emitEvent("loadingComplete", [completed]);
-      return;
-    }
-
-    var resource = resources.shift(),
-      xhr = new XMLHttpRequest();
-
-    xhr.addEventListener(
-      "progress",
-      function (evt) {
-        var progress;
-
-        if (evt.lengthComputable && !resource.noProgress) {
-          progress = evt.loaded / evt.total;
-        } else {
-          progress = null;
-        }
-
-        reportProgress(resource, progress);
-      },
-      false,
-    );
-
-    function handleFatal() {
-      if (resource.required) {
-        that.emitEvent("loadingFailure", [
-          "Failed to load your " +
-            resource.friendly +
-            ", please try again later.",
-        ]);
-      } else {
-        // Skip unimportant resources
-        that.load();
+      if (options.loadImageUrl && ("" + options.loadImageUrl).length > 0) {
+        resources.push({
+          url: options.loadImageUrl,
+          friendly: "drawing",
+          name: "flat",
+          required: true,
+        });
       }
     }
 
-    xhr.addEventListener(
-      "load",
-      function (evt) {
-        if (this.status == 200) {
-          let response = this.response;
+    if (options.loadSwatchesUrl) {
+      resources.push({
+        url: options.loadSwatchesUrl,
+        friendly: "color swatches",
+        name: "swatches",
+        required: false,
+        noProgress: true, // So short that we may as well keep the smoothie drained
+      });
+    }
 
-          that.emitEvent("loadingProgress", [1.0, "Starting litaChix..."]);
+    /**
+     *
+     * @param resource
+     * @param resourceData
+     * @returns {Promise}
+     */
+    function decodeResource(resource, resourceData) {
+      switch (resource.name) {
+        case "flat":
+          return new Promise(function (resolve, reject) {
+            let blob = new Blob([resourceData], { type: "image/png" }),
+              imageUrl = window.URL.createObjectURL(blob);
 
-          // Yield to the DOM to give it a chance to paint the loaded message before we begin decoding
-          setTimeout(function () {
-            decodeResource(resource, response).then(
-              function (decoded) {
-                completed[resource.name] = decoded;
+            if (imageUrl) {
+              let image = new Image();
 
-                // Move on to the next file
-                that.load();
-              },
-              function () {
-                that.emitEvent("loadingFailure", [
-                  "Failed to read your " + resource.friendly,
-                ]);
-              },
-            );
-          }, 0);
+              image.onload = function () {
+                let artwork = new CPArtwork(this.width, this.height),
+                  layer = new CPImageLayer(0, 0, "Layer 1");
+
+                layer.image = CPColorBmp.createFromImage(image);
+                artwork.addLayerObject(artwork.getLayersRoot(), layer);
+
+                image = null;
+                window.URL.revokeObjectURL(imageUrl);
+
+                resolve(artwork);
+              };
+
+              image.src = imageUrl;
+            } else {
+              reject(null);
+            }
+          });
+
+        case "swatches":
+          let reader = new AdobeColorTable(),
+            colors = reader.read(resourceData);
+
+          if (colors) {
+            return Promise.resolve(colors);
+          } else {
+            return Promise.reject(null);
+          }
+
+        case "layers":
+          return chiLoad(resourceData);
+
+        default:
+          return Promise.reject(
+            "Unexpected resource type '" + resource.name + "'",
+          );
+      }
+    }
+
+    function reportProgress(resource, progress) {
+      if (progress === null) {
+        that.emitEvent("loadingProgress", [
+          1.0,
+          "Loading your " + resource.friendly + "...",
+        ]);
+      } else {
+        that.emitEvent("loadingProgress", [
+          progress,
+          "Loading your " +
+            resource.friendly +
+            " (" +
+            Math.round(progress * 100) +
+            "%)...",
+        ]);
+      }
+    }
+
+    this.load = function () {
+      if (resources.length == 0) {
+        that.emitEvent("loadingComplete", [completed]);
+        return;
+      }
+
+      var resource = resources.shift(),
+        xhr = new XMLHttpRequest();
+
+      xhr.addEventListener(
+        "progress",
+        function (evt) {
+          var progress;
+
+          if (evt.lengthComputable && !resource.noProgress) {
+            progress = evt.loaded / evt.total;
+          } else {
+            progress = null;
+          }
+
+          reportProgress(resource, progress);
+        },
+        false,
+      );
+
+      function handleFatal() {
+        if (resource.required) {
+          that.emitEvent("loadingFailure", [
+            "Failed to load your " +
+              resource.friendly +
+              ", please try again later.",
+          ]);
         } else {
-          handleFatal();
+          // Skip unimportant resources
+          that.load();
         }
-      },
-      false,
-    );
+      }
 
-    xhr.addEventListener("error", handleFatal);
+      xhr.addEventListener(
+        "load",
+        function (evt) {
+          if (this.status == 200) {
+            let response = this.response;
 
-    reportProgress(resource, resource.noProgress ? null : 0.0);
+            that.emitEvent("loadingProgress", [1.0, "Starting litaChix..."]);
 
-    xhr.open("GET", resource.url, true);
+            // Yield to the DOM to give it a chance to paint the loaded message before we begin decoding
+            setTimeout(function () {
+              decodeResource(resource, response).then(
+                function (decoded) {
+                  completed[resource.name] = decoded;
 
-    xhr.responseType = "arraybuffer";
+                  // Move on to the next file
+                  that.load();
+                },
+                function () {
+                  that.emitEvent("loadingFailure", [
+                    "Failed to read your " + resource.friendly,
+                  ]);
+                },
+              );
+            }, 0);
+          } else {
+            handleFatal();
+          }
+        },
+        false,
+      );
 
-    xhr.send();
-  };
+      xhr.addEventListener("error", handleFatal);
+
+      reportProgress(resource, resource.noProgress ? null : 0.0);
+
+      xhr.open("GET", resource.url, true);
+
+      xhr.responseType = "arraybuffer";
+
+      xhr.send();
+    };
+  }
 }
-
-CPResourceLoader.prototype = Object.create(EventEmitter.prototype);
-CPResourceLoader.prototype.constructor = CPResourceLoader;

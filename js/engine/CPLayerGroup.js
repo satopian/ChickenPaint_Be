@@ -30,19 +30,31 @@ import CPRect from "../util/CPRect.js";
  * @constructor
  * @this {any}
  */
-export default function CPLayerGroup(name = "", blendMode = 0) {
-  CPLayer.call(this, name);
+export default class CPLayerGroup extends CPLayer {
+  constructor(name = "", blendMode = 0) {
+    super(name);
 
-  /**
-   * @type {CPLayer[]}
-   */
-  this.layers = [];
-  this.expanded = true;
-  this.blendMode = blendMode;
+    /**
+     * @type {CPLayer[]}
+     */
+    this.layers = [];
+    this.expanded = true;
+    this.blendMode = blendMode;
+  }
+
+  clone() {
+    const result = new CPLayerGroup(this.name, this.blendMode);
+
+    result.copyFrom(this);
+
+    result.expanded = this.expanded;
+    result.expanded = this.expanded;
+    result.layers = this.layers.map((layer) => layer.clone());
+    result.layers.forEach((layer) => (layer.parent = result));
+
+    return result;
+  }
 }
-
-CPLayerGroup.prototype = Object.create(CPLayer.prototype);
-CPLayerGroup.prototype.constructor = CPLayerGroup;
 
 /**
  * Returns an array of layers in this group in display order, excluding this group itself.
@@ -135,18 +147,6 @@ function sum(a, b) {
  */
 CPLayerGroup.prototype.getMemoryUsed = function () {
   return this.layers.map((layer) => layer.getMemoryUsed()).reduce(sum, 0);
-};
-
-CPLayerGroup.prototype.clone = function () {
-  var result = new CPLayerGroup(this.name, this.blendMode);
-
-  CPLayer.prototype.copyFrom.call(result, this);
-
-  result.expanded = this.expanded;
-  result.layers = this.layers.map((layer) => layer.clone());
-  result.layers.forEach((layer) => (layer.parent = result));
-
-  return result;
 };
 
 /**

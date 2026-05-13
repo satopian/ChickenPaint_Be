@@ -20,7 +20,6 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import CPLayerGroup from "./CPLayerGroup.js";
 import CPBlend from "./CPBlend.js";
 import CPGreyBmp from "./CPGreyBmp.js";
 import CPRect from "../util/CPRect.js";
@@ -32,85 +31,86 @@ import CPRect from "../util/CPRect.js";
  * @this {any}
  */
 
-export default function CPLayer(name) {
-  /**
-   *
-   * @type {String}
-   */
-  this.name = name || "";
+export default class CPLayer {
+  constructor(name) {
+    /**
+     *
+     * @type {String}
+     */
+    this.name = name || "";
 
-  /**
-   * The parent of this layer, if this node is in a layer group.
-   *
-   * @type {?CPLayerGroup}
-   */
-  this.parent = null;
+    /**
+     * The parent of this layer, if this node is in a layer group.
+     *
+     * @type {?Object}
+     */
+    this.parent = null;
 
-  /**
-   * True if drawing operations on the image of this layer should not change the alpha component of the layer.
-   *
-   * @type {boolean}
-   */
-  this.lockAlpha = false;
+    /**
+     * True if drawing operations on the image of this layer should not change the alpha component of the layer.
+     *
+     * @type {boolean}
+     */
+    this.lockAlpha = false;
 
-  /**
-   * The opacity of this layer (0 = transparent, 100 = opaque)
-   *
-   * @type {number}
-   */
-  this.alpha = 100;
+    /**
+     * The opacity of this layer (0 = transparent, 100 = opaque)
+     *
+     * @type {number}
+     */
+    this.alpha = 100;
 
-  /**
-   * True if this layer and its children should be drawn.
-   *
-   * @type {boolean}
-   */
-  this.visible = true;
+    /**
+     * True if this layer and its children should be drawn.
+     *
+     * @type {boolean}
+     */
+    this.visible = true;
 
-  /**
-   * One of the CMBlend.LM_* constants.
-   *
-   * @type {number}
-   */
-  this.blendMode = CPBlend.LM_NORMAL;
+    /**
+     * One of the CMBlend.LM_* constants.
+     *
+     * @type {number}
+     */
+    this.blendMode = CPBlend.LM_NORMAL;
 
-  /**
-   * The layer mask (if present)
-   *
-   * @type {?CPGreyBmp}
-   */
-  this.mask = null;
+    /**
+     * The layer mask (if present)
+     *
+     * @type {?CPGreyBmp}
+     */
+    this.mask = null;
 
-  /**
-   * True if transformations applied to the layer should also be applied to the mask (and vice versa)
-   *
-   * @type {boolean}
-   */
-  this.maskLinked = true;
+    /**
+     * True if transformations applied to the layer should also be applied to the mask (and vice versa)
+     *
+     * @type {boolean}
+     */
+    this.maskLinked = true;
 
-  /**
-   * True if the mask should be applied (if present)
-   *
-   * @type {boolean}
-   */
-  this.maskVisible = true;
+    /**
+     * True if the mask should be applied (if present)
+     *
+     * @type {boolean}
+     */
+    this.maskVisible = true;
 
-  /**
-   * The thumbnail of the mask (if a mask is present and the thumb has been built)
-   * @type {?CPGreyBmp}
-   */
-  this.maskThumbnail = null;
+    /**
+     * The thumbnail of the mask (if a mask is present and the thumb has been built)
+     * @type {?CPGreyBmp}
+     */
+    this.maskThumbnail = null;
 
-  /**
-   * True if this layer should use CPBlend.LM_MULTIPLY instead of CPBlend.LM_MULTIPLY2
-   * @type {boolean}
-   */
-  this.useLegacyMultiply = false;
+    /**
+     * True if this layer should use CPBlend.LM_MULTIPLY instead of CPBlend.LM_MULTIPLY2
+     * @type {boolean}
+     */
+    this.useLegacyMultiply = false;
+  }
 }
 
 /**
- *
- * @param {CPLayer} layer
+ * @param {CPLayer|Object} layer
  */
 CPLayer.prototype.copyFrom = function (layer) {
   this.name = layer.name;
@@ -259,7 +259,7 @@ CPLayer.prototype.ancestorsAreVisible = function () {
 /**
  * Returns true if this layer has the given group as one of its ancestors.
  *
- * @param {CPLayerGroup} group
+ * @param {Object} group
  * @returns {boolean}
  */
 CPLayer.prototype.hasAncestor = function (group) {
@@ -267,11 +267,11 @@ CPLayer.prototype.hasAncestor = function (group) {
     this.parent == group || (this.parent && this.parent.hasAncestor(group))
   );
 };
-
-CPLayer.prototype.clone = function () {
-  throw "Pure virtual CPLayer.clone() call";
-};
-
+/**
+ * Returns an independent copy of this layer.
+ *
+ */
+CPLayer.prototype.clone = function () {};
 /**
  * Get a rectangle that encloses any non-transparent pixels in the layer within the given initialBounds (or an empty
  * rect if the pixels inside the given bounds are 100% transparent).

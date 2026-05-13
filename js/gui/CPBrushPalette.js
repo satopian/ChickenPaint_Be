@@ -110,159 +110,158 @@ function CPGradientPreview(controller) {
  * @this {any}
  */
 
-export default function CPBrushPalette(controller) {
-  CPPalette.call(this, controller, "brush", "Tool options");
+export default class CPBrushPalette extends CPPalette {
+  constructor(controller) {
+    super(controller, "brush", "Tool options");
 
-  let brushPanel = new CPBrushPanel(controller),
-    gradientPanel = new CPGradientPanel(controller),
-    transformPanel = new CPTransformPanel(controller),
-    selectPanel = new CPSelectionPanel(controller),
-    panPanel = new CPPanPanel(controller),
-    floodFillPanel = new CPFloodFillPanel(controller),
-    colorPickerPanel = new CPColorPickerPanel(controller),
-    body = this.getBodyElement();
+    let brushPanel = new CPBrushPanel(controller),
+      gradientPanel = new CPGradientPanel(controller),
+      transformPanel = new CPTransformPanel(controller),
+      selectPanel = new CPSelectionPanel(controller),
+      panPanel = new CPPanPanel(controller),
+      floodFillPanel = new CPFloodFillPanel(controller),
+      colorPickerPanel = new CPColorPickerPanel(controller),
+      body = this.getBodyElement();
 
-  //touchmoveイベントのデフォルトの動作をキャンセル
-  body.addEventListener(
-    "touchmove",
-    (e) => {
-      e.preventDefault(); // デフォルトの動作をキャンセル
-    },
-    { passive: false },
-  );
+    //touchmoveイベントのデフォルトの動作をキャンセル
+    body.addEventListener(
+      "touchmove",
+      (e) => {
+        e.preventDefault(); // デフォルトの動作をキャンセル
+      },
+      { passive: false },
+    );
 
-  body.appendChild(brushPanel.getElement());
-  body.appendChild(gradientPanel.getElement());
-  body.appendChild(transformPanel.getElement());
-  body.appendChild(selectPanel.getElement());
-  body.appendChild(panPanel.getElement());
-  body.appendChild(floodFillPanel.getElement());
-  body.appendChild(colorPickerPanel.getElement());
+    body.appendChild(brushPanel.getElement());
+    body.appendChild(gradientPanel.getElement());
+    body.appendChild(transformPanel.getElement());
+    body.appendChild(selectPanel.getElement());
+    body.appendChild(panPanel.getElement());
+    body.appendChild(floodFillPanel.getElement());
+    body.appendChild(colorPickerPanel.getElement());
 
-  function hideAllPanels() {
-    brushPanel.getElement().style.display = "none";
-    gradientPanel.getElement().style.display = "none";
-    transformPanel.getElement().style.display = "none";
-    selectPanel.getElement().style.display = "none";
-    panPanel.getElement().style.display = "none";
-    floodFillPanel.getElement().style.display = "none";
-    colorPickerPanel.getElement().style.display = "none";
-  }
-
-  let currentMode = 0;
-  function updatePanelByMode(mode) {
-    hideAllPanels();
-    const maintainAspectCheckbox = selectPanel
-      .getElement()
-      .querySelector("#chickenpaint-s-maintainAspectCheckboxGroup"); //
-    const duplicateSelectionCheckbox = selectPanel
-      .getElement()
-      .querySelector("#chickenpaint-s-duplicateSelectionCheckboxGroup"); //
-
-    if (maintainAspectCheckbox instanceof HTMLElement) {
-      maintainAspectCheckbox.style.display = "none"; // 非表示にする
+    function hideAllPanels() {
+      brushPanel.getElement().style.display = "none";
+      gradientPanel.getElement().style.display = "none";
+      transformPanel.getElement().style.display = "none";
+      selectPanel.getElement().style.display = "none";
+      panPanel.getElement().style.display = "none";
+      floodFillPanel.getElement().style.display = "none";
+      colorPickerPanel.getElement().style.display = "none";
     }
-    if (duplicateSelectionCheckbox instanceof HTMLElement) {
-      duplicateSelectionCheckbox.style.display = "none"; // 非表示にする
+
+    let currentMode = 0;
+    function updatePanelByMode(mode) {
+      hideAllPanels();
+      const maintainAspectCheckbox = selectPanel
+        .getElement()
+        .querySelector("#chickenpaint-s-maintainAspectCheckboxGroup"); //
+      const duplicateSelectionCheckbox = selectPanel
+        .getElement()
+        .querySelector("#chickenpaint-s-duplicateSelectionCheckboxGroup"); //
+
+      if (maintainAspectCheckbox instanceof HTMLElement) {
+        maintainAspectCheckbox.style.display = "none"; // 非表示にする
+      }
+      if (duplicateSelectionCheckbox instanceof HTMLElement) {
+        duplicateSelectionCheckbox.style.display = "none"; // 非表示にする
+      }
+      switch (mode) {
+        case ChickenPaint.M_GRADIENTFILL:
+          gradientPanel.getElement().style.display = "block";
+          break;
+        case ChickenPaint.M_TRANSFORM:
+          transformPanel.getElement().style.display = "block";
+          break;
+        case ChickenPaint.M_RECT_SELECTION:
+          selectPanel.getElement().style.display = "block";
+          if (maintainAspectCheckbox instanceof HTMLElement) {
+            maintainAspectCheckbox.style.display = ""; // 表示する
+          }
+          break;
+        case ChickenPaint.M_MOVE_TOOL:
+          selectPanel.getElement().style.display = "block";
+          if (duplicateSelectionCheckbox instanceof HTMLElement) {
+            duplicateSelectionCheckbox.style.display = ""; // 表示する
+          }
+          break;
+        case ChickenPaint.M_ROTATE_CANVAS:
+        case ChickenPaint.M_PAN_CANVAS:
+          panPanel.getElement().style.display = "block";
+          break;
+        case ChickenPaint.M_FLOODFILL:
+          floodFillPanel.getElement().style.display = "block";
+          break;
+        case ChickenPaint.M_COLOR_PICKER:
+          colorPickerPanel.getElement().style.display = "block";
+          break;
+        default:
+          brushPanel.getElement().style.display = "block";
+          break;
+      }
     }
-    switch (mode) {
-      case ChickenPaint.M_GRADIENTFILL:
-        gradientPanel.getElement().style.display = "block";
-        break;
-      case ChickenPaint.M_TRANSFORM:
-        transformPanel.getElement().style.display = "block";
-        break;
-      case ChickenPaint.M_RECT_SELECTION:
-        selectPanel.getElement().style.display = "block";
-        if (maintainAspectCheckbox instanceof HTMLElement) {
-          maintainAspectCheckbox.style.display = ""; // 表示する
-        }
-        break;
-      case ChickenPaint.M_MOVE_TOOL:
-        selectPanel.getElement().style.display = "block";
-        if (duplicateSelectionCheckbox instanceof HTMLElement) {
-          duplicateSelectionCheckbox.style.display = ""; // 表示する
-        }
-        break;
-      case ChickenPaint.M_ROTATE_CANVAS:
-      case ChickenPaint.M_PAN_CANVAS:
+    controller.on("modeChange", function (mode) {
+      currentMode = mode;
+      hideAllPanels();
+      updatePanelByMode(mode);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.repeat) return; // キーが押され続けている場合は無視
+      if (
+        e.key.toLowerCase() === "r" ||
+        (!(e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") ||
+        e.key === " "
+      ) {
+        hideAllPanels();
         panPanel.getElement().style.display = "block";
-        break;
-      case ChickenPaint.M_FLOODFILL:
-        floodFillPanel.getElement().style.display = "block";
-        break;
-      case ChickenPaint.M_COLOR_PICKER:
+      }
+      const is_moove_toll = currentMode === ChickenPaint.M_MOVE_TOOL;
+      if (!is_moove_toll && !(e.ctrlKey || e.metaKey) && e.altKey) {
+        hideAllPanels();
         colorPickerPanel.getElement().style.display = "block";
-        break;
-      default:
-        brushPanel.getElement().style.display = "block";
-        break;
-    }
+      } else if ((e.ctrlKey || e.metaKey) && e.altKey) {
+        hideAllPanels();
+        updatePanelByMode(currentMode);
+      }
+    });
+    document.addEventListener("keyup", (e) => {
+      const is_moove_toll = currentMode === ChickenPaint.M_MOVE_TOOL;
+
+      if (
+        !is_moove_toll &&
+        key.alt && // altはキーダウン
+        (e.key.toLowerCase() === "control" || e.key.toLowerCase() === "meta")
+      ) {
+        hideAllPanels();
+        colorPickerPanel.getElement().style.display = "block";
+      } else if (
+        e.key.toLowerCase() === "r" ||
+        e.key.toLowerCase() === "z" ||
+        e.key === " " ||
+        e.key.toLowerCase() === "alt"
+      ) {
+        hideAllPanels();
+        updatePanelByMode(currentMode);
+      }
+    });
+    document.addEventListener("visibilitychange", (e) => {
+      hideAllPanels();
+      updatePanelByMode(currentMode);
+    });
+    document.addEventListener("mousedown", (e) => {
+      if (e.button === 2 && controller.isColorPickerMode()) {
+        hideAllPanels();
+        colorPickerPanel.getElement().style.display = "block";
+      }
+    });
+    document.addEventListener("mouseup", (e) => {
+      if (e.button !== 2) return;
+      hideAllPanels();
+      updatePanelByMode(currentMode);
+    });
   }
-  controller.on("modeChange", function (mode) {
-    currentMode = mode;
-    hideAllPanels();
-    updatePanelByMode(mode);
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.repeat) return; // キーが押され続けている場合は無視
-    if (
-      e.key.toLowerCase() === "r" ||
-      (!(e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") ||
-      e.key === " "
-    ) {
-      hideAllPanels();
-      panPanel.getElement().style.display = "block";
-    }
-    const is_moove_toll = currentMode === ChickenPaint.M_MOVE_TOOL;
-    if (!is_moove_toll && !(e.ctrlKey || e.metaKey) && e.altKey) {
-      hideAllPanels();
-      colorPickerPanel.getElement().style.display = "block";
-    } else if ((e.ctrlKey || e.metaKey) && e.altKey) {
-      hideAllPanels();
-      updatePanelByMode(currentMode);
-    }
-  });
-  document.addEventListener("keyup", (e) => {
-    const is_moove_toll = currentMode === ChickenPaint.M_MOVE_TOOL;
-
-    if (
-      !is_moove_toll &&
-      key.alt && // altはキーダウン
-      (e.key.toLowerCase() === "control" || e.key.toLowerCase() === "meta")
-    ) {
-      hideAllPanels();
-      colorPickerPanel.getElement().style.display = "block";
-    } else if (
-      e.key.toLowerCase() === "r" ||
-      e.key.toLowerCase() === "z" ||
-      e.key === " " ||
-      e.key.toLowerCase() === "alt"
-    ) {
-      hideAllPanels();
-      updatePanelByMode(currentMode);
-    }
-  });
-  document.addEventListener("visibilitychange", (e) => {
-    hideAllPanels();
-    updatePanelByMode(currentMode);
-  });
-  document.addEventListener("mousedown", (e) => {
-    if (e.button === 2 && controller.isColorPickerMode()) {
-      hideAllPanels();
-      colorPickerPanel.getElement().style.display = "block";
-    }
-  });
-  document.addEventListener("mouseup", (e) => {
-    if (e.button !== 2) return;
-    hideAllPanels();
-    updatePanelByMode(currentMode);
-  });
 }
-
-CPBrushPalette.prototype = Object.create(CPPalette.prototype);
-CPBrushPalette.prototype.constructor = CPBrushPalette;
 
 function CPBrushPanel(controller) {
   const TIP_NAMES = [
@@ -888,7 +887,10 @@ function createBootstrapCheckbox(id, title, checked = false) {
   // チェック状態取得用に input を返す場合は一緒に返す
   return { wrapper, checkbox };
 }
-
+/**
+ * @param {*} controller
+ * @this {any}
+ */
 function CPPanPanel(controller) {
   let panel = document.createElement("div");
   let formGroup = document.createElement("div");
@@ -954,7 +956,6 @@ function CPPanPanel(controller) {
     "wheel",
     (e) => {
       e.preventDefault(); // これでスクロール抑制できる
-      updateSliderDebounced();
     },
     { passive: false },
   );
@@ -963,17 +964,9 @@ function CPPanPanel(controller) {
     let timeout;
     return function (...args) {
       clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), wait);
+      timeout = setTimeout(() => func.apply(...args), wait);
     };
   }
-  //スライダーを更新
-  const updateSlider = () => {
-    zoomSlider.setValue(controller.getZoom() * 100);
-    rotationSlider.setValue(controller.getRotationDegrees());
-  };
-
-  // デバウンス関数を使用して、連続したイベントをまとめて処理
-  const updateSliderDebounced = debounce(updateSlider, 12);
 
   const isZoomRotateEnabled = (e) => {
     return (
@@ -999,7 +992,6 @@ function CPPanPanel(controller) {
     if (!isMainPaintCanvas(e.target)) {
       return; // 描画キャンバス以外の時は処理しない
     }
-    updateSliderDebounced();
   });
 
   document.addEventListener("pointermove", (e) => {
@@ -1008,7 +1000,6 @@ function CPPanPanel(controller) {
     if (!isMainPaintCanvas(e.target)) {
       return; // 描画キャンバス以外の時は処理しない
     }
-    updateSliderDebounced();
   });
 
   document.addEventListener("pointerup", (e) => {
@@ -1017,14 +1008,11 @@ function CPPanPanel(controller) {
     if (!isMainPaintCanvas(e.target)) {
       return; // 描画キャンバス以外の時は処理しない
     }
-    updateSliderDebounced();
   });
 
   // キーボードでのサイズ変更
   //+-の時は連打を許可する
-  key("=,-", function () {
-    updateSliderDebounced();
-  });
+  key("=,-", function () {});
 
   let isFirstKeyPress = true;
   // キーボードでのサイズ変更
@@ -1032,7 +1020,6 @@ function CPPanPanel(controller) {
   key("ctrl+0,alt+0,r,z,space,enter", function () {
     if (!isFirstKeyPress) return;
     isFirstKeyPress = false;
-    updateSliderDebounced();
   });
   //キーが離されたときにフラグをリセット
   document.addEventListener("keyup", (e) => {
@@ -1045,7 +1032,6 @@ function CPPanPanel(controller) {
       e.target instanceof HTMLElement &&
       !(e.target instanceof HTMLCanvasElement)
     ) {
-      updateSliderDebounced();
     }
   });
 }

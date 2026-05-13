@@ -27,160 +27,160 @@ import EventEmitter from "wolfy87-eventemitter";
  * @this {any}
  *
  */
-export default function CPScrollbar(vertical) {
-  let bar = document.createElement("div"),
-    handle = document.createElement("div"),
-    handleInner = document.createElement("div"),
-    min = 0,
-    max = 1,
-    offset = 0,
-    visibleRange = 1,
-    blockIncrement = 10,
-    unitIncrement = 1,
-    valueIsAdjusting = false,
-    handleSize = 1,
-    dragging = false,
-    dragLastOffset,
-    that = this;
+export default class CPScrollbar extends EventEmitter {
+  constructor(vertical) {
+    super();
+    let bar = document.createElement("div"),
+      handle = document.createElement("div"),
+      handleInner = document.createElement("div"),
+      min = 0,
+      max = 1,
+      offset = 0,
+      visibleRange = 1,
+      blockIncrement = 10,
+      unitIncrement = 1,
+      valueIsAdjusting = false,
+      handleSize = 1,
+      dragging = false,
+      dragLastOffset,
+      that = this;
 
-  function updateBar() {
-    let longDimension = vertical ? bar.clientHeight : bar.clientWidth;
+    function updateBar() {
+      let longDimension = vertical ? bar.clientHeight : bar.clientWidth;
 
-    /* As the size of the document approaches the size of the container, handle size grows to fill the
-     * whole track:
+      /* As the size of the document approaches the size of the container, handle size grows to fill the
+       * whole track:
+       */
+      handleSize = (visibleRange / (max - min)) * longDimension;
+
+      let handleOffset =
+        ((offset - min) / (max - min)) * (longDimension - handleSize);
+
+      handleInner.style[vertical ? "height" : "width"] = handleSize + "px";
+      handle.style[vertical ? "height" : "width"] = handleSize + "px";
+
+      handle.style[vertical ? "top" : "left"] = handleOffset + "px";
+    }
+
+    this.setValues = function (_offset, _visibleRange, _min, _max) {
+      offset = _offset;
+      visibleRange = _visibleRange;
+      min = _min;
+      max = _max;
+
+      updateBar();
+    };
+
+    this.setBlockIncrement = function (increment) {
+      blockIncrement = increment;
+    };
+
+    this.setUnitIncrement = function (increment) {
+      unitIncrement = increment;
+    };
+
+    this.getElement = function () {
+      return bar;
+    };
+
+    this.getValueIsAdjusting = function () {
+      return valueIsAdjusting;
+    };
+
+    /**
+     * @this {any}
      */
-    handleSize = (visibleRange / (max - min)) * longDimension;
+    function onBarClick(e) {
+      if (this == bar) {
+        let clickPos = vertical
+          ? e.pageY - bar.offsetTop - window.scrollY
+          : e.pageX - bar.offsetLeft - window.scrollX;
+        let barPos = parseInt(handle.style[vertical ? "top" : "left"], 10);
 
-    let handleOffset =
-      ((offset - min) / (max - min)) * (longDimension - handleSize);
+        if (clickPos < barPos) {
+          offset -= blockIncrement;
+        } else {
+          offset += blockIncrement;
+        }
 
-    handleInner.style[vertical ? "height" : "width"] = handleSize + "px";
-    handle.style[vertical ? "height" : "width"] = handleSize + "px";
-
-    handle.style[vertical ? "top" : "left"] = handleOffset + "px";
-  }
-
-  this.setValues = function (_offset, _visibleRange, _min, _max) {
-    offset = _offset;
-    visibleRange = _visibleRange;
-    min = _min;
-    max = _max;
-
-    updateBar();
-  };
-
-  this.setBlockIncrement = function (increment) {
-    blockIncrement = increment;
-  };
-
-  this.setUnitIncrement = function (increment) {
-    unitIncrement = increment;
-  };
-
-  this.getElement = function () {
-    return bar;
-  };
-
-  this.getValueIsAdjusting = function () {
-    return valueIsAdjusting;
-  };
-
-  /**
-   * @this {any}
-   */
-  function onBarClick(e) {
-    if (this == bar) {
-      let clickPos = vertical
-        ? e.pageY - bar.offsetTop - window.scrollY
-        : e.pageX - bar.offsetLeft - window.scrollX;
-      let barPos = parseInt(handle.style[vertical ? "top" : "left"], 10);
-
-      if (clickPos < barPos) {
-        offset -= blockIncrement;
-      } else {
-        offset += blockIncrement;
+        that.emitEvent("valueChanged", [offset]);
+        updateBar();
       }
-
-      that.emitEvent("valueChanged", [offset]);
-      updateBar();
     }
-  }
 
-  function onHandlePress(e) {
-    e.stopPropagation();
+    function onHandlePress(e) {
+      e.stopPropagation();
 
-    dragLastOffset = vertical
-      ? e.pageY - bar.offsetTop - window.scrollY
-      : e.pageX - bar.offsetLeft - window.scrollX;
-    handle.setPointerCapture(e.pointerId);
-
-    handle.classList.add("dragging");
-    dragging = true;
-  }
-
-  function onHandleClick(e) {
-    e.stopPropagation();
-  }
-
-  function onHandleDrag(e) {
-    if (dragging) {
-      valueIsAdjusting = true;
-
-      const longDimension = vertical ? bar.clientHeight : bar.clientWidth;
-
-      const mouseOffset = vertical
+      dragLastOffset = vertical
         ? e.pageY - bar.offsetTop - window.scrollY
         : e.pageX - bar.offsetLeft - window.scrollX;
+      handle.setPointerCapture(e.pointerId);
 
-      offset =
-        offset +
-        ((mouseOffset - dragLastOffset) * (max - min)) /
-          (longDimension - handleSize);
-
-      offset = Math.min(Math.max(offset, min), max);
-
-      dragLastOffset = mouseOffset;
-
-      that.emitEvent("valueChanged", [offset]);
-      updateBar();
-
-      valueIsAdjusting = false;
+      handle.classList.add("dragging");
+      dragging = true;
     }
-  }
 
-  function onHandleRelease(e) {
-    e.stopPropagation();
-
-    if (dragging) {
-      try {
-        handle.releasePointerCapture(e.pointerId);
-      } catch (e) {}
-
-      handle.classList.remove("dragging");
-      dragging = false;
+    function onHandleClick(e) {
+      e.stopPropagation();
     }
+
+    function onHandleDrag(e) {
+      if (dragging) {
+        valueIsAdjusting = true;
+
+        const longDimension = vertical ? bar.clientHeight : bar.clientWidth;
+
+        const mouseOffset = vertical
+          ? e.pageY - bar.offsetTop - window.scrollY
+          : e.pageX - bar.offsetLeft - window.scrollX;
+
+        offset =
+          offset +
+          ((mouseOffset - dragLastOffset) * (max - min)) /
+            (longDimension - handleSize);
+
+        offset = Math.min(Math.max(offset, min), max);
+
+        dragLastOffset = mouseOffset;
+
+        that.emitEvent("valueChanged", [offset]);
+        updateBar();
+
+        valueIsAdjusting = false;
+      }
+    }
+
+    function onHandleRelease(e) {
+      e.stopPropagation();
+
+      if (dragging) {
+        try {
+          handle.releasePointerCapture(e.pointerId);
+        } catch (e) {}
+
+        handle.classList.remove("dragging");
+        dragging = false;
+      }
+    }
+
+    bar.className =
+      "chickenpaint-scrollbar " +
+      (vertical
+        ? "chickenpaint-scrollbar-vertical"
+        : "chickenpaint-scrollbar-horizontal");
+    handle.className = "chickenpaint-scrollbar-handle";
+    handle.setAttribute("touch-action", "none");
+    handleInner.className = "chickenpaint-scrollbar-handle-inner";
+
+    handle.appendChild(handleInner);
+    bar.appendChild(handle);
+
+    handle.addEventListener("pointerdown", onHandlePress);
+    handle.addEventListener("pointermove", onHandleDrag);
+    handle.addEventListener("pointerup", onHandleRelease);
+
+    handle.addEventListener("click", onHandleClick);
+
+    bar.addEventListener("click", onBarClick);
   }
-
-  bar.className =
-    "chickenpaint-scrollbar " +
-    (vertical
-      ? "chickenpaint-scrollbar-vertical"
-      : "chickenpaint-scrollbar-horizontal");
-  handle.className = "chickenpaint-scrollbar-handle";
-  handle.setAttribute("touch-action", "none");
-  handleInner.className = "chickenpaint-scrollbar-handle-inner";
-
-  handle.appendChild(handleInner);
-  bar.appendChild(handle);
-
-  handle.addEventListener("pointerdown", onHandlePress);
-  handle.addEventListener("pointermove", onHandleDrag);
-  handle.addEventListener("pointerup", onHandleRelease);
-
-  handle.addEventListener("click", onHandleClick);
-
-  bar.addEventListener("click", onBarClick);
 }
-
-CPScrollbar.prototype = Object.create(EventEmitter.prototype);
-CPScrollbar.prototype.constructor = CPScrollbar;

@@ -28,17 +28,14 @@ import { _ } from "../languages/lang.js";
  * @this {any}
  */
 
-export default function CPSendDialog(
-  controller,
-  parent,
-  resourceSaver,
-  savedbFromMenu = false,
-) {
-  let dialog = document.createElement("div");
-  dialog.className = "modal fade chickenpaint-send-dialog";
-  dialog.tabIndex = -1;
-  dialog.setAttribute("role", "dialog");
-  dialog.innerHTML = `
+export default class CPSendDialog extends EventEmitter {
+  constructor(controller, parent, resourceSaver, savedbFromMenu = false) {
+    super();
+    let dialog = document.createElement("div");
+    dialog.className = "modal fade chickenpaint-send-dialog";
+    dialog.tabIndex = -1;
+    dialog.setAttribute("role", "dialog");
+    dialog.innerHTML = `
         <div class="modal-dialog">
             <div class="modal-content" data-stage="saving">
                 <div class="modal-header">
@@ -100,133 +97,131 @@ export default function CPSendDialog(
         </div>
     `;
 
-  let progressMessageElem = dialog.querySelector(
-    ".chickenpaint-saving-progress-message",
-  );
-  let progressError = dialog.querySelector(
-    ".chickenpaint-saving-error-message",
-  );
-  let progressElem = dialog.querySelector(".progress-bar");
-  let modal = new bootstrap.Modal(dialog, {
-    backdrop: "static", // 背景クリックで閉じない
-    keyboard: false, // Escキーで閉じない
-  });
-  let that = this;
-
-  resourceSaver.on("savingProgress", function (progress, message) {
-    if (!progressMessageElem || !progressElem) {
-      return;
-    }
-    progressMessageElem.textContent = message;
-    progressElem.setAttribute("aria-valuenow", progress * 100);
-    progressElem.style.width = progress * 100 + "%";
-  });
-
-  resourceSaver.on("savingComplete", function () {
-    // "saving" ステージを非表示にする
-    const stage_saving = dialog.querySelector(
-      ".modal-content[data-stage='saving']",
+    let progressMessageElem = dialog.querySelector(
+      ".chickenpaint-saving-progress-message",
     );
-    if (stage_saving instanceof HTMLElement) {
-      stage_saving.style.display = "none";
-    }
+    let progressError = dialog.querySelector(
+      ".chickenpaint-saving-error-message",
+    );
+    let progressElem = dialog.querySelector(".progress-bar");
+    let modal = new bootstrap.Modal(dialog, {
+      backdrop: "static", // 背景クリックで閉じない
+      keyboard: false, // Escキーで閉じない
+    });
+    let that = this;
 
-    // CPContinue と CPExit のサポートを確認して、適切なステージを表示する
-    if (controller.isActionSupported("CPContinue")) {
-      if (controller.isActionSupported("CPExit")) {
-        // "success-not-previously-posted" ステージを表示
-        const not_previously_posted = dialog.querySelector(
-          ".modal-content[data-stage='success-not-previously-posted']",
-        );
-        if (not_previously_posted instanceof HTMLElement) {
-          not_previously_posted.style.display = "block";
+    resourceSaver.on("savingProgress", function (progress, message) {
+      if (!progressMessageElem || !progressElem) {
+        return;
+      }
+      progressMessageElem.textContent = message;
+      progressElem.setAttribute("aria-valuenow", progress * 100);
+      progressElem.style.width = progress * 100 + "%";
+    });
+
+    resourceSaver.on("savingComplete", function () {
+      // "saving" ステージを非表示にする
+      const stage_saving = dialog.querySelector(
+        ".modal-content[data-stage='saving']",
+      );
+      if (stage_saving instanceof HTMLElement) {
+        stage_saving.style.display = "none";
+      }
+
+      // CPContinue と CPExit のサポートを確認して、適切なステージを表示する
+      if (controller.isActionSupported("CPContinue")) {
+        if (controller.isActionSupported("CPExit")) {
+          // "success-not-previously-posted" ステージを表示
+          const not_previously_posted = dialog.querySelector(
+            ".modal-content[data-stage='success-not-previously-posted']",
+          );
+          if (not_previously_posted instanceof HTMLElement) {
+            not_previously_posted.style.display = "block";
+          }
+        } else {
+          // "success-already-posted" ステージを表示
+          const already_posted = dialog.querySelector(
+            ".modal-content[data-stage='success-already-posted']",
+          );
+          if (already_posted instanceof HTMLElement) {
+            already_posted.style.display = "block";
+          }
         }
       } else {
-        // "success-already-posted" ステージを表示
-        const already_posted = dialog.querySelector(
-          ".modal-content[data-stage='success-already-posted']",
+        // "success-redirect" ステージを表示
+        const redirect = dialog.querySelector(
+          ".modal-content[data-stage='success-redirect']",
         );
-        if (already_posted instanceof HTMLElement) {
-          already_posted.style.display = "block";
+        if (redirect instanceof HTMLElement) {
+          redirect.style.display = "block";
+        }
+        if (savedbFromMenu) {
+          const savedb_from_menu = dialog.querySelector(
+            ".modal-footer button[data-stage='success-savedb-from-menu']",
+          );
+          if (savedb_from_menu instanceof HTMLElement) {
+            savedb_from_menu.style.display = "block";
+          }
         }
       }
-    } else {
-      // "success-redirect" ステージを表示
-      const redirect = dialog.querySelector(
-        ".modal-content[data-stage='success-redirect']",
+    });
+
+    resourceSaver.on("savingFailure", function (serverMessage) {
+      progressElem?.classList.add("progress-bar-danger");
+      let errorMessage = _(
+        "Sorry, your drawing could not be saved, please try again later.",
       );
-      if (redirect instanceof HTMLElement) {
-        redirect.style.display = "block";
+
+      if (!progressMessageElem || !progressError) {
+        return;
       }
-      if (savedbFromMenu) {
-        const savedb_from_menu = dialog.querySelector(
-          ".modal-footer button[data-stage='success-savedb-from-menu']",
-        );
-        if (savedb_from_menu instanceof HTMLElement) {
-          savedb_from_menu.style.display = "block";
+      if (serverMessage) {
+        serverMessage = serverMessage.replace(/^CHIBIERROR\s*/, "");
+        if (serverMessage.length > 0) {
+          errorMessage += `<br><br>${_("The error returned from the server was")}:`;
+          progressError.textContent = serverMessage;
+          progressError.style.display = "block";
         }
       }
-    }
-  });
-
-  resourceSaver.on("savingFailure", function (serverMessage) {
-    progressElem?.classList.add("progress-bar-danger");
-    let errorMessage = _(
-      "Sorry, your drawing could not be saved, please try again later.",
-    );
-
-    if (!progressMessageElem || !progressError) {
-      return;
-    }
-    if (serverMessage) {
-      serverMessage = serverMessage.replace(/^CHIBIERROR\s*/, "");
-      if (serverMessage.length > 0) {
-        errorMessage += `<br><br>${_("The error returned from the server was")}:`;
-        progressError.textContent = serverMessage;
-        progressError.style.display = "block";
-      }
-    }
-    progressMessageElem.innerHTML = errorMessage;
-  });
-
-  const send_cancel = dialog.querySelector(".chickenpaint-send-cancel");
-
-  send_cancel?.addEventListener("click", function () {
-    resourceSaver.cancel();
-  });
-
-  let postButton = dialog.querySelector(".chickenpaint-post-drawing");
-  if (postButton) {
-    postButton.addEventListener("click", function () {
-      controller.actionPerformed({ action: "CPPost" });
+      progressMessageElem.innerHTML = errorMessage;
     });
-  }
 
-  let exitButton = dialog.querySelector(".chickenpaint-exit");
-  if (exitButton) {
-    exitButton.style.display = controller.isActionSupported("CPExit")
-      ? ""
-      : "none";
-    exitButton.addEventListener("click", function () {
-      alert(
-        "When you want to come back and finish your drawing, just click the 'new drawing' button again and " +
-          "you can choose to continue this drawing.",
-      );
-      controller.actionPerformed({ action: "CPExit" });
+    const send_cancel = dialog.querySelector(".chickenpaint-send-cancel");
+
+    send_cancel?.addEventListener("click", function () {
+      resourceSaver.cancel();
     });
+
+    let postButton = dialog.querySelector(".chickenpaint-post-drawing");
+    if (postButton) {
+      postButton.addEventListener("click", function () {
+        controller.actionPerformed({ action: "CPPost" });
+      });
+    }
+
+    let exitButton = dialog.querySelector(".chickenpaint-exit");
+    if (exitButton) {
+      exitButton.style.display = controller.isActionSupported("CPExit")
+        ? ""
+        : "none";
+      exitButton.addEventListener("click", function () {
+        alert(
+          "When you want to come back and finish your drawing, just click the 'new drawing' button again and " +
+            "you can choose to continue this drawing.",
+        );
+        controller.actionPerformed({ action: "CPExit" });
+      });
+    }
+
+    dialog.addEventListener("hidden.bs.modal", () => {
+      dialog.remove();
+    });
+
+    parent.appendChild(dialog);
+
+    this.show = function () {
+      modal.show();
+      that.emitEvent("shown");
+    };
   }
-
-  dialog.addEventListener("hidden.bs.modal", () => {
-    dialog.remove();
-  });
-
-  parent.appendChild(dialog);
-
-  this.show = function () {
-    modal.show();
-    that.emitEvent("shown");
-  };
 }
-
-CPSendDialog.prototype = Object.create(EventEmitter.prototype);
-CPSendDialog.prototype.constructor = CPSendDialog;

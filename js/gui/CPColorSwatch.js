@@ -34,143 +34,140 @@ import EventEmitter from "wolfy87-eventemitter";
  * @this {any}
  */
 
-export default function CPColorSwatch(
-  initialColor,
-  initialAlpha,
-  containerElement,
-) {
-  let that = this,
-    color = new CPColor(0),
-    alpha = 255,
-    element = document.createElement("div");
+export default class CPColorSwatch extends EventEmitter {
+  constructor(initialColor, initialAlpha, containerElement) {
+    super();
+    let that = this,
+      color = new CPColor(0),
+      alpha = 255,
+      element = document.createElement("div");
 
-  function padLeft(string, padding, len) {
-    while (string.length < len) {
-      string = padding + string;
+    function padLeft(string, padding, len) {
+      while (string.length < len) {
+        string = padding + string;
+      }
+      return string;
     }
-    return string;
-  }
 
-  function paint() {
-    element.style.backgroundColor =
-      "#" + padLeft(Number(color.getRgb()).toString(16), "0", 6);
-  }
-
-  this.getElement = function () {
-    return element;
-  };
-
-  this.setColor = function (_color) {
-    if (!color.isEqual(_color)) {
-      color.copyFrom(_color);
-
-      paint();
-
-      this.emitEvent("colorChange", [color]);
+    function paint() {
+      element.style.backgroundColor =
+        "#" + padLeft(Number(color.getRgb()).toString(16), "0", 6);
     }
-  };
 
-  this.setAlpha = function (_alpha) {
-    if (_alpha != alpha) {
-      alpha = _alpha;
-
-      paint();
-
-      this.emitEvent("alphaChange", [alpha]);
-    }
-  };
-
-  this.getColorRgb = function () {
-    return color.getRgb();
-  };
-
-  this.getAlpha = function () {
-    return alpha;
-  };
-
-  this.setCurColor = this.setColor;
-
-  function buildColorEditPanel() {
-    const panel = document.createElement("div"),
-      group = document.createElement("div"),
-      select = new CPColorSelect(that, color),
-      slider = new CPColorSlider(that, select, color.getHue()),
-      alphaSlider = new CPSlider(0, 255);
-
-    panel.className = "chickenpaint-color-pick-panel";
-
-    group.className = "chickenpaint-colorpicker-top";
-
-    group.appendChild(select.getElement());
-    group.appendChild(slider.getElement());
-
-    panel.appendChild(group);
-
-    alphaSlider.value = alpha;
-    alphaSlider.title = function (alpha) {
-      return _("Opacity: ") + alpha;
+    this.getElement = function () {
+      return element;
     };
-    alphaSlider.on("valueChange", function (alpha) {
-      that.setAlpha(alpha);
+
+    this.setColor = function (_color) {
+      if (!color.isEqual(_color)) {
+        color.copyFrom(_color);
+
+        paint();
+
+        this.emitEvent("colorChange", [color]);
+      }
+    };
+
+    this.setAlpha = function (_alpha) {
+      if (_alpha != alpha) {
+        alpha = _alpha;
+
+        paint();
+
+        this.emitEvent("alphaChange", [alpha]);
+      }
+    };
+
+    this.getColorRgb = function () {
+      return color.getRgb();
+    };
+
+    this.getAlpha = function () {
+      return alpha;
+    };
+
+    this.setCurColor = this.setColor;
+
+    function buildColorEditPanel() {
+      const panel = document.createElement("div"),
+        group = document.createElement("div"),
+        select = new CPColorSelect(that, color),
+        slider = new CPColorSlider(that, select, color.getHue()),
+        alphaSlider = new CPSlider(0, 255);
+
+      panel.className = "chickenpaint-color-pick-panel";
+
+      group.className = "chickenpaint-colorpicker-top";
+
+      group.appendChild(select.getElement());
+      group.appendChild(slider.getElement());
+
+      panel.appendChild(group);
+
+      alphaSlider.value = alpha;
+      alphaSlider.title = function (alpha) {
+        return _("Opacity: ") + alpha;
+      };
+      alphaSlider.on("valueChange", function (alpha) {
+        that.setAlpha(alpha);
+      });
+
+      panel.appendChild(alphaSlider.getElement());
+
+      setTimeout(function () {
+        alphaSlider.resize();
+      }, 0);
+
+      return panel;
+    }
+
+    element.className = "chickenpaint-color-pick-swatch";
+
+    if (initialColor) {
+      color.copyFrom(initialColor);
+    }
+
+    if (initialAlpha) {
+      alpha = initialAlpha;
+    }
+    const bootstrapPopover = new bootstrap.Popover(element, {
+      html: true,
+      content: function () {
+        window.addEventListener("mousedown", closeClickHandler);
+        return buildColorEditPanel();
+      },
+      trigger: "manual",
+      placement: "bottom",
+      container: containerElement || false,
     });
 
-    panel.appendChild(alphaSlider.getElement());
+    // Clicking outside the popover will dismiss it
+    const closeClickHandler = function (e) {
+      const colorpicker = e.target;
+      const isColorPicker =
+        colorpicker.closest(".popover-body") ||
+        colorpicker.classList.contains("chickenpaint-color-pick-panel") ||
+        colorpicker.classList.contains("chickenpaint-colorpicker-select") ||
+        colorpicker.classList.contains("chickenpaint-colorpicker-slider");
 
-    setTimeout(function () {
-      alphaSlider.resize();
-    }, 0);
+      e.preventDefault();
+      // console.log("closeClickHandler",e);
+      if (isColorPicker) {
+        //カラーピッカーをクリックした時は表示したままにする
+        return;
+      }
+      bootstrapPopover.hide();
+    };
 
-    return panel;
+    element.addEventListener("click", function (e) {
+      e.preventDefault();
+      bootstrapPopover.toggle();
+    });
+
+    element.addEventListener("hidden.bs.popover", function () {
+      window.removeEventListener("mousedown", closeClickHandler);
+    });
+
+    paint();
   }
-
-  element.className = "chickenpaint-color-pick-swatch";
-
-  if (initialColor) {
-    color.copyFrom(initialColor);
-  }
-
-  if (initialAlpha) {
-    alpha = initialAlpha;
-  }
-  const bootstrapPopover = new bootstrap.Popover(element, {
-    html: true,
-    content: function () {
-      window.addEventListener("mousedown", closeClickHandler);
-      return buildColorEditPanel();
-    },
-    trigger: "manual",
-    placement: "bottom",
-    container: containerElement || false,
-  });
-
-  // Clicking outside the popover will dismiss it
-  const closeClickHandler = function (e) {
-    const colorpicker = e.target;
-    const isColorPicker =
-      colorpicker.closest(".popover-body") ||
-      colorpicker.classList.contains("chickenpaint-color-pick-panel") ||
-      colorpicker.classList.contains("chickenpaint-colorpicker-select") ||
-      colorpicker.classList.contains("chickenpaint-colorpicker-slider");
-
-    e.preventDefault();
-    // console.log("closeClickHandler",e);
-    if (isColorPicker) {
-      //カラーピッカーをクリックした時は表示したままにする
-      return;
-    }
-    bootstrapPopover.hide();
-  };
-
-  element.addEventListener("click", function (e) {
-    e.preventDefault();
-    bootstrapPopover.toggle();
-  });
-
-  element.addEventListener("hidden.bs.popover", function () {
-    window.removeEventListener("mousedown", closeClickHandler);
-  });
-
-  paint();
 }
-CPColorSwatch.prototype = Object.create(EventEmitter.prototype);
-CPColorSwatch.prototype.constructor = CPColorSwatch;

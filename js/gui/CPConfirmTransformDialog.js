@@ -28,13 +28,15 @@ import { _ } from "../languages/lang.js";
  * @this {any}
  */
 
-export default function CPConfirmTransformDialog(parent, controller) {
-  // ダイアログ要素を作成
-  const dialog = document.createElement("div");
-  dialog.classList.add("modal", "fade");
-  dialog.setAttribute("tabindex", "-1");
-  dialog.setAttribute("role", "dialog");
-  dialog.innerHTML = `
+export default class CPConfirmTransformDialog extends EventEmitter {
+  constructor(parent, controller) {
+    super();
+    // ダイアログ要素を作成
+    const dialog = document.createElement("div");
+    dialog.classList.add("modal", "fade");
+    dialog.setAttribute("tabindex", "-1");
+    dialog.setAttribute("role", "dialog");
+    dialog.innerHTML = `
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -63,62 +65,59 @@ export default function CPConfirmTransformDialog(parent, controller) {
         </div>
     `;
 
-  // ボタン要素を取得
-  const that = this;
-  const applyButton = dialog.querySelector(".chickenpaint-accept-transform");
-  const rejectButton = dialog.querySelector(".chickenpaint-reject-transform");
-  const cancelButton = dialog.querySelector(".chickenpaint-cancel-transform");
+    // ボタン要素を取得
+    const that = this;
+    const applyButton = dialog.querySelector(".chickenpaint-accept-transform");
+    const rejectButton = dialog.querySelector(".chickenpaint-reject-transform");
+    const cancelButton = dialog.querySelector(".chickenpaint-cancel-transform");
 
-  // Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
-  const modal = new bootstrap.Modal(dialog);
-  // イベントリスナーを追加
-  applyButton?.addEventListener("click", function (e) {
-    controller.actionPerformed({ action: "CPTransformAccept" });
-    that.emitEvent("accept");
-    // "accept"イベント内で閉じる
-  });
-
-  rejectButton?.addEventListener("click", function (e) {
-    controller.actionPerformed({ action: "CPTransformReject" });
-    that.emitEvent("reject");
-    // "reject"イベント内で閉じる
-  });
-
-  cancelButton?.addEventListener("click", function (e) {
-    modal.hide();
-  });
-
-  // モーダル表示用のメソッド
-  this.show = function () {
-    modal.show();
-  };
-  //モーダルを閉じるメソッド
-  this.hide = function () {
-    modal.hide();
-  };
-
-  // モーダルが閉じられた後の処理
-  dialog.addEventListener("hidden.bs.modal", (e) => {
-    dialog.remove();
-  });
-
-  // Enterキーが押されたときの処理
-  function keydown_EnterKey(e) {
-    if (e.key === "Enter") {
-      // Enterキーが押されたら非表示にする
-      modal.hide();
-      controller.actionPerformed({ action: "CPTransformAccept" }); // 変形確定
+    // Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
+    const modal = new bootstrap.Modal(dialog);
+    // イベントリスナーを追加
+    applyButton?.addEventListener("click", function (e) {
+      controller.actionPerformed({ action: "CPTransformAccept" });
       that.emitEvent("accept");
-      parent.removeEventListener("keydown", keydown_EnterKey);
+      // "accept"イベント内で閉じる
+    });
+
+    rejectButton?.addEventListener("click", function (e) {
+      controller.actionPerformed({ action: "CPTransformReject" });
+      that.emitEvent("reject");
+      // "reject"イベント内で閉じる
+    });
+
+    cancelButton?.addEventListener("click", function (e) {
+      modal.hide();
+    });
+
+    // モーダル表示用のメソッド
+    this.show = function () {
+      modal.show();
+    };
+    //モーダルを閉じるメソッド
+    this.hide = function () {
+      modal.hide();
+    };
+
+    // モーダルが閉じられた後の処理
+    dialog.addEventListener("hidden.bs.modal", (e) => {
+      dialog.remove();
+    });
+
+    // Enterキーが押されたときの処理
+    function keydown_EnterKey(e) {
+      if (e.key === "Enter") {
+        // Enterキーが押されたら非表示にする
+        modal.hide();
+        controller.actionPerformed({ action: "CPTransformAccept" }); // 変形確定
+        that.emitEvent("accept");
+        parent.removeEventListener("keydown", keydown_EnterKey);
+      }
     }
+
+    parent.addEventListener("keydown", keydown_EnterKey);
+
+    // 親要素にダイアログを追加
+    parent.appendChild(dialog);
   }
-
-  parent.addEventListener("keydown", keydown_EnterKey);
-
-  // 親要素にダイアログを追加
-  parent.appendChild(dialog);
 }
-
-// CPConfirmTransformDialogはEventEmitterを継承
-CPConfirmTransformDialog.prototype = Object.create(EventEmitter.prototype);
-CPConfirmTransformDialog.prototype.constructor = CPConfirmTransformDialog;

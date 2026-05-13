@@ -28,304 +28,305 @@ import { _ } from "../languages/lang.js";
  * @this {any}
  */
 
-export default function CPSlider(
-  minValue,
-  maxValue,
-  centerMode,
-  expMode,
-  defaultWidth = 0,
-  expModeFactor = 0, //低い値の時にスライダーの動作を細やかにする係数
-  fractionalStep = false,
-) {
-  defaultWidth = defaultWidth ? defaultWidth : 150;
-  expModeFactor = expModeFactor ? expModeFactor : 3.0;
-  const PRECISE_DRAG_SCALE = 4,
-    DRAG_MODE_IDLE = 0,
-    DRAG_MODE_NORMAL = 1,
-    DRAG_MODE_PRECISE = 2;
+export default class CPSlider extends EventEmitter {
+  constructor(
+    minValue,
+    maxValue,
+    centerMode,
+    expMode,
+    defaultWidth = 0,
+    expModeFactor = 0, //低い値の時にスライダーの動作を細やかにする係数
+    fractionalStep = false,
+  ) {
+    super();
+    defaultWidth = defaultWidth ? defaultWidth : 150;
+    expModeFactor = expModeFactor ? expModeFactor : 3.0;
+    const PRECISE_DRAG_SCALE = 4,
+      DRAG_MODE_IDLE = 0,
+      DRAG_MODE_NORMAL = 1,
+      DRAG_MODE_PRECISE = 2;
 
-  let canvas = document.createElement("canvas"),
-    canvasContext = canvas.getContext("2d"),
-    valueRange = maxValue - minValue,
-    dragMode = DRAG_MODE_IDLE,
-    dragPreciseX,
-    doneInitialPaint = false,
-    that = this;
+    let canvas = document.createElement("canvas"),
+      canvasContext = canvas.getContext("2d"),
+      valueRange = maxValue - minValue,
+      dragMode = DRAG_MODE_IDLE,
+      dragPreciseX,
+      doneInitialPaint = false,
+      that = this;
+    that.title;
 
-  this.value = undefined;
-  canvas.addEventListener(
-    "touchmove",
-    (e) => {
-      e.preventDefault(); // デフォルトの動作をキャンセル
-    },
-    { passive: false },
-  );
+    this.value = undefined;
+    canvas.addEventListener(
+      "touchmove",
+      (e) => {
+        e.preventDefault(); // デフォルトの動作をキャンセル
+      },
+      { passive: false },
+    );
 
-  /**
-   * Either a string to draw on the slider, or a function(value) which receives the current value of the slider and
-   * should return the string to be painted to the slider.
-   *
-   * @name CPSlider#title
-   * @default ""
-   */
-  this.title = "";
+    /**
+     * Either a string to draw on the slider, or a function(value) which receives the current value of the slider and
+     * should return the string to be painted to the slider.
+     *
+     * @name CPSlider#title
+     * @default ""
+     */
+    this.title = null;
 
-  centerMode = centerMode || false;
+    centerMode = centerMode || false;
 
-  const boundaryValue = 5; // 均等表示の境目
+    const boundaryValue = 5; // 均等表示の境目
 
-  // 値がboundaryValueになるときのスライダー上の位置（0.0〜1.0）を自動計算して、均等エリアの幅を決める
-  const boundaryProp = Math.pow(
-    (boundaryValue - minValue) / valueRange,
-    1 / expModeFactor,
-  );
+    // 値がboundaryValueになるときのスライダー上の位置（0.0〜1.0）を自動計算して、均等エリアの幅を決める
+    const boundaryProp = Math.pow(
+      (boundaryValue - minValue) / valueRange,
+      1 / expModeFactor,
+    );
 
-  function paint() {
-    let width = canvas.width || defaultWidth;
-    let height = canvas.height;
-    let title =
-      typeof that.title === "string" ? _(that.title) : that.title(that.value);
-    let textX = 3 * window.devicePixelRatio;
-    let textY = canvas.height * 0.75;
-    if (!canvasContext) {
-      return;
-    }
-    if (centerMode) {
-      canvasContext.save();
-
-      canvasContext.fillStyle = "white";
-
-      canvasContext.fillRect(0, 0, width, height);
-
-      canvasContext.fillStyle = "black";
-
-      canvasContext.fillText(title, textX, textY);
-      canvasContext.beginPath();
-
-      if (that.value >= valueRange / 2) {
-        canvasContext.rect(
-          width / 2,
-          0,
-          ((that.value - valueRange / 2) * width) / valueRange,
-          height,
-        );
-      } else {
-        canvasContext.rect(
-          (that.value * width) / valueRange,
-          0,
-          ((valueRange / 2 - that.value) * width) / valueRange,
-          height,
-        );
+    function paint() {
+      let width = canvas.width || defaultWidth;
+      let height = canvas.height;
+      let title =
+        typeof that.title === "string" ? _(that.title) : that.title(that.value);
+      let textX = 3 * window.devicePixelRatio;
+      let textY = canvas.height * 0.75;
+      if (!canvasContext) {
+        return;
       }
+      if (centerMode) {
+        canvasContext.save();
 
-      canvasContext.fill();
-      canvasContext.clip();
+        canvasContext.fillStyle = "white";
 
-      canvasContext.fillStyle = "white";
-      canvasContext.fillText(title, textX, textY);
+        canvasContext.fillRect(0, 0, width, height);
 
-      canvasContext.restore();
-    } else {
-      let barProp;
+        canvasContext.fillStyle = "black";
 
-      if (expMode) {
-        if (that.value <= boundaryValue) {
-          // 均等エリアの描画
-          barProp =
-            ((that.value - minValue) / (boundaryValue - minValue)) *
-            boundaryProp;
+        canvasContext.fillText(title, textX, textY);
+        canvasContext.beginPath();
+
+        if (that.value >= valueRange / 2) {
+          canvasContext.rect(
+            width / 2,
+            0,
+            ((that.value - valueRange / 2) * width) / valueRange,
+            height,
+          );
         } else {
-          // 指数エリアの描画
-          // 「本来の指数計算での位置」に戻す
-          barProp = Math.pow(
-            (that.value - minValue) / valueRange,
-            1 / expModeFactor,
+          canvasContext.rect(
+            (that.value * width) / valueRange,
+            0,
+            ((valueRange / 2 - that.value) * width) / valueRange,
+            height,
           );
         }
+
+        canvasContext.fill();
+        canvasContext.clip();
+
+        canvasContext.fillStyle = "white";
+        canvasContext.fillText(title, textX, textY);
+
+        canvasContext.restore();
       } else {
-        barProp = (that.value - minValue) / valueRange;
+        let barProp;
+
+        if (expMode) {
+          if (that.value <= boundaryValue) {
+            // 均等エリアの描画
+            barProp =
+              ((that.value - minValue) / (boundaryValue - minValue)) *
+              boundaryProp;
+          } else {
+            // 指数エリアの描画
+            // 「本来の指数計算での位置」に戻す
+            barProp = Math.pow(
+              (that.value - minValue) / valueRange,
+              1 / expModeFactor,
+            );
+          }
+        } else {
+          barProp = (that.value - minValue) / valueRange;
+        }
+        let barWidth = barProp * width;
+
+        canvasContext.save();
+        canvasContext.save();
+
+        canvasContext.fillStyle = "black";
+
+        canvasContext.beginPath();
+        canvasContext.rect(0, 0, barWidth, height);
+        canvasContext.fill();
+
+        canvasContext.clip();
+
+        canvasContext.fillStyle = "white";
+        canvasContext.fillText(title, textX, textY);
+
+        // Remove the clip region
+        canvasContext.restore();
+
+        canvasContext.fillStyle = "white";
+
+        canvasContext.beginPath();
+        canvasContext.rect(barWidth, 0, width, height);
+        canvasContext.fill();
+
+        canvasContext.clip();
+
+        canvasContext.fillStyle = "black";
+        canvasContext.fillText(title, textX, textY);
+
+        canvasContext.restore();
       }
-      let barWidth = barProp * width;
-
-      canvasContext.save();
-      canvasContext.save();
-
-      canvasContext.fillStyle = "black";
-
-      canvasContext.beginPath();
-      canvasContext.rect(0, 0, barWidth, height);
-      canvasContext.fill();
-
-      canvasContext.clip();
-
-      canvasContext.fillStyle = "white";
-      canvasContext.fillText(title, textX, textY);
-
-      // Remove the clip region
-      canvasContext.restore();
-
-      canvasContext.fillStyle = "white";
-
-      canvasContext.beginPath();
-      canvasContext.rect(barWidth, 0, width, height);
-      canvasContext.fill();
-
-      canvasContext.clip();
-
-      canvasContext.fillStyle = "black";
-      canvasContext.fillText(title, textX, textY);
-
-      canvasContext.restore();
     }
-  }
 
-  function mouseSelect(e) {
-    let width = canvas.clientWidth;
-    let left = canvas.getBoundingClientRect().left + window.scrollX;
-    let proportion = (e.pageX - left) / width;
+    function mouseSelect(e) {
+      let width = canvas.clientWidth;
+      let left = canvas.getBoundingClientRect().left + window.scrollX;
+      let proportion = (e.pageX - left) / width;
 
-    let finalValue;
+      let finalValue;
 
-    if (expMode) {
-      if (proportion <= boundaryProp) {
-        // 均等エリア：
-        finalValue =
-          minValue + (proportion / boundaryProp) * (boundaryValue - minValue);
+      if (expMode) {
+        if (proportion <= boundaryProp) {
+          // 均等エリア：
+          finalValue =
+            minValue + (proportion / boundaryProp) * (boundaryValue - minValue);
+        } else {
+          // 指数エリア：boundaryValue以上
+          // ここで0にリセットせず、本来のカーブの「boundaryValue以降の形」を維持する
+          // 元々の計算式に戻し、最小値をminValueではなく「指数の底」として扱う
+          finalValue =
+            Math.pow(proportion, expModeFactor) * valueRange + minValue;
+        }
       } else {
-        // 指数エリア：boundaryValue以上
-        // ここで0にリセットせず、本来のカーブの「boundaryValue以降の形」を維持する
-        // 元々の計算式に戻し、最小値をminValueではなく「指数の底」として扱う
-        finalValue =
-          Math.pow(proportion, expModeFactor) * valueRange + minValue;
+        finalValue = proportion * valueRange + minValue;
       }
-    } else {
-      finalValue = proportion * valueRange + minValue;
+      that.setValue(finalValue);
     }
-    that.setValue(finalValue);
-  }
 
-  function pointerDragged(e) {
-    switch (dragMode) {
-      case DRAG_MODE_NORMAL:
-        return mouseSelect(e);
-      case DRAG_MODE_PRECISE:
-        let title = that.title();
-        //ブラシサイズと不透明度以外は細やかなスライダーの動作をしない
-        if (
-          !(title.includes(_("Brush size")) || title.includes(_("Opacity")))
-        ) {
+    function pointerDragged(e) {
+      switch (dragMode) {
+        case DRAG_MODE_NORMAL:
           return mouseSelect(e);
-        }
-        let diff = (e.pageX - dragPreciseX) / PRECISE_DRAG_SCALE;
-        if (diff !== 0) {
-          /* (0.5刻み対応) */
-          let unrounded = that.value + diff;
-          that.setValue(unrounded);
+        case DRAG_MODE_PRECISE:
+          let title = that.title();
+          //ブラシサイズと不透明度以外は細やかなスライダーの動作をしない
+          if (
+            !(title.includes(_("Brush size")) || title.includes(_("Opacity")))
+          ) {
+            return mouseSelect(e);
+          }
+          let diff = (e.pageX - dragPreciseX) / PRECISE_DRAG_SCALE;
+          if (diff !== 0) {
+            /* (0.5刻み対応) */
+            let unrounded = that.value + diff;
+            that.setValue(unrounded);
 
-          /* Tweak the "old mouseX" position such that the fractional part of the value we were unable to set
-           * will be accumulated
-           */
-          dragPreciseX =
-            e.pageX - (unrounded - that.value) * PRECISE_DRAG_SCALE;
-        }
-        break;
-    }
-  }
-
-  const handlePointerUp = (e) => {
-    // ドラッグ状態を解除
-    dragMode = DRAG_MODE_IDLE;
-
-    // ブラウザからのポインターキャプチャを解放
-    canvas.releasePointerCapture(e.pointerId);
-
-    //  pointermoveイベントのリスナーを削除
-    canvas.removeEventListener("pointermove", pointerDragged);
-  };
-  canvas.addEventListener("pointerup", handlePointerUp);
-  canvas.addEventListener("pointercancel", handlePointerUp);
-
-  this.setValue = function (_value) {
-    _value = Math.max(minValue, Math.min(maxValue, _value));
-
-    if (fractionalStep && _value <= 5) {
-      // 0.5単位で丸める（例: 1.2 → 1.0, 1.3 → 1.5）
-      _value = Math.round(_value * 2) / 2;
-    } else {
-      // 10以上のときは従来通り整数にする
-      _value = Math.floor(_value);
-    }
-
-    if (this.value != _value) {
-      this.value = _value;
-
-      // The event listeners might like to update our title property at this point to reflect the new value
-      this.emitEvent("valueChange", [this.value]);
-
-      if (doneInitialPaint) {
-        paint();
-      } else {
-        // We don't bother to do our canvas dimensioning until we're supplied with an initial value
-        doneInitialPaint = true;
-        this.resize();
+            /* Tweak the "old mouseX" position such that the fractional part of the value we were unable to set
+             * will be accumulated
+             */
+            dragPreciseX =
+              e.pageX - (unrounded - that.value) * PRECISE_DRAG_SCALE;
+          }
+          break;
       }
     }
-  };
 
-  /**
-   * Get the DOM element for the slider component.
-   */
-  this.getElement = function () {
-    return canvas;
-  };
+    const handlePointerUp = (e) => {
+      // ドラッグ状態を解除
+      dragMode = DRAG_MODE_IDLE;
 
-  this.resize = function () {
-    canvas.width = canvas.clientWidth || defaultWidth;
-    canvas.height = canvas.clientHeight || 20;
+      // ブラウザからのポインターキャプチャを解放
+      canvas.releasePointerCapture(e.pointerId);
 
-    if (window.devicePixelRatio > 1) {
-      // Assume our width is set to 100% or similar, so we only need to the fix the height
-      canvas.style.height = canvas.height + "px";
+      //  pointermoveイベントのリスナーを削除
+      canvas.removeEventListener("pointermove", pointerDragged);
+    };
+    canvas.addEventListener("pointerup", handlePointerUp);
+    canvas.addEventListener("pointercancel", handlePointerUp);
 
-      canvas.width = canvas.width * window.devicePixelRatio;
-      canvas.height = canvas.height * window.devicePixelRatio;
-    }
-    if (!canvasContext) {
-      return;
-    }
+    this.setValue = function (_value) {
+      _value = Math.max(minValue, Math.min(maxValue, _value));
 
-    canvasContext.font = canvas.height * 0.47 + "pt sans-serif";
-
-    paint();
-  };
-
-  canvas.addEventListener("pointerdown", function (e) {
-    if (dragMode === DRAG_MODE_IDLE) {
-      if (e.button === 2 || (e.button === 0 && e.shiftKey)) {
-        dragMode = DRAG_MODE_PRECISE;
-        dragPreciseX = e.pageX;
+      if (fractionalStep && _value <= 5) {
+        // 0.5単位で丸める（例: 1.2 → 1.0, 1.3 → 1.5）
+        _value = Math.round(_value * 2) / 2;
       } else {
-        dragMode = DRAG_MODE_NORMAL;
-        mouseSelect(e);
+        // 10以上のときは従来通り整数にする
+        _value = Math.floor(_value);
       }
 
-      canvas.setPointerCapture(e.pointerId);
-      canvas.addEventListener("pointermove", pointerDragged);
+      if (this.value != _value) {
+        this.value = _value;
+
+        // The event listeners might like to update our title property at this point to reflect the new value
+        that.emitEvent("valueChange", [this.value]);
+
+        if (doneInitialPaint) {
+          paint();
+        } else {
+          // We don't bother to do our canvas dimensioning until we're supplied with an initial value
+          doneInitialPaint = true;
+          that.resize();
+        }
+      }
+    };
+
+    /**
+     * Get the DOM element for the slider component.
+     */
+    this.getElement = function () {
+      return canvas;
+    };
+
+    this.resize = function () {
+      canvas.width = canvas.clientWidth || defaultWidth;
+      canvas.height = canvas.clientHeight || 20;
+
+      if (window.devicePixelRatio > 1) {
+        // Assume our width is set to 100% or similar, so we only need to the fix the height
+        canvas.style.height = canvas.height + "px";
+
+        canvas.width = canvas.width * window.devicePixelRatio;
+        canvas.height = canvas.height * window.devicePixelRatio;
+      }
+      if (!canvasContext) {
+        return;
+      }
+
+      canvasContext.font = canvas.height * 0.47 + "pt sans-serif";
+
+      paint();
+    };
+
+    canvas.addEventListener("pointerdown", function (e) {
+      if (dragMode === DRAG_MODE_IDLE) {
+        if (e.button === 2 || (e.button === 0 && e.shiftKey)) {
+          dragMode = DRAG_MODE_PRECISE;
+          dragPreciseX = e.pageX;
+        } else {
+          dragMode = DRAG_MODE_NORMAL;
+          mouseSelect(e);
+        }
+
+        canvas.setPointerCapture(e.pointerId);
+        canvas.addEventListener("pointermove", pointerDragged);
+      }
+    });
+
+    canvas.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+    });
+
+    canvas.setAttribute("touch-action", "none");
+    canvas.className = "chickenpaint-slider";
+
+    if (!("devicePixelRatio" in window)) {
+      // Old browsers
+      window.devicePixelRatio = 1.0;
     }
-  });
-
-  canvas.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
-  });
-
-  canvas.setAttribute("touch-action", "none");
-  canvas.className = "chickenpaint-slider";
-
-  if (!("devicePixelRatio" in window)) {
-    // Old browsers
-    window.devicePixelRatio = 1.0;
   }
 }
-
-CPSlider.prototype = Object.create(EventEmitter.prototype);
-CPSlider.prototype.constructor = CPSlider;

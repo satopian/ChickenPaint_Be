@@ -36,31 +36,59 @@ import CPRect from "../util/CPRect.js";
  * @this{typeof CPImageLayer
  *  & Record<string, any>}
  */
-export default function CPImageLayer(width, height, name) {
-  CPLayer.call(this, name);
+export default class CPImageLayer extends CPLayer {
+  constructor(width, height, name) {
+    super(name);
 
-  if (width > 0 && height > 0) {
-    this.image = new CPColorBmp(width, height);
-  } else {
-    this.image = null;
+    if (width > 0 && height > 0) {
+      this.image = new CPColorBmp(width, height);
+    } else {
+      this.image = null;
+    }
+
+    /**
+     * True if this layer should be clipped onto the CPImageLayer beneath it.
+     *
+     * @type {boolean}
+     */
+    this.clip = false;
+
+    /**
+     *
+     * @type {?CPColorBmp}
+     */
+    this.imageThumbnail = null;
   }
 
   /**
-   * True if this layer should be clipped onto the CPImageLayer beneath it.
+   * Returns an independent copy of this layer.
    *
-   * @type {boolean}
+   * @returns {CPImageLayer}
+   * @this {any}
    */
-  this.clip = false;
+  clone() {
+    var result = new CPImageLayer(0, 0, this.name);
 
+    result.copyFrom(this);
+
+    return result;
+  }
   /**
-   *
-   * @type {?CPColorBmp}
+   * @param {CPImageLayer} layer
    */
-  this.imageThumbnail = null;
-}
+  super(layer) {
+    super.copyFrom(layer);
 
-CPImageLayer.prototype = Object.create(CPLayer.prototype);
-CPImageLayer.prototype.constructor = CPImageLayer;
+    this.clip = layer.clip;
+    if (layer.image) {
+      if (!this.image) {
+        this.image = layer.image.clone();
+      } else {
+        this.image.copyPixelsFrom(layer.image);
+      }
+    }
+  }
+}
 
 CPImageLayer.createFromImage = function (image, name) {
   let result = new CPImageLayer(0, 0, name);
@@ -68,37 +96,6 @@ CPImageLayer.createFromImage = function (image, name) {
   result.image = image;
 
   return result;
-};
-
-/**
- * Returns an independent copy of this layer.
- *
- * @returns {CPImageLayer}
- * @this {any}
- */
-CPImageLayer.prototype.clone = function () {
-  var result = new CPImageLayer(0, 0, this.name);
-
-  result.copyFrom(this);
-
-  return result;
-};
-
-/**
- *
- * @param {CPImageLayer} layer
- */
-CPImageLayer.prototype.copyFrom = function (layer) {
-  CPLayer.prototype.copyFrom.call(this, layer);
-
-  this.clip = layer.clip;
-  if (layer.image) {
-    if (!this.image) {
-      this.image = layer.image.clone();
-    } else {
-      this.image.copyPixelsFrom(layer.image);
-    }
-  }
 };
 
 /**

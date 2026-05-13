@@ -30,29 +30,31 @@ import { _ } from "../languages/lang.js";
  * @this {any}
  */
 
-export default function CPColorPalette(cpController) {
-  CPPalette.call(this, cpController, "color", "Color (picker)");
+export default class CPColorPalette extends CPPalette {
+  constructor(cpController) {
+    super(cpController, "color", "Color (picker)");
 
-  let colorSelect = new CPColorSelect(cpController),
-    colorSlider = new CPColorSlider(cpController, colorSelect),
-    colorShow = new CPColorShow(cpController),
-    body = this.getBodyElement(),
-    topSection = document.createElement("div");
+    let colorSelect = new CPColorSelect(cpController),
+      colorSlider = new CPColorSlider(cpController, colorSelect),
+      colorShow = new CPColorShow(cpController),
+      body = this.getBodyElement(),
+      topSection = document.createElement("div");
 
-  topSection.className = "chickenpaint-colorpicker-top";
+    topSection.className = "chickenpaint-colorpicker-top";
 
-  topSection.appendChild(colorSelect.getElement());
-  topSection.appendChild(colorSlider.getElement());
+    topSection.appendChild(colorSelect.getElement());
+    topSection.appendChild(colorSlider.getElement());
 
-  body.appendChild(topSection);
-  body.appendChild(colorShow.getElement());
-  body.addEventListener(
-    "touchmove",
-    (e) => {
-      e.preventDefault(); // デフォルトの動作をキャンセル
-    },
-    { passive: false },
-  );
+    body.appendChild(topSection);
+    body.appendChild(colorShow.getElement());
+    body.addEventListener(
+      "touchmove",
+      (e) => {
+        e.preventDefault(); // デフォルトの動作をキャンセル
+      },
+      { passive: false },
+    );
+  }
 }
 
 function CPColorShow(controller) {
@@ -106,6 +108,3 @@ function CPColorShow(controller) {
 
   paint();
 }
-
-CPColorPalette.prototype = Object.create(CPPalette.prototype);
-CPColorPalette.prototype.constructor = CPColorPalette;

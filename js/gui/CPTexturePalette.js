@@ -114,477 +114,477 @@ function loadTextures(textureFilename, width, height, textureCount, then) {
  * @this {any}
  */
 
-export default function CPTexturePalette(controller) {
-  CPPalette.call(this, controller, "textures", "Textures");
+export default class CPTexturePalette extends CPPalette {
+  constructor(controller) {
+    super(controller, "textures", "Textures");
 
-  let TEXTURE_PREVIEW_SIZE = 64,
-    TEXTURE_SWATCH_BUTTON_SIZE = 32,
-    /**
-     * @type {CPGreyBmp}
-     */
-    selectedTexture,
-    /**
-     * @type {CPGreyBmp}
-     */
-    processedTexture,
-    mirror = false,
-    inverse = false,
-    brightness = 0.0,
-    contrast = 0.0,
-    scale = 1.0,
-    optionsPanel,
-    texturesPanel = document.createElement("div"),
-    body = this.getBodyElement();
+    let TEXTURE_PREVIEW_SIZE = 64,
+      TEXTURE_SWATCH_BUTTON_SIZE = 32,
+      /**
+       * @type {CPGreyBmp}
+       */
+      selectedTexture,
+      /**
+       * @type {CPGreyBmp}
+       */
+      processedTexture,
+      mirror = false,
+      inverse = false,
+      brightness = 0.0,
+      contrast = 0.0,
+      scale = 1.0,
+      optionsPanel,
+      texturesPanel = document.createElement("div"),
+      body = this.getBodyElement();
 
-  function addTextures(newTextures) {
-    for (let i = 0; i < newTextures.length; i++) {
-      let texture = newTextures[i],
-        button = new CPTextureSwatch(
-          texture,
-          TEXTURE_SWATCH_BUTTON_SIZE,
-          TEXTURE_SWATCH_BUTTON_SIZE,
+    function addTextures(newTextures) {
+      for (let i = 0; i < newTextures.length; i++) {
+        let texture = newTextures[i],
+          button = new CPTextureSwatch(
+            texture,
+            TEXTURE_SWATCH_BUTTON_SIZE,
+            TEXTURE_SWATCH_BUTTON_SIZE,
+          );
+        button.on("click", function () {
+          selectedTexture = button.texture;
+          updateSelectedTexture();
+        });
+
+        texturesPanel.appendChild(button.getElement());
+      }
+    }
+
+    /**
+     * Generate and return an array of procedurally-generated textures
+     *
+     * @returns CPGreyBmp[]
+     */
+    function makeProceduralTextures() {
+      let result = [null];
+
+      let texture = new CPGreyBmp(2, 2, 8);
+      texture.data[0] = 0xff;
+      texture.data[3] = 0xff;
+      result.push(texture);
+
+      result.push(makeDotTexture(2));
+      result.push(makeDotTexture(3));
+      result.push(makeDotTexture(4));
+      result.push(makeDotTexture(6));
+      result.push(makeDotTexture(8));
+
+      result.push(makeVertLinesTexture(1, 2));
+      result.push(makeVertLinesTexture(2, 4));
+
+      result.push(makeHorizLinesTexture(1, 2));
+      result.push(makeHorizLinesTexture(2, 4));
+
+      result.push(makeCheckerBoardTexture(2));
+      result.push(makeCheckerBoardTexture(4));
+      result.push(makeCheckerBoardTexture(8));
+      result.push(makeCheckerBoardTexture(16));
+      result.push(makeNoiseTexture(256));
+
+      return result;
+    }
+
+    /**
+     * @param size int
+     *
+     * @returns CPGreyBmp
+     */
+    function makeDotTexture(size) {
+      let texture = new CPGreyBmp(size, size, 8);
+
+      for (let i = 1; i < size * size; i++) {
+        texture.data[i] = 0xff;
+      }
+      return texture;
+    }
+
+    /**
+     * Make a checkerboard texture of the given dimensions.
+     *
+     * @param size int
+     *
+     * @returns CPGreyBmp
+     */
+    function makeCheckerBoardTexture(size) {
+      let textureSize = 2 * size,
+        texture = new CPGreyBmp(textureSize, textureSize, 8);
+
+      for (let i = 0; i < textureSize; i++) {
+        for (let j = 0; j < textureSize; j++) {
+          texture.data[i + j * textureSize] =
+            (~~(i / size) + ~~(j / size)) % 2 == 0 ? 0 : 0xff;
+        }
+      }
+
+      return texture;
+    }
+
+    /**
+     * Make a texture consisting of a series of evenly-spaced vertical lines
+     *
+     * @param lineSize int
+     * @param size int
+     *
+     * @returns CPGreyBmp
+     */
+    function makeVertLinesTexture(lineSize, size) {
+      let texture = new CPGreyBmp(size, size, 8);
+
+      for (let i = 0; i < size * size; i++) {
+        if (~~(i % size) >= lineSize) {
+          texture.data[i] = 0xff;
+        }
+      }
+
+      return texture;
+    }
+
+    /**
+     * Make a texture consisting of a series of evenly-spaced horizontal lines
+     *
+     * @param lineSize int
+     * @param size int
+     *
+     * @returns CPGreyBmp
+     */
+    function makeHorizLinesTexture(lineSize, size) {
+      let texture = new CPGreyBmp(size, size, 8);
+
+      for (let i = 0; i < size * size; i++) {
+        if (i / size >= lineSize) {
+          texture.data[i] = 0xff;
+        }
+      }
+
+      return texture;
+    }
+
+    /**
+     * Make a texture consisting of random noise with adjusted brightness and contrast
+     *
+     * @param {number} size - The width and height of the square texture (e.g., 32 for a 32x32 texture)
+     *
+     * @returns {CPGreyBmp} - A grayscale bitmap filled with random noise and adjusted brightness/contrast
+     */
+    function makeNoiseTexture(size) {
+      const brightnessFactor = 0.65;
+      const contrastFactor = 0.65;
+
+      let texture = new CPGreyBmp(size, size, 8);
+
+      for (let i = 0; i < size * size; i++) {
+        // ランダムなノイズ（0から255まで）
+        let noiseValue = Math.floor(Math.random() * 256);
+
+        // 輝度を調整
+        let adjustedBrightness = noiseValue * brightnessFactor;
+
+        // コントラストを調整
+        let adjustedContrast =
+          (adjustedBrightness - 128) * contrastFactor + 128;
+
+        // テクスチャデータに反映
+        texture.data[i] = Math.max(
+          0,
+          Math.min(255, Math.floor(adjustedContrast)),
         );
-      button.on("click", function () {
-        selectedTexture = button.texture;
-        updateSelectedTexture();
-      });
+      }
 
-      texturesPanel.appendChild(button.getElement());
+      return texture;
     }
-  }
 
-  /**
-   * Generate and return an array of procedurally-generated textures
-   *
-   * @returns CPGreyBmp[]
-   */
-  function makeProceduralTextures() {
-    let result = [null];
+    function scaleGreyBmp(src, scale) {
+      let newW = Math.max(1, Math.floor(src.width * scale));
+      let newH = Math.max(1, Math.floor(src.height * scale));
+      let dst = new CPGreyBmp(newW, newH, src.bitDepth);
 
-    let texture = new CPGreyBmp(2, 2, 8);
-    texture.data[0] = 0xff;
-    texture.data[3] = 0xff;
-    result.push(texture);
+      let minVal = 255;
+      let maxVal = 0;
 
-    result.push(makeDotTexture(2));
-    result.push(makeDotTexture(3));
-    result.push(makeDotTexture(4));
-    result.push(makeDotTexture(6));
-    result.push(makeDotTexture(8));
+      for (let y = 0; y < newH; y++) {
+        for (let x = 0; x < newW; x++) {
+          let srcX = Math.floor(x / scale);
+          let srcY = Math.floor(y / scale);
+          let val = src.data[srcY * src.width + srcX];
+          dst.data[y * newW + x] = val;
 
-    result.push(makeVertLinesTexture(1, 2));
-    result.push(makeVertLinesTexture(2, 4));
+          // 最大値・最小値を記録
+          if (val < minVal) minVal = val;
+          if (val > maxVal) maxVal = val;
+        }
+      }
 
-    result.push(makeHorizLinesTexture(1, 2));
-    result.push(makeHorizLinesTexture(2, 4));
+      // 全体が黒か白なら元画像を返す
+      if (minVal === maxVal) {
+        return src;
+      }
 
-    result.push(makeCheckerBoardTexture(2));
-    result.push(makeCheckerBoardTexture(4));
-    result.push(makeCheckerBoardTexture(8));
-    result.push(makeCheckerBoardTexture(16));
-    result.push(makeNoiseTexture(256));
-
-    return result;
-  }
-
-  /**
-   * @param size int
-   *
-   * @returns CPGreyBmp
-   */
-  function makeDotTexture(size) {
-    let texture = new CPGreyBmp(size, size, 8);
-
-    for (let i = 1; i < size * size; i++) {
-      texture.data[i] = 0xff;
+      return dst;
     }
-    return texture;
-  }
 
-  /**
-   * Make a checkerboard texture of the given dimensions.
-   *
-   * @param size int
-   *
-   * @returns CPGreyBmp
-   */
-  function makeCheckerBoardTexture(size) {
-    let textureSize = 2 * size,
-      texture = new CPGreyBmp(textureSize, textureSize, 8);
+    function updateSelectedTexture() {
+      if (selectedTexture != null) {
+        processedTexture = selectedTexture.clone();
 
-    for (let i = 0; i < textureSize; i++) {
-      for (let j = 0; j < textureSize; j++) {
-        texture.data[i + j * textureSize] =
-          (~~(i / size) + ~~(j / size)) % 2 == 0 ? 0 : 0xff;
+        if (mirror) {
+          processedTexture.mirrorHorizontally();
+        }
+
+        let lut = new CPLookUpTable();
+
+        lut.loadBrightnessContrast(brightness, contrast);
+
+        if (inverse) {
+          lut.invert();
+        }
+        if (scale !== 1.0) {
+          processedTexture = scaleGreyBmp(processedTexture, scale);
+        }
+        processedTexture.applyLUT(lut);
+      } else {
+        processedTexture = null;
+      }
+
+      controller.getArtwork().setBrushTexture(processedTexture);
+
+      if (optionsPanel != null) {
+        optionsPanel.updateTexture();
       }
     }
 
-    return texture;
-  }
+    function CPTextureOptionsPanel() {
+      let panel = document.createElement("div"),
+        cbInverse = document.createElement("input"),
+        cbMirror = document.createElement("input"),
+        slBrightness = new CPSlider(0, 200, true),
+        slContrast = new CPSlider(0, 200, true),
+        slScale = new CPSlider(50, 800, false, true, 150, 3.9),
+        sampleSwatch = new CPTextureSwatch(
+          null,
+          TEXTURE_PREVIEW_SIZE,
+          TEXTURE_PREVIEW_SIZE,
+        ),
+        btnCustomize = document.createElement("button"),
+        textureControlsPanel;
+      // Bootstrap Popover インスタンス
+      const bootstrapPopover = new bootstrap.Popover(btnCustomize, {
+        html: true,
+        content: () => textureControlsPanel,
+        trigger: "manual",
+        placement: "right", // ツールチップの位置を右に指定
+        container: body,
+        fallbackPlacements: [], // 自動で他の方向に切り替えない
+      });
+      function updatePopoverControls() {
+        cbInverse.checked = inverse;
+        cbMirror.checked = mirror;
 
-  /**
-   * Make a texture consisting of a series of evenly-spaced vertical lines
-   *
-   * @param lineSize int
-   * @param size int
-   *
-   * @returns CPGreyBmp
-   */
-  function makeVertLinesTexture(lineSize, size) {
-    let texture = new CPGreyBmp(size, size, 8);
-
-    for (let i = 0; i < size * size; i++) {
-      if (~~(i % size) >= lineSize) {
-        texture.data[i] = 0xff;
-      }
-    }
-
-    return texture;
-  }
-
-  /**
-   * Make a texture consisting of a series of evenly-spaced horizontal lines
-   *
-   * @param lineSize int
-   * @param size int
-   *
-   * @returns CPGreyBmp
-   */
-  function makeHorizLinesTexture(lineSize, size) {
-    let texture = new CPGreyBmp(size, size, 8);
-
-    for (let i = 0; i < size * size; i++) {
-      if (i / size >= lineSize) {
-        texture.data[i] = 0xff;
-      }
-    }
-
-    return texture;
-  }
-
-  /**
-   * Make a texture consisting of random noise with adjusted brightness and contrast
-   *
-   * @param {number} size - The width and height of the square texture (e.g., 32 for a 32x32 texture)
-   *
-   * @returns {CPGreyBmp} - A grayscale bitmap filled with random noise and adjusted brightness/contrast
-   */
-  function makeNoiseTexture(size) {
-    const brightnessFactor = 0.65;
-    const contrastFactor = 0.65;
-
-    let texture = new CPGreyBmp(size, size, 8);
-
-    for (let i = 0; i < size * size; i++) {
-      // ランダムなノイズ（0から255まで）
-      let noiseValue = Math.floor(Math.random() * 256);
-
-      // 輝度を調整
-      let adjustedBrightness = noiseValue * brightnessFactor;
-
-      // コントラストを調整
-      let adjustedContrast = (adjustedBrightness - 128) * contrastFactor + 128;
-
-      // テクスチャデータに反映
-      texture.data[i] = Math.max(
-        0,
-        Math.min(255, Math.floor(adjustedContrast)),
-      );
-    }
-
-    return texture;
-  }
-
-  function scaleGreyBmp(src, scale) {
-    let newW = Math.max(1, Math.floor(src.width * scale));
-    let newH = Math.max(1, Math.floor(src.height * scale));
-    let dst = new CPGreyBmp(newW, newH, src.bitDepth);
-
-    let minVal = 255;
-    let maxVal = 0;
-
-    for (let y = 0; y < newH; y++) {
-      for (let x = 0; x < newW; x++) {
-        let srcX = Math.floor(x / scale);
-        let srcY = Math.floor(y / scale);
-        let val = src.data[srcY * src.width + srcX];
-        dst.data[y * newW + x] = val;
-
-        // 最大値・最小値を記録
-        if (val < minVal) minVal = val;
-        if (val > maxVal) maxVal = val;
-      }
-    }
-
-    // 全体が黒か白なら元画像を返す
-    if (minVal === maxVal) {
-      return src;
-    }
-
-    return dst;
-  }
-
-  function updateSelectedTexture() {
-    if (selectedTexture != null) {
-      processedTexture = selectedTexture.clone();
-
-      if (mirror) {
-        processedTexture.mirrorHorizontally();
+        slBrightness.setValue(brightness * 100 + 100);
+        slContrast.setValue(contrast * 100 + 100);
+        slScale.setValue(scale * 100);
       }
 
-      let lut = new CPLookUpTable();
+      function buildTextureControlsPanel() {
+        let panel = document.createElement("div");
 
-      lut.loadBrightnessContrast(brightness, contrast);
+        panel.className = "chickenpaint-texture-controls";
 
-      if (inverse) {
-        lut.invert();
-      }
-      if (scale !== 1.0) {
-        processedTexture = scaleGreyBmp(processedTexture, scale);
-      }
-      processedTexture.applyLUT(lut);
-    } else {
-      processedTexture = null;
-    }
+        cbInverse.id = "chickenpaint-chk-texture-invert";
+        cbInverse.type = "checkbox";
+        cbInverse.addEventListener("click", function (e) {
+          inverse = this.checked;
+          updateSelectedTexture();
+        });
 
-    controller.getArtwork().setBrushTexture(processedTexture);
+        panel.appendChild(wrapBootstrapCheckbox(cbInverse, _("Inverse")));
 
-    if (optionsPanel != null) {
-      optionsPanel.updateTexture();
-    }
-  }
+        cbMirror.id = "chickenpaint-chk-texture-mirror";
+        cbMirror.type = "checkbox";
+        cbMirror.addEventListener("click", function (e) {
+          mirror = this.checked;
+          updateSelectedTexture();
+        });
 
-  function CPTextureOptionsPanel() {
-    let panel = document.createElement("div"),
-      cbInverse = document.createElement("input"),
-      cbMirror = document.createElement("input"),
-      slBrightness = new CPSlider(0, 200, true),
-      slContrast = new CPSlider(0, 200, true),
-      slScale = new CPSlider(50, 800, false, true, 150, 3.9),
-      sampleSwatch = new CPTextureSwatch(
-        null,
-        TEXTURE_PREVIEW_SIZE,
-        TEXTURE_PREVIEW_SIZE,
-      ),
-      btnCustomize = document.createElement("button"),
-      textureControlsPanel;
-    // Bootstrap Popover インスタンス
-    const bootstrapPopover = new bootstrap.Popover(btnCustomize, {
-      html: true,
-      content: () => textureControlsPanel,
-      trigger: "manual",
-      placement: "right", // ツールチップの位置を右に指定
-      container: body,
-      fallbackPlacements: [], // 自動で他の方向に切り替えない
-    });
-    function updatePopoverControls() {
-      cbInverse.checked = inverse;
-      cbMirror.checked = mirror;
+        panel.appendChild(wrapBootstrapCheckbox(cbMirror, _("Mirror")));
 
-      slBrightness.setValue(brightness * 100 + 100);
-      slContrast.setValue(contrast * 100 + 100);
-      slScale.setValue(scale * 100);
-    }
+        slBrightness.title = function (value) {
+          return _("Brightness") + ": " + (value - 100) + "%";
+        };
 
-    function buildTextureControlsPanel() {
-      let panel = document.createElement("div");
+        slBrightness.on("valueChange", function (value) {
+          brightness = (value - 100) / 100.0;
 
-      panel.className = "chickenpaint-texture-controls";
+          updateSelectedTexture();
+        });
 
-      cbInverse.id = "chickenpaint-chk-texture-invert";
-      cbInverse.type = "checkbox";
-      cbInverse.addEventListener("click", function (e) {
-        inverse = this.checked;
-        updateSelectedTexture();
-      });
+        panel.appendChild(slBrightness.getElement());
 
-      panel.appendChild(wrapBootstrapCheckbox(cbInverse, _("Inverse")));
+        slContrast.title = function (value) {
+          return _("Contrast") + ": " + (value - 100) + "%";
+        };
 
-      cbMirror.id = "chickenpaint-chk-texture-mirror";
-      cbMirror.type = "checkbox";
-      cbMirror.addEventListener("click", function (e) {
-        mirror = this.checked;
-        updateSelectedTexture();
-      });
+        slContrast.on("valueChange", function (value) {
+          contrast = (value - 100) / 100;
 
-      panel.appendChild(wrapBootstrapCheckbox(cbMirror, _("Mirror")));
+          updateSelectedTexture();
+        });
 
-      slBrightness.title = function (value) {
-        return _("Brightness") + ": " + (value - 100) + "%";
-      };
+        panel.appendChild(slContrast.getElement());
+        slScale.title = function (value) {
+          return _("Scale") + ": " + value + "%";
+        };
 
-      slBrightness.on("valueChange", function (value) {
-        brightness = (value - 100) / 100.0;
+        slScale.on("valueChange", function (value) {
+          scale = value / 100;
 
-        updateSelectedTexture();
-      });
+          updateSelectedTexture();
+        });
 
-      panel.appendChild(slBrightness.getElement());
+        panel.appendChild(slScale.getElement());
 
-      slContrast.title = function (value) {
-        return _("Contrast") + ": " + (value - 100) + "%";
-      };
+        let okayButton = document.createElement("button"),
+          resetButton = document.createElement("button");
 
-      slContrast.on("valueChange", function (value) {
-        contrast = (value - 100) / 100;
+        okayButton.textContent = "Ok";
+        okayButton.className = "btn btn-primary btn-sm";
+        okayButton.type = "button";
 
-        updateSelectedTexture();
-      });
+        okayButton.addEventListener("click", function (e) {
+          bootstrapPopover.hide();
+        });
 
-      panel.appendChild(slContrast.getElement());
-      slScale.title = function (value) {
-        return _("Scale") + ": " + value + "%";
-      };
+        panel.appendChild(okayButton);
+        panel.appendChild(document.createTextNode(" "));
 
-      slScale.on("valueChange", function (value) {
-        scale = value / 100;
+        resetButton.textContent = _("Reset");
+        resetButton.className = "btn btn-secondary btn-sm";
+        resetButton.type = "button";
 
-        updateSelectedTexture();
-      });
+        resetButton.addEventListener("click", function (e) {
+          brightness = 0;
+          contrast = 0;
+          scale = 1.0;
+          mirror = false;
+          inverse = false;
 
-      panel.appendChild(slScale.getElement());
+          updatePopoverControls();
+          updateSelectedTexture();
+        });
 
-      let okayButton = document.createElement("button"),
-        resetButton = document.createElement("button");
-
-      okayButton.textContent = "Ok";
-      okayButton.className = "btn btn-primary btn-sm";
-      okayButton.type = "button";
-
-      okayButton.addEventListener("click", function (e) {
-        bootstrapPopover.hide();
-      });
-
-      panel.appendChild(okayButton);
-      panel.appendChild(document.createTextNode(" "));
-
-      resetButton.textContent = _("Reset");
-      resetButton.className = "btn btn-secondary btn-sm";
-      resetButton.type = "button";
-
-      resetButton.addEventListener("click", function (e) {
-        brightness = 0;
-        contrast = 0;
-        scale = 1.0;
-        mirror = false;
-        inverse = false;
+        panel.appendChild(resetButton);
 
         updatePopoverControls();
-        updateSelectedTexture();
+
+        return panel;
+      }
+
+      // TODO use events instead
+      this.updateTexture = function () {
+        btnCustomize.disabled = processedTexture == null;
+        sampleSwatch.setTexture(processedTexture);
+      };
+
+      this.getElement = function () {
+        return panel;
+      };
+
+      panel.className = "chickenpaint-texture-options";
+      panel.appendChild(sampleSwatch.getElement());
+
+      btnCustomize.type = "button";
+      btnCustomize.className = "btn btn-light btn-sm";
+      btnCustomize.setAttribute("data-bs-toggle", "popover");
+      btnCustomize.setAttribute("data-bs-placement", "right");
+      btnCustomize.textContent = _("Customize");
+
+      textureControlsPanel = buildTextureControlsPanel();
+
+      btnCustomize.addEventListener("click", function () {
+        bootstrapPopover.toggle();
       });
 
-      panel.appendChild(resetButton);
+      panel.appendChild(btnCustomize);
 
-      updatePopoverControls();
-
-      return panel;
+      this.updateTexture();
     }
 
-    // TODO use events instead
-    this.updateTexture = function () {
-      btnCustomize.disabled = processedTexture == null;
-      sampleSwatch.setTexture(processedTexture);
-    };
-
-    this.getElement = function () {
-      return panel;
-    };
-
-    panel.className = "chickenpaint-texture-options";
-    panel.appendChild(sampleSwatch.getElement());
-
-    btnCustomize.type = "button";
-    btnCustomize.className = "btn btn-light btn-sm";
-    btnCustomize.setAttribute("data-bs-toggle", "popover");
-    btnCustomize.setAttribute("data-bs-placement", "right");
-    btnCustomize.textContent = _("Customize");
-
-    textureControlsPanel = buildTextureControlsPanel();
-
-    btnCustomize.addEventListener("click", function () {
-      bootstrapPopover.toggle();
-    });
-
-    panel.appendChild(btnCustomize);
-
-    this.updateTexture();
-  }
-
-  /**
-   *
-   * @param {CPGreyBmp} texture
-   * @param {number} width
-   * @param {number} height
-   * @constructor
-   * @this {any}
-   */
-  function CPTextureSwatch(texture, width, height) {
-    let canvas = document.createElement("canvas"),
-      canvasContext = canvas.getContext("2d"),
-      that = this;
-    this.texture = null;
-
     /**
+     *
      * @param {CPGreyBmp} texture
+     * @param {number} width
+     * @param {number} height
+     * @constructor
+     * @this {any}
      */
-    this.setTexture = function (texture) {
-      this.texture = texture;
+    class CPTextureSwatch extends EventEmitter {
+      constructor(texture, width, height) {
+        super();
+        let canvas = document.createElement("canvas"),
+          canvasContext = canvas.getContext("2d"),
+          that = this;
+        this.texture = null;
 
-      this.paint();
-    };
+        /**
+         * @param {CPGreyBmp} texture
+         */
+        this.setTexture = function (texture) {
+          this.texture = texture;
 
-    this.getElement = function () {
-      return canvas;
-    };
+          that.paint();
+        };
 
-    this.paint = function () {
-      if (!canvasContext) {
-        return;
+        this.getElement = function () {
+          return canvas;
+        };
+
+        this.paint = function () {
+          if (!canvasContext) {
+            return;
+          }
+          if (this.texture != null) {
+            canvasContext.fillStyle = canvasContext.createPattern(
+              this.texture.getAsCanvas(),
+              "repeat",
+            );
+          } else {
+            canvasContext.fillStyle = "white";
+          }
+          canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+        };
+
+        canvas.addEventListener("click", function () {
+          that.emit("click");
+        });
+
+        canvas.width = width;
+        canvas.height = height;
+
+        this.setTexture(texture);
       }
-      if (this.texture != null) {
-        canvasContext.fillStyle = canvasContext.createPattern(
-          this.texture.getAsCanvas(),
-          "repeat",
-        );
-      } else {
-        canvasContext.fillStyle = "white";
-      }
-      canvasContext.fillRect(0, 0, canvas.width, canvas.height);
-    };
+    }
 
-    canvas.addEventListener("click", function () {
-      that.emit("click");
-    });
+    optionsPanel = new CPTextureOptionsPanel();
 
-    canvas.width = width;
-    canvas.height = height;
+    body.appendChild(optionsPanel.getElement());
 
-    this.setTexture(texture);
+    texturesPanel.className = "chickenpaint-texture-swatches";
+
+    body.appendChild(texturesPanel);
+
+    addTextures(makeProceduralTextures());
+
+    loadTextures(
+      controller.getResourcesRoot() + "gfx/textures32.png?20241024.1",
+      32,
+      32,
+      2,
+      function (loadedTextures) {
+        addTextures(loadedTextures);
+      },
+    );
   }
-
-  CPTextureSwatch.prototype = Object.create(EventEmitter.prototype);
-  CPTextureSwatch.prototype.constructor = CPTextureSwatch;
-
-  optionsPanel = new CPTextureOptionsPanel();
-
-  body.appendChild(optionsPanel.getElement());
-
-  texturesPanel.className = "chickenpaint-texture-swatches";
-
-  body.appendChild(texturesPanel);
-
-  addTextures(makeProceduralTextures());
-
-  loadTextures(
-    controller.getResourcesRoot() + "gfx/textures32.png?20241024.1",
-    32,
-    32,
-    2,
-    function (loadedTextures) {
-      addTextures(loadedTextures);
-    },
-  );
 }
-
-CPTexturePalette.prototype = Object.create(CPPalette.prototype);
-CPTexturePalette.prototype.constructor = CPTexturePalette;

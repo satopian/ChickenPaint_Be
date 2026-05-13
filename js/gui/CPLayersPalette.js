@@ -104,1567 +104,1587 @@ function computeLayerPredicates(layer, isEditingMask) {
  * @this {any}
  */
 
-export default function CPLayersPalette(controller) {
-  CPPalette.call(this, controller, "layers", "Layers", {
-    resizeHorz: true,
-    resizeVert: true,
-  });
+export default class CPLayersPalette extends CPPalette {
+  constructor(controller) {
+    super(controller, "layers", "Layers", {
+      resizeHorz: true,
+      resizeVert: true,
+    });
 
-  const NOTIFICATION_HIDE_DELAY_MS_PER_CHAR = 70,
-    NOTIFICATION_HIDE_DELAY_MIN = 3000,
-    BUTTON_PRIMARY = 0,
-    BUTTON_WHEEL = 1,
-    BUTTON_SECONDARY = 2;
+    const NOTIFICATION_HIDE_DELAY_MS_PER_CHAR = 70,
+      NOTIFICATION_HIDE_DELAY_MIN = 3000,
+      BUTTON_PRIMARY = 0,
+      BUTTON_WHEEL = 1,
+      BUTTON_SECONDARY = 2;
 
-  let palette = this,
-    artwork = controller.getArtwork(),
-    /**
-     * An array of layers in display order, with the layers inside collapsed groups not present.
-     *
-     * @type {CPLayer[]}
-     */
-    linearizedLayers = null,
-    body = this.getBodyElement(),
-    positionRoot = this.getElement(),
-    // This element will be responsible for positioning the BS dropdown
-    dropdownParent = positionRoot,
-    layerWidget = new CPLayerWidget(),
-    alphaSlider = new CPSlider(0, 100, false, false, 208),
-    blendCombo = document.createElement("select"),
-    renameField = new CPRenameField(),
-    cbSampleAllLayers = document.createElement("input"),
-    cbLockAlpha = document.createElement("input"),
-    notificationDismissTimer = false,
-    layerActionButtons;
-
-  /**
-   *
-   * @param {number} displayIndex
-   * @returns {CPLayer}
-   */
-  function getLayerFromDisplayIndex(displayIndex) {
-    return linearizedLayers[displayIndex];
-  }
-
-  /**
-   *
-   * @param {CPLayer} layer
-   * @returns {number}
-   */
-  function getDisplayIndexFromLayer(layer) {
-    return linearizedLayers.indexOf(layer);
-  }
-
-  function CPLayerWidget() {
-    const LAYER_DRAG_START_THRESHOLD = 5, // Pixels we have to move a layer before it shows as "dragging"
-      LAYER_IN_GROUP_INDENT = 16,
-      CLASSNAME_LAYER_ACTIVE = "active",
-      CLASSNAME_LAYER_VISIBLE = "chickenpaint-layer-visible",
-      CLASSNAME_LAYER_HIDDEN = "chickenpaint-layer-hidden",
-      CLASSNAME_LAYER_GROUP_EXPANDED = "chickenpaint-layer-group-expanded",
-      CLASSNAME_LAYER_GROUP_COLLAPSED = "chickenpaint-layer-group-collapsed",
-      CLASSNAME_LAYER_GROUP_TOGGLE = "chickenpaint-layer-group-toggle",
-      CLASSNAME_LAYER_IMAGE_THUMBNAIL = "chickenpaint-layer-image-thumbnail",
-      CLASSNAME_LAYER_MASK_THUMBNAIL = "chickenpaint-layer-mask-thumbnail",
-      CLASSNAME_LAYER_THUMBNAIL = "chickenpaint-layer-thumbnail",
-      DRAG_STATE_IDLE = 0,
-      DRAG_STATE_PRE_DRAG = 1, // If we've put our cursor down but we're not sure if we're dragging or clicking yet
-      DRAG_STATE_DRAGGING = 2, // When we're really dragging
-      DRAG_STATE_PRE_PAN = 3, // Pen/touch is down, we could either click, drag or pan
-      DRAG_STATE_PANNING = 4,
-      LONG_PRESS_INTERVAL = 800;
-
-    let drag = {
-        /**
-         *
-         * @type {number}
-         */
-        state: DRAG_STATE_IDLE,
-
-        /**
-         * The image layer currently being dragged, or null if no drag is in progress.
-         *
-         * @type {?typeof CPLayer}
-         */
-        layer: null,
-
-        /**
-         * The element of the layer being dragged
-         *
-         * @type {HTMLElement}
-         */
-        layerElem: null,
-
-        /**
-         * @type {number}
-         */
-        dragX: 0,
-
-        /**
-         * @type {number}
-         */
-        dragY: 0,
-
-        /**
-         * @type {number}
-         */
-        initialScrollTop: 0,
-
-        dropTarget: null,
-        dropBetweenMarkerElem: null,
-        frameElem: null,
-      },
-      widgetContainer = document.createElement("div"),
-      layerContainer = document.createElement("div"),
-      scrollContainer = layerContainer,
-      //ドロップダウンメニュー関連項目のコメントアウト
-      // dropdownLayerMenu = createLayerDropdownMenu(),
-      // dropdownMousePos = {x: 0, y: 0},
-
+    let palette = this,
+      artwork = controller.getArtwork(),
       /**
-       * @type {number} Rotation of image in 90 degree units
-       */
-      imageRotation = 0,
-      /**
-       * The layer we right-clicked on to open the dropdown
+       * An array of layers in display order, with the layers inside collapsed groups not present.
        *
-       * @type {CPLayer}
+       * @type {CPLayer[]}
        */
-      dropdownLayer = null,
-      /**
-       * True if we right-clicked on the mask of the layer for the dropdown.
-       * @type {boolean}
-       */
-      dropdownOnMask = false,
-      longPressTimer = null;
+      linearizedLayers = null,
+      body = this.getBodyElement(),
+      positionRoot = this.getElement(),
+      // This element will be responsible for positioning the BS dropdown
+      dropdownParent = positionRoot,
+      layerWidget = new CPLayerWidget(),
+      alphaSlider = new CPSlider(0, 100, false, false, 208),
+      blendCombo = document.createElement("select"),
+      renameField = new CPRenameField(),
+      cbSampleAllLayers = document.createElement("input"),
+      cbLockAlpha = document.createElement("input"),
+      notificationDismissTimer = false,
+      layerActionButtons;
 
     /**
-     * Get the element that represents the layer with the given display index.
      *
      * @param {number} displayIndex
-     * @returns {HTMLElement}
+     * @returns {CPLayer}
      */
-    function getElemFromDisplayIndex(displayIndex) {
-      let elems = layerContainer.querySelectorAll(".chickenpaint-layer");
-
-      return elems[elems.length - 1 - displayIndex];
-    }
-
-    function getDisplayIndexFromElem(elem) {
-      if (!elem) {
-        return -1;
-      }
-      let layer = elem.closest(".chickenpaint-layer");
-
-      if (layer) {
-        let elems = Array.from(
-          layerContainer.querySelectorAll(".chickenpaint-layer"),
-        );
-        return elems.length - 1 - elems.indexOf(layer);
-      } else {
-        return -1;
-      }
+    function getLayerFromDisplayIndex(displayIndex) {
+      return linearizedLayers[displayIndex];
     }
 
     /**
-     * @typedef {Object} CPDropTarget
      *
-     * @property {number} displayIndex - The index of the layer to insert near
-     * @property {CPLayer} layer - The layer to insert near
-     * @property {string} direction - "under", "over" or "inside", the direction to insert relative to the target
+     * @param {CPLayer} layer
+     * @returns {number}
      */
+    function getDisplayIndexFromLayer(layer) {
+      return linearizedLayers.indexOf(layer);
+    }
 
-    /**
-     * Decides which drop target we should offer for the given mouse position.
-     *
-     * Returns null if no drop should be offered at the given position, otherwise returns an object with details
-     * on the drop.
-     *
-     * @param {number} clientX
-     * @param {number} clientY
-     * @returns {?CPDropTarget}
-     */
-    function getDropTargetFromClientPos(clientX, clientY) {
-      let layerElems = layerContainer.querySelectorAll(".chickenpaint-layer"),
-        target = {
-          layer: linearizedLayers[linearizedLayers.length - 1],
-          displayIndex: linearizedLayers.length - 1,
-          direction: "over",
-        };
+    function CPLayerWidget() {
+      const LAYER_DRAG_START_THRESHOLD = 5, // Pixels we have to move a layer before it shows as "dragging"
+        LAYER_IN_GROUP_INDENT = 16,
+        CLASSNAME_LAYER_ACTIVE = "active",
+        CLASSNAME_LAYER_VISIBLE = "chickenpaint-layer-visible",
+        CLASSNAME_LAYER_HIDDEN = "chickenpaint-layer-hidden",
+        CLASSNAME_LAYER_GROUP_EXPANDED = "chickenpaint-layer-group-expanded",
+        CLASSNAME_LAYER_GROUP_COLLAPSED = "chickenpaint-layer-group-collapsed",
+        CLASSNAME_LAYER_GROUP_TOGGLE = "chickenpaint-layer-group-toggle",
+        CLASSNAME_LAYER_IMAGE_THUMBNAIL = "chickenpaint-layer-image-thumbnail",
+        CLASSNAME_LAYER_MASK_THUMBNAIL = "chickenpaint-layer-mask-thumbnail",
+        CLASSNAME_LAYER_THUMBNAIL = "chickenpaint-layer-thumbnail",
+        DRAG_STATE_IDLE = 0,
+        DRAG_STATE_PRE_DRAG = 1, // If we've put our cursor down but we're not sure if we're dragging or clicking yet
+        DRAG_STATE_DRAGGING = 2, // When we're really dragging
+        DRAG_STATE_PRE_PAN = 3, // Pen/touch is down, we could either click, drag or pan
+        DRAG_STATE_PANNING = 4,
+        LONG_PRESS_INTERVAL = 800;
 
-      for (
-        let displayIndex = 0;
-        displayIndex < layerElems.length;
-        displayIndex++
-      ) {
-        let targetElem = layerElems[layerElems.length - 1 - displayIndex],
-          rect = targetElem.getBoundingClientRect();
+      let drag = {
+          /**
+           *
+           * @type {number}
+           */
+          state: DRAG_STATE_IDLE,
 
-        if (displayIndex === 0 && clientY > rect.bottom) {
-          let lastLayer = artwork.getLayersRoot().layers[0];
-          target = {
-            layer: lastLayer,
-            displayIndex: getDisplayIndexFromLayer(lastLayer),
-            direction: "under",
-          };
-          break;
-        } else if (clientY >= rect.top) {
-          let targetLayer = getLayerFromDisplayIndex(displayIndex),
-            targetHeight = rect.bottom - rect.top;
-          target = { layer: targetLayer, displayIndex: displayIndex };
+          /**
+           * The image layer currently being dragged, or null if no drag is in progress.
+           *
+           * @type {?typeof CPLayer}
+           */
+          layer: null,
 
-          if (targetLayer instanceof CPLayerGroup) {
-            if (clientY >= rect.top + targetHeight * 0.75) {
-              if (targetLayer.expanded && targetLayer.layers.length > 0) {
-                target.layer =
-                  targetLayer.layers[targetLayer.layers.length - 1];
-                target.displayIndex--;
-                target.direction = "over";
-              } else {
-                target.direction = "under";
-              }
-            } else if (clientY >= rect.top + targetHeight * 0.25) {
-              if (targetLayer.expanded && targetLayer.layers.length > 0) {
-                target.layer =
-                  targetLayer.layers[targetLayer.layers.length - 1];
-                target.displayIndex--;
-                target.direction = "over";
-              } else {
-                target.direction = "inside";
-              }
-            } else {
-              target.direction = "over";
-            }
-          } else {
-            target.direction =
-              clientY >= rect.top + targetHeight * 0.5 ? "under" : "over";
-          }
-          break;
+          /**
+           * The element of the layer being dragged
+           *
+           * @type {HTMLElement}
+           */
+          layerElem: null,
+
+          /**
+           * @type {number}
+           */
+          dragX: 0,
+
+          /**
+           * @type {number}
+           */
+          dragY: 0,
+
+          /**
+           * @type {number}
+           */
+          initialScrollTop: 0,
+
+          dropTarget: null,
+          dropBetweenMarkerElem: null,
+          frameElem: null,
+        },
+        widgetContainer = document.createElement("div"),
+        layerContainer = document.createElement("div"),
+        scrollContainer = layerContainer,
+        //ドロップダウンメニュー関連項目のコメントアウト
+        // dropdownLayerMenu = createLayerDropdownMenu(),
+        // dropdownMousePos = {x: 0, y: 0},
+
+        /**
+         * @type {number} Rotation of image in 90 degree units
+         */
+        imageRotation = 0,
+        /**
+         * The layer we right-clicked on to open the dropdown
+         *
+         * @type {CPLayer}
+         */
+        dropdownLayer = null,
+        /**
+         * True if we right-clicked on the mask of the layer for the dropdown.
+         * @type {boolean}
+         */
+        dropdownOnMask = false,
+        longPressTimer = null;
+
+      /**
+       * Get the element that represents the layer with the given display index.
+       *
+       * @param {number} displayIndex
+       * @returns {HTMLElement}
+       */
+      function getElemFromDisplayIndex(displayIndex) {
+        let elems = layerContainer.querySelectorAll(".chickenpaint-layer");
+
+        return elems[elems.length - 1 - displayIndex];
+      }
+
+      function getDisplayIndexFromElem(elem) {
+        if (!elem) {
+          return -1;
+        }
+        let layer = elem.closest(".chickenpaint-layer");
+
+        if (layer) {
+          let elems = Array.from(
+            layerContainer.querySelectorAll(".chickenpaint-layer"),
+          );
+          return elems.length - 1 - elems.indexOf(layer);
+        } else {
+          return -1;
         }
       }
 
-      /*
-       * If we're dropping into the same container, make sure we don't offer to drop the layer back to the
-       * same position it was already in.
+      /**
+       * @typedef {Object} CPDropTarget
+       *
+       * @property {number} displayIndex - The index of the layer to insert near
+       * @property {CPLayer} layer - The layer to insert near
+       * @property {string} direction - "under", "over" or "inside", the direction to insert relative to the target
        */
-      if (
-        target.layer.parent === drag.layer.parent &&
-        (target.direction === "over" || target.direction === "under")
-      ) {
-        let parentGroup = target.layer.parent,
-          targetIndex = parentGroup.indexOf(target.layer);
 
+      /**
+       * Decides which drop target we should offer for the given mouse position.
+       *
+       * Returns null if no drop should be offered at the given position, otherwise returns an object with details
+       * on the drop.
+       *
+       * @param {number} clientX
+       * @param {number} clientY
+       * @returns {?CPDropTarget}
+       */
+      function getDropTargetFromClientPos(clientX, clientY) {
+        let layerElems = layerContainer.querySelectorAll(".chickenpaint-layer"),
+          target = {
+            layer: linearizedLayers[linearizedLayers.length - 1],
+            displayIndex: linearizedLayers.length - 1,
+            direction: "over",
+          };
+
+        for (
+          let displayIndex = 0;
+          displayIndex < layerElems.length;
+          displayIndex++
+        ) {
+          let targetElem = layerElems[layerElems.length - 1 - displayIndex],
+            rect = targetElem.getBoundingClientRect();
+
+          if (displayIndex === 0 && clientY > rect.bottom) {
+            let lastLayer = artwork.getLayersRoot().layers[0];
+            target = {
+              layer: lastLayer,
+              displayIndex: getDisplayIndexFromLayer(lastLayer),
+              direction: "under",
+            };
+            break;
+          } else if (clientY >= rect.top) {
+            let targetLayer = getLayerFromDisplayIndex(displayIndex),
+              targetHeight = rect.bottom - rect.top;
+            target = { layer: targetLayer, displayIndex: displayIndex };
+
+            if (targetLayer instanceof CPLayerGroup) {
+              if (clientY >= rect.top + targetHeight * 0.75) {
+                if (targetLayer.expanded && targetLayer.layers.length > 0) {
+                  target.layer =
+                    targetLayer.layers[targetLayer.layers.length - 1];
+                  target.displayIndex--;
+                  target.direction = "over";
+                } else {
+                  target.direction = "under";
+                }
+              } else if (clientY >= rect.top + targetHeight * 0.25) {
+                if (targetLayer.expanded && targetLayer.layers.length > 0) {
+                  target.layer =
+                    targetLayer.layers[targetLayer.layers.length - 1];
+                  target.displayIndex--;
+                  target.direction = "over";
+                } else {
+                  target.direction = "inside";
+                }
+              } else {
+                target.direction = "over";
+              }
+            } else {
+              target.direction =
+                clientY >= rect.top + targetHeight * 0.5 ? "under" : "over";
+            }
+            break;
+          }
+        }
+
+        /*
+         * If we're dropping into the same container, make sure we don't offer to drop the layer back to the
+         * same position it was already in.
+         */
         if (
-          (target.direction === "over" &&
-            parentGroup.layers[targetIndex + 1] === drag.layer) ||
-          (target.direction === "under" &&
-            parentGroup.layers[targetIndex - 1] === drag.layer) ||
-          target.layer === drag.layer
+          target.layer.parent === drag.layer.parent &&
+          (target.direction === "over" || target.direction === "under")
+        ) {
+          let parentGroup = target.layer.parent,
+            targetIndex = parentGroup.indexOf(target.layer);
+
+          if (
+            (target.direction === "over" &&
+              parentGroup.layers[targetIndex + 1] === drag.layer) ||
+            (target.direction === "under" &&
+              parentGroup.layers[targetIndex - 1] === drag.layer) ||
+            target.layer === drag.layer
+          ) {
+            return null;
+          }
+        }
+
+        /*
+         * Make sure we don't try to drop a group as a child of itself, no group-ception!
+         */
+        if (
+          drag.layer instanceof CPLayerGroup &&
+          ((target.layer === drag.layer && target.direction === "inside") ||
+            target.layer.hasAncestor(drag.layer))
         ) {
           return null;
         }
+
+        return target;
       }
 
-      /*
-       * Make sure we don't try to drop a group as a child of itself, no group-ception!
-       */
-      if (
-        drag.layer instanceof CPLayerGroup &&
-        ((target.layer === drag.layer && target.direction === "inside") ||
-          target.layer.hasAncestor(drag.layer))
-      ) {
-        return null;
-      }
+      function updateDropMarker() {
+        if (drag.state === DRAG_STATE_DRAGGING) {
+          let positionRootBounds = positionRoot.getBoundingClientRect(),
+            hideBetweenMarker = true,
+            hideIntoMarker = true;
 
-      return target;
-    }
+          drag.dropTarget = getDropTargetFromClientPos(drag.dragX, drag.dragY);
 
-    function updateDropMarker() {
-      if (drag.state === DRAG_STATE_DRAGGING) {
-        let positionRootBounds = positionRoot.getBoundingClientRect(),
-          hideBetweenMarker = true,
-          hideIntoMarker = true;
+          if (drag.dropTarget) {
+            let targetElem = getElemFromDisplayIndex(
+              drag.dropTarget.displayIndex,
+            );
 
-        drag.dropTarget = getDropTargetFromClientPos(drag.dragX, drag.dragY);
+            switch (drag.dropTarget.direction) {
+              case "over":
+              case "under":
+                layerContainer.appendChild(drag.dropBetweenMarkerElem);
 
-        if (drag.dropTarget) {
-          let targetElem = getElemFromDisplayIndex(
-            drag.dropTarget.displayIndex,
-          );
+                let markerDepth = drag.dropTarget.layer.getDepth() - 1,
+                  markerLeft,
+                  layerBottom;
 
-          switch (drag.dropTarget.direction) {
-            case "over":
-            case "under":
-              layerContainer.appendChild(drag.dropBetweenMarkerElem);
+                // Position the marker in the correct position between the layers, and indent it to match the layer
+                let layerRect = targetElem.getBoundingClientRect();
 
-              let markerDepth = drag.dropTarget.layer.getDepth() - 1,
-                markerLeft,
-                layerBottom;
-
-              // Position the marker in the correct position between the layers, and indent it to match the layer
-              let layerRect = targetElem.getBoundingClientRect();
-
-              // Are we dropping below the layers in an expanded group? Extend the rect to enclose them
-              if (
-                drag.dropTarget.direction === "under" &&
-                drag.dropTarget.layer instanceof CPLayerGroup &&
-                drag.dropTarget.layer.expanded
-              ) {
-                // Find the display index after this group
-                let childIndex;
-
-                for (
-                  childIndex = drag.dropTarget.displayIndex - 1;
-                  childIndex >= 0;
-                  childIndex--
+                // Are we dropping below the layers in an expanded group? Extend the rect to enclose them
+                if (
+                  drag.dropTarget.direction === "under" &&
+                  drag.dropTarget.layer instanceof CPLayerGroup &&
+                  drag.dropTarget.layer.expanded
                 ) {
-                  if (
-                    !linearizedLayers[childIndex].hasAncestor(
-                      drag.dropTarget.layer,
-                    )
+                  // Find the display index after this group
+                  let childIndex;
+
+                  for (
+                    childIndex = drag.dropTarget.displayIndex - 1;
+                    childIndex >= 0;
+                    childIndex--
                   ) {
-                    break;
+                    if (
+                      !linearizedLayers[childIndex].hasAncestor(
+                        drag.dropTarget.layer,
+                      )
+                    ) {
+                      break;
+                    }
                   }
+
+                  layerBottom = getElemFromDisplayIndex(
+                    childIndex + 1,
+                  ).getBoundingClientRect().bottom;
+                } else {
+                  layerBottom = layerRect.bottom;
                 }
 
-                layerBottom = getElemFromDisplayIndex(
-                  childIndex + 1,
-                ).getBoundingClientRect().bottom;
-              } else {
-                layerBottom = layerRect.bottom;
-              }
+                markerLeft =
+                  layerRect.left -
+                  positionRootBounds.left +
+                  (markerDepth > 0
+                    ? 26 + LAYER_IN_GROUP_INDENT * markerDepth
+                    : 0);
+                drag.dropBetweenMarkerElem.style.left = markerLeft + "px";
+                drag.dropBetweenMarkerElem.style.width =
+                  layerRect.right - positionRootBounds.left - markerLeft + "px";
+                drag.dropBetweenMarkerElem.style.top =
+                  (drag.dropTarget.direction === "over"
+                    ? layerRect.top - 1
+                    : layerBottom + 1) -
+                  positionRootBounds.top +
+                  "px";
 
-              markerLeft =
-                layerRect.left -
-                positionRootBounds.left +
-                (markerDepth > 0
-                  ? 26 + LAYER_IN_GROUP_INDENT * markerDepth
-                  : 0);
-              drag.dropBetweenMarkerElem.style.left = markerLeft + "px";
-              drag.dropBetweenMarkerElem.style.width =
-                layerRect.right - positionRootBounds.left - markerLeft + "px";
-              drag.dropBetweenMarkerElem.style.top =
-                (drag.dropTarget.direction === "over"
-                  ? layerRect.top - 1
-                  : layerBottom + 1) -
-                positionRootBounds.top +
-                "px";
+                layerContainer
+                  .querySelectorAll(".chickenpaint-layer-drop-target")
+                  .forEach((el) =>
+                    el.classList.remove("chickenpaint-layer-drop-target"),
+                  );
 
-              layerContainer
-                .querySelectorAll(".chickenpaint-layer-drop-target")
-                .forEach((el) =>
-                  el.classList.remove("chickenpaint-layer-drop-target"),
+                hideBetweenMarker = false;
+                break;
+
+              case "inside":
+                let layerElems = layerContainer.querySelectorAll(
+                  ".chickenpaint-layer",
                 );
 
-              hideBetweenMarker = false;
-              break;
+                layerElems.forEach((elem, index) => {
+                  elem.classList.toggle(
+                    "chickenpaint-layer-drop-target",
+                    layerElems.length - 1 - index ===
+                      drag.dropTarget.displayIndex,
+                  );
+                });
 
-            case "inside":
-              let layerElems = layerContainer.querySelectorAll(
-                ".chickenpaint-layer",
+                hideIntoMarker = false;
+                break;
+            }
+          }
+
+          if (hideIntoMarker) {
+            layerContainer
+              .querySelectorAll(".chickenpaint-layer-drop-target")
+              .forEach((el) =>
+                el.classList.remove("chickenpaint-layer-drop-target"),
               );
+          }
 
-              layerElems.forEach((elem, index) => {
-                elem.classList.toggle(
-                  "chickenpaint-layer-drop-target",
-                  layerElems.length - 1 - index ===
-                    drag.dropTarget.displayIndex,
-                );
-              });
+          if (hideBetweenMarker) {
+            drag.dropBetweenMarkerElem?.remove();
+          }
 
-              hideIntoMarker = false;
-              break;
+          drag.frameElem.style.top =
+            drag.dragY -
+            positionRootBounds.top -
+            parseInt(drag.frameElem.style.height, 10) / 2 +
+            "px";
+        } else {
+          drag.dropBetweenMarkerElem?.remove();
+          drag.frameElem?.remove();
+        }
+      }
+
+      function createImageThumb(layer) {
+        let thumbnail = layer.getImageThumbnail(),
+          thumbCanvas = thumbnail.getAsCanvas(imageRotation);
+
+        thumbCanvas.title = _("Image");
+        thumbCanvas.className =
+          CLASSNAME_LAYER_THUMBNAIL + " " + CLASSNAME_LAYER_IMAGE_THUMBNAIL;
+
+        // Thumbnails are actually displayed at 25px high, set the display width appropriately for the aspect ratio
+        thumbCanvas.style.maxWidth =
+          (thumbCanvas.width / thumbCanvas.height) * 25 + "px";
+
+        if (layer == artwork.getActiveLayer() && !artwork.isEditingMask()) {
+          thumbCanvas.className += " active";
+        }
+
+        return thumbCanvas;
+      }
+
+      function drawRedX(canvas) {
+        const X_INSET = 5,
+          Y_INSET = 5,
+          X_LINE_THICKNESS = 3,
+          context = canvas.getContext("2d");
+
+        context.strokeStyle = "red";
+        context.lineWidth = X_LINE_THICKNESS;
+
+        context.moveTo(X_INSET, Y_INSET);
+        context.lineTo(canvas.width - X_INSET, canvas.height - Y_INSET);
+
+        context.moveTo(canvas.width - X_INSET, Y_INSET);
+        context.lineTo(X_INSET, canvas.height - Y_INSET);
+
+        context.stroke();
+      }
+
+      function createMaskThumb(layer) {
+        let thumbnail = layer.getMaskThumbnail(),
+          thumbCanvas = thumbnail.getAsCanvas(imageRotation);
+
+        thumbCanvas.title = _("Layer mask");
+        thumbCanvas.className =
+          CLASSNAME_LAYER_THUMBNAIL + " " + CLASSNAME_LAYER_MASK_THUMBNAIL;
+
+        // Thumbnails are actually displayed at 25px high, set the display width appropriately for the aspect ratio
+        thumbCanvas.style.maxWidth =
+          (thumbCanvas.width / thumbCanvas.height) * 25 + "px";
+
+        if (layer == artwork.getActiveLayer() && artwork.isEditingMask()) {
+          thumbCanvas.className += " active";
+        }
+        if (!layer.maskVisible) {
+          thumbCanvas.className += " disabled";
+
+          drawRedX(thumbCanvas);
+        }
+
+        return thumbCanvas;
+      }
+
+      /**
+       * Create a DOM element for the given layer
+       *
+       * @param {number} index
+       * @param {CPLayer} layer
+       */
+      function buildLayer(index, layer) {
+        let layerDiv = document.createElement("div"),
+          eyeDiv = document.createElement("div"),
+          mainDiv = document.createElement("div"),
+          iconsDiv = document.createElement("div"),
+          layerNameDiv = document.createElement("div"),
+          statusDiv = document.createElement("div"),
+          blendDiv = document.createElement("div");
+
+        layerDiv.className = "chickenpaint-layer list-group-item";
+
+        if (layer == artwork.getActiveLayer()) {
+          layerDiv.className += " " + CLASSNAME_LAYER_ACTIVE;
+        }
+
+        eyeDiv.className = "chickenpaint-layer-eye";
+        if (!layer.ancestorsAreVisible()) {
+          eyeDiv.className += " chickenpaint-layer-eye-hidden-ancestors";
+        }
+
+        eyeDiv.style.marginRight =
+          2 + LAYER_IN_GROUP_INDENT * (layer.getDepth() - 1) + "px";
+
+        if (layer.visible) {
+          layerDiv.className += " " + CLASSNAME_LAYER_VISIBLE;
+          eyeDiv.appendChild(createFontAwesomeIcon("icon-eye"));
+        } else {
+          layerDiv.className += " " + CLASSNAME_LAYER_HIDDEN;
+          eyeDiv.appendChild(createFontAwesomeIcon("icon-eye-slash"));
+        }
+
+        layerDiv.appendChild(eyeDiv);
+
+        mainDiv.className = "chickenpaint-layer-description";
+
+        if (layer instanceof CPImageLayer) {
+          if (layer.clip) {
+            layerDiv.className += " chickenpaint-layer-clipped";
+            iconsDiv.appendChild(
+              createFontAwesomeIcon("icon-level-down-alt fa-flip-horizontal"),
+            );
+          }
+
+          if (layer.lockAlpha) {
+            let locked = createChickenPaintIcon("lock-alpha");
+
+            locked.title = _("Transparency locked");
+            statusDiv.appendChild(locked);
+          }
+        } else if (layer instanceof CPLayerGroup) {
+          layerDiv.className += " chickenpaint-layer-group";
+
+          if (layer.expanded) {
+            layerDiv.className += " " + CLASSNAME_LAYER_GROUP_EXPANDED;
+            iconsDiv.appendChild(
+              createFontAwesomeIcon(
+                "icon-folder-open chickenpaint-layer-group-toggle",
+              ),
+            );
+          } else {
+            layerDiv.className += " " + CLASSNAME_LAYER_GROUP_COLLAPSED;
+            iconsDiv.appendChild(
+              createFontAwesomeIcon(
+                "icon-folder chickenpaint-layer-group-toggle",
+              ),
+            );
           }
         }
 
-        if (hideIntoMarker) {
-          layerContainer
-            .querySelectorAll(".chickenpaint-layer-drop-target")
-            .forEach((el) =>
-              el.classList.remove("chickenpaint-layer-drop-target"),
-            );
+        if (iconsDiv.childNodes.length) {
+          iconsDiv.className = "chickenpaint-layer-icons";
+          layerDiv.appendChild(iconsDiv);
         }
 
-        if (hideBetweenMarker) {
-          drag.dropBetweenMarkerElem?.remove();
+        try {
+          if (layer instanceof CPImageLayer) {
+            layerDiv.appendChild(createImageThumb(layer));
+          }
+
+          if (layer.mask) {
+            layerDiv.appendChild(createMaskThumb(layer));
+          }
+        } catch (e) {
+          // We don't expect this to ever happen but it'd be nice if everything keeps running if it does
+          console.log("Failed to create layer thumb");
         }
 
-        drag.frameElem.style.top =
-          drag.dragY -
-          positionRootBounds.top -
-          parseInt(drag.frameElem.style.height, 10) / 2 +
-          "px";
-      } else {
-        drag.dropBetweenMarkerElem?.remove();
-        drag.frameElem?.remove();
-      }
-    }
+        let layerName =
+          layer.name && layer.name.length > 0
+            ? layer.name
+            : "(unnamed " +
+              (layer instanceof CPLayerGroup ? "group" : "layer") +
+              ")";
 
-    function createImageThumb(layer) {
-      let thumbnail = layer.getImageThumbnail(),
-        thumbCanvas = thumbnail.getAsCanvas(imageRotation);
+        layerNameDiv.innerText = layerName;
+        layerNameDiv.setAttribute("title", layerName);
+        layerNameDiv.className = "chickenpaint-layer-name";
 
-      thumbCanvas.title = _("Image");
-      thumbCanvas.className =
-        CLASSNAME_LAYER_THUMBNAIL + " " + CLASSNAME_LAYER_IMAGE_THUMBNAIL;
+        blendDiv.innerText =
+          _(CPBlend.BLEND_MODE_DISPLAY_NAMES[layer.blendMode]) +
+          ": " +
+          layer.alpha +
+          "%";
+        blendDiv.className = "chickenpaint-layer-blend";
 
-      // Thumbnails are actually displayed at 25px high, set the display width appropriately for the aspect ratio
-      thumbCanvas.style.maxWidth =
-        (thumbCanvas.width / thumbCanvas.height) * 25 + "px";
+        mainDiv.appendChild(layerNameDiv);
+        mainDiv.appendChild(blendDiv);
 
-      if (layer == artwork.getActiveLayer() && !artwork.isEditingMask()) {
-        thumbCanvas.className += " active";
-      }
+        layerDiv.appendChild(mainDiv);
 
-      return thumbCanvas;
-    }
+        statusDiv.className = "chickenpaint-layer-status";
+        layerDiv.appendChild(statusDiv);
 
-    function drawRedX(canvas) {
-      const X_INSET = 5,
-        Y_INSET = 5,
-        X_LINE_THICKNESS = 3,
-        context = canvas.getContext("2d");
+        layerDiv.setAttribute("data-display-index", "" + index);
+        // layerDiv.setAttribute("data-toggle", "dropdown");
+        // layerDiv.setAttribute("data-target", "#chickenpaint-layer-pop");
 
-      context.strokeStyle = "red";
-      context.lineWidth = X_LINE_THICKNESS;
-
-      context.moveTo(X_INSET, Y_INSET);
-      context.lineTo(canvas.width - X_INSET, canvas.height - Y_INSET);
-
-      context.moveTo(canvas.width - X_INSET, Y_INSET);
-      context.lineTo(X_INSET, canvas.height - Y_INSET);
-
-      context.stroke();
-    }
-
-    function createMaskThumb(layer) {
-      let thumbnail = layer.getMaskThumbnail(),
-        thumbCanvas = thumbnail.getAsCanvas(imageRotation);
-
-      thumbCanvas.title = _("Layer mask");
-      thumbCanvas.className =
-        CLASSNAME_LAYER_THUMBNAIL + " " + CLASSNAME_LAYER_MASK_THUMBNAIL;
-
-      // Thumbnails are actually displayed at 25px high, set the display width appropriately for the aspect ratio
-      thumbCanvas.style.maxWidth =
-        (thumbCanvas.width / thumbCanvas.height) * 25 + "px";
-
-      if (layer == artwork.getActiveLayer() && artwork.isEditingMask()) {
-        thumbCanvas.className += " active";
-      }
-      if (!layer.maskVisible) {
-        thumbCanvas.className += " disabled";
-
-        drawRedX(thumbCanvas);
+        return layerDiv;
       }
 
-      return thumbCanvas;
-    }
+      function showRenameBoxForLayer(displayIndex) {
+        if (displayIndex > -1) {
+          let layer = getLayerFromDisplayIndex(displayIndex),
+            elem = getElemFromDisplayIndex(displayIndex);
 
-    /**
-     * Create a DOM element for the given layer
-     *
-     * @param {number} index
-     * @param {CPLayer} layer
-     */
-    function buildLayer(index, layer) {
-      let layerDiv = document.createElement("div"),
-        eyeDiv = document.createElement("div"),
-        mainDiv = document.createElement("div"),
-        iconsDiv = document.createElement("div"),
-        layerNameDiv = document.createElement("div"),
-        statusDiv = document.createElement("div"),
-        blendDiv = document.createElement("div");
-
-      layerDiv.className = "chickenpaint-layer list-group-item";
-
-      if (layer == artwork.getActiveLayer()) {
-        layerDiv.className += " " + CLASSNAME_LAYER_ACTIVE;
-      }
-
-      eyeDiv.className = "chickenpaint-layer-eye";
-      if (!layer.ancestorsAreVisible()) {
-        eyeDiv.className += " chickenpaint-layer-eye-hidden-ancestors";
-      }
-
-      eyeDiv.style.marginRight =
-        2 + LAYER_IN_GROUP_INDENT * (layer.getDepth() - 1) + "px";
-
-      if (layer.visible) {
-        layerDiv.className += " " + CLASSNAME_LAYER_VISIBLE;
-        eyeDiv.appendChild(createFontAwesomeIcon("icon-eye"));
-      } else {
-        layerDiv.className += " " + CLASSNAME_LAYER_HIDDEN;
-        eyeDiv.appendChild(createFontAwesomeIcon("icon-eye-slash"));
-      }
-
-      layerDiv.appendChild(eyeDiv);
-
-      mainDiv.className = "chickenpaint-layer-description";
-
-      if (layer instanceof CPImageLayer) {
-        if (layer.clip) {
-          layerDiv.className += " chickenpaint-layer-clipped";
-          iconsDiv.appendChild(
-            createFontAwesomeIcon("icon-level-down-alt fa-flip-horizontal"),
-          );
-        }
-
-        if (layer.lockAlpha) {
-          let locked = createChickenPaintIcon("lock-alpha");
-
-          locked.title = _("Transparency locked");
-          statusDiv.appendChild(locked);
-        }
-      } else if (layer instanceof CPLayerGroup) {
-        layerDiv.className += " chickenpaint-layer-group";
-
-        if (layer.expanded) {
-          layerDiv.className += " " + CLASSNAME_LAYER_GROUP_EXPANDED;
-          iconsDiv.appendChild(
-            createFontAwesomeIcon(
-              "icon-folder-open chickenpaint-layer-group-toggle",
-            ),
-          );
-        } else {
-          layerDiv.className += " " + CLASSNAME_LAYER_GROUP_COLLAPSED;
-          iconsDiv.appendChild(
-            createFontAwesomeIcon(
-              "icon-folder chickenpaint-layer-group-toggle",
-            ),
-          );
+          if (layer && elem) {
+            renameField.show(layer, elem);
+          }
         }
       }
 
-      if (iconsDiv.childNodes.length) {
-        iconsDiv.className = "chickenpaint-layer-icons";
-        layerDiv.appendChild(iconsDiv);
-      }
-
-      try {
-        if (layer instanceof CPImageLayer) {
-          layerDiv.appendChild(createImageThumb(layer));
-        }
-
-        if (layer.mask) {
-          layerDiv.appendChild(createMaskThumb(layer));
-        }
-      } catch (e) {
-        // We don't expect this to ever happen but it'd be nice if everything keeps running if it does
-        console.log("Failed to create layer thumb");
-      }
-
-      let layerName =
-        layer.name && layer.name.length > 0
-          ? layer.name
-          : "(unnamed " +
-            (layer instanceof CPLayerGroup ? "group" : "layer") +
-            ")";
-
-      layerNameDiv.innerText = layerName;
-      layerNameDiv.setAttribute("title", layerName);
-      layerNameDiv.className = "chickenpaint-layer-name";
-
-      blendDiv.innerText =
-        _(CPBlend.BLEND_MODE_DISPLAY_NAMES[layer.blendMode]) +
-        ": " +
-        layer.alpha +
-        "%";
-      blendDiv.className = "chickenpaint-layer-blend";
-
-      mainDiv.appendChild(layerNameDiv);
-      mainDiv.appendChild(blendDiv);
-
-      layerDiv.appendChild(mainDiv);
-
-      statusDiv.className = "chickenpaint-layer-status";
-      layerDiv.appendChild(statusDiv);
-
-      layerDiv.setAttribute("data-display-index", "" + index);
-      // layerDiv.setAttribute("data-toggle", "dropdown");
-      // layerDiv.setAttribute("data-target", "#chickenpaint-layer-pop");
-
-      return layerDiv;
-    }
-
-    function showRenameBoxForLayer(displayIndex) {
-      if (displayIndex > -1) {
-        let layer = getLayerFromDisplayIndex(displayIndex),
-          elem = getElemFromDisplayIndex(displayIndex);
-
-        if (layer && elem) {
-          renameField.show(layer, elem);
-        }
-      }
-    }
-
-    function onDoubleClick(e) {
-      if (
-        e.button === BUTTON_PRIMARY &&
-        e.target.closest(".chickenpaint-layer-description") &&
-        !e.target.closest("input")
-      ) {
-        /* Double clicking the layer description should start editing it, but ignore double clicks inside
-         * the rename textbox itself
-         */
-        showRenameBoxForLayer(getDisplayIndexFromElem(e.target));
-
-        e.preventDefault();
-      }
-    }
-
-    function showContextMenu(e) {
-      let displayIndex = getDisplayIndexFromElem(e.target);
-      if (displayIndex != -1) {
-        //コンテキストメニューのBootstrap5対応ができなかったが
-        //マウス使用時にレイヤー名を変更できないと困るので
-        //右クリックでレイヤー名の変更になるように動作を変更した。
-        showRenameBoxForLayer(getDisplayIndexFromElem(e.target));
-
-        e.preventDefault();
-      }
-    }
-
-    function onPointerDown(e) {
-      let layerElem = e.target.closest(".chickenpaint-layer");
-      let displayIndex = getDisplayIndexFromElem(layerElem);
-
-      if (displayIndex !== -1) {
-        let layer = getLayerFromDisplayIndex(displayIndex);
-
+      function onDoubleClick(e) {
         if (
           e.button === BUTTON_PRIMARY &&
-          e.target.closest(".chickenpaint-layer-eye")
+          e.target.closest(".chickenpaint-layer-description") &&
+          !e.target.closest("input")
         ) {
-          controller.actionPerformed({
-            action: "CPSetLayerVisibility",
-            layer: layer,
-            visible: !layer.visible,
-          });
-        } else if (
-          e.button === BUTTON_PRIMARY &&
-          layer instanceof CPLayerGroup &&
-          e.target.closest("." + CLASSNAME_LAYER_GROUP_TOGGLE)
-        ) {
-          controller.actionPerformed({
-            action: "CPExpandLayerGroup",
-            group: layer,
-            expand: !layer.expanded,
-          });
-        } else {
-          let layerChanged = artwork.getActiveLayer() !== layer;
+          /* Double clicking the layer description should start editing it, but ignore double clicks inside
+           * the rename textbox itself
+           */
+          showRenameBoxForLayer(getDisplayIndexFromElem(e.target));
 
-          dropdownOnMask =
-            e.target.closest("." + CLASSNAME_LAYER_MASK_THUMBNAIL) !== null ||
-            (layer instanceof CPLayerGroup &&
-              layer.mask !== null &&
-              layerChanged);
+          e.preventDefault();
+        }
+      }
+
+      function showContextMenu(e) {
+        let displayIndex = getDisplayIndexFromElem(e.target);
+        if (displayIndex != -1) {
+          //コンテキストメニューのBootstrap5対応ができなかったが
+          //マウス使用時にレイヤー名を変更できないと困るので
+          //右クリックでレイヤー名の変更になるように動作を変更した。
+          showRenameBoxForLayer(getDisplayIndexFromElem(e.target));
+
+          e.preventDefault();
+        }
+      }
+
+      function onPointerDown(e) {
+        let layerElem = e.target.closest(".chickenpaint-layer");
+        let displayIndex = getDisplayIndexFromElem(layerElem);
+
+        if (displayIndex !== -1) {
+          let layer = getLayerFromDisplayIndex(displayIndex);
 
           if (
             e.button === BUTTON_PRIMARY &&
-            e.shiftKey &&
-            !(e.ctrlKey || e.metaKey) &&
-            dropdownOnMask
+            e.target.closest(".chickenpaint-layer-eye")
           ) {
             controller.actionPerformed({
-              action: "CPSetMaskVisible",
+              action: "CPSetLayerVisibility",
               layer: layer,
-              visible: !layer.maskVisible,
+              visible: !layer.visible,
+            });
+          } else if (
+            e.button === BUTTON_PRIMARY &&
+            layer instanceof CPLayerGroup &&
+            e.target.closest("." + CLASSNAME_LAYER_GROUP_TOGGLE)
+          ) {
+            controller.actionPerformed({
+              action: "CPExpandLayerGroup",
+              group: layer,
+              expand: !layer.expanded,
             });
           } else {
-            let selectMask, maskChanged;
+            let layerChanged = artwork.getActiveLayer() !== layer;
 
-            if (e.button !== BUTTON_PRIMARY && !layerChanged) {
-              /*
-               * Right clicking within the currently selected layer does not result in the mask/image selection
-               * moving (but it does change the type of dropdown menu we receive)
-               */
-              selectMask = artwork.isEditingMask();
-            } else {
-              selectMask = dropdownOnMask;
-            }
+            dropdownOnMask =
+              e.target.closest("." + CLASSNAME_LAYER_MASK_THUMBNAIL) !== null ||
+              (layer instanceof CPLayerGroup &&
+                layer.mask !== null &&
+                layerChanged);
 
-            maskChanged = artwork.isEditingMask() !== selectMask;
-
-            if (layerChanged || maskChanged) {
+            if (
+              e.button === BUTTON_PRIMARY &&
+              e.shiftKey &&
+              !(e.ctrlKey || e.metaKey) &&
+              dropdownOnMask
+            ) {
               controller.actionPerformed({
-                action: "CPSetActiveLayer",
+                action: "CPSetMaskVisible",
                 layer: layer,
-                mask: selectMask,
+                visible: !layer.maskVisible,
               });
-            }
+            } else {
+              let selectMask, maskChanged;
 
-            if (selectMask && e.altKey) {
-              controller.actionPerformed({
-                action: "CPToggleMaskView",
-              });
-            } else if (selectMask && !e.shiftKey && (e.ctrlKey || e.metaKey)) {
-              controller.actionPerformed({
-                action: "CPApplyLayerMask",
-              });
-            } else if (selectMask && e.shiftKey && (e.ctrlKey || e.metaKey)) {
-              controller.actionPerformed({
-                action: "CPRemoveLayerMask",
-              });
-            } else if (e.button === BUTTON_PRIMARY) {
-              if (e.pointerType === "pen" || e.pointerType === "touch") {
-                drag.state = DRAG_STATE_PRE_PAN;
-                drag.initialScrollTop = scrollContainer.scrollTop;
-
-                if (longPressTimer) {
-                  clearTimeout(longPressTimer);
-                }
-
-                longPressTimer = setTimeout(() => {
-                  if (drag.state === DRAG_STATE_PRE_PAN) {
-                    startLayerDrag();
-                    drag.dragY = e.clientY;
-                    updateDropMarker();
-                  }
-                }, LONG_PRESS_INTERVAL);
+              if (e.button !== BUTTON_PRIMARY && !layerChanged) {
+                /*
+                 * Right clicking within the currently selected layer does not result in the mask/image selection
+                 * moving (but it does change the type of dropdown menu we receive)
+                 */
+                selectMask = artwork.isEditingMask();
               } else {
-                drag.state = DRAG_STATE_PRE_DRAG;
+                selectMask = dropdownOnMask;
               }
 
-              drag.dropTarget = null;
-              drag.layer = layer;
-              // We might have replaced the layer with a new element due to the CPSetActiveLayer, so fetch that again
-              drag.layerElem = getElemFromDisplayIndex(displayIndex);
-              drag.dragX = e.clientX;
-              drag.dragY = e.clientY;
+              maskChanged = artwork.isEditingMask() !== selectMask;
 
-              layerContainer.setPointerCapture(e.pointerId);
+              if (layerChanged || maskChanged) {
+                controller.actionPerformed({
+                  action: "CPSetActiveLayer",
+                  layer: layer,
+                  mask: selectMask,
+                });
+              }
 
-              layerContainer.addEventListener("pointermove", onPointerDragged);
-              layerContainer.addEventListener("pointerup", onPointerUp);
-              layerContainer.addEventListener("pointercancel", onPointerUp);
-            } else if (e.button === BUTTON_SECONDARY && !layerChanged) {
-              e.preventDefault();
-              showContextMenu(e);
+              if (selectMask && e.altKey) {
+                controller.actionPerformed({
+                  action: "CPToggleMaskView",
+                });
+              } else if (
+                selectMask &&
+                !e.shiftKey &&
+                (e.ctrlKey || e.metaKey)
+              ) {
+                controller.actionPerformed({
+                  action: "CPApplyLayerMask",
+                });
+              } else if (selectMask && e.shiftKey && (e.ctrlKey || e.metaKey)) {
+                controller.actionPerformed({
+                  action: "CPRemoveLayerMask",
+                });
+              } else if (e.button === BUTTON_PRIMARY) {
+                if (e.pointerType === "pen" || e.pointerType === "touch") {
+                  drag.state = DRAG_STATE_PRE_PAN;
+                  drag.initialScrollTop = scrollContainer.scrollTop;
+
+                  if (longPressTimer) {
+                    clearTimeout(longPressTimer);
+                  }
+
+                  longPressTimer = setTimeout(() => {
+                    if (drag.state === DRAG_STATE_PRE_PAN) {
+                      startLayerDrag();
+                      drag.dragY = e.clientY;
+                      updateDropMarker();
+                    }
+                  }, LONG_PRESS_INTERVAL);
+                } else {
+                  drag.state = DRAG_STATE_PRE_DRAG;
+                }
+
+                drag.dropTarget = null;
+                drag.layer = layer;
+                // We might have replaced the layer with a new element due to the CPSetActiveLayer, so fetch that again
+                drag.layerElem = getElemFromDisplayIndex(displayIndex);
+                drag.dragX = e.clientX;
+                drag.dragY = e.clientY;
+
+                layerContainer.setPointerCapture(e.pointerId);
+
+                layerContainer.addEventListener(
+                  "pointermove",
+                  onPointerDragged,
+                );
+                layerContainer.addEventListener("pointerup", onPointerUp);
+                layerContainer.addEventListener("pointercancel", onPointerUp);
+              } else if (e.button === BUTTON_SECONDARY && !layerChanged) {
+                e.preventDefault();
+                showContextMenu(e);
+              }
             }
           }
         }
       }
-    }
 
-    function onPointerUp(e) {
-      switch (drag.state) {
-        case DRAG_STATE_DRAGGING:
-          drag.layerElem.classList.remove("chickenpaint-layer-dragging");
+      function onPointerUp(e) {
+        switch (drag.state) {
+          case DRAG_STATE_DRAGGING:
+            drag.layerElem.classList.remove("chickenpaint-layer-dragging");
 
-          if (drag.dropTarget) {
-            if (drag.dropTarget.direction === "inside") {
-              controller.actionPerformed({
-                action: "CPRelocateLayer",
-                layer: drag.layer,
-                toGroup: drag.dropTarget.layer,
-                toIndex: drag.dropTarget.layer.layers.length,
-              });
+            if (drag.dropTarget) {
+              if (drag.dropTarget.direction === "inside") {
+                controller.actionPerformed({
+                  action: "CPRelocateLayer",
+                  layer: drag.layer,
+                  toGroup: drag.dropTarget.layer,
+                  toIndex: drag.dropTarget.layer.layers.length,
+                });
+              } else {
+                controller.actionPerformed({
+                  action: "CPRelocateLayer",
+                  layer: drag.layer,
+                  toGroup: drag.dropTarget.layer.parent,
+                  toIndex:
+                    drag.dropTarget.layer.parent.indexOf(
+                      drag.dropTarget.layer,
+                    ) + (drag.dropTarget.direction === "over" ? 1 : 0),
+                });
+              }
+            }
+
+            drag.dropTarget = null;
+            drag.state = DRAG_STATE_IDLE;
+
+            updateDropMarker();
+            break;
+
+          default: // We didn't start the drag so there is no indicator to remove
+            drag.state = DRAG_STATE_IDLE;
+            break;
+        }
+
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+
+        layerContainer.releasePointerCapture(e.pointerId);
+
+        layerContainer.removeEventListener("pointermove", onPointerDragged);
+        layerContainer.removeEventListener("pointerup", onPointerUp);
+        layerContainer.removeEventListener("pointercancel", onPointerUp);
+      }
+
+      function startLayerDrag() {
+        drag.state = DRAG_STATE_DRAGGING;
+
+        drag.frameElem = document.createElement("div");
+        drag.frameElem.className = "chickenpaint-layer-drag-frame";
+        drag.frameElem.style.width = drag.layerElem.offsetWidth + "px";
+        drag.frameElem.style.height = drag.layerElem.offsetHeight + "px";
+
+        drag.dropBetweenMarkerElem = document.createElement("div");
+        drag.dropBetweenMarkerElem.className =
+          "chickenpaint-layer-drop-between-mark";
+
+        drag.layerElem.classList.add("chickenpaint-layer-dragging");
+
+        layerContainer.appendChild(drag.frameElem);
+      }
+
+      function onPointerDragged(e) {
+        let newDragY = e.clientY;
+
+        switch (drag.state) {
+          case DRAG_STATE_PRE_PAN:
+            if (Math.abs(newDragY - drag.dragY) > LAYER_DRAG_START_THRESHOLD) {
+              drag.state = DRAG_STATE_PANNING;
+
+              // Fall through
             } else {
-              controller.actionPerformed({
-                action: "CPRelocateLayer",
-                layer: drag.layer,
-                toGroup: drag.dropTarget.layer.parent,
-                toIndex:
-                  drag.dropTarget.layer.parent.indexOf(drag.dropTarget.layer) +
-                  (drag.dropTarget.direction === "over" ? 1 : 0),
-              });
+              break;
+            }
+
+          case DRAG_STATE_PANNING:
+            scrollContainer.scrollTop =
+              drag.initialScrollTop + drag.dragY - newDragY;
+            break;
+
+          case DRAG_STATE_PRE_DRAG:
+            if (Math.abs(newDragY - drag.dragY) > LAYER_DRAG_START_THRESHOLD) {
+              startLayerDrag();
+
+              // Fall through
+            } else {
+              break;
+            }
+
+          case DRAG_STATE_DRAGGING:
+            drag.dragY = newDragY;
+            updateDropMarker();
+            break;
+        }
+      }
+
+      /**
+       * Rebuild all layer elements from the cached linearizedLayers list
+       */
+      this.buildLayers = function () {
+        // Cache the details of the layer structure
+        linearizedLayers = artwork.getLayersRoot().getLinearizedLayerList(true);
+
+        let layerElems = linearizedLayers.map((layer, index) =>
+            buildLayer(index, layer),
+          ),
+          layerFrag = document.createDocumentFragment();
+
+        layerContainer.innerHTML = ""; // jQuery の empty() を置き換え
+
+        for (let i = layerElems.length - 1; i >= 0; i--) {
+          layerFrag.appendChild(layerElems[i]);
+        }
+
+        layerContainer.appendChild(layerFrag);
+
+        updateDropMarker();
+      };
+
+      /**
+       * The properties of the given layer have changed, rebuild it.
+       *
+       * @param {CPLayer} layer
+       */
+      this.layerChanged = function (layer) {
+        let index = getDisplayIndexFromLayer(layer),
+          layerElem = getElemFromDisplayIndex(index);
+
+        if (
+          !layerElem ||
+          (layer instanceof CPLayerGroup &&
+            (layer.expanded !=
+              layerElem.classList.contains(CLASSNAME_LAYER_GROUP_EXPANDED) ||
+              layer.visible !=
+                layerElem.classList.contains(CLASSNAME_LAYER_VISIBLE)))
+        ) {
+          // When these properties change, we might have to rebuild the group's children too, so just rebuild everything
+          this.buildLayers();
+        } else {
+          layerElem.replaceWith(buildLayer(index, layer));
+        }
+      };
+
+      function rebuildThumbnailForLayer(layerElem, layer, maskThumb) {
+        try {
+          const thumbClass = maskThumb
+            ? CLASSNAME_LAYER_MASK_THUMBNAIL
+            : CLASSNAME_LAYER_IMAGE_THUMBNAIL;
+          const thumbElement = layerElem.querySelector("." + thumbClass);
+
+          if (thumbElement) {
+            thumbElement.replaceWith(
+              maskThumb ? createMaskThumb(layer) : createImageThumb(layer),
+            );
+          }
+        } catch (e) {
+          console.log("Error rebuilding thumbnail: ", e);
+        }
+      }
+
+      /**
+       *
+       * @param {number} rotation - 90 degree increments
+       */
+      this.setRotation90 = function (rotation) {
+        if (imageRotation !== rotation) {
+          imageRotation = rotation;
+
+          for (let i = 0; i < linearizedLayers.length; i++) {
+            let layer = linearizedLayers[i];
+            let layerElem = getElemFromDisplayIndex(i);
+
+            if (layerElem) {
+              rebuildThumbnailForLayer(layerElem, layer, false);
+
+              if (layer.mask) {
+                rebuildThumbnailForLayer(layerElem, layer, true);
+              }
             }
           }
+        }
+      };
 
-          drag.dropTarget = null;
-          drag.state = DRAG_STATE_IDLE;
+      /**
+       * The thumbnail of the given layer has been updated.
+       *
+       * @param {CPImageLayer} layer
+       */
 
-          updateDropMarker();
-          break;
+      this.layerImageThumbChanged = function (layer) {
+        let index = getDisplayIndexFromLayer(layer);
+        let layerElem = getElemFromDisplayIndex(index);
 
-        default: // We didn't start the drag so there is no indicator to remove
-          drag.state = DRAG_STATE_IDLE;
-          break;
+        if (layerElem) {
+          rebuildThumbnailForLayer(layerElem, layer, false);
+        }
+      };
+
+      this.layerMaskThumbChanged = function (layer) {
+        let index = getDisplayIndexFromLayer(layer);
+        let layerElem = getElemFromDisplayIndex(index);
+
+        if (layerElem) {
+          if (layer.mask) {
+            rebuildThumbnailForLayer(layerElem, layer, true);
+          } else {
+            let maskThumb = layerElem.querySelector(
+              "." + CLASSNAME_LAYER_MASK_THUMBNAIL,
+            );
+            if (maskThumb) {
+              maskThumb.remove();
+            }
+          }
+        }
+      };
+
+      /**
+       * Call when the selected layer changes.
+       *
+       * @param {CPLayer} newLayer
+       * @param {boolean} maskSelected
+       */
+      this.activeLayerChanged = function (newLayer, maskSelected) {
+        let activeLayers = layerContainer.querySelectorAll(
+          "." + CLASSNAME_LAYER_ACTIVE,
+        );
+        activeLayers.forEach((layer) => {
+          layer.classList.remove(CLASSNAME_LAYER_ACTIVE);
+        });
+
+        let layerElem = getElemFromDisplayIndex(
+          getDisplayIndexFromLayer(newLayer),
+        );
+
+        layerElem.classList.add(CLASSNAME_LAYER_ACTIVE);
+
+        let imageThumb = layerElem.querySelector(
+          "." + CLASSNAME_LAYER_IMAGE_THUMBNAIL,
+        );
+        let maskThumb = layerElem.querySelector(
+          "." + CLASSNAME_LAYER_MASK_THUMBNAIL,
+        );
+
+        if (imageThumb) {
+          imageThumb.classList.toggle("active", !maskSelected);
+        }
+
+        if (maskThumb) {
+          maskThumb.classList.toggle("active", maskSelected);
+        }
+      };
+
+      this.resize = function () {
+        palette.dismissNotification();
+        this.buildLayers();
+      };
+
+      this.getElement = function () {
+        return widgetContainer;
+      };
+
+      /**
+       * Scroll the layer widget until the layer with the given index is fully visible, and return
+       * the element for that layer.
+       *
+       * @param {number} displayIndex
+       */
+      this.revealLayer = function (displayIndex) {
+        let layerElem = getElemFromDisplayIndex(displayIndex),
+          layerRect = layerElem.getBoundingClientRect(),
+          containerRect = layerContainer.getBoundingClientRect();
+
+        scrollContainer.scrollTop = Math.max(
+          Math.min(
+            Math.max(
+              scrollContainer.scrollTop,
+              // Scroll down to reveal the bottom of the layer
+              scrollContainer.scrollTop +
+                layerRect.bottom -
+                containerRect.bottom,
+            ),
+            scrollContainer.scrollTop + layerRect.top - containerRect.top,
+          ),
+          0,
+        );
+
+        return layerElem;
+      };
+
+      dropdownParent.id = "chickenpaint-layer-pop";
+
+      widgetContainer.className = "chickenpaint-layers-widget";
+      widgetContainer.addEventListener(
+        "contextmenu",
+        (e) => e.preventDefault(),
+        true /* Capture phase, prevent context menu on all children */,
+      );
+
+      //ドロップダウンメニュー関連項目のコメントアウト
+      // dropdownLayerMenu.addEventListener("click", onDropdownActionClick);
+
+      layerContainer.className = "list-group";
+      layerContainer.addEventListener("dblclick", onDoubleClick);
+      layerContainer.addEventListener("pointerdown", onPointerDown);
+
+      layerContainer.setAttribute("touch-action", "none");
+
+      for (let eventName of [
+        "ontouchstart",
+        "ontouchmove",
+        "ontouchend",
+        "ontouchcancel",
+      ]) {
+        layerContainer.addEventListener(eventName, absorbTouch);
       }
 
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
-
-      layerContainer.releasePointerCapture(e.pointerId);
-
-      layerContainer.removeEventListener("pointermove", onPointerDragged);
-      layerContainer.removeEventListener("pointerup", onPointerUp);
-      layerContainer.removeEventListener("pointercancel", onPointerUp);
+      widgetContainer.appendChild(layerContainer);
     }
 
-    function startLayerDrag() {
-      drag.state = DRAG_STATE_DRAGGING;
+    function updateAvailableBlendModes() {
+      let activeLayer = artwork.getActiveLayer();
 
-      drag.frameElem = document.createElement("div");
-      drag.frameElem.className = "chickenpaint-layer-drag-frame";
-      drag.frameElem.style.width = drag.layerElem.offsetWidth + "px";
-      drag.frameElem.style.height = drag.layerElem.offsetHeight + "px";
+      while (blendCombo.lastChild) {
+        blendCombo.removeChild(blendCombo.lastChild);
+      }
 
-      drag.dropBetweenMarkerElem = document.createElement("div");
-      drag.dropBetweenMarkerElem.className =
-        "chickenpaint-layer-drop-between-mark";
+      for (
+        let blendMode = CPBlend.LM_FIRST;
+        blendMode <= CPBlend.LM_LAST;
+        blendMode++
+      ) {
+        if (
+          blendMode != CPBlend.LM_MULTIPLY2 &&
+          (blendMode == activeLayer.blendMode ||
+            (blendMode === CPBlend.LM_PASSTHROUGH &&
+              activeLayer instanceof CPLayerGroup) ||
+            blendMode <= CPBlend.LM_LAST_CHIBIPAINT)
+        ) {
+          let option = document.createElement("option");
 
-      drag.layerElem.classList.add("chickenpaint-layer-dragging");
+          option.appendChild(
+            document.createTextNode(
+              _(CPBlend.BLEND_MODE_DISPLAY_NAMES[blendMode]),
+            ),
+          );
 
-      layerContainer.appendChild(drag.frameElem);
+          // Should we use the new LM_MULTIPLY2 blend mode in this spot instead of the legacy one?
+          if (
+            blendMode === CPBlend.LM_MULTIPLY &&
+            activeLayer.blendMode !== blendMode &&
+            !activeLayer.useLegacyMultiply
+          ) {
+            option.value = CPBlend.LM_MULTIPLY2;
+          } else {
+            option.value = blendMode;
+          }
+
+          blendCombo.appendChild(option);
+        }
+      }
     }
 
-    function onPointerDragged(e) {
-      let newDragY = e.clientY;
+    function createLayerActionButtons() {
+      const buttons = [
+          {
+            title: "Add layer",
+            icon: createFontAwesomeIcon("icon-file"),
+            action: "CPAddLayer",
+          },
+          {
+            title: "Add group",
+            icon: createFontAwesomeIcon("icon-folder"),
+            action: "CPAddGroup",
+          },
+          {
+            title: "Merge down",
+            icon: createFontAwesomeIcon("icon-md-download"),
+            action: "CPLayerMergeDown",
+            require: ["image-layer"],
+          },
+          {
+            title: "Merge group",
+            icon: createFontAwesomeIcon("icon-md-collapse_all"),
+            action: "CPGroupMerge",
+            require: ["layer-group"],
+          },
+          {
+            title: "Clip to the layer below",
+            icon: createFontAwesomeIcon(
+              "icon-level-down-alt fa-flip-horizontal",
+            ),
+            action: "CPCreateClippingMask",
+            require: "no-clipping-mask-or-is-group",
+          },
+          {
+            title: "Unclip from the layer below",
+            icon: createFontAwesomeIcon(
+              "icon-level-down-alt fa-flip-horizontal",
+            ),
+            action: "CPReleaseClippingMask",
+            require: "clipping-mask",
+          },
+          {
+            title: "Add layer mask",
+            icon: createChickenPaintIcon("mask"),
+            action: "CPAddLayerMask",
+            require: ["no-mask"],
+          },
+          {
+            title: "Apply mask",
+            icon: createChickenPaintIcon("mask"),
+            action: "CPApplyLayerMask",
+            require: ["mask"],
+          },
+          {
+            title: "Duplicate",
+            icon: createFontAwesomeIcon("icon-clone"),
+            action: "CPLayerDuplicate",
+          },
+          {
+            title: "Delete layer mask",
+            icon: createFontAwesomeIcon("icon-trash"),
+            action: "CPRemoveLayerMask",
+            require: "isEditingMask",
+          },
+          {
+            title: "Delete layer",
+            icon: createFontAwesomeIcon("icon-trash"),
+            action: "CPRemoveLayer",
+            require: "isNotEditingMask",
+          },
+        ],
+        layerButtonsList = document.createElement("ul");
 
-      switch (drag.state) {
-        case DRAG_STATE_PRE_PAN:
-          if (Math.abs(newDragY - drag.dragY) > LAYER_DRAG_START_THRESHOLD) {
-            drag.state = DRAG_STATE_PANNING;
+      layerButtonsList.className = "chickenpaint-layer-buttons list-unstyled";
 
-            // Fall through
-          } else {
-            break;
-          }
+      for (let button of buttons) {
+        let elem = document.createElement("li");
 
-        case DRAG_STATE_PANNING:
-          scrollContainer.scrollTop =
-            drag.initialScrollTop + drag.dragY - newDragY;
-          break;
+        elem.setAttribute("data-action", button.action);
+        elem.className =
+          "chickenpaint-small-toolbar-button " +
+          (button.require
+            ? "chickenpaint-action-require-" + button.require
+            : "");
+        elem.title = _(button.title);
+        elem.appendChild(button.icon);
+        elem.addEventListener("click", function () {
+          controller.actionPerformed({ action: button.action });
+        });
 
-        case DRAG_STATE_PRE_DRAG:
-          if (Math.abs(newDragY - drag.dragY) > LAYER_DRAG_START_THRESHOLD) {
-            startLayerDrag();
-
-            // Fall through
-          } else {
-            break;
-          }
-
-        case DRAG_STATE_DRAGGING:
-          drag.dragY = newDragY;
-          updateDropMarker();
-          break;
+        layerButtonsList.appendChild(elem);
       }
+
+      return layerButtonsList;
+    }
+
+    function updateActiveLayerActionButtons() {
+      let activeLayer = artwork.getActiveLayer();
+      let isEditingMask = artwork.isEditingMask();
+      let facts = computeLayerPredicates(activeLayer, isEditingMask);
+      for (let requirement of [
+        "mask",
+        "no-mask",
+        "isEditingMask",
+        "isNotEditingMask",
+        "clipping-mask",
+        "no-clipping-mask-or-is-group",
+        "image-layer",
+        "layer-group",
+      ]) {
+        let elements = layerActionButtons.getElementsByClassName(
+          "chickenpaint-action-require-" + requirement,
+        );
+
+        for (let element of elements) {
+          element.style.display = facts[requirement] ? "inline-block" : "none";
+        }
+      }
+
+      let actions = layerActionButtons.querySelectorAll("[data-action]");
+
+      actions.forEach(function (element) {
+        let action = element.getAttribute("data-action");
+        element.classList.toggle(
+          "disabled",
+          !controller.isActionAllowed(action),
+        );
+      });
+    }
+
+    function updateActiveLayerControls() {
+      let activeLayer = artwork.getActiveLayer();
+
+      if (activeLayer.getAlpha() != alphaSlider.value) {
+        alphaSlider.setValue(activeLayer.getAlpha());
+      }
+
+      updateAvailableBlendModes();
+
+      if (activeLayer.getBlendMode() != parseInt(blendCombo.value, 10)) {
+        blendCombo.value = activeLayer.getBlendMode();
+      }
+
+      if (activeLayer.getLockAlpha() != cbLockAlpha.checked) {
+        cbLockAlpha.checked = activeLayer.getLockAlpha();
+      }
+
+      updateActiveLayerActionButtons();
     }
 
     /**
-     * Rebuild all layer elements from the cached linearizedLayers list
+     * Called when a layer has been added/removed.
      */
-    this.buildLayers = function () {
-      // Cache the details of the layer structure
-      linearizedLayers = artwork.getLayersRoot().getLinearizedLayerList(true);
+    function onChangeStructure() {
+      artwork = this;
 
-      let layerElems = linearizedLayers.map((layer, index) =>
-          buildLayer(index, layer),
-        ),
-        layerFrag = document.createDocumentFragment();
+      // Fetch and rebuild all layers
+      layerWidget.resize();
 
-      layerContainer.innerHTML = ""; // jQuery の empty() を置き換え
-
-      for (let i = layerElems.length - 1; i >= 0; i--) {
-        layerFrag.appendChild(layerElems[i]);
-      }
-
-      layerContainer.appendChild(layerFrag);
-
-      updateDropMarker();
-    };
+      updateActiveLayerControls();
+    }
 
     /**
-     * The properties of the given layer have changed, rebuild it.
+     * Called when the properties of one layer has been updated and we should rebuild/repaint it.
      *
      * @param {CPLayer} layer
      */
-    this.layerChanged = function (layer) {
-      let index = getDisplayIndexFromLayer(layer),
-        layerElem = getElemFromDisplayIndex(index);
+    function onChangeLayer(layer) {
+      artwork = this;
 
-      if (
-        !layerElem ||
-        (layer instanceof CPLayerGroup &&
-          (layer.expanded !=
-            layerElem.classList.contains(CLASSNAME_LAYER_GROUP_EXPANDED) ||
-            layer.visible !=
-              layerElem.classList.contains(CLASSNAME_LAYER_VISIBLE)))
-      ) {
-        // When these properties change, we might have to rebuild the group's children too, so just rebuild everything
-        this.buildLayers();
-      } else {
-        layerElem.replaceWith(buildLayer(index, layer));
-      }
-    };
+      palette.dismissNotification();
+      layerWidget.layerChanged(layer);
 
-    function rebuildThumbnailForLayer(layerElem, layer, maskThumb) {
-      try {
-        const thumbClass = maskThumb
-          ? CLASSNAME_LAYER_MASK_THUMBNAIL
-          : CLASSNAME_LAYER_IMAGE_THUMBNAIL;
-        const thumbElement = layerElem.querySelector("." + thumbClass);
-
-        if (thumbElement) {
-          thumbElement.replaceWith(
-            maskThumb ? createMaskThumb(layer) : createImageThumb(layer),
-          );
-        }
-      } catch (e) {
-        console.log("Error rebuilding thumbnail: ", e);
-      }
+      updateActiveLayerControls();
     }
 
     /**
+     * Called when the thumbnail of one layer has been updated.
      *
-     * @param {number} rotation - 90 degree increments
+     * @param {CPLayer} layer
      */
-    this.setRotation90 = function (rotation) {
-      if (imageRotation !== rotation) {
-        imageRotation = rotation;
+    function onChangeLayerImageThumb(layer) {
+      artwork = this;
 
-        for (let i = 0; i < linearizedLayers.length; i++) {
-          let layer = linearizedLayers[i];
-          let layerElem = getElemFromDisplayIndex(i);
-
-          if (layerElem) {
-            rebuildThumbnailForLayer(layerElem, layer, false);
-
-            if (layer.mask) {
-              rebuildThumbnailForLayer(layerElem, layer, true);
-            }
-          }
-        }
-      }
-    };
+      layerWidget.layerImageThumbChanged(layer);
+    }
 
     /**
-     * The thumbnail of the given layer has been updated.
+     * Called when the thumbnail of one layer has been updated.
      *
-     * @param {CPImageLayer} layer
+     * @param {CPLayer} layer
      */
+    function onChangeLayerMaskThumb(layer) {
+      artwork = this;
 
-    this.layerImageThumbChanged = function (layer) {
-      let index = getDisplayIndexFromLayer(layer);
-      let layerElem = getElemFromDisplayIndex(index);
-
-      if (layerElem) {
-        rebuildThumbnailForLayer(layerElem, layer, false);
-      }
-    };
-
-    this.layerMaskThumbChanged = function (layer) {
-      let index = getDisplayIndexFromLayer(layer);
-      let layerElem = getElemFromDisplayIndex(index);
-
-      if (layerElem) {
-        if (layer.mask) {
-          rebuildThumbnailForLayer(layerElem, layer, true);
-        } else {
-          let maskThumb = layerElem.querySelector(
-            "." + CLASSNAME_LAYER_MASK_THUMBNAIL,
-          );
-          if (maskThumb) {
-            maskThumb.remove();
-          }
-        }
-      }
-    };
+      layerWidget.layerMaskThumbChanged(layer);
+    }
 
     /**
-     * Call when the selected layer changes.
+     * Called when the selected layer changes.
      *
+     * @param {CPLayer} oldLayer
      * @param {CPLayer} newLayer
      * @param {boolean} maskSelected
      */
-    this.activeLayerChanged = function (newLayer, maskSelected) {
-      let activeLayers = layerContainer.querySelectorAll(
-        "." + CLASSNAME_LAYER_ACTIVE,
-      );
-      activeLayers.forEach((layer) => {
-        layer.classList.remove(CLASSNAME_LAYER_ACTIVE);
+    function onChangeActiveLayer(oldLayer, newLayer, maskSelected) {
+      layerWidget.activeLayerChanged(newLayer, maskSelected);
+
+      updateActiveLayerControls();
+    }
+
+    function CPRenameField() {
+      let layer = null,
+        origName = "",
+        textBox = document.createElement("input"),
+        that = this;
+
+      // 隠すメソッド
+      this.hide = function () {
+        layer = null;
+
+        let parentNameElem = textBox.parentNode;
+
+        // 親ノードが存在する時は、テキストボックスを削除して、レイヤー名を表示
+        if (parentNameElem) {
+          parentNameElem.removeChild(textBox);
+          parentNameElem.textContent = origName;
+        }
+      };
+
+      // 名前の変更とhide
+      this.renameAndHide = function () {
+        if (layer && layer.name !== textBox.value) {
+          // 名前が変更されている時
+          controller.actionPerformed({
+            action: "CPSetLayerName",
+            layer: layer,
+            name: textBox.value,
+          });
+        }
+        this.hide();
+      };
+
+      // レイヤー名変更のテキストボックスを表示
+      this.show = function (_layer, _layerElem) {
+        layer = _layer;
+        origName = layer.name;
+
+        // 元のレイヤー名をテキストボックスにセット
+        textBox.value = origName;
+
+        let layerNameElem = _layerElem.querySelector(
+          ".chickenpaint-layer-name",
+        );
+        if (layerNameElem) {
+          // 親ノードから削除されている場合にのみ処理を実行
+          if (layerNameElem.parentNode) {
+            // 現在の子ノードを取得
+            let currentChild = layerNameElem.firstChild;
+            // テキストノードが存在する場合にのみ削除
+            if (currentChild && currentChild.nodeType === Node.TEXT_NODE) {
+              layerNameElem.removeChild(currentChild);
+              // テキストボックスを親ノードに追加
+              layerNameElem.appendChild(textBox);
+            }
+          }
+        }
+        // 入力ボックスを選択状態にする
+        textBox.select();
+      };
+
+      // テキストボックスの設定
+      textBox.type = "text";
+      textBox.className = "chickenpaint-layer-rename form-control input-sm";
+
+      // キーが押されたときにイベントを停止
+      textBox.addEventListener("keydown", function (e) {
+        // Prevent other keyhandlers (CPCanvas) from getting their grubby hands on the input
+        e.stopPropagation();
       });
 
-      let layerElem = getElemFromDisplayIndex(
-        getDisplayIndexFromLayer(newLayer),
-      );
+      // エンターキーを押した時に名前変更と隠す処理を実行
+      textBox.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          that.renameAndHide();
+        }
+        e.stopPropagation();
+      });
 
-      layerElem.classList.add(CLASSNAME_LAYER_ACTIVE);
+      // 入力ボックスがフォーカスを失った時に名前変更処理を実行
+      textBox.addEventListener("blur", function (e) {
+        if (layer) {
+          that.renameAndHide();
+        }
+      });
+    }
 
-      let imageThumb = layerElem.querySelector(
-        "." + CLASSNAME_LAYER_IMAGE_THUMBNAIL,
-      );
-      let maskThumb = layerElem.querySelector(
-        "." + CLASSNAME_LAYER_MASK_THUMBNAIL,
-      );
+    let parentSetSize = this.setSize,
+      parentSetWidth = this.setWidth,
+      parentSetHeight = this.setHeight;
 
-      if (imageThumb) {
-        imageThumb.classList.toggle("active", !maskSelected);
-      }
-
-      if (maskThumb) {
-        maskThumb.classList.toggle("active", maskSelected);
-      }
+    // サイズを変更するメソッド
+    this.setSize = function (w, h) {
+      parentSetSize.call(this, w, h);
+      this.dismissNotification();
+      alphaSlider.resize();
     };
 
-    this.resize = function () {
-      palette.dismissNotification();
-      this.buildLayers();
+    // 幅を変更するメソッド
+    this.setWidth = function (width) {
+      parentSetWidth.call(this, width);
+      alphaSlider.resize();
+      layerWidget.resize();
     };
 
-    this.getElement = function () {
-      return widgetContainer;
+    // 高さを変更するメソッド
+    this.setHeight = function (height) {
+      parentSetHeight.call(this, height);
+      layerWidget.resize();
     };
 
     /**
-     * Scroll the layer widget until the layer with the given index is fully visible, and return
-     * the element for that layer.
+     * Set the rotation of the image thumbnails with respect to the underlying image data.
      *
-     * @param {number} displayIndex
+     * @param {number} newRotation - 90 degree increments
      */
-    this.revealLayer = function (displayIndex) {
-      let layerElem = getElemFromDisplayIndex(displayIndex),
-        layerRect = layerElem.getBoundingClientRect(),
-        containerRect = layerContainer.getBoundingClientRect();
-
-      scrollContainer.scrollTop = Math.max(
-        Math.min(
-          Math.max(
-            scrollContainer.scrollTop,
-            // Scroll down to reveal the bottom of the layer
-            scrollContainer.scrollTop + layerRect.bottom - containerRect.bottom,
-          ),
-          scrollContainer.scrollTop + layerRect.top - containerRect.top,
-        ),
-        0,
-      );
-
-      return layerElem;
+    this.setRotation90 = function (newRotation) {
+      layerWidget.setRotation90(newRotation);
     };
 
-    dropdownParent.id = "chickenpaint-layer-pop";
-
-    widgetContainer.className = "chickenpaint-layers-widget";
-    widgetContainer.addEventListener(
-      "contextmenu",
-      (e) => e.preventDefault(),
-      true /* Capture phase, prevent context menu on all children */,
-    );
-
-    //ドロップダウンメニュー関連項目のコメントアウト
-    // dropdownLayerMenu.addEventListener("click", onDropdownActionClick);
-
-    layerContainer.className = "list-group";
-    layerContainer.addEventListener("dblclick", onDoubleClick);
-    layerContainer.addEventListener("pointerdown", onPointerDown);
-
-    layerContainer.setAttribute("touch-action", "none");
-
-    for (let eventName of [
-      "ontouchstart",
-      "ontouchmove",
-      "ontouchend",
-      "ontouchcancel",
-    ]) {
-      layerContainer.addEventListener(eventName, absorbTouch);
-    }
-
-    widgetContainer.appendChild(layerContainer);
-  }
-
-  function updateAvailableBlendModes() {
-    let activeLayer = artwork.getActiveLayer();
-
-    while (blendCombo.lastChild) {
-      blendCombo.removeChild(blendCombo.lastChild);
-    }
-
-    for (
-      let blendMode = CPBlend.LM_FIRST;
-      blendMode <= CPBlend.LM_LAST;
-      blendMode++
-    ) {
-      if (
-        blendMode != CPBlend.LM_MULTIPLY2 &&
-        (blendMode == activeLayer.blendMode ||
-          (blendMode === CPBlend.LM_PASSTHROUGH &&
-            activeLayer instanceof CPLayerGroup) ||
-          blendMode <= CPBlend.LM_LAST_CHIBIPAINT)
-      ) {
-        let option = document.createElement("option");
-
-        option.appendChild(
-          document.createTextNode(
-            _(CPBlend.BLEND_MODE_DISPLAY_NAMES[blendMode]),
-          ),
-        );
-
-        // Should we use the new LM_MULTIPLY2 blend mode in this spot instead of the legacy one?
-        if (
-          blendMode === CPBlend.LM_MULTIPLY &&
-          activeLayer.blendMode !== blendMode &&
-          !activeLayer.useLegacyMultiply
-        ) {
-          option.value = CPBlend.LM_MULTIPLY2;
-        } else {
-          option.value = blendMode;
+    /**
+     * Dismiss any active notifications or popovers.
+     */
+    this.dismissNotification = function () {
+      const elements = document.querySelectorAll(
+        ".chickenpaint-layer[aria-describedby], .chickenpaint-slider[aria-describedby]",
+      );
+      elements.forEach((elem) => {
+        const popoverInstance = bootstrap.Popover.getInstance(elem);
+        if (popoverInstance) {
+          popoverInstance.dispose();
         }
-
-        blendCombo.appendChild(option);
-      }
-    }
-  }
-
-  function createLayerActionButtons() {
-    const buttons = [
-        {
-          title: "Add layer",
-          icon: createFontAwesomeIcon("icon-file"),
-          action: "CPAddLayer",
-        },
-        {
-          title: "Add group",
-          icon: createFontAwesomeIcon("icon-folder"),
-          action: "CPAddGroup",
-        },
-        {
-          title: "Merge down",
-          icon: createFontAwesomeIcon("icon-md-download"),
-          action: "CPLayerMergeDown",
-          require: ["image-layer"],
-        },
-        {
-          title: "Merge group",
-          icon: createFontAwesomeIcon("icon-md-collapse_all"),
-          action: "CPGroupMerge",
-          require: ["layer-group"],
-        },
-        {
-          title: "Clip to the layer below",
-          icon: createFontAwesomeIcon("icon-level-down-alt fa-flip-horizontal"),
-          action: "CPCreateClippingMask",
-          require: "no-clipping-mask-or-is-group",
-        },
-        {
-          title: "Unclip from the layer below",
-          icon: createFontAwesomeIcon("icon-level-down-alt fa-flip-horizontal"),
-          action: "CPReleaseClippingMask",
-          require: "clipping-mask",
-        },
-        {
-          title: "Add layer mask",
-          icon: createChickenPaintIcon("mask"),
-          action: "CPAddLayerMask",
-          require: ["no-mask"],
-        },
-        {
-          title: "Apply mask",
-          icon: createChickenPaintIcon("mask"),
-          action: "CPApplyLayerMask",
-          require: ["mask"],
-        },
-        {
-          title: "Duplicate",
-          icon: createFontAwesomeIcon("icon-clone"),
-          action: "CPLayerDuplicate",
-        },
-        {
-          title: "Delete layer mask",
-          icon: createFontAwesomeIcon("icon-trash"),
-          action: "CPRemoveLayerMask",
-          require: "isEditingMask",
-        },
-        {
-          title: "Delete layer",
-          icon: createFontAwesomeIcon("icon-trash"),
-          action: "CPRemoveLayer",
-          require: "isNotEditingMask",
-        },
-      ],
-      layerButtonsList = document.createElement("ul");
-
-    layerButtonsList.className = "chickenpaint-layer-buttons list-unstyled";
-
-    for (let button of buttons) {
-      let elem = document.createElement("li");
-
-      elem.setAttribute("data-action", button.action);
-      elem.className =
-        "chickenpaint-small-toolbar-button " +
-        (button.require ? "chickenpaint-action-require-" + button.require : "");
-      elem.title = _(button.title);
-      elem.appendChild(button.icon);
-      elem.addEventListener("click", function () {
-        controller.actionPerformed({ action: button.action });
       });
 
-      layerButtonsList.appendChild(elem);
-    }
-
-    return layerButtonsList;
-  }
-
-  function updateActiveLayerActionButtons() {
-    let activeLayer = artwork.getActiveLayer();
-    let isEditingMask = artwork.isEditingMask();
-    let facts = computeLayerPredicates(activeLayer, isEditingMask);
-    for (let requirement of [
-      "mask",
-      "no-mask",
-      "isEditingMask",
-      "isNotEditingMask",
-      "clipping-mask",
-      "no-clipping-mask-or-is-group",
-      "image-layer",
-      "layer-group",
-    ]) {
-      let elements = layerActionButtons.getElementsByClassName(
-        "chickenpaint-action-require-" + requirement,
-      );
-
-      for (let element of elements) {
-        element.style.display = facts[requirement] ? "inline-block" : "none";
-      }
-    }
-
-    let actions = layerActionButtons.querySelectorAll("[data-action]");
-
-    actions.forEach(function (element) {
-      let action = element.getAttribute("data-action");
-      element.classList.toggle("disabled", !controller.isActionAllowed(action));
-    });
-  }
-
-  function updateActiveLayerControls() {
-    let activeLayer = artwork.getActiveLayer();
-
-    if (activeLayer.getAlpha() != alphaSlider.value) {
-      alphaSlider.setValue(activeLayer.getAlpha());
-    }
-
-    updateAvailableBlendModes();
-
-    if (activeLayer.getBlendMode() != parseInt(blendCombo.value, 10)) {
-      blendCombo.value = activeLayer.getBlendMode();
-    }
-
-    if (activeLayer.getLockAlpha() != cbLockAlpha.checked) {
-      cbLockAlpha.checked = activeLayer.getLockAlpha();
-    }
-
-    updateActiveLayerActionButtons();
-  }
-
-  /**
-   * Called when a layer has been added/removed.
-   */
-  function onChangeStructure() {
-    artwork = this;
-
-    // Fetch and rebuild all layers
-    layerWidget.resize();
-
-    updateActiveLayerControls();
-  }
-
-  /**
-   * Called when the properties of one layer has been updated and we should rebuild/repaint it.
-   *
-   * @param {CPLayer} layer
-   */
-  function onChangeLayer(layer) {
-    artwork = this;
-
-    palette.dismissNotification();
-    layerWidget.layerChanged(layer);
-
-    updateActiveLayerControls();
-  }
-
-  /**
-   * Called when the thumbnail of one layer has been updated.
-   *
-   * @param {CPLayer} layer
-   */
-  function onChangeLayerImageThumb(layer) {
-    artwork = this;
-
-    layerWidget.layerImageThumbChanged(layer);
-  }
-
-  /**
-   * Called when the thumbnail of one layer has been updated.
-   *
-   * @param {CPLayer} layer
-   */
-  function onChangeLayerMaskThumb(layer) {
-    artwork = this;
-
-    layerWidget.layerMaskThumbChanged(layer);
-  }
-
-  /**
-   * Called when the selected layer changes.
-   *
-   * @param {CPLayer} oldLayer
-   * @param {CPLayer} newLayer
-   * @param {boolean} maskSelected
-   */
-  function onChangeActiveLayer(oldLayer, newLayer, maskSelected) {
-    layerWidget.activeLayerChanged(newLayer, maskSelected);
-
-    updateActiveLayerControls();
-  }
-
-  function CPRenameField() {
-    let layer = null,
-      origName = "",
-      textBox = document.createElement("input"),
-      that = this;
-
-    // 隠すメソッド
-    this.hide = function () {
-      layer = null;
-
-      let parentNameElem = textBox.parentNode;
-
-      // 親ノードが存在する時は、テキストボックスを削除して、レイヤー名を表示
-      if (parentNameElem) {
-        parentNameElem.removeChild(textBox);
-        parentNameElem.textContent = origName;
-      }
-    };
-
-    // 名前の変更とhide
-    this.renameAndHide = function () {
-      if (layer && layer.name !== textBox.value) {
-        // 名前が変更されている時
-        controller.actionPerformed({
-          action: "CPSetLayerName",
-          layer: layer,
-          name: textBox.value,
-        });
-      }
-      this.hide();
-    };
-
-    // レイヤー名変更のテキストボックスを表示
-    this.show = function (_layer, _layerElem) {
-      layer = _layer;
-      origName = layer.name;
-
-      // 元のレイヤー名をテキストボックスにセット
-      textBox.value = origName;
-
-      let layerNameElem = _layerElem.querySelector(".chickenpaint-layer-name");
-      if (layerNameElem) {
-        // 親ノードから削除されている場合にのみ処理を実行
-        if (layerNameElem.parentNode) {
-          // 現在の子ノードを取得
-          let currentChild = layerNameElem.firstChild;
-          // テキストノードが存在する場合にのみ削除
-          if (currentChild && currentChild.nodeType === Node.TEXT_NODE) {
-            layerNameElem.removeChild(currentChild);
-            // テキストボックスを親ノードに追加
-            layerNameElem.appendChild(textBox);
-          }
-        }
-      }
-      // 入力ボックスを選択状態にする
-      textBox.select();
-    };
-
-    // テキストボックスの設定
-    textBox.type = "text";
-    textBox.className = "chickenpaint-layer-rename form-control input-sm";
-
-    // キーが押されたときにイベントを停止
-    textBox.addEventListener("keydown", function (e) {
-      // Prevent other keyhandlers (CPCanvas) from getting their grubby hands on the input
-      e.stopPropagation();
-    });
-
-    // エンターキーを押した時に名前変更と隠す処理を実行
-    textBox.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        that.renameAndHide();
-      }
-      e.stopPropagation();
-    });
-
-    // 入力ボックスがフォーカスを失った時に名前変更処理を実行
-    textBox.addEventListener("blur", function (e) {
-      if (layer) {
-        that.renameAndHide();
-      }
-    });
-  }
-
-  let parentSetSize = this.setSize,
-    parentSetWidth = this.setWidth,
-    parentSetHeight = this.setHeight;
-
-  // サイズを変更するメソッド
-  this.setSize = function (w, h) {
-    parentSetSize.call(this, w, h);
-    this.dismissNotification();
-    alphaSlider.resize();
-  };
-
-  // 幅を変更するメソッド
-  this.setWidth = function (width) {
-    parentSetWidth.call(this, width);
-    alphaSlider.resize();
-    layerWidget.resize();
-  };
-
-  // 高さを変更するメソッド
-  this.setHeight = function (height) {
-    parentSetHeight.call(this, height);
-    layerWidget.resize();
-  };
-
-  /**
-   * Set the rotation of the image thumbnails with respect to the underlying image data.
-   *
-   * @param {number} newRotation - 90 degree increments
-   */
-  this.setRotation90 = function (newRotation) {
-    layerWidget.setRotation90(newRotation);
-  };
-
-  /**
-   * Dismiss any active notifications or popovers.
-   */
-  this.dismissNotification = function () {
-    const elements = document.querySelectorAll(
-      ".chickenpaint-layer[aria-describedby], .chickenpaint-slider[aria-describedby]",
-    );
-    elements.forEach((elem) => {
-      const popoverInstance = bootstrap.Popover.getInstance(elem);
-      if (popoverInstance) {
-        popoverInstance.dispose();
-      }
-    });
-
-    if (notificationDismissTimer) {
-      clearTimeout(notificationDismissTimer);
-      notificationDismissTimer = false;
-    }
-  };
-
-  /**
-   * Show a notification for a specific layer with a message.
-   *
-   * @param {CPLayer} layer - The layer for which the notification is shown
-   * @param {string} message - The message to display in the notification
-   * @param {string} where - The location for the notification (e.g., "opacity")
-   */
-  this.showNotification = (layer, message, where) => {
-    let notificationLayerIndex = getDisplayIndexFromLayer(layer),
-      target;
-
-    if (artwork.getActiveLayer() == layer && where == "opacity") {
-      target = alphaSlider.getElement();
-    } else {
-      target = layerWidget.revealLayer(notificationLayerIndex);
-    }
-
-    this.dismissNotification();
-
-    const popoverInstance = new bootstrap.Popover(target, {
-      html: false,
-      content: message,
-      placement: "left",
-      trigger: "manual",
-      fallbackPlacement: [],
-      boundary: "window",
-      container: palette.getElement(),
-    });
-
-    popoverInstance.show();
-
-    notificationDismissTimer = setTimeout(
-      () => {
+      if (notificationDismissTimer) {
+        clearTimeout(notificationDismissTimer);
         notificationDismissTimer = false;
-        this.dismissNotification();
-      },
-      Math.max(
-        Math.round(message.length * NOTIFICATION_HIDE_DELAY_MS_PER_CHAR),
-        NOTIFICATION_HIDE_DELAY_MIN,
-      ),
+      }
+    };
+
+    /**
+     * Show a notification for a specific layer with a message.
+     *
+     * @param {CPLayer} layer - The layer for which the notification is shown
+     * @param {string} message - The message to display in the notification
+     * @param {string} where - The location for the notification (e.g., "opacity")
+     */
+    this.showNotification = (layer, message, where) => {
+      let notificationLayerIndex = getDisplayIndexFromLayer(layer),
+        target;
+
+      if (artwork.getActiveLayer() == layer && where == "opacity") {
+        target = alphaSlider.getElement();
+      } else {
+        target = layerWidget.revealLayer(notificationLayerIndex);
+      }
+
+      this.dismissNotification();
+
+      const popoverInstance = new bootstrap.Popover(target, {
+        html: false,
+        content: message,
+        placement: "left",
+        trigger: "manual",
+        fallbackPlacement: [],
+        boundary: "window",
+        container: palette.getElement(),
+      });
+
+      popoverInstance.show();
+
+      notificationDismissTimer = setTimeout(
+        () => {
+          notificationDismissTimer = false;
+          this.dismissNotification();
+        },
+        Math.max(
+          Math.round(message.length * NOTIFICATION_HIDE_DELAY_MS_PER_CHAR),
+          NOTIFICATION_HIDE_DELAY_MIN,
+        ),
+      );
+    };
+
+    // 合成方法のセレクトメニュー
+    blendCombo.className = "form-control form-control-sm";
+    blendCombo.tabIndex = -1;
+
+    blendCombo.title = _("Layer blending mode");
+    blendCombo.addEventListener("change", function (e) {
+      controller.actionPerformed({
+        action: "CPSetLayerBlendMode",
+        blendMode: parseInt(blendCombo.value, 10),
+      });
+      blendCombo.blur();
+    });
+    //キーボード操作時にフォーカスを外して、ショートカットキーが使えるようにする
+    window.addEventListener("keydown", (e) => {
+      blendCombo.blur();
+    });
+    body.appendChild(blendCombo);
+
+    // 不透明度のスライダー
+    alphaSlider.title = function (value) {
+      return _("Opacity") + ": " + value + "%";
+    };
+
+    alphaSlider.on("valueChange", function (value) {
+      controller.actionPerformed({ action: "CPSetLayerAlpha", alpha: value });
+    });
+
+    body.appendChild(alphaSlider.getElement());
+
+    // SampleAllLayersのチェックボックスの設定を取得
+    cbSampleAllLayers.id = "chickenpaint-chk-sample-all-layers";
+    cbSampleAllLayers.type = "checkbox";
+    cbSampleAllLayers.addEventListener("click", function (e) {
+      artwork.setSampleAllLayers(cbSampleAllLayers.checked);
+      document.activeElement.blur();
+    });
+
+    body.appendChild(
+      wrapBootstrapCheckbox(cbSampleAllLayers, _("Blend all layers")),
     );
-  };
 
-  // 合成方法のセレクトメニュー
-  blendCombo.className = "form-control form-control-sm";
-  blendCombo.tabIndex = -1;
-
-  blendCombo.title = _("Layer blending mode");
-  blendCombo.addEventListener("change", function (e) {
-    controller.actionPerformed({
-      action: "CPSetLayerBlendMode",
-      blendMode: parseInt(blendCombo.value, 10),
+    // 透明度をロックのチェックボックスの設定を取得
+    cbLockAlpha.id = "chickenpaint-chk-lock-alpha";
+    cbLockAlpha.type = "checkbox";
+    cbLockAlpha.addEventListener("click", function (e) {
+      controller.actionPerformed({
+        action: "CPSetLayerLockAlpha",
+        lock: cbLockAlpha.checked,
+      });
+      document.activeElement.blur();
     });
-    blendCombo.blur();
-  });
-  //キーボード操作時にフォーカスを外して、ショートカットキーが使えるようにする
-  window.addEventListener("keydown", (e) => {
-    blendCombo.blur();
-  });
-  body.appendChild(blendCombo);
 
-  // 不透明度のスライダー
-  alphaSlider.title = function (value) {
-    return _("Opacity") + ": " + value + "%";
-  };
+    body.appendChild(
+      wrapBootstrapCheckbox(cbLockAlpha, _("Lock transparency")),
+    );
 
-  alphaSlider.on("valueChange", function (value) {
-    controller.actionPerformed({ action: "CPSetLayerAlpha", alpha: value });
-  });
+    body.appendChild(layerWidget.getElement());
 
-  body.appendChild(alphaSlider.getElement());
+    // レイヤーアクションボタンを追加
+    layerActionButtons = createLayerActionButtons();
+    body.appendChild(layerActionButtons);
 
-  // SampleAllLayersのチェックボックスの設定を取得
-  cbSampleAllLayers.id = "chickenpaint-chk-sample-all-layers";
-  cbSampleAllLayers.type = "checkbox";
-  cbSampleAllLayers.addEventListener("click", function (e) {
-    artwork.setSampleAllLayers(cbSampleAllLayers.checked);
-    document.activeElement.blur();
-  });
+    // イベントリスナー登録
+    artwork.on("changeActiveLayer", onChangeActiveLayer);
+    artwork.on("changeLayer", onChangeLayer);
+    artwork.on("changeStructure", onChangeStructure);
+    artwork.on("changeLayerMaskThumb", onChangeLayerMaskThumb);
+    artwork.on("changeLayerImageThumb", onChangeLayerImageThumb);
 
-  body.appendChild(
-    wrapBootstrapCheckbox(cbSampleAllLayers, _("Blend all layers")),
-  );
+    controller.on("layerNotification", this.showNotification.bind(this));
 
-  // 透明度をロックのチェックボックスの設定を取得
-  cbLockAlpha.id = "chickenpaint-chk-lock-alpha";
-  cbLockAlpha.type = "checkbox";
-  cbLockAlpha.addEventListener("click", function (e) {
-    controller.actionPerformed({
-      action: "CPSetLayerLockAlpha",
-      lock: cbLockAlpha.checked,
-    });
-    document.activeElement.blur();
-  });
-
-  body.appendChild(wrapBootstrapCheckbox(cbLockAlpha, _("Lock transparency")));
-
-  body.appendChild(layerWidget.getElement());
-
-  // レイヤーアクションボタンを追加
-  layerActionButtons = createLayerActionButtons();
-  body.appendChild(layerActionButtons);
-
-  // イベントリスナー登録
-  artwork.on("changeActiveLayer", onChangeActiveLayer);
-  artwork.on("changeLayer", onChangeLayer);
-  artwork.on("changeStructure", onChangeStructure);
-  artwork.on("changeLayerMaskThumb", onChangeLayerMaskThumb);
-  artwork.on("changeLayerImageThumb", onChangeLayerImageThumb);
-
-  controller.on("layerNotification", this.showNotification.bind(this));
-
-  // Set initial values
-  onChangeStructure.call(artwork);
+    // Set initial values
+    onChangeStructure.call(artwork);
+  }
 }
-
-// CPLayersPaletteのプロトタイプをCPPaletteのプロトタイプから継承
-CPLayersPalette.prototype = Object.create(CPPalette.prototype);
-// コンストラクタをCPLayersPaletteに設定
-CPLayersPalette.prototype.constructor = CPLayersPalette;
