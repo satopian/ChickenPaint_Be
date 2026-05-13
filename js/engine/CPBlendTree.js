@@ -112,9 +112,6 @@ CPBlendNode.prototype.addChildren = function (children) {
  * @param {boolean} requireSimpleFusion - Set to true if the result must have alpha 100 and no mask.
  *
  * @constructor
- */
-
-/**
  * @this {any}
  */
 

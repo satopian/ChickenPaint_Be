@@ -277,245 +277,251 @@ function buildBrushSoft(brush, brushInfo) {
  * @constructor
  * @this {any}
  */
-export default function CPBrushManager() {
-  const BRUSH_MAX_DIM = 401,
-    BRUSH_AA_MAX_DIM = 402;
+export default class CPBrushManager {
+  constructor() {
+    const BRUSH_MAX_DIM = 401,
+      BRUSH_AA_MAX_DIM = 402;
 
-  let brush = new Uint8Array(BRUSH_MAX_DIM * BRUSH_MAX_DIM),
-    brushAA = new Uint8Array(BRUSH_AA_MAX_DIM * BRUSH_AA_MAX_DIM),
-    brushAARows = [
-      new Float32Array(BRUSH_AA_MAX_DIM),
-      new Float32Array(BRUSH_AA_MAX_DIM),
-    ],
-    cacheBrush = null,
-    cacheSize,
-    cacheSqueeze,
-    cacheAngle,
-    cacheTip,
-    that = this;
+    let brush = new Uint8Array(BRUSH_MAX_DIM * BRUSH_MAX_DIM),
+      brushAA = new Uint8Array(BRUSH_AA_MAX_DIM * BRUSH_AA_MAX_DIM),
+      brushAARows = [
+        new Float32Array(BRUSH_AA_MAX_DIM),
+        new Float32Array(BRUSH_AA_MAX_DIM),
+      ],
+      cacheBrush = null,
+      cacheSize,
+      cacheSqueeze,
+      cacheAngle,
+      cacheTip,
+      that = this;
+    this.texture = null;
+    this.alpha = null;
 
-  /**
-   * Shift a brush by a positive sub-pixel amount (dx, dy) [0..1), and return the new brush.
-   *
-   * The resulting brush array is 1 pixel larger than the original one in both dimensions.
-   *
-   * @param {CPBrushInfo} brushInfo
-   * @param {number} dx
-   * @param {number} dy
-   *
-   * @returns {Uint8Array}
-   */
-  function createSubpixelShiftedBrush(brushInfo, dx, dy) {
-    let nonAABrush = getBrush(brushInfo),
-      // intSize = Math.ceil(brushInfo.curSize),
-      intSize = brushInfo.curSize,
-      intSizeAA = Math.ceil(brushInfo.curSize) + 1;
+    /**
+     * Shift a brush by a positive sub-pixel amount (dx, dy) [0..1), and return the new brush.
+     *
+     * The resulting brush array is 1 pixel larger than the original one in both dimensions.
+     *
+     * @param {CPBrushInfo} brushInfo
+     * @param {number} dx
+     * @param {number} dy
+     *
+     * @returns {Uint8Array}
+     */
+    function createSubpixelShiftedBrush(brushInfo, dx, dy) {
+      let nonAABrush = getBrush(brushInfo),
+        // intSize = Math.ceil(brushInfo.curSize),
+        intSize = brushInfo.curSize,
+        intSizeAA = Math.ceil(brushInfo.curSize) + 1;
 
-    let invdx_invdy = (1 - dx) * (1 - dy),
-      dx_invdy = dx * (1 - dy),
-      dx_dy = dx * dy,
-      invdx_dy = (1 - dx) * dy,
-      srcIndex = 0,
-      dstIndex = 0,
-      curRow = brushAARows[0],
-      nextRow = brushAARows[1],
-      swap;
+      let invdx_invdy = (1 - dx) * (1 - dy),
+        dx_invdy = dx * (1 - dy),
+        dx_dy = dx * dy,
+        invdx_dy = (1 - dx) * dy,
+        srcIndex = 0,
+        dstIndex = 0,
+        curRow = brushAARows[0],
+        nextRow = brushAARows[1],
+        swap;
 
-    curRow.fill(0); // Since it will be dirty from a previous call
+      curRow.fill(0); // Since it will be dirty from a previous call
 
-    for (let y = 0; y < intSize; y++) {
-      let x;
+      for (let y = 0; y < intSize; y++) {
+        let x;
 
-      nextRow[0] = 0; // We overwrite all the subsequent values in the loop, but we do need to clear this one for the first iteration's benefit
+        nextRow[0] = 0; // We overwrite all the subsequent values in the loop, but we do need to clear this one for the first iteration's benefit
 
-      // For all the source pixels in the row:
-      for (x = 0; x < intSize; x++, srcIndex++, dstIndex++) {
-        let brushAlpha = nonAABrush[srcIndex];
+        // For all the source pixels in the row:
+        for (x = 0; x < intSize; x++, srcIndex++, dstIndex++) {
+          let brushAlpha = nonAABrush[srcIndex];
 
-        /*
-         * Use a weighted sum to shift the source pixels's position by a sub-pixel amount dx, dy and accumulate
-         * it into the final brushAA array.
-         */
+          /*
+           * Use a weighted sum to shift the source pixels's position by a sub-pixel amount dx, dy and accumulate
+           * it into the final brushAA array.
+           */
 
-        // We have the contribution from our previous 3 neighbours now so we can complete this output pixel
-        brushAA[dstIndex] = (curRow[x] + brushAlpha * invdx_invdy + 0.5) | 0;
+          // We have the contribution from our previous 3 neighbours now so we can complete this output pixel
+          brushAA[dstIndex] = (curRow[x] + brushAlpha * invdx_invdy + 0.5) | 0;
 
-        curRow[x + 1] += brushAlpha * dx_invdy;
-        nextRow[x] += brushAlpha * invdx_dy;
-        nextRow[x + 1] = brushAlpha * dx_dy; // We're the first iteration that writes to this pixel so we needn't +=
+          curRow[x + 1] += brushAlpha * dx_invdy;
+          nextRow[x] += brushAlpha * invdx_dy;
+          nextRow[x + 1] = brushAlpha * dx_dy; // We're the first iteration that writes to this pixel so we needn't +=
+        }
+
+        // The final output pixel of the row doesn't have a source pixel of its own (it just gets the contribution from the previous ones)
+        brushAA[dstIndex++] = (curRow[x] + 0.5) | 0;
+
+        swap = curRow;
+        curRow = nextRow;
+        nextRow = swap;
       }
 
-      // The final output pixel of the row doesn't have a source pixel of its own (it just gets the contribution from the previous ones)
-      brushAA[dstIndex++] = (curRow[x] + 0.5) | 0;
+      // Output final residual row
+      for (let x = 0; x < intSizeAA; x++, dstIndex++) {
+        brushAA[dstIndex] = (curRow[x] + 0.5) | 0;
+      }
 
-      swap = curRow;
-      curRow = nextRow;
-      nextRow = swap;
+      return brushAA;
     }
 
-    // Output final residual row
-    for (let x = 0; x < intSizeAA; x++, dstIndex++) {
-      brushAA[dstIndex] = (curRow[x] + 0.5) | 0;
+    /**
+     * Build and return a brush that conforms to the given brush settings.
+     *
+     * @param {CPBrushInfo} brushInfo
+     *
+     * @returns {Uint8Array}
+     */
+    function getBrush(brushInfo) {
+      if (
+        cacheBrush != null &&
+        brushInfo.curSize == cacheSize &&
+        brushInfo.curSqueeze == cacheSqueeze &&
+        brushInfo.curAngle == cacheAngle &&
+        brushInfo.tip == cacheTip
+      ) {
+        return cacheBrush;
+      }
+
+      switch (brushInfo.tip) {
+        case CPBrushInfo.TIP_ROUND_AIRBRUSH:
+          buildBrushSoft(brush, brushInfo);
+          break;
+        case CPBrushInfo.TIP_ROUND_AA:
+          buildBrushAA(brush, brushInfo);
+          break;
+        case CPBrushInfo.TIP_ROUND_PIXEL:
+          buildBrush(brush, brushInfo);
+          break;
+        case CPBrushInfo.TIP_SQUARE_AA:
+          buildBrushSquareAA(brush, brushInfo);
+          break;
+        case CPBrushInfo.TIP_SQUARE_PIXEL:
+          buildBrushSquare(brush, brushInfo);
+          break;
+      }
+
+      cacheBrush = brush;
+      cacheSize = brushInfo.curSize;
+      cacheTip = brushInfo.tip;
+      cacheSqueeze = brushInfo.curSqueeze;
+      cacheAngle = brushInfo.curAngle;
+
+      return brush;
     }
 
-    return brushAA;
-  }
+    /**
+     *
+     * @param {Object} dab
+     * @param {number} textureAmount
+     */
+    function applyTexture(dab, textureAmount) {
+      let amount = Math.floor(textureAmount * 255),
+        texture = that.texture,
+        textureX = dab.x % texture.width,
+        textureY = dab.y % texture.height,
+        brushPos = 0,
+        texturePos,
+        textureEOL;
 
-  /**
-   * Build and return a brush that conforms to the given brush settings.
-   *
-   * @param {CPBrushInfo} brushInfo
-   *
-   * @returns {Uint8Array}
-   */
-  function getBrush(brushInfo) {
-    if (
-      cacheBrush != null &&
-      brushInfo.curSize == cacheSize &&
-      brushInfo.curSqueeze == cacheSqueeze &&
-      brushInfo.curAngle == cacheAngle &&
-      brushInfo.tip == cacheTip
-    ) {
-      return cacheBrush;
-    }
+      if (textureX < 0) {
+        textureX += texture.width;
+      }
 
-    switch (brushInfo.tip) {
-      case CPBrushInfo.TIP_ROUND_AIRBRUSH:
-        buildBrushSoft(brush, brushInfo);
-        break;
-      case CPBrushInfo.TIP_ROUND_AA:
-        buildBrushAA(brush, brushInfo);
-        break;
-      case CPBrushInfo.TIP_ROUND_PIXEL:
-        buildBrush(brush, brushInfo);
-        break;
-      case CPBrushInfo.TIP_SQUARE_AA:
-        buildBrushSquareAA(brush, brushInfo);
-        break;
-      case CPBrushInfo.TIP_SQUARE_PIXEL:
-        buildBrushSquare(brush, brushInfo);
-        break;
-    }
+      if (textureY < 0) {
+        textureY += texture.height;
+      }
 
-    cacheBrush = brush;
-    cacheSize = brushInfo.curSize;
-    cacheTip = brushInfo.tip;
-    cacheSqueeze = brushInfo.curSqueeze;
-    cacheAngle = brushInfo.curAngle;
+      for (let y = 0; y < dab.height; y++) {
+        texturePos = textureY * texture.width + textureX;
+        textureEOL = textureY * texture.width + texture.width;
 
-    return brush;
-  }
+        for (let x = 0; x < dab.width; x++) {
+          let brushValue = dab.brush[brushPos],
+            textureValue = texture.data[texturePos];
 
-  /**
-   *
-   * @param {CPBrushDab} dab
-   * @param {number} textureAmount
-   */
-  function applyTexture(dab, textureAmount) {
-    let amount = Math.floor(textureAmount * 255),
-      texture = that.texture,
-      textureX = dab.x % texture.width,
-      textureY = dab.y % texture.height,
-      brushPos = 0,
-      texturePos,
-      textureEOL;
+          dab.brush[brushPos] = ~~(
+            (brushValue * (((textureValue * amount) / 255) ^ 0xff)) /
+            255
+          );
 
-    if (textureX < 0) {
-      textureX += texture.width;
-    }
+          brushPos++;
 
-    if (textureY < 0) {
-      textureY += texture.height;
-    }
+          texturePos++;
+          if (texturePos == textureEOL) {
+            // Wrap to left side of texture
+            texturePos -= texture.width;
+          }
+        }
 
-    for (let y = 0; y < dab.height; y++) {
-      texturePos = textureY * texture.width + textureX;
-      textureEOL = textureY * texture.width + texture.width;
-
-      for (let x = 0; x < dab.width; x++) {
-        let brushValue = dab.brush[brushPos],
-          textureValue = texture.data[texturePos];
-
-        dab.brush[brushPos] = ~~(
-          (brushValue * (((textureValue * amount) / 255) ^ 0xff)) /
-          255
-        );
-
-        brushPos++;
-
-        texturePos++;
-        if (texturePos == textureEOL) {
-          // Wrap to left side of texture
-          texturePos -= texture.width;
+        textureY++;
+        if (textureY == texture.height) {
+          textureY = 0;
         }
       }
-
-      textureY++;
-      if (textureY == texture.height) {
-        textureY = 0;
-      }
     }
-  }
 
-  /**
-   * Create a paint dab using the given brush at the given image co-ordinates.
-   *
-   * @param {number} x - Image coordinate of center of brush dab
-   * @param {number} y - Image coordinate of center of brush dab
-   * @param {CPBrushInfo} brushInfo - Brush appearance parameters
-   *
-   * @returns {CPBrushDab}
-   */
-  this.getDab = function (x, y, brushInfo) {
-    let dab = {
-      alpha: brushInfo.curAlpha,
-      width: Math.ceil(brushInfo.curSize),
-      height: Math.ceil(brushInfo.curSize),
+    /**
+     * Create a paint dab using the given brush at the given image co-ordinates.
+     *
+     * @param {number} x - Image coordinate of center of brush dab
+     * @param {number} y - Image coordinate of center of brush dab
+     * @param {CPBrushInfo} brushInfo - Brush appearance parameters
+     *
+     * @returns {object}
+     */
+    this.getDab = function (x, y, brushInfo) {
+      let dab = {
+        alpha: brushInfo.curAlpha,
+        width: Math.ceil(brushInfo.curSize),
+        height: Math.ceil(brushInfo.curSize),
+        x: 0,
+        y: 0,
+      };
+
+      // FIXME: I don't like this special case for ROUND_PIXEL
+      // it would be better to have brush presets for working with pixels
+      let useSubpixelShift =
+        brushInfo.isAA && brushInfo.tip != CPBrushInfo.TIP_ROUND_PIXEL;
+
+      if (useSubpixelShift) {
+        dab.width++;
+        dab.height++;
+      }
+
+      let // The top left corner of the brush dab
+        dabX = x - dab.width / 2.0 + 0.5,
+        dabY = y - dab.height / 2.0 + 0.5,
+        // The pixel the top left corner lies in
+        dabXInt = Math.floor(dabX),
+        dabYInt = Math.floor(dabY);
+
+      if (useSubpixelShift) {
+        let subpixelX = dabX - dabXInt,
+          subpixelY = dabY - dabYInt;
+
+        dab.brush = createSubpixelShiftedBrush(brushInfo, subpixelX, subpixelY);
+      } else {
+        dab.brush = getBrush(brushInfo);
+      }
+
+      dab.x = dabXInt;
+      dab.y = dabYInt;
+
+      if (brushInfo.texture > 0.0 && this.texture != null) {
+        // we need a brush bitmap that can be modified everytime
+        // the one in "brush" can be kept in cache so if we are using it, make a copy
+        if (dab.brush == brush) {
+          brushAA.set(brush);
+          dab.brush = brushAA;
+        }
+        applyTexture(dab, brushInfo.texture);
+      }
+
+      return dab;
     };
 
-    // FIXME: I don't like this special case for ROUND_PIXEL
-    // it would be better to have brush presets for working with pixels
-    let useSubpixelShift =
-      brushInfo.isAA && brushInfo.tip != CPBrushInfo.TIP_ROUND_PIXEL;
-
-    if (useSubpixelShift) {
-      dab.width++;
-      dab.height++;
-    }
-
-    let // The top left corner of the brush dab
-      dabX = x - dab.width / 2.0 + 0.5,
-      dabY = y - dab.height / 2.0 + 0.5,
-      // The pixel the top left corner lies in
-      dabXInt = Math.floor(dabX),
-      dabYInt = Math.floor(dabY);
-
-    if (useSubpixelShift) {
-      let subpixelX = dabX - dabXInt,
-        subpixelY = dabY - dabYInt;
-
-      dab.brush = createSubpixelShiftedBrush(brushInfo, subpixelX, subpixelY);
-    } else {
-      dab.brush = getBrush(brushInfo);
-    }
-
-    dab.x = dabXInt;
-    dab.y = dabYInt;
-
-    if (brushInfo.texture > 0.0 && this.texture != null) {
-      // we need a brush bitmap that can be modified everytime
-      // the one in "brush" can be kept in cache so if we are using it, make a copy
-      if (dab.brush == brush) {
-        brushAA.set(brush);
-        dab.brush = brushAA;
-      }
-      applyTexture(dab, brushInfo.texture);
-    }
-
-    return dab;
-  };
-
-  this.setTexture = function (texture) {
-    this.texture = texture;
-  };
+    this.setTexture = function (texture) {
+      this.texture = texture;
+    };
+  }
 }

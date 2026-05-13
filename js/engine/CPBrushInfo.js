@@ -48,26 +48,87 @@
  * @property {boolean} isAA
  *
  * @constructor
- */
-
-/**
  * @this {any}
  */
 
-export default function CPBrushInfo(properties) {
-  var propName;
+export default class CPBrushInfo {
+  constructor(properties) {
+    var propName;
 
-  // Set brush setting fields with default values, then apply the supplied 'properties' on top
-  for (propName in CPBrushInfo.DEFAULTS) {
-    if (CPBrushInfo.DEFAULTS.hasOwnProperty(propName)) {
-      this[propName] = CPBrushInfo.DEFAULTS[propName];
+    this.isAA = false;
+    this.minSpacing = 0.0;
+    this.spacing = 0.0;
+
+    this.pressureSize = true;
+    this.pressureAlpha = false;
+    this.pressureScattering = false;
+    this.alphaScale = 1.0;
+
+    this.tip = CPBrushInfo.TIP_ROUND_PIXEL;
+    this.brushMode = CPBrushInfo.BRUSH_MODE_PAINT;
+    this.paintMode = CPBrushInfo.PAINT_MODE_OPACITY;
+    this.strokeMode = CPBrushInfo.STROKE_MODE_FREEHAND;
+    this.resat = 1.0;
+    this.bleed = 0.0;
+
+    this.texture = 1.0;
+    this.toolNb = 0;
+
+    // "cur" values are current brush settings (once tablet pressure and stuff is applied)
+    this.size = 0.0;
+    this.curSize = 0;
+    this.alpha = 0.0;
+    this.curAlpha = 0.0;
+    this.scattering = 0.0;
+    this.curScattering = 0;
+    this.squeeze = 0.0;
+    this.curSqueeze = 0;
+    this.angle = Math.PI;
+    this.curAngle = 0.0;
+
+    this.smoothing = 0.0;
+
+    for (propName in properties) {
+      if (properties.hasOwnProperty(propName)) {
+        this[propName] = properties[propName];
+      }
     }
   }
+  applyPressure(pressure, isFirstPoint) {
+    // 1. 目標サイズ
+    let targetSize = this.pressureSize
+      ? Math.max(0.6, this.size * pressure)
+      : Math.max(0.6, this.size);
 
-  for (propName in properties) {
-    if (properties.hasOwnProperty(propName)) {
-      this[propName] = properties[propName];
+    // 2. 線幅ローパスフィルタ
+    const sizeSmooth = 0.3;
+
+    if (isFirstPoint || !this._lastSize) {
+      // 書き始めの1点目なら、フィルタを通さず即座に目標値にする
+      this.curSize = targetSize;
+      this._lastSize = targetSize;
+    } else {
+      // 2点目以降は滑らかに変化させる
+      this.curSize =
+        this._lastSize + sizeSmooth * (targetSize - this._lastSize);
+      this._lastSize = this.curSize;
     }
+    // 3. 不透明度
+    this.curAlpha = this.pressureAlpha
+      ? Math.floor(this.alpha * Math.min(pressure, 1.0))
+      : this.alpha;
+
+    // 4. その他
+    this.curSqueeze = this.squeeze;
+    this.curAngle = this.angle;
+    this.curScattering =
+      this.scattering *
+      this.curSize *
+      (this.pressureScattering ? pressure : 1.0);
+  }
+
+  clone() {
+    return new CPBrushInfo(this);
   }
 }
 
@@ -94,71 +155,3 @@ CPBrushInfo.BRUSH_MODE_OIL = 7;
 
 CPBrushInfo.PAINT_MODE_OPACITY = 0;
 CPBrushInfo.PAINT_MODE_FLOW = 1;
-
-CPBrushInfo.DEFAULTS = {
-  isAA: false,
-  minSpacing: 0,
-  spacing: 0,
-
-  pressureSize: true,
-  pressureAlpha: false,
-  pressureScattering: false,
-  alphaScale: 1.0,
-
-  tip: CPBrushInfo.TIP_ROUND_PIXEL,
-  brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
-  paintMode: CPBrushInfo.PAINT_MODE_OPACITY,
-  strokeMode: CPBrushInfo.STROKE_MODE_FREEHAND,
-  resat: 1.0,
-  bleed: 0.0,
-
-  texture: 1.0,
-
-  // "cur" values are current brush settings (once tablet pressure and stuff is applied)
-  size: 0,
-  curSize: 0,
-  alpha: 0,
-  curAlpha: 0,
-  scattering: 0.0,
-  curScattering: 0,
-  squeeze: 0.0,
-  curSqueeze: 0,
-  angle: Math.PI,
-  curAngle: 0,
-
-  smoothing: 0.0,
-};
-
-CPBrushInfo.prototype.applyPressure = function (pressure, isFirstPoint) {
-  // 1. 目標サイズ
-  let targetSize = this.pressureSize
-    ? Math.max(0.6, this.size * pressure)
-    : Math.max(0.6, this.size);
-
-  // 2. 線幅ローパスフィルタ
-  const sizeSmooth = 0.3;
-
-  if (isFirstPoint || !this._lastSize) {
-    // 書き始めの1点目なら、フィルタを通さず即座に目標値にする
-    this.curSize = targetSize;
-    this._lastSize = targetSize;
-  } else {
-    // 2点目以降は滑らかに変化させる
-    this.curSize = this._lastSize + sizeSmooth * (targetSize - this._lastSize);
-    this._lastSize = this.curSize;
-  }
-  // 3. 不透明度
-  this.curAlpha = this.pressureAlpha
-    ? Math.floor(this.alpha * Math.min(pressure, 1.0))
-    : this.alpha;
-
-  // 4. その他
-  this.curSqueeze = this.squeeze;
-  this.curAngle = this.angle;
-  this.curScattering =
-    this.scattering * this.curSize * (this.pressureScattering ? pressure : 1.0);
-};
-
-CPBrushInfo.prototype.clone = function () {
-  return new CPBrushInfo(this);
-};

@@ -97,12 +97,8 @@ function memoryUsedByCanvas(canvas) {
  * @param {number} _width
  * @param {number} _height
  * @constructor
- */
-
-/**
  * @this {any}
  */
-
 export default function CPArtwork(_width, _height) {
   _width = _width | 0;
   _height = _height | 0;
