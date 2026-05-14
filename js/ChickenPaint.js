@@ -491,9 +491,8 @@ export default class ChickenPaint extends EventEmitter {
           allowed: function () {
             // 関数の外にある処理ではなく再計算）
             //Bezier操作中
-            const isBezierActive =
-              typeof canvas.bezierMode === "object" &&
-              canvas.bezierMode.capture;
+            const isBezierActive = typeof canvas.bezierMode === "object";
+            canvas.bezierMode.capture;
             //変形操作中
             const isTransformActive = curMode == ChickenPaint.M_TRANSFORM;
 
@@ -1161,7 +1160,7 @@ export default class ChickenPaint extends EventEmitter {
           break;
       }
 
-      that.artwork.setForegroundColor(newColor.getRgb());
+      that.artwork.setForegroundColor(newColor?.getRgb());
       that.emitEvent("colorChange", [newColor]);
     }
 
@@ -1804,7 +1803,7 @@ export default class ChickenPaint extends EventEmitter {
         let loader = new CPResourceLoader(options);
         new CPSplashScreen(uiElem, loader, options.resourcesRoot);
 
-        loader.on("loadingComplete", function (resources) {
+        loader.on("loadingComplete", (resources) => {
           that.artwork = resources.layers || resources.flat;
           startMainGUI(resources.swatches, options.rotation);
           if (options.onLoaded) options.onLoaded(this);

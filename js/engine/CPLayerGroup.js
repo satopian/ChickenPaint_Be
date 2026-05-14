@@ -41,19 +41,6 @@ export default class CPLayerGroup extends CPLayer {
     this.expanded = true;
     this.blendMode = blendMode;
   }
-
-  clone() {
-    const result = new CPLayerGroup(this.name, this.blendMode);
-
-    result.copyFrom(this);
-
-    result.expanded = this.expanded;
-    result.expanded = this.expanded;
-    result.layers = this.layers.map((layer) => layer.clone());
-    result.layers.forEach((layer) => (layer.parent = result));
-
-    return result;
-  }
 }
 
 /**
@@ -147,6 +134,18 @@ function sum(a, b) {
  */
 CPLayerGroup.prototype.getMemoryUsed = function () {
   return this.layers.map((layer) => layer.getMemoryUsed()).reduce(sum, 0);
+};
+
+CPLayerGroup.prototype.clone = function () {
+  var result = new CPLayerGroup(this.name, this.blendMode);
+
+  CPLayer.prototype.copyFrom.call(result, this);
+
+  result.expanded = this.expanded;
+  result.layers = this.layers.map((layer) => layer.clone());
+  result.layers.forEach((layer) => (layer.parent = result));
+
+  return result;
 };
 
 /**

@@ -59,35 +59,6 @@ export default class CPImageLayer extends CPLayer {
      */
     this.imageThumbnail = null;
   }
-
-  /**
-   * Returns an independent copy of this layer.
-   *
-   * @returns {CPImageLayer}
-   * @this {any}
-   */
-  clone() {
-    var result = new CPImageLayer(0, 0, this.name);
-
-    result.copyFrom(this);
-
-    return result;
-  }
-  /**
-   * @param {CPImageLayer} layer
-   */
-  super(layer) {
-    super.copyFrom(layer);
-
-    this.clip = layer.clip;
-    if (layer.image) {
-      if (!this.image) {
-        this.image = layer.image.clone();
-      } else {
-        this.image.copyPixelsFrom(layer.image);
-      }
-    }
-  }
 }
 
 CPImageLayer.createFromImage = function (image, name) {
@@ -96,6 +67,37 @@ CPImageLayer.createFromImage = function (image, name) {
   result.image = image;
 
   return result;
+};
+
+/**
+ * Returns an independent copy of this layer.
+ *
+ * @returns {CPImageLayer}
+ * @this {any}
+ */
+CPImageLayer.prototype.clone = function () {
+  var result = new CPImageLayer(0, 0, this.name);
+
+  result.copyFrom(this);
+
+  return result;
+};
+
+/**
+ *
+ * @param {CPImageLayer} layer
+ */
+CPImageLayer.prototype.copyFrom = function (layer) {
+  CPLayer.prototype.copyFrom.call(this, layer);
+
+  this.clip = layer.clip;
+  if (layer.image) {
+    if (!this.image) {
+      this.image = layer.image.clone();
+    } else {
+      this.image.copyPixelsFrom(layer.image);
+    }
+  }
 };
 
 /**
