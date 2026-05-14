@@ -956,26 +956,15 @@ function CPPanPanel(controller) {
     "wheel",
     (e) => {
       e.preventDefault(); // これでスクロール抑制できる
-      updateSliderDebounced();
+      updateSlider();
     },
     { passive: false },
   );
-  // デバウンス関数の定義
-  function debounce(func, wait) {
-    let timeout;
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(...args), wait);
-    };
-  }
   //スライダーを更新
   const updateSlider = () => {
     zoomSlider.setValue(controller.getZoom() * 100);
     rotationSlider.setValue(controller.getRotationDegrees());
   };
-
-  // デバウンス関数を使用して、連続したイベントをまとめて処理
-  const updateSliderDebounced = debounce(updateSlider, 12);
 
   const isZoomRotateEnabled = (e) => {
     return (
@@ -1001,7 +990,7 @@ function CPPanPanel(controller) {
     if (!isMainPaintCanvas(e.target)) {
       return; // 描画キャンバス以外の時は処理しない
     }
-    updateSliderDebounced();
+    updateSlider();
   });
 
   document.addEventListener("pointermove", (e) => {
@@ -1010,7 +999,7 @@ function CPPanPanel(controller) {
     if (!isMainPaintCanvas(e.target)) {
       return; // 描画キャンバス以外の時は処理しない
     }
-    updateSliderDebounced();
+    updateSlider();
   });
 
   document.addEventListener("pointerup", (e) => {
@@ -1019,13 +1008,13 @@ function CPPanPanel(controller) {
     if (!isMainPaintCanvas(e.target)) {
       return; // 描画キャンバス以外の時は処理しない
     }
-    updateSliderDebounced();
+    updateSlider();
   });
 
   // キーボードでのサイズ変更
   //+-の時は連打を許可する
   key("=,-", function () {
-    updateSliderDebounced();
+    updateSlider();
   });
 
   let isFirstKeyPress = true;
@@ -1034,7 +1023,7 @@ function CPPanPanel(controller) {
   key("ctrl+0,alt+0,r,z,space,enter", function () {
     if (!isFirstKeyPress) return;
     isFirstKeyPress = false;
-    updateSliderDebounced();
+    updateSlider();
   });
   //キーが離されたときにフラグをリセット
   document.addEventListener("keyup", (e) => {
@@ -1047,7 +1036,7 @@ function CPPanPanel(controller) {
       e.target instanceof HTMLElement &&
       !(e.target instanceof HTMLCanvasElement)
     ) {
-      updateSliderDebounced();
+      updateSlider();
     }
   });
 }
