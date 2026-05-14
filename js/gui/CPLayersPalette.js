@@ -908,13 +908,17 @@ export default class CPLayersPalette extends CPPalette {
         drag.state = DRAG_STATE_DRAGGING;
 
         drag.frameElem = document.createElement("div");
-        drag.frameElem.className = "chickenpaint-layer-drag-frame";
-        drag.frameElem.style.width = drag.layerElem.offsetWidth + "px";
-        drag.frameElem.style.height = drag.layerElem.offsetHeight + "px";
+        if (drag.frameElem) {
+          drag.frameElem.className = "chickenpaint-layer-drag-frame";
+          drag.frameElem.style.width = drag.layerElem.offsetWidth + "px";
+          drag.frameElem.style.height = drag.layerElem.offsetHeight + "px";
+        }
 
         drag.dropBetweenMarkerElem = document.createElement("div");
-        drag.dropBetweenMarkerElem.className =
-          "chickenpaint-layer-drop-between-mark";
+        if (drag.dropBetweenMarkerElem) {
+          drag.dropBetweenMarkerElem.className =
+            "chickenpaint-layer-drop-between-mark";
+        }
 
         drag.layerElem.classList.add("chickenpaint-layer-dragging");
 
@@ -1372,6 +1376,7 @@ export default class CPLayersPalette extends CPPalette {
 
     /**
      * Called when a layer has been added/removed.
+     * @this {Object} CPArtwork
      */
     function onChangeStructure() {
       artwork = this;
@@ -1386,6 +1391,8 @@ export default class CPLayersPalette extends CPPalette {
      * Called when the properties of one layer has been updated and we should rebuild/repaint it.
      *
      * @param {CPLayer} layer
+     * @this {Object} CPArtwork
+
      */
     function onChangeLayer(layer) {
       artwork = this;
@@ -1400,6 +1407,7 @@ export default class CPLayersPalette extends CPPalette {
      * Called when the thumbnail of one layer has been updated.
      *
      * @param {CPLayer} layer
+     * @this {Object} CPArtwork
      */
     function onChangeLayerImageThumb(layer) {
       artwork = this;
@@ -1411,6 +1419,7 @@ export default class CPLayersPalette extends CPPalette {
      * Called when the thumbnail of one layer has been updated.
      *
      * @param {CPLayer} layer
+     * @this {Object} CPArtwork
      */
     function onChangeLayerMaskThumb(layer) {
       artwork = this;
@@ -1647,7 +1656,9 @@ export default class CPLayersPalette extends CPPalette {
     cbSampleAllLayers.type = "checkbox";
     cbSampleAllLayers.addEventListener("click", function (e) {
       artwork.setSampleAllLayers(cbSampleAllLayers.checked);
-      document.activeElement.blur();
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
     });
 
     body.appendChild(
@@ -1662,7 +1673,9 @@ export default class CPLayersPalette extends CPPalette {
         action: "CPSetLayerLockAlpha",
         lock: cbLockAlpha.checked,
       });
-      document.activeElement.blur();
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
     });
 
     body.appendChild(

@@ -335,10 +335,11 @@ export default class CPCanvas extends EventEmitter {
     // Default UI Mode when not doing anything: used to start the other modes
     //
 
-    function CPDefaultMode() {}
-
-    CPDefaultMode.prototype = Object.create(CPMode.prototype);
-    CPDefaultMode.prototype.constructor = CPDefaultMode;
+    class CPDefaultMode extends CPMode {
+      constructor() {
+        super();
+      }
+    }
 
     CPDefaultMode.prototype.mouseDown = function (e, button, pressure) {
       const spacePressed = key.isPressed("space");
@@ -546,15 +547,15 @@ export default class CPCanvas extends EventEmitter {
      *
      * @constructor
      */
-    function CPDrawingMode() {
-      this.shouldPaintBrushPreview = false;
+    class CPDrawingMode extends CPMode {
+      constructor() {
+        super();
+        this.shouldPaintBrushPreview = false;
 
-      /* The last rectangle we dirtied with a brush preview circle, or null if one hasn't been drawn yet */
-      this.oldPreviewRect = null;
+        /* The last rectangle we dirtied with a brush preview circle, or null if one hasn't been drawn yet */
+        this.oldPreviewRect = null;
+      }
     }
-
-    CPDrawingMode.prototype = Object.create(CPMode.prototype);
-    CPDrawingMode.prototype.constructor = CPDrawingMode;
 
     /**
      * Get a rectangle that encloses the preview brush, in screen coordinates.
@@ -658,14 +659,13 @@ export default class CPCanvas extends EventEmitter {
       }
     };
 
-    function CPFreehandMode() {
-      CPDrawingMode.call(this);
+    class CPFreehandMode extends CPDrawingMode {
+      constructor() {
+        super();
 
-      this.smoothMouse = { x: 0.0, y: 0.0 };
+        this.smoothMouse = { x: 0.0, y: 0.0 };
+      }
     }
-
-    CPFreehandMode.prototype = Object.create(CPDrawingMode.prototype);
-    CPFreehandMode.prototype.constructor = CPFreehandMode;
 
     CPFreehandMode.prototype.mouseDown = function (e, button, pressure) {
       if (
@@ -731,35 +731,121 @@ export default class CPCanvas extends EventEmitter {
       }
     };
 
-    function CPLineMode() {
-      var dragLineFrom,
-        dragLineTo,
-        LINE_PREVIEW_WIDTH = 1;
+    class CPLineMode extends CPDrawingMode {
+      constructor() {
+        super();
+        var dragLineFrom,
+          dragLineTo,
+          LINE_PREVIEW_WIDTH = 1;
 
-      this.mouseDown = function (e, button, pressure) {
-        if (
-          !this.capture &&
-          button == BUTTON_PRIMARY &&
-          !e.altKey &&
-          !key.isPressed("space") &&
-          shouldDrawToThisLayer()
-        ) {
-          this.capture = true;
-          dragLineFrom = dragLineTo = {
-            x: mouseX + 0.5,
-            y: mouseY + 0.5,
-          };
+        this.mouseDown = function (e, button, pressure) {
+          if (
+            !this.capture &&
+            button == BUTTON_PRIMARY &&
+            !e.altKey &&
+            !key.isPressed("space") &&
+            shouldDrawToThisLayer()
+          ) {
+            this.capture = true;
+            dragLineFrom = dragLineTo = {
+              x: mouseX + 0.5,
+              y: mouseY + 0.5,
+            };
 
-          this.eraseBrushPreview();
+            this.eraseBrushPreview();
 
-          return true;
-        }
-      };
+            return true;
+          }
+        };
 
-      this.mouseDrag = function (e) {
-        if (this.capture) {
-          var // The old line position that we'll invalidate for redraw
-            invalidateRect = new CPRect(
+        this.mouseDrag = function (e) {
+          if (this.capture) {
+            var // The old line position that we'll invalidate for redraw
+              invalidateRect = new CPRect(
+                Math.min(dragLineFrom.x, dragLineTo.x) - LINE_PREVIEW_WIDTH - 1,
+                Math.min(dragLineFrom.y, dragLineTo.y) - LINE_PREVIEW_WIDTH - 1,
+                Math.max(dragLineFrom.x, dragLineTo.x) +
+                  LINE_PREVIEW_WIDTH +
+                  1 +
+                  1,
+                Math.max(dragLineFrom.y, dragLineTo.y) +
+                  LINE_PREVIEW_WIDTH +
+                  1 +
+                  1,
+              );
+
+            dragLineTo = { x: mouseX + 0.5, y: mouseY + 0.5 }; // Target centre of pixel
+
+            if (e.shiftKey) {
+              // Snap to nearest 45 degrees
+              var snap = Math.PI / 4,
+                angle = Math.round(
+                  Math.atan2(
+                    dragLineTo.y - dragLineFrom.y,
+                    dragLineTo.x - dragLineFrom.x,
+                  ) / snap,
+                );
+
+              switch (angle) {
+                case 0:
+                case 4:
+                  dragLineTo.y = dragLineFrom.y;
+                  break;
+
+                case 2:
+                case 6:
+                  dragLineTo.x = dragLineFrom.x;
+                  break;
+
+                default:
+                  angle *= snap;
+
+                  var length = Math.sqrt(
+                    (dragLineTo.y - dragLineFrom.y) *
+                      (dragLineTo.y - dragLineFrom.y) +
+                      (dragLineTo.x - dragLineFrom.x) *
+                        (dragLineTo.x - dragLineFrom.x),
+                  );
+
+                  dragLineTo.x = dragLineFrom.x + length * Math.cos(angle);
+                  dragLineTo.y = dragLineFrom.y + length * Math.sin(angle);
+              }
+            }
+
+            // The new line position
+            invalidateRect.union(
+              new CPRect(
+                Math.min(dragLineFrom.x, dragLineTo.x) - LINE_PREVIEW_WIDTH - 1,
+                Math.min(dragLineFrom.y, dragLineTo.y) - LINE_PREVIEW_WIDTH - 1,
+                Math.max(dragLineFrom.x, dragLineTo.x) +
+                  LINE_PREVIEW_WIDTH +
+                  1 +
+                  1,
+                Math.max(dragLineFrom.y, dragLineTo.y) +
+                  LINE_PREVIEW_WIDTH +
+                  1 +
+                  1,
+              ),
+            );
+
+            repaintRect(invalidateRect);
+
+            return true;
+          } else {
+            this.mouseMove.call(this, e);
+          }
+        };
+
+        this.mouseUp = function (e, button, pressure) {
+          if (this.capture && button == BUTTON_PRIMARY) {
+            var from = coordToDocument(dragLineFrom),
+              to = coordToDocument(dragLineTo);
+
+            this.capture = false;
+
+            this.drawLine(from, to);
+
+            var invalidateRect = new CPRect(
               Math.min(dragLineFrom.x, dragLineTo.x) - LINE_PREVIEW_WIDTH - 1,
               Math.min(dragLineFrom.y, dragLineTo.y) - LINE_PREVIEW_WIDTH - 1,
               Math.max(dragLineFrom.x, dragLineTo.x) +
@@ -772,108 +858,26 @@ export default class CPCanvas extends EventEmitter {
                 1,
             );
 
-          dragLineTo = { x: mouseX + 0.5, y: mouseY + 0.5 }; // Target centre of pixel
+            repaintRect(invalidateRect);
 
-          if (e.shiftKey) {
-            // Snap to nearest 45 degrees
-            var snap = Math.PI / 4,
-              angle = Math.round(
-                Math.atan2(
-                  dragLineTo.y - dragLineFrom.y,
-                  dragLineTo.x - dragLineFrom.x,
-                ) / snap,
-              );
-
-            switch (angle) {
-              case 0:
-              case 4:
-                dragLineTo.y = dragLineFrom.y;
-                break;
-
-              case 2:
-              case 6:
-                dragLineTo.x = dragLineFrom.x;
-                break;
-
-              default:
-                angle *= snap;
-
-                var length = Math.sqrt(
-                  (dragLineTo.y - dragLineFrom.y) *
-                    (dragLineTo.y - dragLineFrom.y) +
-                    (dragLineTo.x - dragLineFrom.x) *
-                      (dragLineTo.x - dragLineFrom.x),
-                );
-
-                dragLineTo.x = dragLineFrom.x + length * Math.cos(angle);
-                dragLineTo.y = dragLineFrom.y + length * Math.sin(angle);
-            }
+            return true;
           }
+        };
 
-          // The new line position
-          invalidateRect.union(
-            new CPRect(
-              Math.min(dragLineFrom.x, dragLineTo.x) - LINE_PREVIEW_WIDTH - 1,
-              Math.min(dragLineFrom.y, dragLineTo.y) - LINE_PREVIEW_WIDTH - 1,
-              Math.max(dragLineFrom.x, dragLineTo.x) +
-                LINE_PREVIEW_WIDTH +
-                1 +
-                1,
-              Math.max(dragLineFrom.y, dragLineTo.y) +
-                LINE_PREVIEW_WIDTH +
-                1 +
-                1,
-            ),
-          );
-
-          repaintRect(invalidateRect);
-
-          return true;
-        } else {
-          this.mouseMove.call(this, e);
-        }
-      };
-
-      this.mouseUp = function (e, button, pressure) {
-        if (this.capture && button == BUTTON_PRIMARY) {
-          var from = coordToDocument(dragLineFrom),
-            to = coordToDocument(dragLineTo);
-
-          this.capture = false;
-
-          this.drawLine(from, to);
-
-          var invalidateRect = new CPRect(
-            Math.min(dragLineFrom.x, dragLineTo.x) - LINE_PREVIEW_WIDTH - 1,
-            Math.min(dragLineFrom.y, dragLineTo.y) - LINE_PREVIEW_WIDTH - 1,
-            Math.max(dragLineFrom.x, dragLineTo.x) + LINE_PREVIEW_WIDTH + 1 + 1,
-            Math.max(dragLineFrom.y, dragLineTo.y) + LINE_PREVIEW_WIDTH + 1 + 1,
-          );
-
-          repaintRect(invalidateRect);
-
-          return true;
-        }
-      };
-
-      this.paint = function () {
-        if (this.capture && canvasContext) {
-          canvasContext.lineWidth = LINE_PREVIEW_WIDTH;
-          canvasContext.beginPath();
-          canvasContext.moveTo(dragLineFrom.x, dragLineFrom.y);
-          canvasContext.lineTo(dragLineTo.x, dragLineTo.y);
-          canvasContext.stroke();
-        } else {
-          // Draw the regular brush preview circle
-          CPDrawingMode.prototype.paint.call(this);
-        }
-      };
-
-      CPDrawingMode.call(this);
+        this.paint = function () {
+          if (this.capture && canvasContext) {
+            canvasContext.lineWidth = LINE_PREVIEW_WIDTH;
+            canvasContext.beginPath();
+            canvasContext.moveTo(dragLineFrom.x, dragLineFrom.y);
+            canvasContext.lineTo(dragLineTo.x, dragLineTo.y);
+            canvasContext.stroke();
+          } else {
+            // Draw the regular brush preview circle
+            CPDrawingMode.prototype.paint.call(this);
+          }
+        };
+      }
     }
-
-    CPLineMode.prototype = Object.create(CPDrawingMode.prototype);
-    CPLineMode.prototype.constructor = CPLineMode;
 
     CPLineMode.prototype.drawLine = function (from, to) {
       artwork.beginStroke(from.x, from.y, 1);
@@ -881,210 +885,208 @@ export default class CPCanvas extends EventEmitter {
       artwork.endStroke();
     };
 
-    function CPBezierMode() {
-      const BEZIER_POINTS = 500,
-        BEZIER_POINTS_PREVIEW = 100,
-        BEZIER_STATE_INITIAL = 0,
-        BEZIER_STATE_POINT_1 = 1,
-        BEZIER_STATE_POINT_2 = 2;
+    class CPBezierMode extends CPDrawingMode {
+      constructor() {
+        super();
+        const BEZIER_POINTS = 500,
+          BEZIER_POINTS_PREVIEW = 100,
+          BEZIER_STATE_INITIAL = 0,
+          BEZIER_STATE_POINT_1 = 1,
+          BEZIER_STATE_POINT_2 = 2;
 
-      let dragBezierMode = BEZIER_STATE_INITIAL,
-        dragBezierP0,
-        dragBezierP1,
-        dragBezierP2,
-        dragBezierP3;
+        let dragBezierMode = BEZIER_STATE_INITIAL,
+          dragBezierP0,
+          dragBezierP1,
+          dragBezierP2,
+          dragBezierP3;
 
-      this.capture = false;
-      this.cancelBezier = function () {
-        if (this.capture) {
-          this.capture = false;
-          dragBezierMode = BEZIER_STATE_INITIAL;
+        this.capture = false;
+        this.cancelBezier = function () {
+          if (this.capture) {
+            this.capture = false;
+            dragBezierMode = BEZIER_STATE_INITIAL;
 
-          // プレビューを消去するために再描画
-          that.repaintAll();
+            // プレビューを消去するために再描画
+            that.repaintAll();
 
-          // ブラシのプレビューを復活させる
-          if (this.drawBrushPreview) {
-            this.drawBrushPreview();
+            // ブラシのプレビューを復活させる
+            if (this.drawBrushPreview) {
+              this.drawBrushPreview();
+            }
+            return true;
           }
-          return true;
-        }
-        return false;
-      };
+          return false;
+        };
 
-      this.mouseDown = function (e, button, pressure) {
-        if (this.capture && button == BUTTON_SECONDARY) {
-          this.cancelBezier();
-          return true;
-        }
-        if (
-          !this.capture &&
-          button == BUTTON_PRIMARY &&
-          !e.altKey &&
-          !key.isPressed("space") &&
-          shouldDrawToThisLayer()
-        ) {
-          let p = coordToDocument({ x: mouseX, y: mouseY });
+        this.mouseDown = function (e, button, pressure) {
+          if (this.capture && button == BUTTON_SECONDARY) {
+            this.cancelBezier();
+            return true;
+          }
+          if (
+            !this.capture &&
+            button == BUTTON_PRIMARY &&
+            !e.altKey &&
+            !key.isPressed("space") &&
+            shouldDrawToThisLayer()
+          ) {
+            let p = coordToDocument({ x: mouseX, y: mouseY });
 
-          dragBezierMode = BEZIER_STATE_INITIAL;
-          dragBezierP0 = dragBezierP1 = dragBezierP2 = dragBezierP3 = p;
-          this.capture = true;
+            dragBezierMode = BEZIER_STATE_INITIAL;
+            dragBezierP0 = dragBezierP1 = dragBezierP2 = dragBezierP3 = p;
+            this.capture = true;
 
-          this.eraseBrushPreview();
+            this.eraseBrushPreview();
 
-          return true;
-        }
-      };
+            return true;
+          }
+        };
 
-      // Handles the first part of the Bezier where the user drags out a straight line
-      this.mouseDrag = function (e) {
-        if (this.capture && dragBezierMode === BEZIER_STATE_INITIAL) {
-          let p = coordToDocument({ x: mouseX, y: mouseY });
+        // Handles the first part of the Bezier where the user drags out a straight line
+        this.mouseDrag = function (e) {
+          if (this.capture && dragBezierMode === BEZIER_STATE_INITIAL) {
+            let p = coordToDocument({ x: mouseX, y: mouseY });
 
-          dragBezierP2 = dragBezierP3 = p;
+            dragBezierP2 = dragBezierP3 = p;
 
-          that.repaintAll();
+            that.repaintAll();
 
-          return true;
-        } else {
-          this.mouseMove.call(this, e);
-        }
-      };
+            return true;
+          } else {
+            this.mouseMove.call(this, e);
+          }
+        };
 
-      this.mouseUp = function (e, button, pressure) {
-        if (this.capture && button == BUTTON_PRIMARY) {
-          // / 現在のマウス座標を取得（mouseMoveを待たずにここで更新するため）
-          let p = coordToDocument({ x: mouseX, y: mouseY });
-          switch (dragBezierMode) {
-            case BEZIER_STATE_INITIAL:
+        this.mouseUp = function (e, button, pressure) {
+          if (this.capture && button == BUTTON_PRIMARY) {
+            // / 現在のマウス座標を取得（mouseMoveを待たずにここで更新するため）
+            let p = coordToDocument({ x: mouseX, y: mouseY });
+            switch (dragBezierMode) {
+              case BEZIER_STATE_INITIAL:
+                dragBezierP1 = p;
+                dragBezierP2 = p;
+                setTimeout(() => {
+                  //モード切り替えを30ms遅延させる
+                  dragBezierMode = BEZIER_STATE_POINT_1;
+                  that.repaintAll(); // モードが変わった瞬間に再描画
+                }, 30);
+                break;
+              case BEZIER_STATE_POINT_1:
+                dragBezierMode = BEZIER_STATE_POINT_2;
+                dragBezierP2 = p;
+                that.repaintAll();
+                break;
+              case BEZIER_STATE_POINT_2:
+                this.capture = false;
+
+                let p0 = dragBezierP0,
+                  p1 = dragBezierP1,
+                  p2 = dragBezierP2,
+                  p3 = dragBezierP3,
+                  bezier = new CPBezier();
+
+                bezier.x0 = p0.x;
+                bezier.y0 = p0.y;
+                bezier.x1 = p1.x;
+                bezier.y1 = p1.y;
+                bezier.x2 = p2.x;
+                bezier.y2 = p2.y;
+                bezier.x3 = p3.x;
+                bezier.y3 = p3.y;
+
+                let x = new Array(BEZIER_POINTS),
+                  y = new Array(BEZIER_POINTS);
+
+                bezier.compute(x, y, BEZIER_POINTS);
+
+                artwork.beginStroke(x[0], y[0], 1);
+                for (let i = 1; i < BEZIER_POINTS; i++) {
+                  artwork.continueStroke(x[i], y[i], 1);
+                }
+                artwork.endStroke();
+                that.repaintAll();
+            }
+
+            return true;
+          }
+        };
+
+        this.mouseMove = function (e, pressure) {
+          if (this.capture) {
+            let p = coordToDocument({ x: mouseX, y: mouseY });
+
+            if (dragBezierMode == BEZIER_STATE_POINT_1) {
               dragBezierP1 = p;
+              // p2の最初の位置をp1と同じにして、bzeerのプレビューが急激に変わらないようにする
               dragBezierP2 = p;
-              setTimeout(() => {
-                //モード切り替えを30ms遅延させる
-                dragBezierMode = BEZIER_STATE_POINT_1;
-                that.repaintAll(); // モードが変わった瞬間に再描画
-              }, 30);
-              break;
-            case BEZIER_STATE_POINT_1:
-              dragBezierMode = BEZIER_STATE_POINT_2;
+            } else if (dragBezierMode == BEZIER_STATE_POINT_2) {
               dragBezierP2 = p;
-              that.repaintAll();
-              break;
-            case BEZIER_STATE_POINT_2:
-              this.capture = false;
+            }
+            that.repaintAll(); // FIXME: repaint only the bezier region
 
-              let p0 = dragBezierP0,
-                p1 = dragBezierP1,
-                p2 = dragBezierP2,
-                p3 = dragBezierP3,
-                bezier = new CPBezier();
-
-              bezier.x0 = p0.x;
-              bezier.y0 = p0.y;
-              bezier.x1 = p1.x;
-              bezier.y1 = p1.y;
-              bezier.x2 = p2.x;
-              bezier.y2 = p2.y;
-              bezier.x3 = p3.x;
-              bezier.y3 = p3.y;
-
-              let x = new Array(BEZIER_POINTS),
-                y = new Array(BEZIER_POINTS);
-
-              bezier.compute(x, y, BEZIER_POINTS);
-
-              artwork.beginStroke(x[0], y[0], 1);
-              for (let i = 1; i < BEZIER_POINTS; i++) {
-                artwork.continueStroke(x[i], y[i], 1);
-              }
-              artwork.endStroke();
-              that.repaintAll();
+            return true;
+          } else {
+            // Draw the normal brush preview while not in the middle of a bezier operation
+            CPDrawingMode.prototype.mouseMove.call(this, e, pressure);
           }
+        };
 
-          return true;
-        }
-      };
+        this.paint = function () {
+          if (this.capture && canvasContext) {
+            let bezier = new CPBezier(),
+              p0 = coordToDisplay(dragBezierP0),
+              p1 = coordToDisplay(dragBezierP1),
+              p2 = coordToDisplay(dragBezierP2),
+              p3 = coordToDisplay(dragBezierP3);
 
-      this.mouseMove = function (e, pressure) {
-        if (this.capture) {
-          let p = coordToDocument({ x: mouseX, y: mouseY });
+            bezier.x0 = p0.x;
+            bezier.y0 = p0.y;
+            bezier.x1 = p1.x;
+            bezier.y1 = p1.y;
+            bezier.x2 = p2.x;
+            bezier.y2 = p2.y;
+            bezier.x3 = p3.x;
+            bezier.y3 = p3.y;
 
-          if (dragBezierMode == BEZIER_STATE_POINT_1) {
-            dragBezierP1 = p;
-            // p2の最初の位置をp1と同じにして、bzeerのプレビューが急激に変わらないようにする
-            dragBezierP2 = p;
-          } else if (dragBezierMode == BEZIER_STATE_POINT_2) {
-            dragBezierP2 = p;
-          }
-          that.repaintAll(); // FIXME: repaint only the bezier region
+            let x = new Array(BEZIER_POINTS_PREVIEW),
+              y = new Array(BEZIER_POINTS_PREVIEW);
 
-          return true;
-        } else {
-          // Draw the normal brush preview while not in the middle of a bezier operation
-          CPDrawingMode.prototype.mouseMove.call(this, e, pressure);
-        }
-      };
-
-      this.paint = function () {
-        if (this.capture && canvasContext) {
-          let bezier = new CPBezier(),
-            p0 = coordToDisplay(dragBezierP0),
-            p1 = coordToDisplay(dragBezierP1),
-            p2 = coordToDisplay(dragBezierP2),
-            p3 = coordToDisplay(dragBezierP3);
-
-          bezier.x0 = p0.x;
-          bezier.y0 = p0.y;
-          bezier.x1 = p1.x;
-          bezier.y1 = p1.y;
-          bezier.x2 = p2.x;
-          bezier.y2 = p2.y;
-          bezier.x3 = p3.x;
-          bezier.y3 = p3.y;
-
-          let x = new Array(BEZIER_POINTS_PREVIEW),
-            y = new Array(BEZIER_POINTS_PREVIEW);
-
-          bezier.compute(x, y, BEZIER_POINTS_PREVIEW);
-          canvasContext.beginPath();
-
-          canvasContext.moveTo(x[0], y[0]);
-          for (let i = 1; i < BEZIER_POINTS_PREVIEW; i++) {
-            canvasContext.lineTo(x[i], y[i]);
-          }
-          canvasContext.stroke();
-          canvasContext.beginPath();
-          canvasContext.moveTo(~~p0.x, ~~p0.y);
-          canvasContext.lineTo(~~p1.x, ~~p1.y);
-          canvasContext.stroke();
-          if (dragBezierMode === BEZIER_STATE_POINT_2) {
+            bezier.compute(x, y, BEZIER_POINTS_PREVIEW);
             canvasContext.beginPath();
-            canvasContext.moveTo(~~p2.x, ~~p2.y);
-            canvasContext.lineTo(~~p3.x, ~~p3.y);
+
+            canvasContext.moveTo(x[0], y[0]);
+            for (let i = 1; i < BEZIER_POINTS_PREVIEW; i++) {
+              canvasContext.lineTo(x[i], y[i]);
+            }
             canvasContext.stroke();
+            canvasContext.beginPath();
+            canvasContext.moveTo(~~p0.x, ~~p0.y);
+            canvasContext.lineTo(~~p1.x, ~~p1.y);
+            canvasContext.stroke();
+            if (dragBezierMode === BEZIER_STATE_POINT_2) {
+              canvasContext.beginPath();
+              canvasContext.moveTo(~~p2.x, ~~p2.y);
+              canvasContext.lineTo(~~p3.x, ~~p3.y);
+              canvasContext.stroke();
+            }
+          } else {
+            // Paint the regular brush preview
+            CPDrawingMode.prototype.paint.call(this);
           }
-        } else {
-          // Paint the regular brush preview
-          CPDrawingMode.prototype.paint.call(this);
-        }
-      };
-
-      CPDrawingMode.call(this);
+        };
+      }
     }
 
-    CPBezierMode.prototype = Object.create(CPDrawingMode.prototype);
-    CPBezierMode.prototype.constructor = CPBezierMode;
-
-    function CPColorPickerMode() {
-      this.capture = false;
-      this.mouseButton = -1;
-      this.curColor = null;
-      this.oldPreviewRect = null;
-      this.shouldPaintBrushPreview = false;
+    class CPColorPickerMode extends CPMode {
+      constructor() {
+        super();
+        this.capture = false;
+        this.mouseButton = -1;
+        this.curColor = null;
+        this.oldPreviewRect = null;
+        this.shouldPaintBrushPreview = false;
+      }
     }
-
-    CPColorPickerMode.prototype = Object.create(CPMode.prototype);
-    CPColorPickerMode.prototype.constructor = CPColorPickerMode;
 
     CPColorPickerMode.prototype.mouseDown = function (e, button, pressure) {
       if (this.capture) {
@@ -1266,99 +1268,103 @@ export default class CPCanvas extends EventEmitter {
       colorPickerSampleAllLayers = !!checked;
     };
 
-    function CPPanCanvasMode() {
-      var panningX, panningY, panningOffset, panningButton;
+    class CPPanCanvasMode extends CPMode {
+      constructor() {
+        super();
+        var panningX, panningY, panningOffset, panningButton;
 
-      this.keyDown = function (e) {
-        if (e.repeat) return; // キーが押され続けている場合は無視
-        if (!(e.ctrlKey || e.metaKey) && e.key === " ") {
-          // If we're not already panning, then advertise that a left-click would pan
-          if (!this.capture) {
-            setCursor(CURSOR_PANNABLE);
+        this.keyDown = function (e) {
+          if (e.repeat) return; // キーが押され続けている場合は無視
+          if (!(e.ctrlKey || e.metaKey) && e.key === " ") {
+            // If we're not already panning, then advertise that a left-click would pan
+            if (!this.capture) {
+              setCursor(CURSOR_PANNABLE);
+            }
+
+            return true;
           }
+        };
 
-          return true;
-        }
-      };
-
-      this.keyUp = function (e) {
-        if (this.transient && panningButton != BUTTON_WHEEL && e.key === " ") {
-          setCursor(CURSOR_DEFAULT);
-
-          modeStack.pop(); // yield control to the default mode
-
-          return true;
-        }
-      };
-
-      this.mouseDown = function (e, button, pressure) {
-        if (this.capture) {
-          return true;
-        }
-        if (
-          button == BUTTON_WHEEL ||
-          (key.isPressed("space") &&
-            !(e.ctrlKey || e.metaKey) &&
-            button == BUTTON_PRIMARY) ||
-          (!this.transient && button == BUTTON_PRIMARY)
-        ) {
-          this.capture = true;
-          panningButton = button;
-          panningX = e.pageX;
-          panningY = e.pageY;
-          panningOffset = that.getOffset();
-          setCursor(CURSOR_PANNABLE);
-
-          return true;
-        } else if (this.transient) {
-          // If we're not panning and we get a button not intended for us, we probably shouldn't be on the stack
-          modeStack.pop();
-        }
-      };
-
-      this.mouseDrag = function (e) {
-        // if (key.isPressed("q")) return; // キーボードのQキーが押されている場合は何もしない
-
-        if (this.capture) {
-          that.setOffset(
-            panningOffset.x + e.pageX - panningX,
-            panningOffset.y + e.pageY - panningY,
-          );
-
-          return true;
-        }
-      };
-
-      this.mouseUp = function (e, button, pressure) {
-        if (this.capture && button == panningButton) {
-          panningButton = -1;
-          this.capture = false;
-
-          // 他モードに切り替わってたら何もしない
-          if (modeStack.peek() !== this) return true;
-
+        this.keyUp = function (e) {
           if (
             this.transient &&
-            !key.isPressed("space") &&
-            !(e.ctrlKey || e.metaKey)
+            panningButton != BUTTON_WHEEL &&
+            e.key === " "
           ) {
             setCursor(CURSOR_DEFAULT);
-            modeStack.pop();
-          } else {
-            setCursor(CURSOR_PANNABLE);
+
+            modeStack.pop(); // yield control to the default mode
+
+            return true;
           }
+        };
 
-          return true;
-        }
-      };
+        this.mouseDown = function (e, button, pressure) {
+          if (this.capture) {
+            return true;
+          }
+          if (
+            button == BUTTON_WHEEL ||
+            (key.isPressed("space") &&
+              !(e.ctrlKey || e.metaKey) &&
+              button == BUTTON_PRIMARY) ||
+            (!this.transient && button == BUTTON_PRIMARY)
+          ) {
+            this.capture = true;
+            panningButton = button;
+            panningX = e.pageX;
+            panningY = e.pageY;
+            panningOffset = that.getOffset();
+            setCursor(CURSOR_PANNABLE);
 
-      this.enter = function () {
-        setCursor(CURSOR_PANNABLE);
-      };
+            return true;
+          } else if (this.transient) {
+            // If we're not panning and we get a button not intended for us, we probably shouldn't be on the stack
+            modeStack.pop();
+          }
+        };
+
+        this.mouseDrag = function (e) {
+          // if (key.isPressed("q")) return; // キーボードのQキーが押されている場合は何もしない
+
+          if (this.capture) {
+            that.setOffset(
+              panningOffset.x + e.pageX - panningX,
+              panningOffset.y + e.pageY - panningY,
+            );
+
+            return true;
+          }
+        };
+
+        this.mouseUp = function (e, button, pressure) {
+          if (this.capture && button == panningButton) {
+            panningButton = -1;
+            this.capture = false;
+
+            // 他モードに切り替わってたら何もしない
+            if (modeStack.peek() !== this) return true;
+
+            if (
+              this.transient &&
+              !key.isPressed("space") &&
+              !(e.ctrlKey || e.metaKey)
+            ) {
+              setCursor(CURSOR_DEFAULT);
+              modeStack.pop();
+            } else {
+              setCursor(CURSOR_PANNABLE);
+            }
+
+            return true;
+          }
+        };
+
+        this.enter = function () {
+          setCursor(CURSOR_PANNABLE);
+        };
+      }
     }
-
-    CPPanCanvasMode.prototype = Object.create(CPMode.prototype);
-    CPPanCanvasMode.prototype.constructor = CPPanCanvasMode;
 
     /**
      * 塗りつぶしの拡張ピクセル数を設定します。
@@ -1383,10 +1389,11 @@ export default class CPCanvas extends EventEmitter {
     this.setFloodFillReferAllLayers = function (checked) {
       floodFillReferAllLayers = !!checked;
     };
-    function CPFloodFillMode() {}
-
-    CPFloodFillMode.prototype = Object.create(CPMode.prototype);
-    CPFloodFillMode.prototype.constructor = CPFloodFillMode;
+    class CPFloodFillMode extends CPMode {
+      constructor() {
+        super();
+      }
+    }
 
     CPFloodFillMode.prototype.mouseDown = function (e, button, pressure) {
       if (
@@ -1412,192 +1419,193 @@ export default class CPCanvas extends EventEmitter {
       }
     };
 
-    function CPRectSelectionMode() {
-      var firstClick,
-        curRect = new CPRect(0, 0, 0, 0),
-        selectingButton = -1;
-
-      let maintainAspectCheckd = false;
-
-      this.mouseDown = function (e, button, pressure) {
-        //ブラシパレットの要素を取得
-        const brushpalette = controller.getBrushPaletteElement();
-        //縦横比固定のチェックボックスの要素を取得
-        const maintainAspectCheckbox = brushpalette.querySelector(
-          "#chickenpaint-s-maintainAspectCheckbox",
-        );
-
-        if (
-          maintainAspectCheckbox &&
-          maintainAspectCheckbox instanceof HTMLInputElement
-        ) {
-          maintainAspectCheckd = maintainAspectCheckbox.checked;
-        }
-
-        if (
-          !this.capture &&
-          button == BUTTON_PRIMARY &&
-          !e.altKey &&
-          !key.isPressed("space")
-        ) {
-          var p = coordToDocumentInt({ x: mouseX, y: mouseY });
-
-          selectingButton = button;
-
-          curRect.makeEmpty();
-          firstClick = p;
-
-          that.repaintAll();
-
-          this.capture = true;
-
-          return true;
-        }
-      };
-
-      this.mouseDrag = function (e) {
-        if (!this.capture) return false;
-
-        let p = coordToDocumentInt({ x: mouseX, y: mouseY });
-        let square = e.shiftKey || maintainAspectCheckd;
-        let squareDist = ~~Math.max(
-          Math.abs(p.x - firstClick.x),
-          Math.abs(p.y - firstClick.y),
-        );
-
-        if (p.x >= firstClick.x) {
-          curRect.left = firstClick.x;
-          curRect.right = (square ? firstClick.x + squareDist : p.x) + 1;
-        } else {
-          curRect.left = square ? firstClick.x - squareDist : p.x;
-          curRect.right = firstClick.x + 1;
-        }
-
-        if (p.y >= firstClick.y) {
-          curRect.top = firstClick.y;
-          curRect.bottom = (square ? firstClick.y + squareDist : p.y) + 1;
-        } else {
-          curRect.top = square ? firstClick.y - squareDist : p.y;
-          curRect.bottom = firstClick.y + 1;
-        }
-
-        that.repaintAll();
-
-        return true;
-      };
-
-      this.mouseUp = function (e, button, pressure) {
-        if (this.capture && button == selectingButton) {
-          artwork.rectangleSelection(curRect);
-          curRect.makeEmpty();
-
-          that.repaintAll();
-
-          this.capture = false;
+    class CPRectSelectionMode extends CPMode {
+      constructor() {
+        super();
+        var firstClick,
+          curRect = new CPRect(0, 0, 0, 0),
           selectingButton = -1;
 
-          return true;
-        }
-      };
+        let maintainAspectCheckd = false;
 
-      this.paint = function () {
-        if (!curRect.isEmpty() && canvasContext) {
-          canvasContext.lineWidth = 1;
-          plotSelectionRect(canvasContext, curRect);
-        }
-      };
-    }
+        this.mouseDown = function (e, button, pressure) {
+          //ブラシパレットの要素を取得
+          const brushpalette = controller.getBrushPaletteElement();
+          //縦横比固定のチェックボックスの要素を取得
+          const maintainAspectCheckbox = brushpalette.querySelector(
+            "#chickenpaint-s-maintainAspectCheckbox",
+          );
 
-    CPRectSelectionMode.prototype = Object.create(CPMode.prototype);
-    CPRectSelectionMode.prototype.constructor = CPRectSelectionMode;
-
-    function CPMoveToolMode() {
-      var lastPoint,
-        copyMode,
-        firstMove = false;
-      let duplicateSelectionChecked = false;
-
-      this.mouseDown = function (e, button, pressure) {
-        const brushpalette = controller.getBrushPaletteElement();
-
-        //選択範囲の複製のチェックボックスの要素を取得
-        const duplicateSelectionCheckbox = brushpalette.querySelector(
-          "#chickenpaint-s-duplicateSelectionCheckbox",
-        );
-
-        if (
-          duplicateSelectionCheckbox &&
-          duplicateSelectionCheckbox instanceof HTMLInputElement
-        ) {
-          duplicateSelectionChecked = duplicateSelectionCheckbox.checked;
-        }
-
-        if (
-          !this.capture &&
-          button == BUTTON_PRIMARY &&
-          !key.isPressed("space") &&
-          that.checkCurrentLayerIsVisible()
-        ) {
-          lastPoint = coordToDocument({ x: mouseX, y: mouseY });
-
-          copyMode =
-            (!e.ctrlKey && !e.metaKey && e.altKey) || duplicateSelectionChecked;
-          firstMove = true;
-          this.capture = true;
-
-          return true;
-        }
-      };
-
-      this.mouseDrag = throttle(50, function (e) {
-        if (this.capture) {
-          var p = coordToDocument({ x: mouseX, y: mouseY }),
-            moveFloat = { x: p.x - lastPoint.x, y: p.y - lastPoint.y },
-            moveInt = { x: ~~moveFloat.x, y: ~~moveFloat.y }; // Round towards zero
-
-          if (moveInt.x != 0 || moveInt.y != 0) {
-            artwork.move(moveInt.x, moveInt.y, copyMode && firstMove);
-            firstMove = false;
+          if (
+            maintainAspectCheckbox &&
+            maintainAspectCheckbox instanceof HTMLInputElement
+          ) {
+            maintainAspectCheckd = maintainAspectCheckbox.checked;
           }
 
-          /*
-           * Nudge the last point by the remainder we weren't able to move this iteration (due to move() only
-           * accepting integer offsets). This'll carry that fractional part of the move over for next iteration.
-           */
-          lastPoint.x = p.x - (moveFloat.x - moveInt.x);
-          lastPoint.y = p.y - (moveFloat.y - moveInt.y);
+          if (
+            !this.capture &&
+            button == BUTTON_PRIMARY &&
+            !e.altKey &&
+            !key.isPressed("space")
+          ) {
+            var p = coordToDocumentInt({ x: mouseX, y: mouseY });
 
-          return true;
-        }
-      });
+            selectingButton = button;
 
-      this.mouseUp = function (e, button, pressure) {
-        const brushpalette = controller.getBrushPaletteElement();
+            curRect.makeEmpty();
+            firstClick = p;
 
-        //選択範囲の複製のチェックボックスの要素を取得
-        const duplicateSelectionCheckbox = brushpalette.querySelector(
-          "#chickenpaint-s-duplicateSelectionCheckbox",
-        );
+            that.repaintAll();
 
-        if (
-          duplicateSelectionCheckbox &&
-          duplicateSelectionCheckbox instanceof HTMLInputElement
-        ) {
-          duplicateSelectionCheckbox.checked = false;
-        }
+            this.capture = true;
 
-        if (this.capture && button == BUTTON_PRIMARY) {
-          this.capture = false;
-          if (this.transient) {
-            modeStack.pop();
+            return true;
           }
+        };
+
+        this.mouseDrag = function (e) {
+          if (!this.capture) return false;
+
+          let p = coordToDocumentInt({ x: mouseX, y: mouseY });
+          let square = e.shiftKey || maintainAspectCheckd;
+          let squareDist = ~~Math.max(
+            Math.abs(p.x - firstClick.x),
+            Math.abs(p.y - firstClick.y),
+          );
+
+          if (p.x >= firstClick.x) {
+            curRect.left = firstClick.x;
+            curRect.right = (square ? firstClick.x + squareDist : p.x) + 1;
+          } else {
+            curRect.left = square ? firstClick.x - squareDist : p.x;
+            curRect.right = firstClick.x + 1;
+          }
+
+          if (p.y >= firstClick.y) {
+            curRect.top = firstClick.y;
+            curRect.bottom = (square ? firstClick.y + squareDist : p.y) + 1;
+          } else {
+            curRect.top = square ? firstClick.y - squareDist : p.y;
+            curRect.bottom = firstClick.y + 1;
+          }
+
+          that.repaintAll();
+
           return true;
-        }
-      };
+        };
+
+        this.mouseUp = function (e, button, pressure) {
+          if (this.capture && button == selectingButton) {
+            artwork.rectangleSelection(curRect);
+            curRect.makeEmpty();
+
+            that.repaintAll();
+
+            this.capture = false;
+            selectingButton = -1;
+
+            return true;
+          }
+        };
+
+        this.paint = function () {
+          if (!curRect.isEmpty() && canvasContext) {
+            canvasContext.lineWidth = 1;
+            plotSelectionRect(canvasContext, curRect);
+          }
+        };
+      }
     }
 
-    CPMoveToolMode.prototype = Object.create(CPMode.prototype);
-    CPMoveToolMode.prototype.constructor = CPMoveToolMode;
+    class CPMoveToolMode extends CPMode {
+      constructor() {
+        super();
+        var lastPoint,
+          copyMode,
+          firstMove = false;
+        let duplicateSelectionChecked = false;
+
+        this.mouseDown = function (e, button, pressure) {
+          const brushpalette = controller.getBrushPaletteElement();
+
+          //選択範囲の複製のチェックボックスの要素を取得
+          const duplicateSelectionCheckbox = brushpalette.querySelector(
+            "#chickenpaint-s-duplicateSelectionCheckbox",
+          );
+
+          if (
+            duplicateSelectionCheckbox &&
+            duplicateSelectionCheckbox instanceof HTMLInputElement
+          ) {
+            duplicateSelectionChecked = duplicateSelectionCheckbox.checked;
+          }
+
+          if (
+            !this.capture &&
+            button == BUTTON_PRIMARY &&
+            !key.isPressed("space") &&
+            that.checkCurrentLayerIsVisible()
+          ) {
+            lastPoint = coordToDocument({ x: mouseX, y: mouseY });
+
+            copyMode =
+              (!e.ctrlKey && !e.metaKey && e.altKey) ||
+              duplicateSelectionChecked;
+            firstMove = true;
+            this.capture = true;
+
+            return true;
+          }
+        };
+
+        this.mouseDrag = throttle(50, function (e) {
+          if (this.capture) {
+            var p = coordToDocument({ x: mouseX, y: mouseY }),
+              moveFloat = { x: p.x - lastPoint.x, y: p.y - lastPoint.y },
+              moveInt = { x: ~~moveFloat.x, y: ~~moveFloat.y }; // Round towards zero
+
+            if (moveInt.x != 0 || moveInt.y != 0) {
+              artwork.move(moveInt.x, moveInt.y, copyMode && firstMove);
+              firstMove = false;
+            }
+
+            /*
+             * Nudge the last point by the remainder we weren't able to move this iteration (due to move() only
+             * accepting integer offsets). This'll carry that fractional part of the move over for next iteration.
+             */
+            lastPoint.x = p.x - (moveFloat.x - moveInt.x);
+            lastPoint.y = p.y - (moveFloat.y - moveInt.y);
+
+            return true;
+          }
+        });
+
+        this.mouseUp = function (e, button, pressure) {
+          const brushpalette = controller.getBrushPaletteElement();
+
+          //選択範囲の複製のチェックボックスの要素を取得
+          const duplicateSelectionCheckbox = brushpalette.querySelector(
+            "#chickenpaint-s-duplicateSelectionCheckbox",
+          );
+
+          if (
+            duplicateSelectionCheckbox &&
+            duplicateSelectionCheckbox instanceof HTMLInputElement
+          ) {
+            duplicateSelectionCheckbox.checked = false;
+          }
+
+          if (this.capture && button == BUTTON_PRIMARY) {
+            this.capture = false;
+            if (this.transient) {
+              modeStack.pop();
+            }
+            return true;
+          }
+        };
+      }
+    }
 
     CPMoveToolMode.prototype.mouseMove = function (e) {
       // 他のモードがトップなら何もしない
@@ -1617,555 +1625,563 @@ export default class CPCanvas extends EventEmitter {
         setCursor(CURSOR_MOVE);
       }
     };
-    function CPTransformMode() {
-      const HANDLE_RADIUS = 3,
-        DRAG_NONE = -1,
-        DRAG_ROTATE = -2,
-        DRAG_MOVE = -3,
-        DRAG_NW_CORNER = 0,
-        DRAG_N_EDGE = 1,
-        DRAG_NE_CORNER = 2,
-        DRAG_E_EDGE = 3,
-        DRAG_SE_CORNER = 4,
-        DRAG_S_EDGE = 5,
-        DRAG_SW_CORNER = 6,
-        DRAG_W_EDGE = 7;
+    class CPTransformMode extends CPMode {
+      constructor() {
+        super();
 
-      var /** @type {CPTransform} The current transformation */
-        affine,
-        /** @type {CPRect} The initial document rectangle to transform */
-        srcRect,
-        /** @type {CPPolygon} The initial transform rect */
-        origCornerPoints,
-        /** @type {CPPolygon} The current corners of the transform rect in document space */
-        cornerPoints,
-        draggingMode = DRAG_NONE,
-        lastDragPointDisplay,
-        lastDragPointDoc,
-        // Keep track of how many degrees we've rotated so far during this transformation
-        rotationAccumulator;
+        const HANDLE_RADIUS = 3,
+          DRAG_NONE = -1,
+          DRAG_ROTATE = -2,
+          DRAG_MOVE = -3,
+          DRAG_NW_CORNER = 0,
+          DRAG_N_EDGE = 1,
+          DRAG_NE_CORNER = 2,
+          DRAG_E_EDGE = 3,
+          DRAG_SE_CORNER = 4,
+          DRAG_S_EDGE = 5,
+          DRAG_SW_CORNER = 6,
+          DRAG_W_EDGE = 7;
 
-      /**
-       * Get the polygon that represents the current transform result area in display coordinates.
-       *
-       * @returns {CPPolygon}
-       */
-      function cornersToDisplayPolygon() {
-        return cornerPoints.getTransformed(transform);
-      }
+        var /** @type {CPTransform} The current transformation */
+          affine,
+          /** @type {CPRect} The initial document rectangle to transform */
+          srcRect,
+          /** @type {CPPolygon} The initial transform rect */
+          origCornerPoints,
+          /** @type {CPPolygon} The current corners of the transform rect in document space */
+          cornerPoints,
+          draggingMode = DRAG_NONE,
+          lastDragPointDisplay,
+          lastDragPointDoc,
+          // Keep track of how many degrees we've rotated so far during this transformation
+          rotationAccumulator;
 
-      function averagePoints(p1, p2) {
-        return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
-      }
-
-      function roundPoint(p) {
-        return { x: Math.round(p.x), y: Math.round(p.y) };
-      }
-
-      /**
-       * Decide which drag action should be taken if our mouse was pressed in the given position.
-       *
-       * @param {CPPolygon} corners - The corners of the current transform area
-       * @param mouse - The mouse point
-       * @returns {number} A DRAG_* constant
-       */
-      function classifyDragAction(corners, mouse) {
-        const HANDLE_CAPTURE_RADIUS = 7,
-          HANDLE_CAPTURE_RADIUS_SQR =
-            HANDLE_CAPTURE_RADIUS * HANDLE_CAPTURE_RADIUS,
-          EDGE_CAPTURE_RADIUS = HANDLE_CAPTURE_RADIUS,
-          EDGE_CAPTURE_RADIUS_SQR = EDGE_CAPTURE_RADIUS * EDGE_CAPTURE_RADIUS;
-
-        // Are we dragging a corner?
-        for (let i = 0; i < corners.points.length; i++) {
-          if (
-            (mouse.x - corners.points[i].x) * (mouse.x - corners.points[i].x) +
-              (mouse.y - corners.points[i].y) *
-                (mouse.y - corners.points[i].y) <=
-            HANDLE_CAPTURE_RADIUS_SQR
-          ) {
-            return i * 2;
-          }
+        /**
+         * Get the polygon that represents the current transform result area in display coordinates.
+         *
+         * @returns {CPPolygon}
+         */
+        function cornersToDisplayPolygon() {
+          return cornerPoints.getTransformed(transform);
         }
 
-        // Are we dragging an edge?
-        for (let i = 0; i < corners.points.length; i++) {
-          var edgeP1 = corners.points[i],
-            edgeP2 = corners.points[(i + 1) % corners.points.length],
-            vEdge = new CPVector(edgeP2.x - edgeP1.x, edgeP2.y - edgeP1.y),
-            vMouse = new CPVector(mouse.x - edgeP1.x, mouse.y - edgeP1.y),
-            vEdgeLen = vEdge.getLength(),
-            vEdgeScaled = vEdge.getScaled(1 / vEdgeLen),
-            vMouseScaled = vMouse.getScaled(1 / vEdgeLen),
-            mousePropOnLine = vEdgeScaled.getDotProduct(vMouseScaled);
+        function averagePoints(p1, p2) {
+          return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+        }
 
-          // If we're within the ends of the line (perpendicularly speaking)
-          if (mousePropOnLine >= 0.0 && mousePropOnLine <= 1.0) {
-            // This gives us the point on the line closest to the mouse
-            vEdge.scale(mousePropOnLine);
+        function roundPoint(p) {
+          return { x: Math.round(p.x), y: Math.round(p.y) };
+        }
 
+        /**
+         * Decide which drag action should be taken if our mouse was pressed in the given position.
+         *
+         * @param {CPPolygon} corners - The corners of the current transform area
+         * @param mouse - The mouse point
+         * @returns {number} A DRAG_* constant
+         */
+        function classifyDragAction(corners, mouse) {
+          const HANDLE_CAPTURE_RADIUS = 7,
+            HANDLE_CAPTURE_RADIUS_SQR =
+              HANDLE_CAPTURE_RADIUS * HANDLE_CAPTURE_RADIUS,
+            EDGE_CAPTURE_RADIUS = HANDLE_CAPTURE_RADIUS,
+            EDGE_CAPTURE_RADIUS_SQR = EDGE_CAPTURE_RADIUS * EDGE_CAPTURE_RADIUS;
+
+          // Are we dragging a corner?
+          for (let i = 0; i < corners.points.length; i++) {
             if (
-              (vEdge.x - vMouse.x) * (vEdge.x - vMouse.x) +
-                (vEdge.y - vMouse.y) * (vEdge.y - vMouse.y) <=
-              EDGE_CAPTURE_RADIUS_SQR
+              (mouse.x - corners.points[i].x) *
+                (mouse.x - corners.points[i].x) +
+                (mouse.y - corners.points[i].y) *
+                  (mouse.y - corners.points[i].y) <=
+              HANDLE_CAPTURE_RADIUS_SQR
             ) {
-              return i * 2 + 1;
+              return i * 2;
             }
           }
-        }
 
-        if (corners.containsPoint(mouse)) {
-          return DRAG_MOVE;
-        }
+          // Are we dragging an edge?
+          for (let i = 0; i < corners.points.length; i++) {
+            var edgeP1 = corners.points[i],
+              edgeP2 = corners.points[(i + 1) % corners.points.length],
+              vEdge = new CPVector(edgeP2.x - edgeP1.x, edgeP2.y - edgeP1.y),
+              vMouse = new CPVector(mouse.x - edgeP1.x, mouse.y - edgeP1.y),
+              vEdgeLen = vEdge.getLength(),
+              vEdgeScaled = vEdge.getScaled(1 / vEdgeLen),
+              vMouseScaled = vMouse.getScaled(1 / vEdgeLen),
+              mousePropOnLine = vEdgeScaled.getDotProduct(vMouseScaled);
 
-        return DRAG_ROTATE;
-      }
+            // If we're within the ends of the line (perpendicularly speaking)
+            if (mousePropOnLine >= 0.0 && mousePropOnLine <= 1.0) {
+              // This gives us the point on the line closest to the mouse
+              vEdge.scale(mousePropOnLine);
 
-      function setCursorForHandles() {
-        var corners = cornersToDisplayPolygon(),
-          mouse = { x: mouseX, y: mouseY },
-          dragAction = classifyDragAction(corners, mouse);
-
-        switch (dragAction) {
-          case DRAG_NW_CORNER:
-          case DRAG_NE_CORNER:
-          case DRAG_SE_CORNER:
-          case DRAG_SW_CORNER:
-            // Choose a cursor for a 45-degree resize from this corner
-            let cornerIndex = ~~(dragAction / 2),
-              cornerBefore = corners.points[(cornerIndex + 3) % 4],
-              corner = corners.points[cornerIndex],
-              cornerAfter = corners.points[(cornerIndex + 1) % 4],
-              // Get a vector which points 45 degrees toward the center of the box, this'll do for cursor direction
-              v45 = CPVector.subtractPoints(cornerBefore, corner)
-                .normalize()
-                .add(CPVector.subtractPoints(cornerAfter, corner).normalize());
-
-            setResizeCursorForVector(v45);
-            break;
-          case DRAG_N_EDGE:
-          case DRAG_E_EDGE:
-          case DRAG_S_EDGE:
-          case DRAG_W_EDGE:
-            // Resizing from here will move edge perpendicularly
-            let corner1 = corners.points[~~(dragAction / 2)],
-              corner2 = corners.points[(~~(dragAction / 2) + 1) % 4],
-              vPerp = CPVector.subtractPoints(
-                corner2,
-                corner1,
-              ).getPerpendicular();
-
-            setResizeCursorForVector(vPerp);
-            break;
-          case DRAG_MOVE:
-            //一時的なパン･回転時にペンの移動でカーソルがちらつくのを防ぐ
-            if (!key.isPressed("r") && !key.isPressed("space")) {
-              setCursor(CURSOR_MOVE);
-            }
-            break;
-          case DRAG_ROTATE:
-            if (!key.isPressed("r") && !key.isPressed("space")) {
-              setCursor(CURSOR_PANNABLE);
-            }
-            break;
-          default:
-            // No drag action, so just use the default cursor
-            setCursor(CURSOR_DEFAULT);
-        }
-      }
-
-      let maintainAspectCheckd = false;
-      this.mouseDown = function (e, button, pressure) {
-        //ブラシパレットの要素を取得
-        const brushpalette = controller.getBrushPaletteElement();
-        //縦横比固定のチェックボックスの要素を取得
-        const maintainAspectCheckbox = brushpalette.querySelector(
-          "#chickenpaint-t-maintainAspectCheckbox",
-        );
-
-        if (
-          maintainAspectCheckbox &&
-          maintainAspectCheckbox instanceof HTMLInputElement
-        ) {
-          maintainAspectCheckd = maintainAspectCheckbox.checked;
-        }
-
-        if (
-          !this.capture &&
-          button == BUTTON_PRIMARY &&
-          !e.altKey &&
-          !key.isPressed("space")
-        ) {
-          var corners = cornersToDisplayPolygon();
-
-          draggingMode = classifyDragAction(corners, {
-            x: mouseX,
-            y: mouseY,
-          });
-
-          lastDragPointDisplay = { x: mouseX, y: mouseY };
-          lastDragPointDoc = coordToDocument(lastDragPointDisplay);
-
-          this.capture = true;
-
-          setCursorForHandles();
-
-          return true;
-        }
-      };
-
-      this.mouseDrag = throttle(80, function (e) {
-        const MIN_SCALE = 0.001;
-
-        if (this.capture) {
-          var dragPointDisplay = { x: mouseX, y: mouseY };
-
-          switch (draggingMode) {
-            case DRAG_MOVE:
-              let dragPointDoc = roundPoint(coordToDocument(dragPointDisplay)),
-                translation = CPVector.subtractPoints(
-                  dragPointDoc,
-                  lastDragPointDoc,
-                ),
-                // Only translate in whole-pixel increments (in document space not canvas space)
-                translationRounded = translation.getTruncated(),
-                translationRemainder = translation.subtract(translationRounded),
-                translateInstance = new CPTransform();
-
-              /*
-               * Apply the translate *after* the current affine is applied.
-               */
-              translateInstance.translate(
-                translationRounded.x,
-                translationRounded.y,
-              );
-
-              affine.preMultiply(translateInstance);
-
-              // Accumulate the fractional move that we didn't apply for next time
-              lastDragPointDoc = CPVector.subtractPoints(
-                dragPointDoc,
-                translationRemainder,
-              );
-              break;
-            case DRAG_ROTATE:
-              const DRAG_ROTATE_SNAP_ANGLE = Math.PI / 4;
-
-              let centerDoc = cornerPoints.getCenter(),
-                centerDisplay = coordToDisplay(centerDoc),
-                oldMouseAngle = Math.atan2(
-                  lastDragPointDisplay.y - centerDisplay.y,
-                  lastDragPointDisplay.x - centerDisplay.x,
-                ),
-                newMouseAngle = Math.atan2(
-                  dragPointDisplay.y - centerDisplay.y,
-                  dragPointDisplay.x - centerDisplay.x,
-                ),
-                deltaMouseAngle = newMouseAngle - oldMouseAngle,
-                rotateAngle,
-                rotateInstance = new CPTransform();
-
-              rotationAccumulator += deltaMouseAngle;
-
-              if (e.shiftKey) {
-                /*
-                 * The rotation in the decomposition was made about the origin. We want to rotate about the
-                 * center of the selection, so first rotate the selection to square it up with the axes,
-                 * then we'll pivot the selection about its center to the new angle.
-                 */
-                rotateAngle =
-                  -affine.decompose().rotate +
-                  Math.round(rotationAccumulator / DRAG_ROTATE_SNAP_ANGLE) *
-                    DRAG_ROTATE_SNAP_ANGLE;
-              } else {
-                rotateAngle = deltaMouseAngle;
+              if (
+                (vEdge.x - vMouse.x) * (vEdge.x - vMouse.x) +
+                  (vEdge.y - vMouse.y) * (vEdge.y - vMouse.y) <=
+                EDGE_CAPTURE_RADIUS_SQR
+              ) {
+                return i * 2 + 1;
               }
+            }
+          }
 
-              /* Apply the rotation *after* the current affine instead of before it, so that we don't
-               * end up scaling on top of the rotated selection later (which would cause an unwanted shear)
-               */
-              // 反転時は回転方向を逆に
-              if (isViewFlipped) {
-                rotateAngle = -rotateAngle;
-              }
-              rotateInstance.rotateAroundPoint(
-                rotateAngle,
-                centerDoc.x,
-                centerDoc.y,
-              );
+          if (corners.containsPoint(mouse)) {
+            return DRAG_MOVE;
+          }
 
-              affine.preMultiply(rotateInstance);
+          return DRAG_ROTATE;
+        }
 
-              lastDragPointDisplay = dragPointDisplay;
-              break;
+        function setCursorForHandles() {
+          var corners = cornersToDisplayPolygon(),
+            mouse = { x: mouseX, y: mouseY },
+            dragAction = classifyDragAction(corners, mouse);
+
+          switch (dragAction) {
             case DRAG_NW_CORNER:
             case DRAG_NE_CORNER:
             case DRAG_SE_CORNER:
             case DRAG_SW_CORNER:
-              {
-                let draggingCorner = ~~(draggingMode / 2),
-                  oldCorner = origCornerPoints.points[draggingCorner],
-                  // The corner we dragged will move into its new position
-                  newCorner = affine
-                    .getInverted()
-                    .getTransformedPoint(
-                      roundPoint(coordToDocument(dragPointDisplay)),
-                    ),
-                  // The opposite corner to the one we dragged must not move
-                  fixCorner = origCornerPoints.points[(draggingCorner + 2) % 4],
-                  /* Now we can see how much we'd need to scale the original rectangle about the fixed corner
-                   * for the other corner to reach the new position.
-                   */
-                  scaleX =
-                    (newCorner.x - fixCorner.x) / (oldCorner.x - fixCorner.x),
-                  scaleY =
-                    (newCorner.y - fixCorner.y) / (oldCorner.y - fixCorner.y);
+              // Choose a cursor for a 45-degree resize from this corner
+              let cornerIndex = ~~(dragAction / 2),
+                cornerBefore = corners.points[(cornerIndex + 3) % 4],
+                corner = corners.points[cornerIndex],
+                cornerAfter = corners.points[(cornerIndex + 1) % 4],
+                // Get a vector which points 45 degrees toward the center of the box, this'll do for cursor direction
+                v45 = CPVector.subtractPoints(cornerBefore, corner)
+                  .normalize()
+                  .add(
+                    CPVector.subtractPoints(cornerAfter, corner).normalize(),
+                  );
 
-                /*
-                 * If the user resized it until it was zero-sized, just ignore that position and assume they'll move
-                 * past it in a msec.
-                 */
-                if (
-                  Math.abs(scaleX) < MIN_SCALE ||
-                  Math.abs(scaleY) < MIN_SCALE ||
-                  isNaN(scaleX) ||
-                  isNaN(scaleY)
-                ) {
-                  return true;
-                }
-
-                // Does user want proportional resize?
-                if (maintainAspectCheckd || e.shiftKey) {
-                  var largestScale = Math.max(scaleX, scaleY);
-
-                  scaleX = largestScale;
-                  scaleY = largestScale;
-                }
-
-                // The transform we do here will be performed first before any of the other transforms (scale, rotate, etc)
-                affine.scaleAroundPoint(
-                  scaleX,
-                  scaleY,
-                  fixCorner.x,
-                  fixCorner.y,
-                );
-              }
+              setResizeCursorForVector(v45);
               break;
             case DRAG_N_EDGE:
-            case DRAG_S_EDGE:
             case DRAG_E_EDGE:
+            case DRAG_S_EDGE:
             case DRAG_W_EDGE:
-              {
-                let cornerIndex = ~~(draggingMode / 2),
-                  oldHandle = averagePoints(
-                    origCornerPoints.points[cornerIndex],
-                    origCornerPoints.points[(cornerIndex + 1) % 4],
+              // Resizing from here will move edge perpendicularly
+              let corner1 = corners.points[~~(dragAction / 2)],
+                corner2 = corners.points[(~~(dragAction / 2) + 1) % 4],
+                vPerp = CPVector.subtractPoints(
+                  corner2,
+                  corner1,
+                ).getPerpendicular();
+
+              setResizeCursorForVector(vPerp);
+              break;
+            case DRAG_MOVE:
+              //一時的なパン･回転時にペンの移動でカーソルがちらつくのを防ぐ
+              if (!key.isPressed("r") && !key.isPressed("space")) {
+                setCursor(CURSOR_MOVE);
+              }
+              break;
+            case DRAG_ROTATE:
+              if (!key.isPressed("r") && !key.isPressed("space")) {
+                setCursor(CURSOR_PANNABLE);
+              }
+              break;
+            default:
+              // No drag action, so just use the default cursor
+              setCursor(CURSOR_DEFAULT);
+          }
+        }
+
+        let maintainAspectCheckd = false;
+        this.mouseDown = function (e, button, pressure) {
+          //ブラシパレットの要素を取得
+          const brushpalette = controller.getBrushPaletteElement();
+          //縦横比固定のチェックボックスの要素を取得
+          const maintainAspectCheckbox = brushpalette.querySelector(
+            "#chickenpaint-t-maintainAspectCheckbox",
+          );
+
+          if (
+            maintainAspectCheckbox &&
+            maintainAspectCheckbox instanceof HTMLInputElement
+          ) {
+            maintainAspectCheckd = maintainAspectCheckbox.checked;
+          }
+
+          if (
+            !this.capture &&
+            button == BUTTON_PRIMARY &&
+            !e.altKey &&
+            !key.isPressed("space")
+          ) {
+            var corners = cornersToDisplayPolygon();
+
+            draggingMode = classifyDragAction(corners, {
+              x: mouseX,
+              y: mouseY,
+            });
+
+            lastDragPointDisplay = { x: mouseX, y: mouseY };
+            lastDragPointDoc = coordToDocument(lastDragPointDisplay);
+
+            this.capture = true;
+
+            setCursorForHandles();
+
+            return true;
+          }
+        };
+
+        this.mouseDrag = throttle(80, function (e) {
+          const MIN_SCALE = 0.001;
+
+          if (this.capture) {
+            var dragPointDisplay = { x: mouseX, y: mouseY };
+
+            switch (draggingMode) {
+              case DRAG_MOVE:
+                let dragPointDoc = roundPoint(
+                    coordToDocument(dragPointDisplay),
                   ),
-                  // The handle we dragged will move into its new position
-                  newHandle = affine
-                    .getInverted()
-                    .getTransformedPoint(
-                      roundPoint(coordToDocument(dragPointDisplay)),
-                    ),
-                  // The opposite handle to the one we dragged must not move
-                  fixHandle = averagePoints(
-                    origCornerPoints.points[(cornerIndex + 2) % 4],
-                    origCornerPoints.points[(cornerIndex + 3) % 4],
+                  translation = CPVector.subtractPoints(
+                    dragPointDoc,
+                    lastDragPointDoc,
                   ),
-                  scaleX,
-                  scaleY,
-                  oldVector = CPVector.subtractPoints(oldHandle, fixHandle),
-                  newVector = CPVector.subtractPoints(newHandle, fixHandle),
-                  oldLength = oldVector.getLength(),
-                  // We only take the length in the perpendicular direction to the transform edge:
-                  newLength = oldVector.getDotProduct(newVector) / oldLength,
-                  newScale = newLength / oldLength;
+                  // Only translate in whole-pixel increments (in document space not canvas space)
+                  translationRounded = translation.getTruncated(),
+                  translationRemainder =
+                    translation.subtract(translationRounded),
+                  translateInstance = new CPTransform();
 
                 /*
-                 * If the user resized it until it was zero-sized, just ignore that position and assume they'll move
-                 * past it in a msec.
+                 * Apply the translate *after* the current affine is applied.
                  */
-                if (Math.abs(newScale) < MIN_SCALE || isNaN(newScale)) {
-                  return true;
-                }
-
-                if (
-                  draggingMode == DRAG_N_EDGE ||
-                  draggingMode == DRAG_S_EDGE
-                ) {
-                  scaleX = 1.0;
-                  scaleY = newScale;
-                } else {
-                  scaleX = newScale;
-                  scaleY = 1.0;
-                }
-
-                affine.scaleAroundPoint(
-                  scaleX,
-                  scaleY,
-                  fixHandle.x,
-                  fixHandle.y,
+                translateInstance.translate(
+                  translationRounded.x,
+                  translationRounded.y,
                 );
-              }
+
+                affine.preMultiply(translateInstance);
+
+                // Accumulate the fractional move that we didn't apply for next time
+                lastDragPointDoc = CPVector.subtractPoints(
+                  dragPointDoc,
+                  translationRemainder,
+                );
+                break;
+              case DRAG_ROTATE:
+                const DRAG_ROTATE_SNAP_ANGLE = Math.PI / 4;
+
+                let centerDoc = cornerPoints.getCenter(),
+                  centerDisplay = coordToDisplay(centerDoc),
+                  oldMouseAngle = Math.atan2(
+                    lastDragPointDisplay.y - centerDisplay.y,
+                    lastDragPointDisplay.x - centerDisplay.x,
+                  ),
+                  newMouseAngle = Math.atan2(
+                    dragPointDisplay.y - centerDisplay.y,
+                    dragPointDisplay.x - centerDisplay.x,
+                  ),
+                  deltaMouseAngle = newMouseAngle - oldMouseAngle,
+                  rotateAngle,
+                  rotateInstance = new CPTransform();
+
+                rotationAccumulator += deltaMouseAngle;
+
+                if (e.shiftKey) {
+                  /*
+                   * The rotation in the decomposition was made about the origin. We want to rotate about the
+                   * center of the selection, so first rotate the selection to square it up with the axes,
+                   * then we'll pivot the selection about its center to the new angle.
+                   */
+                  rotateAngle =
+                    -affine.decompose().rotate +
+                    Math.round(rotationAccumulator / DRAG_ROTATE_SNAP_ANGLE) *
+                      DRAG_ROTATE_SNAP_ANGLE;
+                } else {
+                  rotateAngle = deltaMouseAngle;
+                }
+
+                /* Apply the rotation *after* the current affine instead of before it, so that we don't
+                 * end up scaling on top of the rotated selection later (which would cause an unwanted shear)
+                 */
+                // 反転時は回転方向を逆に
+                if (isViewFlipped) {
+                  rotateAngle = -rotateAngle;
+                }
+                rotateInstance.rotateAroundPoint(
+                  rotateAngle,
+                  centerDoc.x,
+                  centerDoc.y,
+                );
+
+                affine.preMultiply(rotateInstance);
+
+                lastDragPointDisplay = dragPointDisplay;
+                break;
+              case DRAG_NW_CORNER:
+              case DRAG_NE_CORNER:
+              case DRAG_SE_CORNER:
+              case DRAG_SW_CORNER:
+                {
+                  let draggingCorner = ~~(draggingMode / 2),
+                    oldCorner = origCornerPoints.points[draggingCorner],
+                    // The corner we dragged will move into its new position
+                    newCorner = affine
+                      .getInverted()
+                      .getTransformedPoint(
+                        roundPoint(coordToDocument(dragPointDisplay)),
+                      ),
+                    // The opposite corner to the one we dragged must not move
+                    fixCorner =
+                      origCornerPoints.points[(draggingCorner + 2) % 4],
+                    /* Now we can see how much we'd need to scale the original rectangle about the fixed corner
+                     * for the other corner to reach the new position.
+                     */
+                    scaleX =
+                      (newCorner.x - fixCorner.x) / (oldCorner.x - fixCorner.x),
+                    scaleY =
+                      (newCorner.y - fixCorner.y) / (oldCorner.y - fixCorner.y);
+
+                  /*
+                   * If the user resized it until it was zero-sized, just ignore that position and assume they'll move
+                   * past it in a msec.
+                   */
+                  if (
+                    Math.abs(scaleX) < MIN_SCALE ||
+                    Math.abs(scaleY) < MIN_SCALE ||
+                    isNaN(scaleX) ||
+                    isNaN(scaleY)
+                  ) {
+                    return true;
+                  }
+
+                  // Does user want proportional resize?
+                  if (maintainAspectCheckd || e.shiftKey) {
+                    var largestScale = Math.max(scaleX, scaleY);
+
+                    scaleX = largestScale;
+                    scaleY = largestScale;
+                  }
+
+                  // The transform we do here will be performed first before any of the other transforms (scale, rotate, etc)
+                  affine.scaleAroundPoint(
+                    scaleX,
+                    scaleY,
+                    fixCorner.x,
+                    fixCorner.y,
+                  );
+                }
+                break;
+              case DRAG_N_EDGE:
+              case DRAG_S_EDGE:
+              case DRAG_E_EDGE:
+              case DRAG_W_EDGE:
+                {
+                  let cornerIndex = ~~(draggingMode / 2),
+                    oldHandle = averagePoints(
+                      origCornerPoints.points[cornerIndex],
+                      origCornerPoints.points[(cornerIndex + 1) % 4],
+                    ),
+                    // The handle we dragged will move into its new position
+                    newHandle = affine
+                      .getInverted()
+                      .getTransformedPoint(
+                        roundPoint(coordToDocument(dragPointDisplay)),
+                      ),
+                    // The opposite handle to the one we dragged must not move
+                    fixHandle = averagePoints(
+                      origCornerPoints.points[(cornerIndex + 2) % 4],
+                      origCornerPoints.points[(cornerIndex + 3) % 4],
+                    ),
+                    scaleX,
+                    scaleY,
+                    oldVector = CPVector.subtractPoints(oldHandle, fixHandle),
+                    newVector = CPVector.subtractPoints(newHandle, fixHandle),
+                    oldLength = oldVector.getLength(),
+                    // We only take the length in the perpendicular direction to the transform edge:
+                    newLength = oldVector.getDotProduct(newVector) / oldLength,
+                    newScale = newLength / oldLength;
+
+                  /*
+                   * If the user resized it until it was zero-sized, just ignore that position and assume they'll move
+                   * past it in a msec.
+                   */
+                  if (Math.abs(newScale) < MIN_SCALE || isNaN(newScale)) {
+                    return true;
+                  }
+
+                  if (
+                    draggingMode == DRAG_N_EDGE ||
+                    draggingMode == DRAG_S_EDGE
+                  ) {
+                    scaleX = 1.0;
+                    scaleY = newScale;
+                  } else {
+                    scaleX = newScale;
+                    scaleY = 1.0;
+                  }
+
+                  affine.scaleAroundPoint(
+                    scaleX,
+                    scaleY,
+                    fixHandle.x,
+                    fixHandle.y,
+                  );
+                }
+                break;
+            }
+
+            cornerPoints = origCornerPoints.getTransformed(affine);
+
+            artwork.transformAffineAmend(affine);
+
+            // TODO make me more specific
+            that.repaintAll();
+
+            return true;
+          }
+        });
+
+        this.mouseUp = function (e, button, pressure) {
+          if (this.capture && button == BUTTON_PRIMARY) {
+            this.capture = false;
+            draggingMode = DRAG_NONE;
+            return true;
+          }
+        };
+
+        /*
+         * Set an appropriate resize cursor for the specified vector from the center to the handle.
+         */
+        function setResizeCursorForVector(v) {
+          let angle = Math.atan2(-v.y, v.x),
+            /*
+             * Slice up into 45 degrees slices so that there are +-22.5 degrees centered around each corner,
+             * and a 45 degree segment for each edge
+             */
+            slice = Math.floor(angle / (Math.PI / 4) + 0.5),
+            cursor;
+
+          // Wrap angles below the x-axis wrap to positive ones...
+          if (slice < 0) {
+            slice += 4;
+          }
+
+          switch (slice) {
+            case 0:
+            default:
+              cursor = CURSOR_EW_RESIZE;
+              break;
+            case 1:
+              cursor = CURSOR_NESW_RESIZE;
+              break;
+            case 2:
+              cursor = CURSOR_NS_RESIZE;
+              break;
+            case 3:
+              cursor = CURSOR_NWSE_RESIZE;
               break;
           }
 
-          cornerPoints = origCornerPoints.getTransformed(affine);
-
-          artwork.transformAffineAmend(affine);
-
-          // TODO make me more specific
-          that.repaintAll();
-
-          return true;
-        }
-      });
-
-      this.mouseUp = function (e, button, pressure) {
-        if (this.capture && button == BUTTON_PRIMARY) {
-          this.capture = false;
-          draggingMode = DRAG_NONE;
-          return true;
-        }
-      };
-
-      /*
-       * Set an appropriate resize cursor for the specified vector from the center to the handle.
-       */
-      function setResizeCursorForVector(v) {
-        let angle = Math.atan2(-v.y, v.x),
-          /*
-           * Slice up into 45 degrees slices so that there are +-22.5 degrees centered around each corner,
-           * and a 45 degree segment for each edge
-           */
-          slice = Math.floor(angle / (Math.PI / 4) + 0.5),
-          cursor;
-
-        // Wrap angles below the x-axis wrap to positive ones...
-        if (slice < 0) {
-          slice += 4;
+          setCursor(cursor);
         }
 
-        switch (slice) {
-          case 0:
-          default:
-            cursor = CURSOR_EW_RESIZE;
-            break;
-          case 1:
-            cursor = CURSOR_NESW_RESIZE;
-            break;
-          case 2:
-            cursor = CURSOR_NS_RESIZE;
-            break;
-          case 3:
-            cursor = CURSOR_NWSE_RESIZE;
-            break;
-        }
+        this.mouseMove = function () {
+          // We want to stick with our choice of cursor throughout the drag operation
+          if (!this.capture) {
+            setCursorForHandles();
+          }
+        };
 
-        setCursor(cursor);
-      }
+        this.paint = function () {
+          var corners = cornersToDisplayPolygon().points,
+            handles = new Array(corners.length * 2);
 
-      this.mouseMove = function () {
-        // We want to stick with our choice of cursor throughout the drag operation
-        if (!this.capture) {
-          setCursorForHandles();
-        }
-      };
-
-      this.paint = function () {
-        var corners = cornersToDisplayPolygon().points,
-          handles = new Array(corners.length * 2);
-
-        // Collect the positions of the edge and corner handles...
-        for (let i = 0; i < corners.length; i++) {
-          handles[i] = corners[i];
-        }
-
-        for (let i = 0; i < corners.length; i++) {
-          var edgeP1 = corners[i],
-            edgeP2 = corners[(i + 1) % corners.length],
-            midWay = {
-              x: (edgeP1.x + edgeP2.x) / 2,
-              y: (edgeP1.y + edgeP2.y) / 2,
-            };
-
-          handles[i + corners.length] = midWay;
-        }
-
-        setContrastingDrawStyle(canvasContext, "fill");
-        for (let i = 0; i < handles.length; i++) {
-          canvasContext.fillRect(
-            handles[i].x - HANDLE_RADIUS,
-            handles[i].y - HANDLE_RADIUS,
-            HANDLE_RADIUS * 2 + 1,
-            HANDLE_RADIUS * 2 + 1,
-          );
-        }
-
-        strokePolygon(canvasContext, corners);
-      };
-
-      this.keyDown = function (e) {
-        if (e.key === "Enter") {
-          if (modalIsShown || desableEnterKey) {
-            // モーダル表示中
-            // またはモーダルを閉じてから300ms経過していない場合
-            return;
+          // Collect the positions of the edge and corner handles...
+          for (let i = 0; i < corners.length; i++) {
+            handles[i] = corners[i];
           }
 
-          controller.actionPerformed({ action: "CPTransformAccept" });
+          for (let i = 0; i < corners.length; i++) {
+            var edgeP1 = corners[i],
+              edgeP2 = corners[(i + 1) % corners.length],
+              midWay = {
+                x: (edgeP1.x + edgeP2.x) / 2,
+                y: (edgeP1.y + edgeP2.y) / 2,
+              };
 
-          return true;
-        }
-      };
+            handles[i + corners.length] = midWay;
+          }
 
-      this.enter = function () {
-        CPMode.prototype.enter.call(this);
+          setContrastingDrawStyle(canvasContext, "fill");
+          for (let i = 0; i < handles.length; i++) {
+            canvasContext.fillRect(
+              handles[i].x - HANDLE_RADIUS,
+              handles[i].y - HANDLE_RADIUS,
+              HANDLE_RADIUS * 2 + 1,
+              HANDLE_RADIUS * 2 + 1,
+            );
+          }
 
-        // Start off with the identity transform
-        var initial = artwork.transformAffineBegin(),
-          initialSelection;
+          strokePolygon(canvasContext, corners);
+        };
 
-        affine = initial.transform;
-        srcRect = initial.rect;
+        this.keyDown = function (e) {
+          if (e.key === "Enter") {
+            if (modalIsShown || desableEnterKey) {
+              // モーダル表示中
+              // またはモーダルを閉じてから300ms経過していない場合
+              return;
+            }
 
-        // Decide on the rectangle we'll show as the boundary of the transform area
-        initialSelection = initial.selection;
+            controller.actionPerformed({ action: "CPTransformAccept" });
 
-        /* If the user didn't have anything selected, we'll use the actual shrink-wrapped transform area instead. */
-        if (initialSelection.isEmpty()) {
-          initialSelection = initial.rect.clone();
-        }
+            return true;
+          }
+        };
 
-        origCornerPoints = new CPPolygon(initialSelection.toPoints());
-        cornerPoints = origCornerPoints.getTransformed(affine);
+        this.enter = function () {
+          CPMode.prototype.enter.call(this);
 
-        draggingMode = -1;
-        rotationAccumulator = 0;
+          // Start off with the identity transform
+          var initial = artwork.transformAffineBegin(),
+            initialSelection;
 
-        that.repaintAll();
-      };
+          affine = initial.transform;
+          srcRect = initial.rect;
 
-      this.leave = function () {
-        CPMode.prototype.leave.call(this);
-        that.repaintAll();
-      };
-      // キーボード用の移動関数
-      this.moveByKey = function (dx, dy) {
-        if (!affine) return;
+          // Decide on the rectangle we'll show as the boundary of the transform area
+          initialSelection = initial.selection;
 
-        let translateInstance = new CPTransform();
-        translateInstance.translate(dx, dy);
-        affine.preMultiply(translateInstance);
-        // 変形のハンドルを更新
-        cornerPoints = origCornerPoints.getTransformed(affine); // transformの更新を反映させる関数呼び出しなど
-        artwork.transformAffineAmend(affine);
-        this.repaintAll?.(); // repaintAll() があれば呼ぶ
-      };
+          /* If the user didn't have anything selected, we'll use the actual shrink-wrapped transform area instead. */
+          if (initialSelection.isEmpty()) {
+            initialSelection = initial.rect.clone();
+          }
+
+          origCornerPoints = new CPPolygon(initialSelection.toPoints());
+          cornerPoints = origCornerPoints.getTransformed(affine);
+
+          draggingMode = -1;
+          rotationAccumulator = 0;
+
+          that.repaintAll();
+        };
+
+        this.leave = function () {
+          CPMode.prototype.leave.call(this);
+          that.repaintAll();
+        };
+        // キーボード用の移動関数
+        this.moveByKey = function (dx, dy) {
+          if (!affine) return;
+
+          let translateInstance = new CPTransform();
+          translateInstance.translate(dx, dy);
+          affine.preMultiply(translateInstance);
+          // 変形のハンドルを更新
+          cornerPoints = origCornerPoints.getTransformed(affine); // transformの更新を反映させる関数呼び出しなど
+          artwork.transformAffineAmend(affine);
+          this.repaintAll?.(); // repaintAll() があれば呼ぶ
+        };
+      }
     }
-
-    CPTransformMode.prototype = Object.create(CPMode.prototype);
-    CPTransformMode.prototype.constructor = CPTransformMode;
 
     /**
      * モーダルの表示状態フラグを更新します。
@@ -2224,182 +2240,180 @@ export default class CPCanvas extends EventEmitter {
       }
     };
 
-    function CPRotateCanvasMode() {
-      var firstClick,
-        initAngle = 0.0,
-        initTransform,
-        dragged = false,
-        rotateButton = -1;
+    class CPRotateCanvasMode extends CPMode {
+      constructor() {
+        super();
+        var firstClick,
+          initAngle = 0.0,
+          initTransform,
+          dragged = false,
+          rotateButton = -1;
 
-      this.mouseDown = function (e, button, pressure) {
-        if (this.capture) {
-          return true;
-        } else if (
-          (!this.transient &&
-            button == BUTTON_PRIMARY &&
-            !e.altKey &&
-            !key.isPressed("space")) ||
-          (button == BUTTON_PRIMARY &&
-            !e.altKey &&
-            !key.isPressed("space") &&
-            key.isPressed("r"))
-        ) {
-          firstClick = { x: mouseX, y: mouseY };
+        this.mouseDown = function (e, button, pressure) {
+          if (this.capture) {
+            return true;
+          } else if (
+            (!this.transient &&
+              button == BUTTON_PRIMARY &&
+              !e.altKey &&
+              !key.isPressed("space")) ||
+            (button == BUTTON_PRIMARY &&
+              !e.altKey &&
+              !key.isPressed("space") &&
+              key.isPressed("r"))
+          ) {
+            firstClick = { x: mouseX, y: mouseY };
 
-          initAngle = that.getRotation();
+            initAngle = that.getRotation();
 
-          // もし一時的に反転している状態ならば、
-          // cloneしたtransformに反転変換を適用して
-          // 反転状態を反映させる
-          initTransform = transform.clone();
-          if (isViewFlipped) {
-            viewFlip(initTransform);
+            // もし一時的に反転している状態ならば、
+            // cloneしたtransformに反転変換を適用して
+            // 反転状態を反映させる
+            initTransform = transform.clone();
+            if (isViewFlipped) {
+              viewFlip(initTransform);
+            }
+            dragged = false;
+
+            this.capture = true;
+            rotateButton = button;
+
+            setCursor(CURSOR_PANNABLE);
+
+            return true;
+          } else if (this.transient) {
+            modeStack.pop();
           }
-          dragged = false;
+        };
 
-          this.capture = true;
-          rotateButton = button;
+        this.mouseDrag = function (e) {
+          if (this.capture) {
+            const p = { x: mouseX, y: mouseY };
 
-          setCursor(CURSOR_PANNABLE);
+            const displayCenter = {
+              x: canvas.clientWidth / 2,
+              y: canvas.clientHeight / 2,
+            };
+            const canvasCenter = {
+              x: canvas.width / 2,
+              y: canvas.height / 2,
+            };
 
-          return true;
-        } else if (this.transient) {
-          modeStack.pop();
-        }
-      };
+            let deltaAngle =
+              Math.atan2(p.y - displayCenter.y, p.x - displayCenter.x) -
+              Math.atan2(
+                firstClick.y - displayCenter.y,
+                firstClick.x - displayCenter.x,
+              );
 
-      this.mouseDrag = function (e) {
-        if (this.capture) {
-          const p = { x: mouseX, y: mouseY };
+            let rotTrans = new CPTransform();
 
-          const displayCenter = {
-            x: canvas.clientWidth / 2,
-            y: canvas.clientHeight / 2,
-          };
-          const canvasCenter = {
-            x: canvas.width / 2,
-            y: canvas.height / 2,
-          };
-
-          let deltaAngle =
-            Math.atan2(p.y - displayCenter.y, p.x - displayCenter.x) -
-            Math.atan2(
-              firstClick.y - displayCenter.y,
-              firstClick.x - displayCenter.x,
+            rotTrans.rotateAroundPoint(
+              deltaAngle,
+              canvasCenter.x,
+              canvasCenter.y,
             );
 
-          let rotTrans = new CPTransform();
+            rotTrans.multiply(initTransform);
 
-          rotTrans.rotateAroundPoint(
-            deltaAngle,
-            canvasCenter.x,
-            canvasCenter.y,
-          );
+            that.setRotation(initAngle + deltaAngle);
+            that.setOffset(
+              ~~rotTrans.getTranslateX(),
+              ~~rotTrans.getTranslateY(),
+            );
 
-          rotTrans.multiply(initTransform);
+            dragged = true;
 
-          that.setRotation(initAngle + deltaAngle);
-          that.setOffset(
-            ~~rotTrans.getTranslateX(),
-            ~~rotTrans.getTranslateY(),
-          );
+            return true;
+          }
+        };
+        this.enter = function () {
+          setCursor(CURSOR_PANNABLE);
+        };
 
-          dragged = true;
+        /**
+         * When the mouse is released after rotation, we might want to snap our angle to the nearest 90 degree mark.
+         */
+        function finishRotation() {
+          const ROTATE_SNAP_DEGREES = 5;
 
-          return true;
-        }
-      };
-      this.enter = function () {
-        setCursor(CURSOR_PANNABLE);
-      };
+          let nearest90 =
+            (Math.round(canvasRotation / (Math.PI / 2)) * Math.PI) / 2;
 
-      /**
-       * When the mouse is released after rotation, we might want to snap our angle to the nearest 90 degree mark.
-       */
-      function finishRotation() {
-        const ROTATE_SNAP_DEGREES = 5;
+          if (
+            Math.abs(canvasRotation - nearest90) <
+            (ROTATE_SNAP_DEGREES / 180) * Math.PI
+          ) {
+            let deltaAngle = nearest90 - initAngle,
+              center = { x: canvas.width / 2, y: canvas.height / 2 },
+              rotTrans = new CPTransform();
 
-        let nearest90 =
-          (Math.round(canvasRotation / (Math.PI / 2)) * Math.PI) / 2;
+            rotTrans.rotateAroundPoint(deltaAngle, center.x, center.y);
 
-        if (
-          Math.abs(canvasRotation - nearest90) <
-          (ROTATE_SNAP_DEGREES / 180) * Math.PI
-        ) {
-          let deltaAngle = nearest90 - initAngle,
-            center = { x: canvas.width / 2, y: canvas.height / 2 },
-            rotTrans = new CPTransform();
+            rotTrans.multiply(initTransform);
 
-          rotTrans.rotateAroundPoint(deltaAngle, center.x, center.y);
+            that.setRotation(initAngle + deltaAngle);
+            that.setOffset(
+              ~~rotTrans.getTranslateX(),
+              ~~rotTrans.getTranslateY(),
+            );
 
-          rotTrans.multiply(initTransform);
-
-          that.setRotation(initAngle + deltaAngle);
-          that.setOffset(
-            ~~rotTrans.getTranslateX(),
-            ~~rotTrans.getTranslateY(),
-          );
-
-          that.repaintAll();
-        }
-
-        that.emitEvent("canvasRotated90", [that.getRotation90()]);
-      }
-
-      this.mouseUp = function (e, button, pressure) {
-        if (this.capture && button == rotateButton) {
-          if (dragged) {
-            finishRotation();
-          } else {
-            that.resetRotation();
+            that.repaintAll();
           }
 
-          this.capture = false;
+          that.emitEvent("canvasRotated90", [that.getRotation90()]);
+        }
 
-          if (this.transient && !key.isPressed("r")) {
+        this.mouseUp = function (e, button, pressure) {
+          if (this.capture && button == rotateButton) {
+            if (dragged) {
+              finishRotation();
+            } else {
+              that.resetRotation();
+            }
+
+            this.capture = false;
+
+            if (this.transient && !key.isPressed("r")) {
+              setCursor(CURSOR_DEFAULT);
+
+              modeStack.pop();
+            } else {
+              setCursor(CURSOR_PANNABLE);
+            }
+
+            return true;
+          }
+        };
+
+        this.keyUp = function (e) {
+          if (
+            this.transient &&
+            rotateButton != BUTTON_WHEEL &&
+            e.key.toLowerCase() === "r"
+          ) {
             setCursor(CURSOR_DEFAULT);
 
-            modeStack.pop();
-          } else {
-            setCursor(CURSOR_PANNABLE);
+            modeStack.pop(); // yield control to the default mode
+
+            return true;
           }
+        };
 
-          return true;
-        }
-      };
-
-      this.keyUp = function (e) {
-        if (
-          this.transient &&
-          rotateButton != BUTTON_WHEEL &&
-          e.key.toLowerCase() === "r"
-        ) {
-          setCursor(CURSOR_DEFAULT);
-
-          modeStack.pop(); // yield control to the default mode
-
-          return true;
-        }
-      };
-
-      this.keyDown = function (e) {
-        if (e.key.toLowerCase() === "r") {
-          // That's our hotkey, so stay in this mode (don't forward to CPDefaultMode)
-          return true;
-        }
-      };
+        this.keyDown = function (e) {
+          if (e.key.toLowerCase() === "r") {
+            // That's our hotkey, so stay in this mode (don't forward to CPDefaultMode)
+            return true;
+          }
+        };
+      }
     }
 
-    CPRotateCanvasMode.prototype = Object.create(CPMode.prototype);
-    CPRotateCanvasMode.prototype.constructor = CPRotateCanvasMode;
-
-    function CPGradientFillMode() {
-      // Super constructor
-      CPLineMode.call(this);
+    class CPGradientFillMode extends CPLineMode {
+      constructor() {
+        super();
+      }
     }
-
-    CPGradientFillMode.prototype = Object.create(CPLineMode.prototype);
-    CPGradientFillMode.prototype.constructor = CPGradientFillMode;
 
     CPGradientFillMode.prototype.drawLine = function (from, to) {
       artwork.gradientFill(
@@ -3735,10 +3749,13 @@ export default class CPCanvas extends EventEmitter {
     transformMode = new CPTransformMode();
 
     // this must correspond to the stroke modes defined in CPToolInfo
-    drawingModes = [new CPFreehandMode(), new CPLineMode(), new CPBezierMode()];
+    const freehandMode = new CPFreehandMode();
+    const lineMode = new CPLineMode();
+    const bezierMode = new CPBezierMode();
+    drawingModes = [freehandMode, lineMode, bezierMode];
 
-    curDrawMode = drawingModes[CPBrushInfo.STROKE_MODE_FREEHAND];
-    this.bezierMode = drawingModes[CPBrushInfo.STROKE_MODE_BEZIER];
+    curDrawMode = freehandMode;
+    this.bezierMode = bezierMode;
 
     // The default mode will handle the events that no other modes are interested in
     modeStack.setDefaultMode(defaultMode);

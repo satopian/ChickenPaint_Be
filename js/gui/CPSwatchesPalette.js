@@ -202,8 +202,9 @@ export default class CPSwatchesPalette extends CPPalette {
         let swatch = e.target;
 
         if (
-          !/^<button data-color=/i.test(swatch?.outerHTML) ||
-          !/chickenpaint-color-swatch/.test(swatch?.className)
+          swatch instanceof HTMLElement &&
+          (!/^<button data-color=/i.test(swatch.outerHTML) ||
+            !/chickenpaint-color-swatch/.test(swatch.className))
         ) {
           return; //<button data-color=で始まらない場合もreturn
         }
@@ -225,8 +226,9 @@ export default class CPSwatchesPalette extends CPPalette {
         let swatch = e.target;
 
         if (
-          !/^<button data-color=/i.test(swatch?.outerHTML) ||
-          !/chickenpaint-color-swatch/.test(swatch?.className)
+          swatch instanceof HTMLElement &&
+          (!/^<button data-color=/i.test(swatch.outerHTML) ||
+            !/chickenpaint-color-swatch/.test(swatch.className))
         ) {
           return; //<button data-color=で始まらない場合もreturn
         }
@@ -270,7 +272,6 @@ export default class CPSwatchesPalette extends CPPalette {
       btnSettings.appendChild(createIcon("cog"));
 
       mnuSave.className = "dropdown-item";
-      mnuSave.href = "#";
       mnuSave.textContent = _("Save swatches to your computer...");
       mnuSave.addEventListener("click", function (e) {
         e.preventDefault();
@@ -279,7 +280,6 @@ export default class CPSwatchesPalette extends CPPalette {
       });
 
       mnuLoad.className = "dropdown-item";
-      mnuLoad.href = "#";
       mnuLoad.textContent = _("Load swatches from your computer...");
       mnuLoad.addEventListener("click", function (e) {
         e.preventDefault();

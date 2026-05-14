@@ -689,7 +689,10 @@ export default class ChickenPaint extends EventEmitter {
         },
         CPFill: {
           action: function () {
-            that.artwork.fill(that.getCurColor().getRgb() | 0xff000000);
+            const curColor = that.getCurColor();
+            if (curColor) {
+              that.artwork.fill(curColor.getRgb() | 0xff000000);
+            }
           },
           modifies: { document: true },
           requiresDrawable: true,

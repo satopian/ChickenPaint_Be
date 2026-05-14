@@ -69,11 +69,14 @@ export default class CPPaletteManager extends EventEmitter {
 
     function getPaletteDisplayArea() {
       // Use the canvas as a positioning guide to avoid overlapping scrollbars
-      let canvas = parentElem
-        .closest(".chickenpaint")
-        .querySelector(".chickenpaint-canvas");
+      const chickenpaintElem = parentElem.closest(".chickenpaint");
+      let canvas = chickenpaintElem?.querySelector(".chickenpaint-canvas");
 
-      return { width: canvas.offsetWidth, height: canvas.offsetHeight };
+      if (canvas instanceof HTMLCanvasElement) {
+        return { width: canvas.offsetWidth, height: canvas.offsetHeight };
+      } else {
+        return null;
+      }
     }
 
     function showPalette(palette, show) {
@@ -161,7 +164,10 @@ export default class CPPaletteManager extends EventEmitter {
      * Pop palettes that are currently outside the visible area back into view.
      */
     this.constrainPalettes = function () {
-      let windowDim = getPaletteDisplayArea();
+      const windowDim = getPaletteDisplayArea();
+      if (!windowDim) {
+        return;
+      }
 
       for (let i in palettes) {
         let palette = palettes[i];
@@ -224,8 +230,11 @@ export default class CPPaletteManager extends EventEmitter {
      * Rearrange the palettes from scratch into a useful arrangement.
      */
     this.arrangePalettes = function () {
-      let windowDim = getPaletteDisplayArea(),
-        haveWidthToSpare;
+      const windowDim = getPaletteDisplayArea();
+      if (!windowDim) {
+        return;
+      }
+      let haveWidthToSpare;
       const smallScreenMode = cpController.getSmallScreenMode();
       const mainGUI = cpController.mainGUI;
       const mainMenu = mainGUI.getMainMenu();
