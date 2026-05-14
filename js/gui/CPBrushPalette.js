@@ -956,6 +956,7 @@ function CPPanPanel(controller) {
     "wheel",
     (e) => {
       e.preventDefault(); // これでスクロール抑制できる
+      updateSliderDebounced();
     },
     { passive: false },
   );
@@ -967,6 +968,14 @@ function CPPanPanel(controller) {
       timeout = setTimeout(() => func.apply(...args), wait);
     };
   }
+  //スライダーを更新
+  const updateSlider = () => {
+    zoomSlider.setValue(controller.getZoom() * 100);
+    rotationSlider.setValue(controller.getRotationDegrees());
+  };
+
+  // デバウンス関数を使用して、連続したイベントをまとめて処理
+  const updateSliderDebounced = debounce(updateSlider, 12);
 
   const isZoomRotateEnabled = (e) => {
     return (
@@ -992,6 +1001,7 @@ function CPPanPanel(controller) {
     if (!isMainPaintCanvas(e.target)) {
       return; // 描画キャンバス以外の時は処理しない
     }
+    updateSliderDebounced();
   });
 
   document.addEventListener("pointermove", (e) => {
@@ -1000,6 +1010,7 @@ function CPPanPanel(controller) {
     if (!isMainPaintCanvas(e.target)) {
       return; // 描画キャンバス以外の時は処理しない
     }
+    updateSliderDebounced();
   });
 
   document.addEventListener("pointerup", (e) => {
@@ -1008,11 +1019,14 @@ function CPPanPanel(controller) {
     if (!isMainPaintCanvas(e.target)) {
       return; // 描画キャンバス以外の時は処理しない
     }
+    updateSliderDebounced();
   });
 
   // キーボードでのサイズ変更
   //+-の時は連打を許可する
-  key("=,-", function () {});
+  key("=,-", function () {
+    updateSliderDebounced();
+  });
 
   let isFirstKeyPress = true;
   // キーボードでのサイズ変更
@@ -1020,6 +1034,7 @@ function CPPanPanel(controller) {
   key("ctrl+0,alt+0,r,z,space,enter", function () {
     if (!isFirstKeyPress) return;
     isFirstKeyPress = false;
+    updateSliderDebounced();
   });
   //キーが離されたときにフラグをリセット
   document.addEventListener("keyup", (e) => {
@@ -1032,6 +1047,7 @@ function CPPanPanel(controller) {
       e.target instanceof HTMLElement &&
       !(e.target instanceof HTMLCanvasElement)
     ) {
+      updateSliderDebounced();
     }
   });
 }
@@ -1152,7 +1168,8 @@ function CPColorPickerPanel(controller) {
     labelCheck.textContent = option.text;
 
     input.addEventListener("change", (e) => {
-      if (e.target?.checked) {
+      const target = e.target;
+      if (target instanceof HTMLInputElement && target.checked) {
         input.blur();
         // "merged" なら true、"layer" なら false を渡す
         const isMerged = e.target?.value === "merged";
@@ -1174,7 +1191,11 @@ function CPColorPickerPanel(controller) {
           if (!targetId) return;
 
           const input = panel.querySelector(`#${targetId}`);
-          if (input && input.type === "radio" && !input.checked) {
+          if (
+            input instanceof HTMLInputElement &&
+            input.type === "radio" &&
+            !input.checked
+          ) {
             // チェックされていなかったら
             input.checked = true;
             // changeイベントをトリガー
