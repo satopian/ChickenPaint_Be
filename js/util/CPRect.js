@@ -187,7 +187,7 @@ CPRect.prototype.isEmpty = function () {
 /**
  * Set this rectangle's coordinates to a copy of that ones.
  *
- * @param {typeof CPRect} thatRect
+ * @param {CPRect} thatRect
  */
 CPRect.prototype.set = function (thatRect) {
   this.left = thatRect.left;
@@ -340,7 +340,7 @@ CPRect.createBoundingBox = function (points) {
  * Subtract that rectangle from this one and return an array of CPRects to represent the resulting area (possibly
  * empty).
  *
- * @param {typeof CPRect} that
+ * @param {CPRect} that
  * @returns {CPRect[]}
  */
 CPRect.prototype.subtract = function (that) {

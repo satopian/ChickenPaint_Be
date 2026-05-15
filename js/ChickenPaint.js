@@ -81,7 +81,7 @@ function createDrawingTools() {
   tools[ChickenPaint.T_PENCIL] = new CPBrushInfo({
     toolNb: ChickenPaint.T_PENCIL,
     size: 2,
-    alpha: 235,
+    alpha: 225,
     isAA: true,
     minSpacing: 0.5,
     spacing: 0.05,

@@ -160,7 +160,7 @@ export default class CPTexturePalette extends CPPalette {
      * @returns CPGreyBmp[]
      */
     function makeProceduralTextures() {
-      let result = [];
+      let result = new Array(1); //0番目のインデックスはnull テクスチャが適用されない白になる
 
       let texture = new CPGreyBmp(2, 2, 8);
       texture.data[0] = 0xff;
