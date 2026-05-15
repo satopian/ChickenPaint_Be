@@ -39,11 +39,9 @@ import CPRect from "../util/CPRect.js";
 export default class CPImageLayer extends CPLayer {
   constructor(width, height, name) {
     super(name);
-
+    this.image = null;
     if (width > 0 && height > 0) {
       this.image = new CPColorBmp(width, height);
-    } else {
-      this.image = null;
     }
 
     /**
@@ -108,7 +106,9 @@ CPImageLayer.prototype.hasAlpha = function () {
   if (this.alpha != 100) {
     return true;
   }
-
+  if (!this.image) {
+    return false;
+  }
   return this.image.hasAlpha();
 };
 
@@ -122,7 +122,9 @@ CPImageLayer.prototype.hasAlphaInRect = function (rect) {
   if (this.alpha != 100) {
     return true;
   }
-
+  if (!this.image) {
+    return false;
+  }
   return this.image.hasAlphaInRect(rect);
 };
 

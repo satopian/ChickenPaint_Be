@@ -106,6 +106,16 @@ export default class CPLayer {
      * @type {boolean}
      */
     this.useLegacyMultiply = false;
+    /**
+     * @type {any}
+     */
+    this.image = null;
+    /**
+     * When true, we should clip the layers in this group to the bottom layer of the stack
+     *
+     * @type {boolean}
+     */
+    this.clip = false;
   }
 }
 

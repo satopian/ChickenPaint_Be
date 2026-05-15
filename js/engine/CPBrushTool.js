@@ -69,7 +69,7 @@ function lerp(from, to, prop) {
 export class CPBrushTool {
   /**
    * @param {CPGreyBmp} strokeBuffer - A 32-bit image we can use for buffering paint operations to be merged later.
-   * @param {CPRect} strokedRegion - The area of the strokeBuffer we've painted on.
+   * @param {any} strokedRegion - The area of the strokeBuffer we've painted on.
    */
   constructor(strokeBuffer, strokedRegion) {
     this._strokeBuffer = strokeBuffer;
@@ -112,9 +112,9 @@ export class CPBrushTool {
 
   /**
    * @param {CPColorBmp|CPGreyBmp} destImage - Image to paint to (for those brushes not using the strokeBuffer)
-   * @param {CPRect} imageRect - The area on the canvas that will be painted to
+   * @param {any} imageRect - The area on the canvas that will be painted to
    * @param {CPBrushInfo} brushConfig - The current brush tip configuration
-   * @param {CPRect} brushRect - The rectangle from the dab which will be painted to the canvas
+   * @param {any} brushRect - The rectangle from the dab which will be painted to the canvas
    * @param {CPBrushDab} dab
    * @param {CPColorBmp|CPGreyBmp} sampleImage - Image to sample from (either the current layer/mask or the fusion depending on user's
    * choice of "sample all layers"
@@ -159,25 +159,26 @@ export class CPBrushTool {
    * @param {number} color - RGB color of the current brush
    */
   mergeOntoImage(destImage, undoImage, color) {
-    let strokeData = this._strokeBuffer.data,
-      strokedRegion = this._strokedRegion,
-      undoData = undoImage.data,
-      destData = destImage.data,
-      red = (color >> 16) & 0xff,
-      green = (color >> 8) & 0xff,
-      blue = color & 0xff,
-      width = strokedRegion.getWidth() | 0,
-      height = strokedRegion.getHeight() | 0,
-      srcOffset = this._strokeBuffer.offsetOfPixel(
-        strokedRegion.left,
-        strokedRegion.top,
-      ),
-      dstOffset = destImage.offsetOfPixel(
-        strokedRegion.left,
-        strokedRegion.top,
-      ),
-      srcYStride = (this._strokeBuffer.width - width) | 0,
-      dstYStride = ((destImage.width - width) * CPColorBmp.BYTES_PER_PIXEL) | 0;
+    const strokeData = this._strokeBuffer.data;
+    const strokedRegion = this._strokedRegion;
+    const undoData = undoImage.data;
+    const destData = destImage.data;
+    const red = (color >> 16) & 0xff;
+    const green = (color >> 8) & 0xff;
+    const blue = color & 0xff;
+    const width = strokedRegion.getWidth() | 0;
+    const height = strokedRegion.getHeight() | 0;
+    let srcOffset = this._strokeBuffer.offsetOfPixel(
+      strokedRegion.left,
+      strokedRegion.top,
+    );
+    let dstOffset = destImage.offsetOfPixel(
+      strokedRegion.left,
+      strokedRegion.top,
+    );
+    const srcYStride = (this._strokeBuffer.width - width) | 0;
+    const dstYStride =
+      ((destImage.width - width) * CPColorBmp.BYTES_PER_PIXEL) | 0;
 
     for (
       let y = 0;
@@ -258,8 +259,8 @@ export class CPBrushTool {
    *
    * If the brush covers the same area multiple times, ink builds up until the area becomes opaque.
    *
-   * @param {CPRect} brushRect - Rectangle from brushShape array to paint
-   * @param {CPRect} imageRect - Rectangle of the destination image that corresponds to brushRect
+   * @param {any} brushRect - Rectangle from brushShape array to paint
+   * @param {any} imageRect - Rectangle of the destination image that corresponds to brushRect
    * @param {Uint8Array} brushShape - An opacity mask for the brush tip shape
    * @param {number} brushWidth - Width of the brush buffer (bytes per row)
    * @param {number} alpha - Alpha to apply to the brush (0-255)
@@ -303,8 +304,8 @@ export class CPBrushTool {
    *
    * Painting the same area multiple times during a single stroke does not increase the opacity.
    *
-   * @param {CPRect} brushRect
-   * @param {CPRect} imageRect
+   * @param {any} brushRect
+   * @param {any} imageRect
    * @param {Uint8Array} brush
    * @param {number} brushWidth
    * @param {number} alpha
@@ -988,8 +989,8 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
   /**
    * Blend the brush stroke with full color into the strokeBuffer
    *
-   * @param {CPRect} brushRect
-   * @param {CPRect} imageRect
+   * @param {any} brushRect
+   * @param {any} imageRect
    * @param {Uint8Array} brushShape
    * @param {number} brushWidth
    * @param {number} alpha
@@ -1057,8 +1058,8 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
   /**
    * Blend a brush stroke into the strokeBuffer
    *
-   * @param {CPRect} brushRect
-   * @param {CPRect} imageRect
+   * @param {any} brushRect
+   * @param {any} imageRect
    * @param {Uint8Array} brushShape - Defines the shape of the brush tip
    * @param {number} brushWidth - Width of the brushShape array
    * @param {number} alpha - 0 - 255 alpha of the brush stroke
@@ -1333,8 +1334,8 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
    * Sample intensities from the image and mix them into the brush.
    *
    * @param {CPColorBmp} maskToSample
-   * @param {CPRect} brushRect
-   * @param {CPRect} imageRect
+   * @param {any} brushRect
+   * @param {any} imageRect
    * @param {number} alpha1 - 0-255 controls how much paint is picked up from the image
    */
   _accumulatePaintFromMask(maskToSample, brushRect, imageRect, alpha1) {
@@ -1385,7 +1386,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
   /**
    * Add some of the given grey value back into the brush.
    *
-   * @param {CPRect} brushRect
+   * @param {any} brushRect
    * @param {number} alpha1 - Strength of resaturation (0-255)
    * @param {number} grey1 - Intensity to resaturate brush tip with
    */
@@ -1420,8 +1421,8 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
    * AG strokeBuffer.
    *
    * @param {CPGreyBmp} destImage - Image that is being drawn onto
-   * @param {CPRect} brushRect
-   * @param {CPRect} imageRect
+   * @param {any} brushRect
+   * @param {any} imageRect
    * @param {Uint8Array} brushShape - Brush opacity map which defines its shape, of the same width as brushBuffer
    * @param {number} alpha 0-255 brush alpha
    */
@@ -1477,8 +1478,8 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
    * Sample colors from the image and mix them into the brush.
    *
    * @param {CPColorBmp} imageToSample
-   * @param {CPRect} brushRect
-   * @param {CPRect} imageRect
+   * @param {any} brushRect
+   * @param {any} imageRect
    * @param {number} alpha - 0-255 controls how much paint is picked up from the image
    */
   _accumulatePaintFromImage(imageToSample, brushRect, imageRect, alpha) {
@@ -1537,7 +1538,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
   /**
    * Add some of the given color back into the brush.
    *
-   * @param {CPRect} brushRect
+   * @param {any} brushRect
    * @param {number} alpha1 - Strength of resaturation (0-255)
    * @param {number} color1 - RGB color to resaturate brush tip with
    */
@@ -1585,8 +1586,8 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
    * 透明の中にある白や黒とはまざりません。
    *
    * @param {CPColorBmp} destImage - 描画対象のレイヤー画像
-   * @param {CPRect} brushRect - 筆の矩形領域
-   * @param {CPRect} imageRect - 描画対象の矩形領域
+   * @param {any} brushRect - 筆の矩形領域
+   * @param {any} imageRect - 描画対象の矩形領域
    * @param {Uint8Array} brushShape - 筆の形状マップ (0-255)
    * @param {number} alpha - 混合強度 (0-255)
    */
@@ -1757,7 +1758,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
  * Spread the image pixels within the given rectangle outwards to fill the image with pixels.
  *
  * @param {CPGreyBmp} image
- * @param {CPRect} rect
+ * @param {any} rect
  */
 function stretchRectToFillBuffer(image, rect) {
   const imageData = image.data;
@@ -1822,8 +1823,8 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
    * Pick up paint from the given image and store into the AG brush buffer.
    *
    * @param {CPGreyBmp} sampleMask - Mask to sample from
-   * @param {CPRect} maskRect - Rectangle of the canvas that our brush covers
-   * @param {CPRect} brushRect - The corresponding rectangle within the brush buffer
+   * @param {any} maskRect - Rectangle of the canvas that our brush covers
+   * @param {any} brushRect - The corresponding rectangle within the brush buffer
    * @param {number} alpha - Alpha of brush (0-255)
    */
   _sampleFromMask(sampleMask, brushRect, maskRect, alpha) {
@@ -1885,8 +1886,8 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
    * Replace the destination mask with the smudge buffer within the shape of the brush tip.
    *
    * @param {CPGreyBmp} destMask
-   * @param {CPRect} brushRect
-   * @param {CPRect} imageRect
+   * @param {any} brushRect
+   * @param {any} imageRect
    * @param {Uint8Array} brushShape - Of the same width as this._brushBuffer
    */
   _paintToMask(destMask, brushRect, imageRect, brushShape) {
@@ -1923,8 +1924,8 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
    * Pick up paint from the given image and store into the brush buffer.
    *
    * @param {CPColorBmp} sampleImage - Image to sample from
-   * @param {CPRect} imageRect - Rectangle of the canvas that our brush covers
-   * @param {CPRect} brushRect - The corresponding rectangle within the brush buffer
+   * @param {any} imageRect - Rectangle of the canvas that our brush covers
+   * @param {any} brushRect - The corresponding rectangle within the brush buffer
    * @param {number} alpha - Alpha of brush (0-255)
    */
   _sampleFromImage(sampleImage, brushRect, imageRect, alpha) {
@@ -2025,8 +2026,8 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
    * Replace the layer's image with the smudge buffer within the shape of the brush tip.
    *
    * @param {CPColorBmp} destImage
-   * @param {CPRect} brushRect
-   * @param {CPRect} imageRect
+   * @param {any} brushRect
+   * @param {any} imageRect
    * @param {Uint8Array} brushShape - Of the same width as this._brushBuffer
    */
   _paintToImage(destImage, brushRect, imageRect, brushShape) {

@@ -296,7 +296,8 @@ export default class CPBrushManager {
       that = this;
     this.texture = null;
     this.alpha = null;
-
+    this.brush = null;
+    this.width = null;
     /**
      * Shift a brush by a positive sub-pixel amount (dx, dy) [0..1), and return the new brush.
      *

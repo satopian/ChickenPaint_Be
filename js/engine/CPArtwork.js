@@ -883,7 +883,7 @@ export default class CPArtwork extends EventEmitter {
           let destMask = curLayer.mask;
 
           // Can't erase on masks, so just paint black instead
-          if (curBrush.brushMode == CPBrushInfo.BRUSH_MODE_ERASE) {
+          if (curBrush?.brushMode == CPBrushInfo.BRUSH_MODE_ERASE) {
             paintingModes[CPBrushInfo.BRUSH_MODE_PAINT].mergeOntoMask(
               destMask,
               undoMask,
@@ -944,7 +944,7 @@ export default class CPArtwork extends EventEmitter {
         that.height,
         this.getDefaultLayerName(false),
       );
-      layer.image.clearAll(EMPTY_BACKGROUND_COLOR);
+      layer.image?.clearAll(EMPTY_BACKGROUND_COLOR);
       this.addLayerObject(this.getLayersRoot(), layer);
     };
     this.addDefaultLayer = function () {
@@ -1122,7 +1122,7 @@ export default class CPArtwork extends EventEmitter {
     this.setActiveLayer = function (newLayer, selectMask) {
       if (newLayer) {
         // Ensure the mask really exists if we ask to select it
-        selectMask = newLayer.mask && selectMask;
+        selectMask = !!(newLayer.mask && selectMask);
 
         let editingModeChanged = selectMask != maskEditingMode;
 
@@ -1160,7 +1160,7 @@ export default class CPArtwork extends EventEmitter {
     };
 
     this.closeMaskView = function () {
-      maskView.close();
+      maskView?.close();
       maskView = null;
     };
 
@@ -4156,15 +4156,15 @@ export default class CPArtwork extends EventEmitter {
     }
 
     paintingModes = [
-      CPBrushTool,
-      CPBrushToolEraser,
-      CPBrushToolDodge,
-      CPBrushToolBurn,
-      CPBrushToolWatercolor,
-      CPBrushToolBlur,
-      CPBrushToolSmudge,
-      CPBrushToolOil,
-    ].map((modeFunc) => new modeFunc(strokeBuffer, strokedRegion));
+      new CPBrushTool(strokeBuffer, strokedRegion),
+      new CPBrushToolEraser(strokeBuffer, strokedRegion),
+      new CPBrushToolDodge(strokeBuffer, strokedRegion),
+      new CPBrushToolBurn(strokeBuffer, strokedRegion),
+      new CPBrushToolWatercolor(strokeBuffer, strokedRegion),
+      new CPBrushToolBlur(strokeBuffer, strokedRegion),
+      new CPBrushToolSmudge(strokeBuffer, strokedRegion),
+      new CPBrushToolOil(strokeBuffer, strokedRegion),
+    ];
 
     this.width = _width;
     this.height = _height;
