@@ -133,6 +133,9 @@ CPImageLayer.prototype.hasAlphaInRect = function (rect) {
  * @param {CPColorBmp} that
  */
 CPImageLayer.prototype.copyImageFrom = function (that) {
+  if (!this.image) {
+    return;
+  }
   this.image.copyPixelsFrom(that);
 };
 

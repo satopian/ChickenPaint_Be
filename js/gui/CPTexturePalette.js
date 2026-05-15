@@ -156,11 +156,11 @@ export default class CPTexturePalette extends CPPalette {
 
     /**
      * Generate and return an array of procedurally-generated textures
-     *
+     * テクスチャの配列を返す
      * @returns CPGreyBmp[]
      */
     function makeProceduralTextures() {
-      let result = [null];
+      let result = [];
 
       let texture = new CPGreyBmp(2, 2, 8);
       texture.data[0] = 0xff;

@@ -139,7 +139,6 @@ export class CPBrushTool {
         ? this.calcAlphaScale(dab.alpha)
         : brushConfig.alphaScale;
     const alpha = Math.max(1, Math.ceil(dab.alpha * alphaScale));
-    // console.log("alpha", alpha);
     switch (brushConfig.paintMode) {
       case CPBrushInfo.PAINT_MODE_FLOW:
         this._paintFlow(brushRect, imageRect, dab.brush, dab.width, alpha);
@@ -1339,6 +1338,9 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
    * @param {number} alpha1 - 0-255 controls how much paint is picked up from the image
    */
   _accumulatePaintFromMask(maskToSample, brushRect, imageRect, alpha1) {
+    if (!this._brushBuffer) {
+      return;
+    }
     if (!maskToSample || !maskToSample.data) return;
     if (alpha1 <= 0) return;
 
@@ -1394,6 +1396,9 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
     if (alpha1 <= 0) {
       return;
     }
+    if (!this._brushBuffer) {
+      return;
+    }
 
     let brushData = this._brushBuffer.data,
       width = brushRect.getWidth(),
@@ -1433,6 +1438,9 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
     brushShape,
     alpha,
   ) {
+    if (!this._brushBuffer) {
+      return;
+    }
     let strokeData = this._strokeBuffer.data,
       brushData = this._brushBuffer.data,
       destImageData = destImage.data;
@@ -1483,6 +1491,9 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
    * @param {number} alpha - 0-255 controls how much paint is picked up from the image
    */
   _accumulatePaintFromImage(imageToSample, brushRect, imageRect, alpha) {
+    if (!this._brushBuffer) {
+      return;
+    }
     let brushData = this._brushBuffer.data,
       sampleData = imageToSample.data,
       width = imageRect.getWidth(),
@@ -1546,6 +1557,9 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
     if (alpha1 <= 0) {
       return;
     }
+    if (!this._brushBuffer) {
+      return;
+    }
 
     let brushData = this._brushBuffer.data,
       width = brushRect.getWidth(),
@@ -1598,6 +1612,9 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
     brushShape,
     alpha,
   ) {
+    if (!this._brushBuffer) {
+      return;
+    }
     let strokeData = this._strokeBuffer.data,
       brushData = this._brushBuffer.data,
       destImageData = destImage.data;
@@ -1828,6 +1845,10 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
    * @param {number} alpha - Alpha of brush (0-255)
    */
   _sampleFromMask(sampleMask, brushRect, maskRect, alpha) {
+    if (!this._brushBuffer) {
+      return;
+    }
+
     let brushData = this._brushBuffer.data,
       width = brushRect.getWidth(),
       height = brushRect.getHeight(),
@@ -1891,6 +1912,9 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
    * @param {Uint8Array} brushShape - Of the same width as this._brushBuffer
    */
   _paintToMask(destMask, brushRect, imageRect, brushShape) {
+    if (!this._brushBuffer) {
+      return;
+    }
     let width = brushRect.getWidth(),
       height = brushRect.getHeight(),
       srcOffset = this._brushBuffer.offsetOfPixel(
@@ -1929,6 +1953,10 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
    * @param {number} alpha - Alpha of brush (0-255)
    */
   _sampleFromImage(sampleImage, brushRect, imageRect, alpha) {
+    if (!this._brushBuffer) {
+      return;
+    }
+
     let brushData = this._brushBuffer.data,
       width = brushRect.getWidth(),
       height = brushRect.getHeight(),
@@ -2031,17 +2059,21 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
    * @param {Uint8Array} brushShape - Of the same width as this._brushBuffer
    */
   _paintToImage(destImage, brushRect, imageRect, brushShape) {
-    let width = brushRect.getWidth(),
-      height = brushRect.getHeight(),
-      srcOffset = this._brushBuffer.offsetOfPixel(
-        brushRect.left,
-        brushRect.top,
-      ),
-      dstOffset = destImage.offsetOfPixel(imageRect.left, imageRect.top),
-      srcYSkip = this._brushBuffer.width - width,
-      dstYSkip = (destImage.width - width) * CPColorBmp.BYTES_PER_PIXEL,
-      destImageData = destImage.data,
-      brushPaintData = this._brushBuffer.data;
+    if (!this._brushBuffer) {
+      return;
+    }
+
+    const width = brushRect.getWidth();
+    const height = brushRect.getHeight();
+    let srcOffset = this._brushBuffer.offsetOfPixel(
+      brushRect.left,
+      brushRect.top,
+    );
+    let dstOffset = destImage.offsetOfPixel(imageRect.left, imageRect.top);
+    const srcYSkip = this._brushBuffer.width - width;
+    const dstYSkip = (destImage.width - width) * CPColorBmp.BYTES_PER_PIXEL;
+    const destImageData = destImage.data;
+    const brushPaintData = this._brushBuffer.data;
 
     for (
       let y = 0;

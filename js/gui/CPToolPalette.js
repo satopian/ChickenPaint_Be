@@ -235,20 +235,23 @@ export default class CPToolPalette extends CPPalette {
       }
 
       listElem.addEventListener("click", function (e) {
-        const liElem = e.target?.closest("li"); // クリックされた要素が li の場合、それを取得
+        const target = e.target;
+        const liElem =
+          target instanceof HTMLElement ? target.closest("li") : ""; // クリックされた要素が li の場合、それを取得
 
         if (liElem) {
           buttonClicked.call(liElem, e); // クリックされた li 要素を引数に渡す
         }
       });
       listElem.addEventListener("dblclick", function (e) {
-        const liElem = e.target?.closest("li");
+        const target = e.target;
+        const liElem =
+          target instanceof HTMLElement ? target.closest("li") : ""; // クリックされた要素が li の場合、それを取得
 
         if (liElem) {
-          let buttonIndex = parseInt(
-            liElem.getAttribute("data-buttonIndex"),
-            10,
-          );
+          const data_buttonIndex =
+            liElem.getAttribute("data-buttonIndex") ?? "0";
+          let buttonIndex = parseInt(data_buttonIndex, 10);
           let button = buttons[buttonIndex];
 
           // クリックされた時に処理を実行

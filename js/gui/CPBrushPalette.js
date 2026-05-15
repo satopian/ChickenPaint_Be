@@ -1172,7 +1172,9 @@ function CPColorPickerPanel(controller) {
       (e) => {
         // ALTキーが押されているか確認
         if (e.altKey) {
-          const label = e.target?.closest("label");
+          const target = e.target;
+          const label =
+            target instanceof HTMLElement ? target.closest("label") : "";
           if (!label) return;
 
           // labelのfor属性から対応するinputを探す

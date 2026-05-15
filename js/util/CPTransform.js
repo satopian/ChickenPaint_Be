@@ -23,8 +23,10 @@
 
 // Remember that this does not account for any CSS transforms applied to the canvas
 
-export default function CPTransform() {
-  this.setToIdentity();
+export default class CPTransform {
+  constructor() {
+    this.setToIdentity();
+  }
 }
 
 CPTransform.prototype.setToIdentity = function () {
@@ -43,7 +45,7 @@ CPTransform.prototype.setToIdentity = function () {
  *
  * [this] = [this] * [matrix]
  *
- * @param {typeof CPTransform} matrix
+ * @param {CPTransform} matrix
  */
 CPTransform.prototype.multiply = function (matrix) {
   var m11 = this.m[0] * matrix.m[0] + this.m[2] * matrix.m[1],
@@ -66,7 +68,7 @@ CPTransform.prototype.multiply = function (matrix) {
  *
  * [this] = [matrix] * [this]
  *
- * @param {typeof CPTransform} matrix
+ * @param {CPTransform} matrix
  */
 CPTransform.prototype.preMultiply = function (matrix) {
   var m11 = matrix.m[0] * this.m[0] + matrix.m[2] * this.m[1],
