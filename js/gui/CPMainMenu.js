@@ -698,7 +698,7 @@ export default function CPMainMenu(controller, mainGUI) {
           key(entry.shortcut, (e) => {
             e.preventDefault();
             e.stopPropagation();
-            if (e.repeat) return false;
+            // if (e.repeat) return false;
             menuItemClicked(entryElem);
             return false;
           });
