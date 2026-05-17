@@ -70,8 +70,8 @@ export default class CPResourceLoader extends EventEmitter {
             if (imageUrl) {
               let image = new Image();
 
-              image.onload = function () {
-                let artwork = new CPArtwork(this.width, this.height),
+              image.onload = () => {
+                let artwork = new CPArtwork(image.width, image.height),
                   layer = new CPImageLayer(0, 0, "Layer 1");
 
                 layer.image = CPColorBmp.createFromImage(image);

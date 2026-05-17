@@ -428,7 +428,7 @@ export default class CPPaletteManager extends EventEmitter {
       let palette = palettes[paletteName],
         palElement = palette.getElement();
 
-      palette.on("paletteVisChange", function () {
+      palette.on("paletteVisChange", () => {
         showPalette(this, false);
       });
 

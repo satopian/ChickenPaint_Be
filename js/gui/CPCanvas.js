@@ -675,7 +675,11 @@ export default class CPCanvas extends EventEmitter {
         !key.isPressed("space") &&
         shouldDrawToThisLayer()
       ) {
-        var pf = coordToDocument({ x: mouseX, y: mouseY });
+        const pf = coordToDocument({ x: mouseX, y: mouseY });
+
+        if (!pf) {
+          return;
+        }
 
         this.eraseBrushPreview();
 
@@ -698,11 +702,15 @@ export default class CPCanvas extends EventEmitter {
         CPDrawingMode.prototype.mouseMove.call(this, e, pressure); //円カーソルをmouseDrag時に表示
       }
       if (this.capture) {
-        var pf = coordToDocument({ x: mouseX, y: mouseY }),
-          smoothing = Math.min(
-            0.999,
-            Math.pow(controller.getBrushInfo().smoothing, 0.3),
-          );
+        const pf = coordToDocument({ x: mouseX, y: mouseY });
+        if (!pf) {
+          return;
+        }
+
+        let smoothing = Math.min(
+          0.999,
+          Math.pow(controller.getBrushInfo().smoothing, 0.3),
+        );
         const smoothingFactor = 1.0 - smoothing;
         this.smoothMouse.x =
           smoothingFactor * pf.x + smoothing * this.smoothMouse.x;
@@ -1039,6 +1047,10 @@ export default class CPCanvas extends EventEmitter {
               p2 = coordToDisplay(dragBezierP2),
               p3 = coordToDisplay(dragBezierP3);
 
+            if (!p0 || !p1 || !p2 || !p3) {
+              return;
+            }
+
             bezier.x0 = p0.x;
             bezier.y0 = p0.y;
             bezier.x1 = p1.x;
@@ -1130,7 +1142,10 @@ export default class CPCanvas extends EventEmitter {
       this.queueBrushPreview();
 
       if (this.capture) {
-        var pf = coordToDocument({ x: mouseX, y: mouseY });
+        const pf = coordToDocument({ x: mouseX, y: mouseY });
+        if (!pf) {
+          return;
+        }
         if (
           artwork.isPointWithin(pf.x, pf.y) &&
           artwork.colorPicker(pf.x, pf.y) !== null //取得色が透明以外の時
@@ -1403,6 +1418,9 @@ export default class CPCanvas extends EventEmitter {
         shouldDrawToThisLayer()
       ) {
         var pf = coordToDocument({ x: mouseX, y: mouseY });
+        if (!pf) {
+          return;
+        }
 
         if (artwork.isPointWithin(pf.x, pf.y)) {
           artwork.floodFill(
@@ -1467,7 +1485,10 @@ export default class CPCanvas extends EventEmitter {
         this.mouseDrag = function (e) {
           if (!this.capture) return false;
 
-          let p = coordToDocumentInt({ x: mouseX, y: mouseY });
+          const p = coordToDocumentInt({ x: mouseX, y: mouseY });
+          if (!p) {
+            return;
+          }
           let square = e.shiftKey || maintainAspectCheckd;
           let squareDist = ~~Math.max(
             Math.abs(p.x - firstClick.x),
@@ -1521,6 +1542,7 @@ export default class CPCanvas extends EventEmitter {
     class CPMoveToolMode extends CPMode {
       constructor() {
         super();
+        const ref = this;
         var lastPoint,
           copyMode,
           firstMove = false;
@@ -1560,9 +1582,12 @@ export default class CPCanvas extends EventEmitter {
         };
 
         this.mouseDrag = throttle(50, function (e) {
-          if (this.capture) {
-            var p = coordToDocument({ x: mouseX, y: mouseY }),
-              moveFloat = { x: p.x - lastPoint.x, y: p.y - lastPoint.y },
+          if (ref.capture) {
+            const p = coordToDocument({ x: mouseX, y: mouseY });
+            if (!p) {
+              return;
+            }
+            let moveFloat = { x: p.x - lastPoint.x, y: p.y - lastPoint.y },
               moveInt = { x: ~~moveFloat.x, y: ~~moveFloat.y }; // Round towards zero
 
             if (moveInt.x != 0 || moveInt.y != 0) {
@@ -1628,7 +1653,7 @@ export default class CPCanvas extends EventEmitter {
     class CPTransformMode extends CPMode {
       constructor() {
         super();
-
+        const ref = this;
         const HANDLE_RADIUS = 3,
           DRAG_NONE = -1,
           DRAG_ROTATE = -2,
@@ -1831,7 +1856,7 @@ export default class CPCanvas extends EventEmitter {
         this.mouseDrag = throttle(80, function (e) {
           const MIN_SCALE = 0.001;
 
-          if (this.capture) {
+          if (ref.capture) {
             var dragPointDisplay = { x: mouseX, y: mouseY };
 
             switch (draggingMode) {
@@ -1868,9 +1893,12 @@ export default class CPCanvas extends EventEmitter {
               case DRAG_ROTATE:
                 const DRAG_ROTATE_SNAP_ANGLE = Math.PI / 4;
 
-                let centerDoc = cornerPoints.getCenter(),
-                  centerDisplay = coordToDisplay(centerDoc),
-                  oldMouseAngle = Math.atan2(
+                const centerDoc = cornerPoints.getCenter();
+                const centerDisplay = coordToDisplay(centerDoc);
+                if (!centerDisplay) {
+                  return;
+                }
+                let oldMouseAngle = Math.atan2(
                     lastDragPointDisplay.y - centerDisplay.y,
                     lastDragPointDisplay.x - centerDisplay.x,
                   ),
@@ -1920,15 +1948,23 @@ export default class CPCanvas extends EventEmitter {
               case DRAG_SE_CORNER:
               case DRAG_SW_CORNER:
                 {
-                  let draggingCorner = ~~(draggingMode / 2),
-                    oldCorner = origCornerPoints.points[draggingCorner],
-                    // The corner we dragged will move into its new position
-                    newCorner = affine
-                      .getInverted()
-                      .getTransformedPoint(
-                        roundPoint(coordToDocument(dragPointDisplay)),
-                      ),
-                    // The opposite corner to the one we dragged must not move
+                  const draggingCorner = ~~(draggingMode / 2);
+
+                  const oldCorner = origCornerPoints.points[draggingCorner];
+                  // The corner we dragged will move into its new position
+                  const affineGetInverted = affine.getInverted();
+                  if (!affineGetInverted) {
+                    return;
+                  }
+                  const newCorner = affineGetInverted.getTransformedPoint(
+                    roundPoint(coordToDocument(dragPointDisplay)),
+                  );
+
+                  if (!newCorner) {
+                    return;
+                  }
+
+                  let // The opposite corner to the one we dragged must not move
                     fixCorner =
                       origCornerPoints.points[(draggingCorner + 2) % 4],
                     /* Now we can see how much we'd need to scale the original rectangle about the fixed corner
@@ -1978,13 +2014,16 @@ export default class CPCanvas extends EventEmitter {
                     oldHandle = averagePoints(
                       origCornerPoints.points[cornerIndex],
                       origCornerPoints.points[(cornerIndex + 1) % 4],
+                    );
+
+                  // The handle we dragged will move into its new position
+                  const affineGetInverted = affine.getInverted();
+                  if (!affineGetInverted) {
+                    return;
+                  }
+                  let newHandle = affineGetInverted.getTransformedPoint(
+                      roundPoint(coordToDocument(dragPointDisplay)),
                     ),
-                    // The handle we dragged will move into its new position
-                    newHandle = affine
-                      .getInverted()
-                      .getTransformedPoint(
-                        roundPoint(coordToDocument(dragPointDisplay)),
-                      ),
                     // The opposite handle to the one we dragged must not move
                     fixHandle = averagePoints(
                       origCornerPoints.points[(cornerIndex + 2) % 4],
@@ -2110,6 +2149,9 @@ export default class CPCanvas extends EventEmitter {
             handles[i + corners.length] = midWay;
           }
 
+          if (!canvasContext) {
+            return;
+          }
           setContrastingDrawStyle(canvasContext, "fill");
           for (let i = 0; i < handles.length; i++) {
             canvasContext.fillRect(
@@ -2171,14 +2213,13 @@ export default class CPCanvas extends EventEmitter {
         // キーボード用の移動関数
         this.moveByKey = function (dx, dy) {
           if (!affine) return;
-
           let translateInstance = new CPTransform();
           translateInstance.translate(dx, dy);
           affine.preMultiply(translateInstance);
           // 変形のハンドルを更新
           cornerPoints = origCornerPoints.getTransformed(affine); // transformの更新を反映させる関数呼び出しなど
           artwork.transformAffineAmend(affine);
-          this.repaintAll?.(); // repaintAll() があれば呼ぶ
+          // that.repaintAll(); // コメントアウト
         };
       }
     }
@@ -2556,6 +2597,9 @@ export default class CPCanvas extends EventEmitter {
      */
     function coordToDocumentInt(coord) {
       var result = coordToDocument(coord);
+      if (!result) {
+        return;
+      }
 
       result.x = Math.floor(result.x);
       result.y = Math.floor(result.y);
@@ -2581,6 +2625,9 @@ export default class CPCanvas extends EventEmitter {
 
     function coordToDisplayInt(p) {
       var result = coordToDisplay(p);
+      if (!result) {
+        return;
+      }
 
       result.x = Math.round(result.x);
       result.y = Math.round(result.y);
@@ -2635,16 +2682,20 @@ export default class CPCanvas extends EventEmitter {
      * Take a CPRect of document coordinates and return a CPRect of canvas coordinates to repaint for that region.
      */
     function getRefreshArea(r) {
-      var p1 = coordToDisplayInt({ x: r.left - 1, y: r.top - 1 }),
+      let p1 = coordToDisplayInt({ x: r.left - 1, y: r.top - 1 }),
         p2 = coordToDisplayInt({ x: r.left - 1, y: r.bottom }),
         p3 = coordToDisplayInt({ x: r.right, y: r.top - 1 }),
-        p4 = coordToDisplayInt({ x: r.right, y: r.bottom }),
-        r2 = new CPRect(
-          Math.min(Math.min(p1.x, p2.x), Math.min(p3.x, p4.x)),
-          Math.min(Math.min(p1.y, p2.y), Math.min(p3.y, p4.y)),
-          Math.max(Math.max(p1.x, p2.x), Math.max(p3.x, p4.x)) + 1,
-          Math.max(Math.max(p1.y, p2.y), Math.max(p3.y, p4.y)) + 1,
-        );
+        p4 = coordToDisplayInt({ x: r.right, y: r.bottom });
+
+      if (!p1 || !p2 || !p3 || !p4) {
+        return;
+      }
+      let r2 = new CPRect(
+        Math.min(Math.min(p1.x, p2.x), Math.min(p3.x, p4.x)),
+        Math.min(Math.min(p1.y, p2.y), Math.min(p3.y, p4.y)),
+        Math.max(Math.max(p1.x, p2.x), Math.max(p3.x, p4.x)) + 1,
+        Math.max(Math.max(p1.y, p2.y), Math.max(p3.y, p4.y)) + 1,
+      );
 
       r2.grow(2, 2); // to be sure to include everything
 
@@ -2940,6 +2991,9 @@ export default class CPCanvas extends EventEmitter {
               y: e.pageY,
             }),
             docPoint = coordToDocument(canvasPoint);
+          if (!docPoint) {
+            return;
+          }
 
           if (artwork.isPointWithin(docPoint.x, docPoint.y)) {
             zoomOnPoint(that.getZoom() * factor, canvasPoint.x, canvasPoint.y);
@@ -3387,32 +3441,7 @@ export default class CPCanvas extends EventEmitter {
      * @returns {void}
      */
     this.paint = function () {
-      var drawingWasClipped = false;
-
       scheduledRepaint = false;
-
-      /* Clip drawing to the area of the screen we want to repaint */
-      if (!repaintRegion.isEmpty()) {
-        canvasContext?.save();
-
-        if (canvasContext && canvasContext.clipTo) {
-          canvasContext.beginPath();
-
-          repaintRegion.left = repaintRegion.left | 0;
-          repaintRegion.top = repaintRegion.top | 0;
-
-          canvasContext.rect(
-            repaintRegion.left,
-            repaintRegion.top,
-            Math.ceil(repaintRegion.getWidth()),
-            Math.ceil(repaintRegion.getHeight()),
-          );
-
-          canvasContext.clip();
-        }
-
-        drawingWasClipped = true;
-      }
 
       /* Copy pixels that changed in the document into our local fused image cache */
       if (!artworkUpdateRegion.isEmpty()) {
@@ -3469,9 +3498,9 @@ export default class CPCanvas extends EventEmitter {
       }
 
       // The rest of the drawing happens using the original screen coordinate system
-      setContrastingDrawStyle(canvasContext, "stroke");
-
       if (canvasContext) {
+        setContrastingDrawStyle(canvasContext, "stroke");
+
         canvasContext.lineWidth = 1.0;
       }
 
@@ -3505,16 +3534,6 @@ export default class CPCanvas extends EventEmitter {
         if (!modes.includes(modeStack.peek())) {
           // 4点配列から矩形を計算
           const pts = rectToDisplay(artwork.getSelection());
-
-          const x0 = Math.min(pts[0].x, pts[1].x, pts[2].x, pts[3].x);
-          const y0 = Math.min(pts[0].y, pts[1].y, pts[2].y, pts[3].y);
-          const x1 = Math.max(pts[0].x, pts[1].x, pts[2].x, pts[3].x);
-          const y1 = Math.max(pts[0].y, pts[1].y, pts[2].y, pts[3].y);
-
-          const x = Math.floor(x0);
-          const y = Math.floor(y0);
-          const w = Math.ceil(x1 - x0);
-          const h = Math.ceil(y1 - y0);
 
           if (canvasContext) {
             canvasContext.save();
@@ -3581,12 +3600,6 @@ export default class CPCanvas extends EventEmitter {
       modeStack.paint(canvasContext);
       if (canvasContext) {
         canvasContext.globalCompositeOperation = "source-over";
-      }
-
-      if (drawingWasClipped) {
-        repaintRegion.makeEmpty();
-
-        canvasContext?.restore();
       }
     };
 

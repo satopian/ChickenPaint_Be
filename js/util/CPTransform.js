@@ -48,6 +48,10 @@ CPTransform.prototype.setToIdentity = function () {
  * @param {CPTransform} matrix
  */
 CPTransform.prototype.multiply = function (matrix) {
+  if (!this.m || !matrix.m) {
+    return;
+  }
+
   var m11 = this.m[0] * matrix.m[0] + this.m[2] * matrix.m[1],
     m12 = this.m[1] * matrix.m[0] + this.m[3] * matrix.m[1],
     m21 = this.m[0] * matrix.m[2] + this.m[2] * matrix.m[3],
@@ -71,6 +75,10 @@ CPTransform.prototype.multiply = function (matrix) {
  * @param {CPTransform} matrix
  */
 CPTransform.prototype.preMultiply = function (matrix) {
+  if (!this.m || !matrix.m) {
+    return;
+  }
+
   var m11 = matrix.m[0] * this.m[0] + matrix.m[2] * this.m[1],
     m12 = matrix.m[1] * this.m[0] + matrix.m[3] * this.m[1],
     m21 = matrix.m[0] * this.m[2] + matrix.m[2] * this.m[3],
@@ -87,6 +95,10 @@ CPTransform.prototype.preMultiply = function (matrix) {
 };
 
 CPTransform.prototype.invert = function () {
+  if (!this.m) {
+    return;
+  }
+
   var d = 1 / (this.m[0] * this.m[3] - this.m[1] * this.m[2]),
     m0 = this.m[3] * d,
     m1 = -this.m[1] * d,
@@ -105,6 +117,9 @@ CPTransform.prototype.invert = function () {
 
 CPTransform.prototype.getInverted = function () {
   var result = new CPTransform();
+  if (!result.m || !this.m) {
+    return;
+  }
 
   result.m[0] = this.m[0];
   result.m[1] = this.m[1];
@@ -126,6 +141,10 @@ CPTransform.prototype.getInverted = function () {
  * [   0       0    1]
  */
 CPTransform.prototype.rotate = function (rad) {
+  if (!this.m) {
+    return;
+  }
+
   var c = Math.cos(rad),
     s = Math.sin(rad),
     m11 = this.m[0] * c + this.m[2] * s,
@@ -156,6 +175,10 @@ CPTransform.prototype.rotateAroundPoint = function (rad, x, y) {
  * @param y
  */
 CPTransform.prototype.translate = function (x, y) {
+  if (!this.m) {
+    return;
+  }
+
   this.m[4] += this.m[0] * x + this.m[2] * y;
   this.m[5] += this.m[1] * x + this.m[3] * y;
 };
@@ -171,6 +194,10 @@ CPTransform.prototype.translate = function (x, y) {
  * @param sy
  */
 CPTransform.prototype.scale = function (sx, sy) {
+  if (!this.m) {
+    return;
+  }
+
   this.m[0] *= sx;
   this.m[1] *= sx;
   this.m[2] *= sy;
@@ -194,6 +221,10 @@ CPTransform.prototype.scaleAroundPoint = function (sx, sy, px, py) {
  * @param {number} y
  */
 CPTransform.prototype.shear = function (x, y) {
+  if (!this.m) {
+    return;
+  }
+
   var m11 = this.m[0] + this.m[2] * y,
     m12 = this.m[1] + this.m[3] * y,
     m21 = this.m[2] + this.m[0] * x,
@@ -206,6 +237,10 @@ CPTransform.prototype.shear = function (x, y) {
 };
 
 CPTransform.prototype.getTransformedPoint = function (p) {
+  if (!this.m) {
+    return;
+  }
+
   return {
     x: p.x * this.m[0] + p.y * this.m[2] + this.m[4],
     y: p.x * this.m[1] + p.y * this.m[3] + this.m[5],
@@ -219,15 +254,26 @@ CPTransform.prototype.transformPoints = function (points) {
 };
 
 CPTransform.prototype.getTranslateX = function () {
+  if (!this.m) {
+    return;
+  }
+
   return this.m[4];
 };
 
 CPTransform.prototype.getTranslateY = function () {
+  if (!this.m) {
+    return;
+  }
+
   return this.m[5];
 };
 
 CPTransform.prototype.clone = function () {
   var result = new CPTransform();
+  if (!this.m || !result.m) {
+    return;
+  }
 
   result.m[0] = this.m[0];
   result.m[1] = this.m[1];
@@ -240,6 +286,10 @@ CPTransform.prototype.clone = function () {
 };
 
 CPTransform.prototype.getDeterminant = function () {
+  if (!this.m) {
+    return;
+  }
+
   return this.m[0] * this.m[3] - this.m[1] * this.m[2];
 };
 
@@ -251,9 +301,15 @@ CPTransform.prototype.getDeterminant = function () {
  * http://www.maths-informatique-jeux.com/blog/frederic/?post/2013/12/01/Decomposition-of-2D-transform-matrices
  */
 CPTransform.prototype.decompose = function () {
+  if (!this.m) {
+    return;
+  }
+
   var determinant = this.getDeterminant(),
     r = Math.sqrt(this.m[0] * this.m[0] + this.m[1] * this.m[1]);
-
+  if (!determinant) {
+    return;
+  }
   return {
     translate: { x: this.m[4], y: this.m[5] },
     rotate: Math.sign(this.m[1]) * Math.acos(this.m[0] / r),
@@ -267,6 +323,9 @@ CPTransform.prototype.decompose = function () {
 
 CPTransform.prototype.toString = function () {
   const PLACES = 2;
+  if (!this.m) {
+    return;
+  }
 
   return (
     "[" +
