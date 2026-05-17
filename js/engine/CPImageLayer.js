@@ -142,7 +142,7 @@ CPImageLayer.prototype.copyImageFrom = function (that) {
 /**
  * If this layer is clipped, return the layer that this layer is clipped to, otherwise return null.
  *
- * @returns {CPImageLayer}
+ * @returns {?CPImageLayer}
  */
 CPImageLayer.prototype.getClippingBase = function () {
   if (this.clip && this.parent) {
@@ -210,6 +210,10 @@ CPImageLayer.prototype.getMemoryUsed = function () {
  * Recreate the image thumbnail for this layer.
  */
 CPImageLayer.prototype.rebuildImageThumbnail = function () {
+  if (!this.image) {
+    return null;
+  }
+
   if (!this.imageThumbnail) {
     var scaleDivider = Math.ceil(
       Math.max(
@@ -230,7 +234,7 @@ CPImageLayer.prototype.rebuildImageThumbnail = function () {
 /**
  * Get the image thumbnail for this layer (or build one if one was not already built)
  *
- * @returns {CPColorBmp}
+ * @returns {?CPColorBmp}
  */
 CPImageLayer.prototype.getImageThumbnail = function () {
   if (!this.imageThumbnail) {

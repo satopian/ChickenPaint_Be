@@ -379,7 +379,7 @@ CPRect.subtract = function (rectsA, rectsB) {
 
       let intersection = rectA.getIntersection(rectB);
 
-      if (!intersection.isEmpty()) {
+      if (intersection && !intersection.isEmpty()) {
         let newRects = [];
 
         if (rectA.top < rectB.top) {
@@ -471,7 +471,7 @@ CPRect.union = function (rects) {
 
         let intersection = rectA.getIntersection(rectB);
 
-        if (!intersection.isEmpty()) {
+        if (intersection && !intersection.isEmpty()) {
           /* We need to eliminate the overlap between these rectangles. Subtract rectA from rectB and leave
            * rectA alone.
            */

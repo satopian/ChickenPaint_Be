@@ -742,6 +742,7 @@ export default class CPCanvas extends EventEmitter {
     class CPLineMode extends CPDrawingMode {
       constructor() {
         super();
+        const ref = this;
         var dragLineFrom,
           dragLineTo,
           LINE_PREVIEW_WIDTH = 1;
@@ -760,7 +761,7 @@ export default class CPCanvas extends EventEmitter {
               y: mouseY + 0.5,
             };
 
-            this.eraseBrushPreview();
+            ref.eraseBrushPreview();
 
             return true;
           }
@@ -896,6 +897,7 @@ export default class CPCanvas extends EventEmitter {
     class CPBezierMode extends CPDrawingMode {
       constructor() {
         super();
+        const ref = this;
         const BEZIER_POINTS = 500,
           BEZIER_POINTS_PREVIEW = 100,
           BEZIER_STATE_INITIAL = 0,
@@ -917,10 +919,6 @@ export default class CPCanvas extends EventEmitter {
             // プレビューを消去するために再描画
             that.repaintAll();
 
-            // ブラシのプレビューを復活させる
-            if (this.drawBrushPreview) {
-              this.drawBrushPreview();
-            }
             return true;
           }
           return false;
@@ -944,7 +942,7 @@ export default class CPCanvas extends EventEmitter {
             dragBezierP0 = dragBezierP1 = dragBezierP2 = dragBezierP3 = p;
             this.capture = true;
 
-            this.eraseBrushPreview();
+            ref.eraseBrushPreview();
 
             return true;
           }

@@ -914,7 +914,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
    * @param {number} dx - 中心からのサンプリングの広がり（幅）
    * @param {number} dy - 中心からのサンプリングの広がり（高さ）
    * @param {CPColorFloat} brushColor - 全て透明だった場合に返される現在のブラシ色（fallback用）
-   * @returns {CPColorFloat} 算出された平均色、またはブラシ色
+   * @returns {?CPColorFloat} 算出された平均色、またはブラシ色
    */
   static _sampleRGB(image, x, y, dx, dy, brushColor, options = {}) {
     //混色ブラシ?
@@ -1333,54 +1333,44 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
    * Sample intensities from the image and mix them into the brush.
    *
    * @param {CPColorBmp} maskToSample
-   * @param {any} brushRect
-   * @param {any} imageRect
-   * @param {number} alpha1 - 0-255 controls how much paint is picked up from the image
+   * @param {Object} brushRect
+   * @param {Object} imageRect
+   * @param {Number} alpha1 - 0-255 controls how much paint is picked up from the image
    */
   _accumulatePaintFromMask(maskToSample, brushRect, imageRect, alpha1) {
-    if (!this._brushBuffer) {
+    const brushBuffer = this._brushBuffer;
+    if (!brushBuffer) {
       return;
     }
-    if (!maskToSample || !maskToSample.data) return;
-    if (alpha1 <= 0) return;
-
-    let brushData = this._brushBuffer.data,
+    let brushData = brushBuffer.data,
       sampleData = maskToSample.data,
       width = imageRect.getWidth(),
       height = imageRect.getHeight(),
-      srcOffset = brushRect.left + brushRect.top * this._brushBuffer.width,
-      srcYSkip = this._brushBuffer.width - width;
+      srcOffset = brushRect.left + brushRect.top * brushBuffer.width,
+      dstOffset = maskToSample.offsetOfPixel(imageRect.left, imageRect.top),
+      srcYSkip = brushBuffer.width - width,
+      dstYSkip = maskToSample.width - width;
 
-    let imgW = maskToSample.width | 0;
-    let imgH = maskToSample.height | 0;
-    if (imgW === 0 || imgH === 0) return;
+    if (alpha1 <= 0) {
+      return;
+    }
 
-    // ===== パラメータ =====
-    const radius = 2;
-    const alphaDecay = 0.95; // 描画ごとの減衰
+    for (
+      let y = 0;
+      y < height;
+      y++, srcOffset += srcYSkip, dstOffset += dstYSkip
+    ) {
+      for (let x = 0; x < width; x++, srcOffset++, dstOffset++) {
+        let grey1 = sampleData[dstOffset],
+          grey2 = brushData[srcOffset],
+          alpha2 = grey2 >> 8,
+          newAlpha = (alpha1 + alpha2 - (alpha1 * alpha2) / 255) | 0,
+          realAlpha = ((alpha1 * 255) / newAlpha) | 0,
+          invAlpha = 255 - realAlpha;
 
-    for (let y = 0; y < height; y++, srcOffset += srcYSkip) {
-      for (let x = 0; x < width; x++, srcOffset++) {
-        let px = imageRect.left + x;
-        let py = imageRect.top + y;
-
-        let color = CPBrushToolWatercolor._sampleRGB(
-          maskToSample,
-          px,
-          py,
-          radius,
-          radius,
-          null,
-          { noFallback: true },
-        );
-
-        // color が null (透明) の場合、透明な色として扱う
-        let sampleAlpha = color ? color.getAlpha() : 0;
-        let sampleGrey = color ? color.getGrey() : 0; // 色は何でも良いが0(黒)など
-        // 減衰処理
-        sampleAlpha *= alphaDecay;
-        // 筆のデータに書き込む（nullでもcontinueせず、0を書き込む）
-        brushData[srcOffset] = ((sampleAlpha | 0) << 8) | (sampleGrey | 0);
+        brushData[srcOffset] =
+          (newAlpha << 8) |
+          (grey1 + ((grey2 & 0xff) * invAlpha - grey1 * invAlpha) / 255);
       }
     }
   }

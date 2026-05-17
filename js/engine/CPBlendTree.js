@@ -270,7 +270,7 @@ export default class CPBlendTree {
     }
 
     /**
-     * @param {CPBlendNode} node
+     * @param {?CPBlendNode} node
      * @param {CPRect} rect
      */
     function invalidateNodeRect(node, rect) {

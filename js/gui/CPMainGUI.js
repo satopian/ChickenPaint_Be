@@ -188,8 +188,10 @@ export default class CPMainGUI extends EventEmitter {
     }
 
     //Bootstrap5のコラプスでメニューバーが閉じる時にリサイズする
-    document.addEventListener("hidden.bs.collapse", this.resize.bind(this));
-    window.addEventListener("resize", this.resize.bind(this));
+    document.addEventListener("hidden.bs.collapse", () => {
+      this.resize();
+    });
+    window.addEventListener("resize", () => this.resize());
 
     let lastScrollbarVisible = null;
     let resizeScheduled = false;

@@ -71,19 +71,15 @@ function CPGradientPreview(controller) {
     imageCanvasContext = imageCanvas.getContext("2d"),
     gradient = controller.getCurGradient();
 
-  if (!canvasContext) {
-    return;
-  }
-
   function paint() {
-    if (!canvasContext || !imageCanvasContext) {
-      return;
-    }
     image.gradient(image.getBounds(), 0, 0, image.width, 0, gradient, true);
-    imageCanvasContext.putImageData(image.imageData, 0, 0, 0, 0, w, h);
-
-    canvasContext.fillRect(0, 0, canvas.width, canvas.height);
-    canvasContext.drawImage(imageCanvas, 0, 0);
+    if (imageCanvasContext) {
+      imageCanvasContext.putImageData(image.imageData, 0, 0, 0, 0, w, h);
+    }
+    if (canvasContext) {
+      canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+      canvasContext.drawImage(imageCanvas, 0, 0);
+    }
   }
 
   this.getElement = function () {
@@ -100,8 +96,9 @@ function CPGradientPreview(controller) {
   canvas.height = imageCanvas.height = h;
 
   canvas.className = "chickenpaint-gradient-preview";
-
-  canvasContext.fillStyle = checkerboard;
+  if (canvasContext) {
+    canvasContext.fillStyle = checkerboard;
+  }
 
   paint();
 }
@@ -490,10 +487,6 @@ CPBrushPalette.CPBrushPreview = function (controller) {
     canvasContext = canvas.getContext("2d"),
     mouseCaptured = false;
 
-  if (!canvasContext) {
-    return;
-  }
-
   function paint() {
     if (!canvasContext) {
       return;
@@ -583,9 +576,10 @@ CPBrushPalette.CPBrushPreview = function (controller) {
   }
 
   canvas.className = "chickenpaint-brush-preview";
-
-  canvasContext.strokeStyle = "black";
-  canvasContext.lineWidth = 1.0 * window.devicePixelRatio;
+  if (canvasContext) {
+    canvasContext.strokeStyle = "black";
+    canvasContext.lineWidth = 1.0 * window.devicePixelRatio;
+  }
 
   paint();
 };

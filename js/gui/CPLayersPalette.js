@@ -502,8 +502,11 @@ export default class CPLayersPalette extends CPPalette {
       }
 
       function createImageThumb(layer) {
-        let thumbnail = layer.getImageThumbnail(),
-          thumbCanvas = thumbnail.getAsCanvas(imageRotation);
+        const thumbnail = layer.getImageThumbnail();
+        if (!thumbnail) {
+          return;
+        }
+        const thumbCanvas = thumbnail.getAsCanvas(imageRotation);
 
         thumbCanvas.title = _("Image");
         thumbCanvas.className =

@@ -879,18 +879,20 @@ export default class CPArtwork extends EventEmitter {
      */
     function mergeStrokeBuffer() {
       if (!strokedRegion.isEmpty()) {
+        const curBrushMode = Number(curBrush?.brushMode);
         if (maskEditingMode) {
           let destMask = curLayer.mask;
 
           // Can't erase on masks, so just paint black instead
-          if (curBrush?.brushMode == CPBrushInfo.BRUSH_MODE_ERASE) {
+          //マスク編集モードの時の消しゴムはマスクを黒で描画
+          if (curBrushMode == CPBrushInfo.BRUSH_MODE_ERASE) {
             paintingModes[CPBrushInfo.BRUSH_MODE_PAINT].mergeOntoMask(
               destMask,
               undoMask,
               0xff000000,
             );
           } else {
-            paintingModes[curBrush.brushMode].mergeOntoMask(
+            paintingModes[curBrushMode].mergeOntoMask(
               destMask,
               undoMask,
               curColor & 0xff,
@@ -900,11 +902,7 @@ export default class CPArtwork extends EventEmitter {
           let destImage = curLayer.image,
             lockAlpha = curLayer.getLockAlpha();
 
-          if (
-            curBrush &&
-            curBrush.brushMode == CPBrushInfo.BRUSH_MODE_ERASE &&
-            lockAlpha
-          ) {
+          if (curBrushMode == CPBrushInfo.BRUSH_MODE_ERASE && lockAlpha) {
             // We're erasing with locked alpha, so the only sensible thing to do is paint white...
 
             // FIXME: it would be nice to be able to set the paper color
@@ -914,7 +912,7 @@ export default class CPArtwork extends EventEmitter {
               EMPTY_LAYER_COLOR,
             );
           } else {
-            paintingModes[curBrush.brushMode].mergeOntoImage(
+            paintingModes[curBrushMode].mergeOntoImage(
               destImage,
               undoImage,
               curColor,
@@ -2761,7 +2759,10 @@ export default class CPArtwork extends EventEmitter {
             );
             blendTree.buildTree();
 
-            let blended = blendTree.blendTree();
+            const blended = blendTree.blendTree();
+            if (!blended) {
+              return;
+            }
             // `mergedLayer` の合成結果を設定
             mergedLayer.image = blended.image;
           }
@@ -3237,7 +3238,7 @@ export default class CPArtwork extends EventEmitter {
             if (layerInfo.moveMask) {
               // Find the non-white pixels, since we'll be erasing the moved area with white
               occupiedSpace.union(
-                layerInfo.layer.mask.getValueBounds(this.srcRect, 0xff),
+                layerInfo.layer.mask?.getValueBounds(this.srcRect, 0xff),
               );
             }
 
@@ -3260,7 +3261,7 @@ export default class CPArtwork extends EventEmitter {
             if (layerInfo.moveMask) {
               // Find the non-black pixels, since we'll be erasing the moved area with black
               occupiedSpace.union(
-                layerInfo.layer.mask.getValueBounds(this.srcRect, 0x00),
+                layerInfo.layer.mask?.getValueBounds(this.srcRect, 0x00),
               );
             }
 

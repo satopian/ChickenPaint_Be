@@ -281,7 +281,14 @@ CPLayer.prototype.hasAncestor = function (group) {
  * Returns an independent copy of this layer.
  *
  */
-CPLayer.prototype.clone = function () {};
+/**
+ * Returns an independent copy of this layer.
+ *
+ * @this {CPLayer}
+ */
+CPLayer.prototype.clone = function () {
+  return /** @type {any} */ (null);
+};
 /**
  * Get a rectangle that encloses any non-transparent pixels in the layer within the given initialBounds (or an empty
  * rect if the pixels inside the given bounds are 100% transparent).
