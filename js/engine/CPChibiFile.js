@@ -138,7 +138,14 @@ class ChibiLayerDecoder {
 
     this.colorDecoder = null;
     this.maskDecoder = null;
+    /** @type {boolean} */
+    this.clip = false;
   }
+
+  /**
+   * @returns {CPImageLayer|void}
+   */
+  createLayer() {}
 
   readFixedHeader(stream) {
     this.payloadOffset = stream.readU32BE();
@@ -754,12 +761,6 @@ function hasChibiMagicMarker(array) {
   return true;
 }
 
-/**
- * @typedef {Object} SerializeResult
- * @property {(Blob|Uint8Array)} SerializeResult.bytes - A Blob when called in the browser, or a Uint8Array in Node.
- * @property {String} SerializeResult.version - Version string of created artwork, "ChibiPaint v0.0" or "ChickenPaint v0.10"
- */
-
 // ループの合間に「ブラウザに息をつかせる」関数
 const yieldToMain = () => {
   return new Promise((resolve) => {
@@ -768,11 +769,16 @@ const yieldToMain = () => {
     channel.port2.postMessage(undefined);
   });
 };
+
 /**
  * Serialize the given artwork to Chibifile format.
+ * @typedef {Object} SerializeResult
+ * @property {(Blob)} SerializeResult.bytes - A Blob when called in the browser, or a Uint8Array in Node.
+ * @property {String} SerializeResult.version - Version string of created artwork, "ChibiPaint v0.0" or "ChickenPaint v0.10"
  *
  * @param {CPArtwork} artwork
  * @param {?Object} options
+ * @param {Object} [options] -
  * @param {boolean} options.forceOldVersion - Mark this as a version 0.0 (ChibiPaint) drawing even if it uses new features
  *
  * @returns {Promise.<SerializeResult>}

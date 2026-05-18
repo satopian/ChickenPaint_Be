@@ -159,6 +159,10 @@ CPLayer.prototype.copyFrom = function (layer) {
   }
 };
 
+/**
+ * @memberof CPLayer
+ * @param {CPGreyBmp|null} mask
+ */
 CPLayer.prototype.setMask = function (mask) {
   this.mask = mask;
   if (!mask) {

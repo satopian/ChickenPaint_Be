@@ -42,8 +42,7 @@ import CPRect from "../util/CPRect.js";
  *
  * @constructor
  * @extends CPLayer
- * @this{typeof CPImageLayer
- *  & Record<string, any>}
+ * @this {any}
  */
 export default class CPImageLayer extends CPLayer {
   constructor(width, height, name) {

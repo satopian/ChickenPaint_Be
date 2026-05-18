@@ -61,7 +61,7 @@ async function performAction(mode, callback) {
 /**
  * データ消失防止のためDBに保存 (Save)
  * 画像データとパレットデータを保存する
- * @param {Uint8Array} bytes - .chi形式のバイナリ
+ * @param {Blob} bytes - .chi形式のBlobデータ
  * @param {Blob|null} swatchesBlob - パレットのBlobデータ
  */
 export async function CPPutChiAutosaveToDB(bytes, swatchesBlob) {

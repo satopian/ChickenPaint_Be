@@ -204,7 +204,9 @@ CPGreyBmp.prototype.floodFillWithBorder = function (
   const stack = [{ x, y }];
 
   while (stack.length) {
-    const { x: px, y: py } = stack.pop();
+    const { x: px, y: py } = /** @type {{x: number, y: number}} */ (
+      stack.pop()
+    );
     if (px < 0 || py < 0 || px >= w || py >= h) continue;
     const idx = py * w + px;
     if (Processed[idx]) continue;
@@ -380,7 +382,7 @@ CPGreyBmp.prototype.getAsCanvas = function (imageRotation) {
  * @param {number} width
  * @param {number} height
  *
- * @returns {ImageData}
+ * @returns {any}
  */
 CPGreyBmp.prototype.getImageData = function (x, y, width, height) {
   let imageData = createImageData(width, height),
@@ -615,7 +617,7 @@ function boxBlurLine(src, dst, len, radius) {
  * @param {number} x X-coordinate of column
  * @param {number} y Y-coordinate of top of column to copy
  * @param {number} len Number of pixels to copy
- * @param {TypedArray} buffer Pixel array
+ * @param {Uint8Array|Uint8ClampedArray} buffer Pixel array
  */
 CPGreyBmp.prototype.copyPixelColumnToArray = function (x, y, len, buffer) {
   var yJump = this.width,
@@ -636,7 +638,7 @@ CPGreyBmp.prototype.copyPixelColumnToArray = function (x, y, len, buffer) {
  * @param {number} x X-coordinate of column
  * @param {number} y Y-coordinate of top of column to copy
  * @param {number} len Number of pixels to copy
- * @param {TypedArray} buffer Pixel array to copy from
+ * @param {Uint8Array|Uint8ClampedArray} buffer Pixel array to copy from
  */
 CPGreyBmp.prototype.copyArrayToPixelColumn = function (x, y, len, buffer) {
   var yJump = this.width,
@@ -760,7 +762,6 @@ CPGreyBmp.prototype.monoHalftone = function (
 
   const w = this.width;
   const h = this.height;
-  const B = CPGreyBmp.BYTES_PER_PIXEL; // = 1
 
   const src = new Uint8ClampedArray(this.data);
   const dst = new Uint8ClampedArray(this.data.length);

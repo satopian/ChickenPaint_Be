@@ -248,17 +248,17 @@ export default class CPResourceSaver extends EventEmitter {
       const savedb = save_options.savedb ?? false;
       const savedbFromMenu = save_options.savedbFromMenu ?? false;
 
-      var flat, flatBlob, swatchesBlob;
-
-      flat = !savedb
-        ? binaryStringToByteArray(options.artwork.getFlatPNG(options.rotation))
-        : null;
-      flatBlob = !savedb ? new Blob([flat], { type: "image/png" }) : null;
-      flat = null; // Don't need this any more
-
+      let flat = null;
+      let flatBlob = null;
+      let swatchesBlob;
       if (!savedb) {
+        flat = binaryStringToByteArray(
+          options.artwork.getFlatPNG(options.rotation),
+        );
+        flatBlob = new Blob([flat], { type: "image/png" });
         reportProgress(0.3); // 開始
       }
+      flat = null; // Don't need this any more
 
       var serializeLayers;
 
@@ -280,9 +280,12 @@ export default class CPResourceSaver extends EventEmitter {
           if (options.swatches) {
             var aco = new AdobeColorTable();
 
-            swatchesBlob = new Blob([aco.write(options.swatches)], {
-              type: "application/octet-stream",
-            });
+            swatchesBlob = new Blob(
+              [/** @type {any} */ (aco.write(options.swatches))],
+              {
+                type: "application/octet-stream",
+              },
+            );
           } else {
             swatchesBlob = null;
           }
@@ -300,7 +303,6 @@ export default class CPResourceSaver extends EventEmitter {
 
             if (chibiResult) {
               formData.append("chibifileFormat", chibiResult.version);
-
               formData.append("chibifile", chibiResult.bytes);
               chibiResult = null;
 

@@ -49,6 +49,7 @@ export default class CPUndo {
     return false;
   }
 
+  undo() {}
   /**
    * Return the number of bytes of memory used by this undo, or 0 if it cannot be estimated.
    *

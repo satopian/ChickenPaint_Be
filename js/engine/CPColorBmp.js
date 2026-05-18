@@ -485,22 +485,32 @@ CPColorBmp.prototype.createThumbnailFrom = function (that) {
  * - expandBy: 塗りつぶし範囲を拡張するピクセル数
  * - alpha255: 不透明度 (1-255)
  * - mergedData: 判定用に渡す全レイヤー合成結果 (Uint8ClampedArray)
- *   null の場合は現在のレイヤーを基準にする
+ *   空のオブジェクトの場合は現在のレイヤーを基準にする
+ *
+ * @param {number} x - 塗りつぶしを開始するX座標
+ * @param {number} y - 塗りつぶしを開始するY座標
+ * @param {number} fillColor - 塗りつぶす色（0xRRGGBB 形式の数値）
+ * @param {number} [expandBy=2] - 塗りつぶした領域を外側に拡張するピクセル数（縁取りの太さ）
+ * @param {number} [alpha255=255] - 塗りつぶす色の不透明度（0〜255）
+ * @param {Object} [fusion={}] - 統合画像の情報を含むオブジェクト
+ * @param {Uint8Array|Uint8ClampedArray} [fusion.data] - 塗りつぶし対象の判定元として使用する画像データ。未指定の場合は自身の `data` を参照。
+ * @returns {void}
  */
+
 CPColorBmp.prototype.floodFillWithBorder = function (
   x,
   y,
   fillColor,
   expandBy = 2,
   alpha255 = 255,
-  fusion = null,
+  fusion = {},
 ) {
   if (!this.isInside(x, y)) return;
 
   const w = this.width;
   const h = this.height;
   const data = this.data; // 書き込み先
-  const srcData = fusion ? fusion.data : data; // 判定元
+  const srcData = fusion && fusion.data ? fusion.data : data; // 判定元
   const BYTES = CPColorBmp.BYTES_PER_PIXEL;
 
   const fillR = (fillColor >> 16) & 0xff;
@@ -539,7 +549,9 @@ CPColorBmp.prototype.floodFillWithBorder = function (
 
   // flood fill 本体
   while (stack.length) {
-    const { x: px, y: py } = stack.pop();
+    const { x: px, y: py } = /** @type {{x: number, y: number}} */ (
+      stack.pop()
+    );
     if (!comparePixel(px, py)) continue;
 
     Processed[py * w + px] = 1;
@@ -2087,8 +2099,9 @@ CPColorBmp.prototype.getNonTransparentBounds = function (initialBounds) {
 /**
  * Returns a new canvas with a rotated version of the given canvas.
  *
- * @param {HTMLCanvasElement} canvas
+ * @param {any} canvas
  * @param {number} rotation - [0..3], selects a multiple of 90 degrees of clockwise rotation to be applied.
+ * @return {any}
  */
 export function getRotatedCanvas(canvas, rotation) {
   rotation = rotation % 4;
@@ -2165,7 +2178,7 @@ CPColorBmp.prototype.getAsCanvas = function (rotation) {
  * Rotation is [0..3] and selects a multiple of 90 degrees of clockwise rotation to be applied, or 0 to leave
  * unrotated.
  *
- * @returns {string} - "Binary string" representation of the PNG file
+ * @returns {string|false} - "Binary string" representation of the PNG file
  */
 CPColorBmp.prototype.getAsPNG = function (rotation) {
   let canvas = this.getAsCanvas(rotation);
@@ -2182,6 +2195,7 @@ CPColorBmp.prototype.getAsPNG = function (rotation) {
  * @returns {Buffer}
  */
 CPColorBmp.prototype.getAsPNGBuffer = function (rotation) {
+  /** @type {any} */
   let canvas = this.getAsCanvas(rotation);
 
   // API provided by node-canvas for running on Node (browsers don't support this)
@@ -2233,7 +2247,7 @@ CPColorBmp.prototype.hasAlpha = function () {
 /**
  * Create from a loaded HTML Image object
  *
- * @param {HTMLImageElement} image
+ * @param {any} image
  */
 CPColorBmp.createFromImage = function (image) {
   var imageCanvas = createCanvas(image.width, image.height),

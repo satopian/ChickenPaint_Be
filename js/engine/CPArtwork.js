@@ -3139,6 +3139,10 @@ export default class CPArtwork extends EventEmitter {
       }
     }
 
+    /**
+     * @class
+     * @extends {CPUndo}
+     */
     class CPActionTransformSelection extends CPUndo {
       constructor() {
         super();
@@ -3187,8 +3191,8 @@ export default class CPArtwork extends EventEmitter {
          *
          * We either have these full undos which cover the whole layer area:
          *
-         * @property {?CPColorBmp} imageUndo
-         * @property {?CPGreyBmp} maskUndo
+         * @property {?CPColorBmp} [imageUndo]
+         * @property {?CPGreyBmp} [maskUndo]
          *
          * Or else we have this map from rectangles to images which cover the dirtied areas only.
          *
