@@ -1,12 +1,3 @@
-/*
-    litaChix
-    https://github.com/satopian/ChickenPaint_Be
-    by satopian
-    Customized from ChickenPaint by Nicholas Sherlock.
-    GNU GENERAL PUBLIC LICENSE
-    Version 3, 29 June 2007
-    <http://www.gnu.org/licenses/>
-*/
 export default function CPSplashScreen(uiParent, loader, resourcesRoot) {
   const MAX_SMOOTHIE_OFFSET = 170;
 
