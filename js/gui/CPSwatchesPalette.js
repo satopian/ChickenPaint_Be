@@ -1,4 +1,13 @@
 /*
+    litaChix
+    https://github.com/satopian/ChickenPaint_Be
+    by satopian
+    Customized from ChickenPaint by Nicholas Sherlock.
+    GNU GENERAL PUBLIC LICENSE
+    Version 3, 29 June 2007
+    <http://www.gnu.org/licenses/>
+*/
+/*
     ChickenPaint
     
     ChickenPaint is a translation of ChibiPaint from Java to JavaScript
@@ -137,7 +146,10 @@ export default class CPSwatchesPalette extends CPPalette {
       let colors = new Array(swatches.length);
 
       for (let i = 0; i < swatches.length; i++) {
-        colors[i] = parseInt(swatches[i].getAttribute("data-color"), 10);
+        const swatchesDataColor = swatches[i].getAttribute("data-color");
+        if (swatchesDataColor) {
+          colors[i] = parseInt(swatchesDataColor, 10);
+        }
       }
 
       return colors;

@@ -1,3 +1,13 @@
+/*
+    litaChix
+    https://github.com/satopian/ChickenPaint_Be
+    by satopian
+    Customized from ChickenPaint by Nicholas Sherlock.
+    GNU GENERAL PUBLIC LICENSE
+    Version 3, 29 June 2007
+    <http://www.gnu.org/licenses/>
+*/
+
 import { save as chiSave } from "./CPChibiFile.js";
 import AdobeColorTable from "../util/AdobeColorTable.js";
 import EventEmitter from "wolfy87-eventemitter";

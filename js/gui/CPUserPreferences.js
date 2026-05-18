@@ -27,11 +27,15 @@ export default class CPUserPreferences extends EventEmitter {
 
   load() {
     let parsed = {};
-
-    try {
-      parsed = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_NAME));
-    } catch (e) {
-      console.error(e);
+    const getitemLocalStorageKeyName = localStorage.getItem(
+      LOCAL_STORAGE_KEY_NAME,
+    );
+    if (getitemLocalStorageKeyName) {
+      try {
+        parsed = JSON.parse(getitemLocalStorageKeyName);
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     if (!parsed || typeof parsed !== "object") {
