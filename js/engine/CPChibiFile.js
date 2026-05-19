@@ -143,10 +143,11 @@ class ChibiLayerDecoder {
   }
 
   /**
-   * @returns {CPImageLayer|void}
+   * Create a layer using the properties previously read into this decoder.
+   *
+   * @returns {any}
    */
   createLayer() {}
-
   readFixedHeader(stream) {
     this.payloadOffset = stream.readU32BE();
 

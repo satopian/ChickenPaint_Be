@@ -42,7 +42,6 @@ import CPVector from "../util/CPVector.js";
 
 import ChickenPaint from "../ChickenPaint.js";
 
-import CPBrushInfo from "../engine/CPBrushInfo.js";
 import CPLayerGroup from "../engine/CPLayerGroup.js";
 import CPMaskView from "../engine/CPMaskView.js";
 
@@ -2719,6 +2718,9 @@ export default class CPCanvas extends EventEmitter {
           x: artwork.width / 2,
           y: artwork.height / 2,
         });
+      if (!artworkCenter) {
+        return;
+      }
 
       that.setOffset(
         Math.round(offsetX + width / 2.0 - artworkCenter.x),
@@ -2980,7 +2982,7 @@ export default class CPCanvas extends EventEmitter {
       return e.pressure * 2;
     }
 
-    let mouseWheelDebounce = false;
+    let mouseWheelDebounce = null;
 
     function handleMouseWheel(e) {
       if (e.deltaY != 0) {
@@ -3015,7 +3017,7 @@ export default class CPCanvas extends EventEmitter {
           mouseWheelDebounce =
             mouseWheelDebounce ||
             setTimeout(function () {
-              mouseWheelDebounce = false;
+              mouseWheelDebounce = null;
             }, 50);
         }
 
