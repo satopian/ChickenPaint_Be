@@ -1039,15 +1039,14 @@ CPColorBmp.prototype.colorHalftone = function (rect, dotSize, density = 1.0) {
 /**
  * 縁取り
  *
- * ・内側は元画像の不透明度を維持し、外側に向かって縁を広げる
+ * ・内側＋縁取り範囲をすべて縁取り色で塗り潰す
  * ・外側境界 1px のみアンチエイリアス
  * ・最後に元画像を α 合成で戻す
  *
- * @param {CPRect} rect 縁取りを行う矩形範囲
- * @param {number} edgeWidth 縁の幅 (px)
- * @param {number} color 縁の色 (0xRRGGBB)
+ * @param {CPRect} rect
+ * @param {number} edgeWidth px
+ * @param {number} color 0xRRGGBB
  * @param {boolean} replaceWithInnerFill true で内側を縁取り色で塗りつぶす
- * @returns {void}
  */
 CPColorBmp.prototype.edge = function (
   rect,
@@ -1055,22 +1054,17 @@ CPColorBmp.prototype.edge = function (
   color,
   replaceWithInnerFill,
 ) {
-  // パラメータの型・値の安全な初期化
   edgeWidth = Math.max(1, edgeWidth | 0);
-  color = color | 0;
-  replaceWithInnerFill = !!replaceWithInnerFill;
 
-  // 範囲クリップ
-  rect = this.getBounds().clipTo(rect);
+  rect = this.getBounds ? this.getBounds().clipTo(rect) : rect;
 
-  // 色成分の分解
   const r = (color >> 16) & 0xff;
   const g = (color >> 8) & 0xff;
   const b = color & 0xff;
 
-  const w = this.width | 0;
-  const h = this.height | 0;
-  const B = CPColorBmp.BYTES_PER_PIXEL | 0;
+  const w = this.width;
+  const h = this.height;
+  const B = CPColorBmp.BYTES_PER_PIXEL;
 
   const src = new Uint8ClampedArray(this.data);
   const dst = new Uint8ClampedArray(this.data.length);
@@ -1078,18 +1072,17 @@ CPColorBmp.prototype.edge = function (
   const INF = 1e9;
   const dist = new Int32Array(w * h);
 
-  // 1) 距離初期化：1でもアルファがあれば縁取りの対象とする
+  // 1) 距離初期化
   for (let y = rect.top; y < rect.bottom; y++) {
     for (let x = rect.left; x < rect.right; x++) {
-      const idx = y * w + x;
-      const i = idx * B;
-      dist[idx] = src[i + 3] > 0 ? 0 : INF;
+      const i = (y * w + x) * B;
+      dist[y * w + x] = src[i + 3] > 0 ? 0 : INF;
     }
   }
 
   const R = edgeWidth * 10; // Chamfer単位
 
-  // 2) 前方パス
+  // 2) 前方パス（Chamfer 10/14）
   for (let y = rect.top; y < rect.bottom; y++) {
     for (let x = rect.left; x < rect.right; x++) {
       const i = y * w + x;
@@ -1118,7 +1111,7 @@ CPColorBmp.prototype.edge = function (
     }
   }
 
-  // 4) 内側＋縁取り塗り
+  // 4) 内側＋縁取り塗り（外縁AA）
   for (let y = rect.top; y < rect.bottom; y++) {
     for (let x = rect.left; x < rect.right; x++) {
       const idx = y * w + x;
@@ -1128,15 +1121,10 @@ CPColorBmp.prototype.edge = function (
       const i = idx * B;
       let a = 1;
 
-      if (d === 0) {
-        // 元画像のアルファ値をそのまま下地に適用
-        a = src[i + 3] / 255;
-      } else {
-        // 縁取り（外側）の部分：外側境界1pxのみアンチエイリアス
-        if (d > R - 10) {
-          a = (R - d) / 10;
-          a = a * a; // 適度シャープ
-        }
+      // 外側1pxのみAA
+      if (d > R - 10) {
+        a = (R - d) / 10;
+        a = a * a; // 適度シャープ
       }
 
       dst[i] = r;
@@ -1147,14 +1135,15 @@ CPColorBmp.prototype.edge = function (
   }
 
   if (!replaceWithInnerFill) {
-    // 5) 元画像 α 合成で戻す（Normal blend）
+    // 5) 元画像 α 合成で戻す
     for (let i = 0; i < dst.length; i += 4) {
-      const sa = src[i + 3] / 255; // 元画像のアルファ
-      const da = dst[i + 3] / 255; // 縁取り下地のアルファ
+      const sa = src[i + 3] / 255;
+      if (sa === 0) continue;
 
-      if (sa === 0 && da === 0) continue;
+      const da = dst[i + 3] / 255;
 
-      // 通常の重ね合わせ（下地の上に元画像をそのまま乗せる）
+      // 半透明ピクセルのブレンド時に隙間（白い線）が出ないよう、
+      // 下地（dst）が不透明なら完全に不透明（100%）に結合されるブレンド数式に。
       const outA = sa + da * (1 - sa);
 
       if (outA > 0) {
@@ -1170,6 +1159,7 @@ CPColorBmp.prototype.edge = function (
 
   this.data.set(dst);
 };
+
 /**
  * 描画領域(Alpha > 0)の色を現在の選択色に置換
  * - Alphaは維持する
