@@ -437,8 +437,8 @@ export default class CPPaletteManager extends EventEmitter {
       let palette = palettes[paletteName],
         palElement = palette.getElement();
 
-      palette.on("paletteVisChange", () => {
-        showPalette(this, false);
+      palette.on("paletteVisChange", (e) => {
+        showPalette(palettes[e.paletteName], false);
       });
 
       if (paletteName in collapseDownwards) {
