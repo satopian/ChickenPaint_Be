@@ -1141,9 +1141,6 @@ CPColorBmp.prototype.edge = function (
       if (sa === 0) continue;
 
       const da = dst[i + 3] / 255;
-
-      // 半透明ピクセルのブレンド時に隙間（白い線）が出ないよう、
-      // 下地（dst）が不透明なら完全に不透明（100%）に結合されるブレンド数式に。
       const outA = sa + da * (1 - sa);
 
       if (outA > 0) {
