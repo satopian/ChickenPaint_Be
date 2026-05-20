@@ -109,23 +109,30 @@ export default function CPBoxBlurDialog(parent, controller) {
 
   // 「OK」ボタンのクリックイベント
   applyButton?.addEventListener("click", (e) => {
-    const blur = Math.min(
-      200,
-      Math.max(1, parseInt(blurAmountElem?.value, 10) || 1),
-    );
-    const iterations = Math.min(
-      Math.max(parseInt(blurIterationsElem?.value, 10), 1),
-      8,
-    );
-    // チェックONなら結合レイヤーを追加して全体に適用
-    const createMergedLayerElem = dialog.querySelector("#createMergedLayer");
-    const createMergedLayer =
-      createMergedLayerElem instanceof HTMLInputElement &&
-      createMergedLayerElem.checked;
+    if (
+      blurAmountElem instanceof HTMLInputElement &&
+      blurIterationsElem instanceof HTMLInputElement
+    ) {
+      const blur = Math.min(
+        200,
+        Math.max(1, parseInt(blurAmountElem?.value, 10) || 1),
+      );
+      const iterations = Math.min(
+        Math.max(parseInt(blurIterationsElem?.value, 10), 1),
+        8,
+      );
+      // チェックONなら結合レイヤーを追加して全体に適用
+      const createMergedLayerElem = dialog.querySelector("#createMergedLayer");
+      const createMergedLayer =
+        createMergedLayerElem instanceof HTMLInputElement &&
+        createMergedLayerElem.checked;
 
-    controller.getArtwork().boxBlur(blur, blur, iterations, createMergedLayer);
-    controller.setModalShown(false);
-    modal.hide(); // モーダルを閉じる
+      controller
+        .getArtwork()
+        .boxBlur(blur, blur, iterations, createMergedLayer);
+      controller.setModalShown(false);
+      modal.hide(); // モーダルを閉じる
+    }
   });
 
   // モーダルが閉じられた後の処理

@@ -110,32 +110,38 @@ export default function CPchromaticAberration(parent, controller) {
 
   // 「OK」ボタンのクリックイベント
   applyButton?.addEventListener("click", () => {
-    const dotSize = Math.max(
-      5,
-      Math.min(512, parseInt(dotSizeElem?.value, 10) || 0),
-    );
+    if (dotSizeElem instanceof HTMLInputElement) {
+      const dotSize = Math.max(
+        5,
+        Math.min(512, parseInt(dotSizeElem.value, 10) || 0),
+      );
 
-    // チェックONなら結合レイヤーを追加して全体に適用
-    const createMergedLayerElem = dialog.querySelector("#createMergedLayer");
-    const createMergedLayer =
-      createMergedLayerElem instanceof HTMLInputElement &&
-      createMergedLayerElem.checked;
-    controller.getArtwork().colorHalftone(dotSize, createMergedLayer);
-    controller.setModalShown(false);
-    modal.hide(); // モーダルを手動で閉じる
+      // チェックONなら結合レイヤーを追加して全体に適用
+      const createMergedLayerElem = dialog.querySelector("#createMergedLayer");
+      const createMergedLayer =
+        createMergedLayerElem instanceof HTMLInputElement &&
+        createMergedLayerElem.checked;
+      controller.getArtwork().colorHalftone(dotSize, createMergedLayer);
+      controller.setModalShown(false);
+      modal.hide(); // モーダルを手動で閉じる
+    }
   });
 
   // モーダルが表示されたときに、入力フィールドにフォーカス
   dialog.addEventListener("shown.bs.modal", () => {
-    controller.setModalShown(true);
-    dotSizeElem?.focus();
+    if (dotSizeElem instanceof HTMLInputElement) {
+      controller.setModalShown(true);
+      dotSizeElem.focus();
+    }
   });
 
   // Enterキーが押されたときの処理
   dialog.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      e.preventDefault(); // フォーム送信を防ぐ
-      applyButton?.click(); // OKボタンをクリックしたことにする
+      if (applyButton instanceof HTMLInputElement) {
+        e.preventDefault(); // フォーム送信を防ぐ
+        applyButton.click(); // OKボタンをクリックしたことにする
+      }
     }
   });
 

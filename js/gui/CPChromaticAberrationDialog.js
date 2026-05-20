@@ -122,25 +122,30 @@ export default function CPchromaticAberration(parent, controller) {
 
   // 「OK」ボタンのクリックイベント
   applyButton?.addEventListener("click", () => {
-    const offsetX = Math.max(
-      -64,
-      Math.min(64, parseInt(aberrationSizeXElem?.value, 10) || 0),
-    );
+    if (
+      aberrationSizeXElem instanceof HTMLInputElement &&
+      aberrationSizeYElem instanceof HTMLInputElement
+    ) {
+      const offsetX = Math.max(
+        -64,
+        Math.min(64, parseInt(aberrationSizeXElem?.value, 10) || 0),
+      );
 
-    const offsetY = Math.max(
-      -64,
-      Math.min(64, parseInt(aberrationSizeYElem?.value, 10) || 0),
-    );
-    // チェックONなら結合レイヤーを追加して全体に適用
-    const createMergedLayerElem = dialog.querySelector("#createMergedLayer");
-    const createMergedLayer =
-      createMergedLayerElem instanceof HTMLInputElement &&
-      createMergedLayerElem.checked;
-    controller
-      .getArtwork()
-      .chromaticAberration(offsetX, offsetY, createMergedLayer);
-    controller.setModalShown(false);
-    modal.hide(); // モーダルを手動で閉じる
+      const offsetY = Math.max(
+        -64,
+        Math.min(64, parseInt(aberrationSizeYElem?.value, 10) || 0),
+      );
+      // チェックONなら結合レイヤーを追加して全体に適用
+      const createMergedLayerElem = dialog.querySelector("#createMergedLayer");
+      const createMergedLayer =
+        createMergedLayerElem instanceof HTMLInputElement &&
+        createMergedLayerElem.checked;
+      controller
+        .getArtwork()
+        .chromaticAberration(offsetX, offsetY, createMergedLayer);
+      controller.setModalShown(false);
+      modal.hide(); // モーダルを手動で閉じる
+    }
   });
 
   // モーダルが表示されたときに、入力フィールドにフォーカス

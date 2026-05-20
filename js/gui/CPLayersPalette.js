@@ -144,7 +144,7 @@ export default class CPLayersPalette extends CPPalette {
       renameField = new CPRenameField(),
       cbSampleAllLayers = document.createElement("input"),
       cbLockAlpha = document.createElement("input"),
-      notificationDismissTimer = false,
+      notificationDismissTimer = null,
       layerActionButtons;
 
     /**
@@ -220,8 +220,20 @@ export default class CPLayersPalette extends CPPalette {
            */
           initialScrollTop: 0,
 
+          /**
+           * ドロップ位置の判定
+           * @type {any}
+           */
           dropTarget: null,
+          /**
+           * @type {?HTMLElement}
+           */
+
           dropBetweenMarkerElem: null,
+          /**
+           * ドラッグ中のレイヤーの外枠要素
+           * @type {?HTMLElement}
+           */
           frameElem: null,
         },
         widgetContainer = document.createElement("div"),
@@ -240,7 +252,7 @@ export default class CPLayersPalette extends CPPalette {
          *
          * @type {CPLayer}
          */
-        dropdownLayer = null,
+        // dropdownLayer = null,
         /**
          * True if we right-clicked on the mask of the layer for the dropdown.
          * @type {boolean}
@@ -451,15 +463,20 @@ export default class CPLayersPalette extends CPPalette {
                   (markerDepth > 0
                     ? 26 + LAYER_IN_GROUP_INDENT * markerDepth
                     : 0);
-                drag.dropBetweenMarkerElem.style.left = markerLeft + "px";
-                drag.dropBetweenMarkerElem.style.width =
-                  layerRect.right - positionRootBounds.left - markerLeft + "px";
-                drag.dropBetweenMarkerElem.style.top =
-                  (drag.dropTarget.direction === "over"
-                    ? layerRect.top - 1
-                    : layerBottom + 1) -
-                  positionRootBounds.top +
-                  "px";
+                if (drag.dropBetweenMarkerElem) {
+                  drag.dropBetweenMarkerElem.style.left = markerLeft + "px";
+                  drag.dropBetweenMarkerElem.style.width =
+                    layerRect.right -
+                    positionRootBounds.left -
+                    markerLeft +
+                    "px";
+                  drag.dropBetweenMarkerElem.style.top =
+                    (drag.dropTarget.direction === "over"
+                      ? layerRect.top - 1
+                      : layerBottom + 1) -
+                    positionRootBounds.top +
+                    "px";
+                }
 
                 layerContainer
                   .querySelectorAll(".chickenpaint-layer-drop-target")
@@ -500,11 +517,13 @@ export default class CPLayersPalette extends CPPalette {
             drag.dropBetweenMarkerElem?.remove();
           }
 
-          drag.frameElem.style.top =
-            drag.dragY -
-            positionRootBounds.top -
-            parseInt(drag.frameElem.style.height, 10) / 2 +
-            "px";
+          if (drag.frameElem) {
+            drag.frameElem.style.top =
+              drag.dragY -
+              positionRootBounds.top -
+              parseInt(drag.frameElem.style.height, 10) / 2 +
+              "px";
+          }
         } else {
           drag.dropBetweenMarkerElem?.remove();
           drag.frameElem?.remove();
@@ -1228,9 +1247,9 @@ export default class CPLayersPalette extends CPPalette {
             activeLayer.blendMode !== blendMode &&
             !activeLayer.useLegacyMultiply
           ) {
-            option.value = CPBlend.LM_MULTIPLY2;
+            option.value = CPBlend.LM_MULTIPLY2.toString();
           } else {
-            option.value = blendMode;
+            option.value = blendMode.toString();
           }
 
           blendCombo.appendChild(option);
@@ -1588,7 +1607,7 @@ export default class CPLayersPalette extends CPPalette {
 
       if (notificationDismissTimer) {
         clearTimeout(notificationDismissTimer);
-        notificationDismissTimer = false;
+        notificationDismissTimer = null;
       }
     };
 
@@ -1625,7 +1644,7 @@ export default class CPLayersPalette extends CPPalette {
 
       notificationDismissTimer = setTimeout(
         () => {
-          notificationDismissTimer = false;
+          notificationDismissTimer = null;
           this.dismissNotification();
         },
         Math.max(

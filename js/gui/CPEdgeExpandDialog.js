@@ -112,31 +112,41 @@ export default function CPEdge(parent, controller) {
 
   // 「OK」ボタンのクリックイベント
   applyButton?.addEventListener("click", () => {
-    const edgeWidth = Math.max(
-      1,
-      Math.min(128, parseInt(edgeWidthElem?.value, 10) || 0),
-    );
+    if (edgeWidthElem instanceof HTMLInputElement) {
+      const edgeWidth = Math.max(
+        1,
+        Math.min(128, parseInt(edgeWidthElem?.value, 10) || 0),
+      );
 
-    const replaceWithInnerFill = dialog.querySelector(
-      "#replaceWithInnerFill",
-    )?.checked;
-    controller.getArtwork().edge(edgeWidth, replaceWithInnerFill);
-    controller.setModalShown(false);
+      const replaceWithInnerFillElem = dialog.querySelector(
+        "#replaceWithInnerFill",
+      );
 
-    modal.hide(); // モーダルを手動で閉じる
+      const replaceWithInnerFill =
+        replaceWithInnerFillElem instanceof HTMLInputElement &&
+        replaceWithInnerFillElem.checked;
+      controller.getArtwork().edge(edgeWidth, replaceWithInnerFill);
+      controller.setModalShown(false);
+
+      modal.hide(); // モーダルを手動で閉じる
+    }
   });
 
   // モーダルが表示されたときに、入力フィールドにフォーカス
   dialog.addEventListener("shown.bs.modal", () => {
     controller.setModalShown(true);
-    edgeWidthElem?.focus();
+    if (edgeWidthElem instanceof HTMLInputElement) {
+      edgeWidthElem?.focus();
+    }
   });
 
   // Enterキーが押されたときの処理
   dialog.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault(); // フォーム送信を防ぐ
-      applyButton?.click(); // OKボタンをクリックしたことにする
+      if (applyButton instanceof HTMLInputElement) {
+        applyButton.click(); // OKボタンをクリックしたことにする
+      }
     }
   });
 
