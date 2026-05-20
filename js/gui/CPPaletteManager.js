@@ -154,7 +154,11 @@ export default class CPPaletteManager extends EventEmitter {
         paletteElement.querySelector(".deselectButton");
       const iconColor = "rgb(49, 130, 216)";
       if (
-        !(menuDeselectIcon && paletteDeselectIcon && paletteDdeselectButton)
+        !(
+          menuDeselectIcon &&
+          paletteDeselectIcon instanceof HTMLElement &&
+          paletteDdeselectButton instanceof HTMLElement
+        )
       ) {
         return;
       }

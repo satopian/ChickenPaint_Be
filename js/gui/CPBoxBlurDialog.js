@@ -118,8 +118,10 @@ export default function CPBoxBlurDialog(parent, controller) {
       8,
     );
     // チェックONなら結合レイヤーを追加して全体に適用
+    const createMergedLayerElem = dialog.querySelector("#createMergedLayer");
     const createMergedLayer =
-      dialog.querySelector("#createMergedLayer")?.checked;
+      createMergedLayerElem instanceof HTMLInputElement &&
+      createMergedLayerElem.checked;
 
     controller.getArtwork().boxBlur(blur, blur, iterations, createMergedLayer);
     controller.setModalShown(false);

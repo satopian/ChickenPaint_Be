@@ -860,7 +860,7 @@ export default class CPCanvas extends EventEmitter {
 
             this.capture = false;
 
-            this.drawLine(from, to);
+            ref.drawLine(from, to);
 
             var invalidateRect = new CPRect(
               Math.min(dragLineFrom.x, dragLineTo.x) - LINE_PREVIEW_WIDTH - 1,
@@ -934,7 +934,7 @@ export default class CPCanvas extends EventEmitter {
 
         this.mouseDown = function (e, button, pressure) {
           if (this.capture && button == BUTTON_SECONDARY) {
-            this.cancelBezier();
+            ref.cancelBezier();
             return true;
           }
           if (
@@ -1053,7 +1053,12 @@ export default class CPCanvas extends EventEmitter {
               p2 = coordToDisplay(dragBezierP2),
               p3 = coordToDisplay(dragBezierP3);
 
-            if (!p0 || !p1 || !p2 || !p3) {
+            if (
+              typeof p0 === "undefined" ||
+              typeof p1 === "undefined" ||
+              typeof p2 === "undefined" ||
+              typeof p3 === "undefined"
+            ) {
               return;
             }
 
@@ -1293,7 +1298,7 @@ export default class CPCanvas extends EventEmitter {
       constructor() {
         super();
         var panningX, panningY, panningOffset, panningButton;
-
+        const ref = this;
         this.keyDown = function (e) {
           if (e.repeat) return; // キーが押され続けている場合は無視
           if (!(e.ctrlKey || e.metaKey) && e.key === " ") {
@@ -1329,7 +1334,7 @@ export default class CPCanvas extends EventEmitter {
             (key.isPressed("space") &&
               !(e.ctrlKey || e.metaKey) &&
               button == BUTTON_PRIMARY) ||
-            (!this.transient && button == BUTTON_PRIMARY)
+            (!ref.transient && button == BUTTON_PRIMARY)
           ) {
             this.capture = true;
             panningButton = button;
@@ -1339,7 +1344,7 @@ export default class CPCanvas extends EventEmitter {
             setCursor(CURSOR_PANNABLE);
 
             return true;
-          } else if (this.transient) {
+          } else if (ref.transient) {
             // If we're not panning and we get a button not intended for us, we probably shouldn't be on the stack
             modeStack.pop();
           }
@@ -1367,7 +1372,7 @@ export default class CPCanvas extends EventEmitter {
             if (modeStack.peek() !== this) return true;
 
             if (
-              this.transient &&
+              ref.transient &&
               !key.isPressed("space") &&
               !(e.ctrlKey || e.metaKey)
             ) {
@@ -1627,9 +1632,9 @@ export default class CPCanvas extends EventEmitter {
             duplicateSelectionCheckbox.checked = false;
           }
 
-          if (this.capture && button == BUTTON_PRIMARY) {
-            this.capture = false;
-            if (this.transient) {
+          if (ref.capture && button == BUTTON_PRIMARY) {
+            ref.capture = false;
+            if (ref.transient) {
               modeStack.pop();
             }
             return true;
@@ -1924,10 +1929,13 @@ export default class CPCanvas extends EventEmitter {
                    * center of the selection, so first rotate the selection to square it up with the axes,
                    * then we'll pivot the selection about its center to the new angle.
                    */
-                  rotateAngle =
-                    -affine.decompose().rotate +
-                    Math.round(rotationAccumulator / DRAG_ROTATE_SNAP_ANGLE) *
-                      DRAG_ROTATE_SNAP_ANGLE;
+                  const affineDecompose = affine.decompose();
+                  if (affineDecompose) {
+                    rotateAngle =
+                      -affineDecompose.rotate +
+                      Math.round(rotationAccumulator / DRAG_ROTATE_SNAP_ANGLE) *
+                        DRAG_ROTATE_SNAP_ANGLE;
+                  }
                 } else {
                   rotateAngle = deltaMouseAngle;
                 }
@@ -1936,7 +1944,7 @@ export default class CPCanvas extends EventEmitter {
                  * end up scaling on top of the rotated selection later (which would cause an unwanted shear)
                  */
                 // 反転時は回転方向を逆に
-                if (isViewFlipped) {
+                if (isViewFlipped && typeof rotateAngle === "number") {
                   rotateAngle = -rotateAngle;
                 }
                 rotateInstance.rotateAroundPoint(
@@ -2290,6 +2298,7 @@ export default class CPCanvas extends EventEmitter {
     class CPRotateCanvasMode extends CPMode {
       constructor() {
         super();
+        const ref = this;
         var firstClick,
           initAngle = 0.0,
           initTransform,
@@ -2297,10 +2306,10 @@ export default class CPCanvas extends EventEmitter {
           rotateButton = -1;
 
         this.mouseDown = function (e, button, pressure) {
-          if (this.capture) {
+          if (ref.capture) {
             return true;
           } else if (
-            (!this.transient &&
+            (!ref.transient &&
               button == BUTTON_PRIMARY &&
               !e.altKey &&
               !key.isPressed("space")) ||
@@ -2328,7 +2337,7 @@ export default class CPCanvas extends EventEmitter {
             setCursor(CURSOR_PANNABLE);
 
             return true;
-          } else if (this.transient) {
+          } else if (ref.transient) {
             modeStack.pop();
           }
         };
@@ -2364,10 +2373,14 @@ export default class CPCanvas extends EventEmitter {
             rotTrans.multiply(initTransform);
 
             that.setRotation(initAngle + deltaAngle);
-            that.setOffset(
-              ~~rotTrans.getTranslateX(),
-              ~~rotTrans.getTranslateY(),
-            );
+            const rotTransGetTranslateX = rotTrans.getTranslateX();
+            const rotTransGetTranslateY = rotTrans.getTranslateY();
+            if (
+              typeof rotTransGetTranslateX === "number" &&
+              typeof rotTransGetTranslateY === "number"
+            ) {
+              that.setOffset(~~rotTransGetTranslateX, ~~rotTransGetTranslateY);
+            }
 
             dragged = true;
 
@@ -2400,11 +2413,15 @@ export default class CPCanvas extends EventEmitter {
             rotTrans.multiply(initTransform);
 
             that.setRotation(initAngle + deltaAngle);
-            that.setOffset(
-              ~~rotTrans.getTranslateX(),
-              ~~rotTrans.getTranslateY(),
-            );
+            const rotTransGetTranslateX = rotTrans.getTranslateX();
+            const rotTransGetTranslateY = rotTrans.getTranslateY();
 
+            if (
+              typeof rotTransGetTranslateX === "number" &&
+              typeof rotTransGetTranslateY === "number"
+            ) {
+              that.setOffset(~~rotTransGetTranslateX, ~~rotTransGetTranslateY);
+            }
             that.repaintAll();
           }
 
@@ -2421,7 +2438,7 @@ export default class CPCanvas extends EventEmitter {
 
             this.capture = false;
 
-            if (this.transient && !key.isPressed("r")) {
+            if (ref.transient && !key.isPressed("r")) {
               setCursor(CURSOR_DEFAULT);
 
               modeStack.pop();
@@ -2561,6 +2578,10 @@ export default class CPCanvas extends EventEmitter {
         new CPRect(0, 0, artworkCanvas.width, artworkCanvas.height),
       );
 
+      if (!visibleRect) {
+        return;
+      }
+
       updateScrollBar(
         horzScroll,
         visibleRect.left,
@@ -2648,11 +2669,14 @@ export default class CPCanvas extends EventEmitter {
      * @returns {*[]}
      */
     function rectToDisplay(rect) {
-      var center = coordToDisplay({
-          x: (rect.left + rect.right) / 2,
-          y: (rect.top + rect.bottom) / 2,
-        }),
-        coords = rect.toPoints();
+      const center = coordToDisplay({
+        x: (rect.left + rect.right) / 2,
+        y: (rect.top + rect.bottom) / 2,
+      });
+      if (!center) {
+        return [];
+      }
+      const coords = rect.toPoints();
 
       for (var i = 0; i < coords.length; i++) {
         coords[i] = coordToDisplayInt(coords[i]);
@@ -2693,7 +2717,12 @@ export default class CPCanvas extends EventEmitter {
         p3 = coordToDisplayInt({ x: r.right, y: r.top - 1 }),
         p4 = coordToDisplayInt({ x: r.right, y: r.bottom });
 
-      if (!p1 || !p2 || !p3 || !p4) {
+      if (
+        typeof p1 === "undefined" ||
+        typeof p2 === "undefined" ||
+        typeof p3 === "undefined" ||
+        typeof p4 === "undefined"
+      ) {
         return;
       }
       let r2 = new CPRect(
@@ -2923,10 +2952,16 @@ export default class CPCanvas extends EventEmitter {
         //さらに反転して戻す
         viewFlip(rotTrans);
       }
-
-      this.setOffset(~~rotTrans.getTranslateX(), ~~rotTrans.getTranslateY());
-      this.setRotation(0);
-      that.emitEvent("canvasRotated90", [0]);
+      const rotTransGetTranslateX = rotTrans.getTranslateX();
+      const rotTransGetTranslateY = rotTrans.getTranslateY();
+      if (
+        typeof rotTransGetTranslateX === "number" &&
+        typeof rotTransGetTranslateY === "number"
+      ) {
+        this.setOffset(~~rotTransGetTranslateX, ~~rotTransGetTranslateY);
+        this.setRotation(0);
+        that.emitEvent("canvasRotated90", [0]);
+      }
     };
 
     //ズームと回転をリセット

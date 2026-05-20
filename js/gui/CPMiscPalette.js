@@ -119,12 +119,13 @@ export default class CPMiscPalette extends CPPalette {
 
       listElem.addEventListener("click", function (e) {
         // クリックされた要素が <li> 内の何らかの要素の場合、親の <li> を取得
-        const liElem = e.target?.closest("li");
+        const target = e.target instanceof HTMLElement ? e.target : null;
+        const liElem = target?.closest("li");
 
         // 親が <li> であれば処理を行う
-        if (liElem) {
+        if (liElem instanceof HTMLElement) {
           let buttonIndex = parseInt(
-            liElem.getAttribute("data-buttonIndex"),
+            liElem.getAttribute("data-buttonIndex") ?? "0",
             10,
           );
           let button = buttons[buttonIndex];

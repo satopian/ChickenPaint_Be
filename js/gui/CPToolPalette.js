@@ -257,7 +257,7 @@ export default class CPToolPalette extends CPPalette {
         const liElem =
           target instanceof HTMLElement ? target.closest("li") : ""; // クリックされた要素が li の場合、それを取得
 
-        if (liElem) {
+        if (liElem instanceof HTMLElement) {
           const data_buttonIndex =
             liElem.getAttribute("data-buttonIndex") ?? "0";
           let buttonIndex = parseInt(data_buttonIndex, 10);

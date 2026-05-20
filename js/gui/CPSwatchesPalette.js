@@ -179,8 +179,10 @@ export default class CPSwatchesPalette extends CPPalette {
           reader = new FileReader();
 
         reader.onload = function () {
-          let swatches = new AdobeColorTable().read(this.result);
-
+          let swatches = null;
+          if (this.result && this.result instanceof ArrayBuffer) {
+            swatches = new AdobeColorTable().read(new Uint8Array(this.result));
+          }
           if (swatches != null && swatches.length > 0) {
             that.setSwatches(swatches);
           } else {
@@ -198,7 +200,9 @@ export default class CPSwatchesPalette extends CPPalette {
 
     function saveSwatches() {
       let aco = new AdobeColorTable().write(that.getSwatches()),
-        blob = new Blob([aco], { type: "application/octet-stream" });
+        blob = new Blob([new Uint8Array(aco)], {
+          type: "application/octet-stream",
+        });
 
       FileSaver.saveAs(blob, "oekakiswatches.aco");
     }

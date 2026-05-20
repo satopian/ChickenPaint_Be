@@ -116,8 +116,10 @@ export default function CPchromaticAberration(parent, controller) {
     );
 
     // チェックONなら結合レイヤーを追加して全体に適用
+    const createMergedLayerElem = dialog.querySelector("#createMergedLayer");
     const createMergedLayer =
-      dialog.querySelector("#createMergedLayer")?.checked;
+      createMergedLayerElem instanceof HTMLInputElement &&
+      createMergedLayerElem.checked;
     controller.getArtwork().monoHalftone(dotSize, createMergedLayer);
     controller.setModalShown(false);
     modal.hide(); // モーダルを手動で閉じる

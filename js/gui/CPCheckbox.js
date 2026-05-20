@@ -92,10 +92,10 @@ export default class CPCheckbox extends EventEmitter {
 
     canvas.width = 20;
     canvas.height = 20;
-
-    canvas.fillStyle = "black";
-    canvas.strokeStyle = "black";
-
+    if (canvasContext) {
+      canvasContext.fillStyle = "black";
+      canvasContext.strokeStyle = "black";
+    }
     paint();
   }
 }

@@ -124,8 +124,10 @@ export default class CPSendDialog extends EventEmitter {
         return;
       }
       progressMessageElem.textContent = message;
-      progressElem.setAttribute("aria-valuenow", progress * 100);
-      progressElem.style.width = progress * 100 + "%";
+      progressElem.setAttribute("aria-valuenow", (progress * 100).toString());
+      if (progressElem instanceof HTMLElement) {
+        progressElem.style.width = progress * 100 + "%";
+      }
     });
 
     resourceSaver.on("savingComplete", function () {
@@ -189,7 +191,9 @@ export default class CPSendDialog extends EventEmitter {
         if (serverMessage.length > 0) {
           errorMessage += `<br><br>${_("The error returned from the server was")}:`;
           progressError.textContent = serverMessage;
-          progressError.style.display = "block";
+          if (progressError instanceof HTMLElement) {
+            progressError.style.display = "block";
+          }
         }
       }
       progressMessageElem.innerHTML = errorMessage;
@@ -209,7 +213,7 @@ export default class CPSendDialog extends EventEmitter {
     }
 
     let exitButton = dialog.querySelector(".chickenpaint-exit");
-    if (exitButton) {
+    if (exitButton instanceof HTMLElement) {
       exitButton.style.display = controller.isActionSupported("CPExit")
         ? ""
         : "none";

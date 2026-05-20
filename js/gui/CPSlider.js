@@ -332,10 +332,5 @@ export default class CPSlider extends EventEmitter {
 
     canvas.setAttribute("touch-action", "none");
     canvas.className = "chickenpaint-slider";
-
-    if (!("devicePixelRatio" in window)) {
-      // Old browsers
-      window.devicePixelRatio = 1.0;
-    }
   }
 }

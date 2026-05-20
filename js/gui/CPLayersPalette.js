@@ -358,6 +358,7 @@ export default class CPLayersPalette extends CPPalette {
          * same position it was already in.
          */
         if (
+          drag.layer instanceof CPLayer &&
           target.layer.parent === drag.layer.parent &&
           (target.direction === "over" || target.direction === "under")
         ) {

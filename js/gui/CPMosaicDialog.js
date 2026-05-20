@@ -110,11 +110,16 @@ export default function CPMosaicDialog(parent, controller) {
 
   // 「OK」ボタンのクリックイベント
   applyButton?.addEventListener("click", () => {
-    let blocksize = parseInt(blockSizeElem?.value, 10);
+    let blocksize = null;
+    if (blockSizeElem instanceof HTMLInputElement) {
+      blocksize = parseInt(blockSizeElem?.value, 10);
+    }
     blocksize = Math.max(2, Math.min(2000, blocksize || 1)); // 2から2000の範囲に制限
     // チェックONなら結合レイヤーを追加して全体に適用
+    const createMergedLayerElem = dialog.querySelector("#createMergedLayer");
     const createMergedLayer =
-      dialog.querySelector("#createMergedLayer")?.checked;
+      createMergedLayerElem instanceof HTMLInputElement &&
+      createMergedLayerElem.checked;
     controller.getArtwork().mosaic(blocksize, createMergedLayer);
     controller.setModalShown(false);
     modal.hide(); // モーダルを手動で閉じる
@@ -123,14 +128,18 @@ export default function CPMosaicDialog(parent, controller) {
   // モーダルが表示されたときに、入力フィールドにフォーカス
   dialog.addEventListener("shown.bs.modal", () => {
     controller.setModalShown(true);
-    blockSizeElem?.focus();
+    if (blockSizeElem instanceof HTMLInputElement) {
+      blockSizeElem.focus();
+    }
   });
 
   // Enterキーが押されたときの処理
   dialog.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault(); // フォーム送信を防ぐ
-      applyButton?.click(); // OKボタンをクリックしたことにする
+      if (applyButton instanceof HTMLElement) {
+        applyButton.click(); // OKボタンをクリックしたことにする
+      }
     }
   });
 

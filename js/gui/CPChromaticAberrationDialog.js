@@ -132,8 +132,10 @@ export default function CPchromaticAberration(parent, controller) {
       Math.min(64, parseInt(aberrationSizeYElem?.value, 10) || 0),
     );
     // チェックONなら結合レイヤーを追加して全体に適用
+    const createMergedLayerElem = dialog.querySelector("#createMergedLayer");
     const createMergedLayer =
-      dialog.querySelector("#createMergedLayer")?.checked;
+      createMergedLayerElem instanceof HTMLInputElement &&
+      createMergedLayerElem.checked;
     controller
       .getArtwork()
       .chromaticAberration(offsetX, offsetY, createMergedLayer);
