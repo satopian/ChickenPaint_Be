@@ -1160,11 +1160,12 @@ function CPColorPickerPanel(controller) {
     labelCheck.textContent = option.text;
 
     input.addEventListener("change", (e) => {
-      const target = e.target;
-      if (target instanceof HTMLInputElement && target.checked) {
-        input.blur();
+      if (input instanceof HTMLInputElement) {
+        if (input.checked) {
+          input.blur(); // フォーカス解除
+        }
         // "merged" なら true、"layer" なら false を渡す
-        const isMerged = e.target?.value === "merged";
+        const isMerged = input.value === "merged";
         controller.setColorPickerSampleAllLayers(isMerged);
       }
     });
