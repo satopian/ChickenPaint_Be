@@ -202,7 +202,7 @@ CPImageLayer.prototype.getNonTransparentBounds = function (initialBounds) {
  * @returns {CPRect}
  */
 CPImageLayer.prototype.getBounds = function () {
-  return new CPRect(0, 0, this.image.width, this.image.height);
+  return new CPRect(0, 0, this.image?.width ?? 0, this.image?.height ?? 0);
 };
 
 /**

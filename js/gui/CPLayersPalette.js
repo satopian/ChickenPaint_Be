@@ -133,7 +133,7 @@ export default class CPLayersPalette extends CPPalette {
        *
        * @type {CPLayer[]}
        */
-      linearizedLayers = null,
+      linearizedLayers = [],
       body = this.getBodyElement(),
       positionRoot = this.getElement(),
       // This element will be responsible for positioning the BS dropdown
@@ -201,7 +201,7 @@ export default class CPLayersPalette extends CPPalette {
           /**
            * The element of the layer being dragged
            *
-           * @type {HTMLElement}
+           * @type {?HTMLElement}
            */
           layerElem: null,
 
@@ -247,12 +247,6 @@ export default class CPLayersPalette extends CPPalette {
          * @type {number} Rotation of image in 90 degree units
          */
         imageRotation = 0,
-        /**
-         * The layer we right-clicked on to open the dropdown
-         *
-         * @type {CPLayer}
-         */
-        // dropdownLayer = null,
         /**
          * True if we right-clicked on the mask of the layer for the dropdown.
          * @type {boolean}
@@ -423,7 +417,9 @@ export default class CPLayersPalette extends CPPalette {
             switch (drag.dropTarget.direction) {
               case "over":
               case "under":
-                layerContainer.appendChild(drag.dropBetweenMarkerElem);
+                if (drag.dropBetweenMarkerElem) {
+                  layerContainer.appendChild(drag.dropBetweenMarkerElem);
+                }
 
                 let markerDepth = drag.dropTarget.layer.getDepth() - 1,
                   markerLeft,
@@ -896,7 +892,7 @@ export default class CPLayersPalette extends CPPalette {
       function onPointerUp(e) {
         switch (drag.state) {
           case DRAG_STATE_DRAGGING:
-            drag.layerElem.classList.remove("chickenpaint-layer-dragging");
+            drag.layerElem?.classList.remove("chickenpaint-layer-dragging");
 
             if (drag.dropTarget) {
               if (drag.dropTarget.direction === "inside") {
@@ -948,8 +944,8 @@ export default class CPLayersPalette extends CPPalette {
         drag.frameElem = document.createElement("div");
         if (drag.frameElem) {
           drag.frameElem.className = "chickenpaint-layer-drag-frame";
-          drag.frameElem.style.width = drag.layerElem.offsetWidth + "px";
-          drag.frameElem.style.height = drag.layerElem.offsetHeight + "px";
+          drag.frameElem.style.width = drag.layerElem?.offsetWidth + "px";
+          drag.frameElem.style.height = drag.layerElem?.offsetHeight + "px";
         }
 
         drag.dropBetweenMarkerElem = document.createElement("div");
@@ -958,7 +954,7 @@ export default class CPLayersPalette extends CPPalette {
             "chickenpaint-layer-drop-between-mark";
         }
 
-        drag.layerElem.classList.add("chickenpaint-layer-dragging");
+        drag.layerElem?.classList.add("chickenpaint-layer-dragging");
 
         layerContainer.appendChild(drag.frameElem);
       }

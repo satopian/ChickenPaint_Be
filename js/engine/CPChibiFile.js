@@ -274,9 +274,9 @@ class ChibiLayerDecoder {
           continue;
 
         case LAYER_DECODE_STATE_IMAGE_DATA:
-          block = this.colorDecoder.decode(block);
+          block = this.colorDecoder?.decode(block);
 
-          if (this.colorDecoder.done) {
+          if (this.colorDecoder?.done) {
             if (this.maskDecoder) {
               this.state = LAYER_DECODE_STATE_MASK_DATA;
             } else {
@@ -287,9 +287,9 @@ class ChibiLayerDecoder {
           break;
 
         case LAYER_DECODE_STATE_MASK_DATA:
-          block = this.maskDecoder.decode(block);
+          block = this.maskDecoder?.decode(block);
 
-          if (this.maskDecoder.done) {
+          if (this.maskDecoder?.done) {
             this.state = LAYER_DECODE_STATE_SKIP_TRAILING;
             continue;
           }

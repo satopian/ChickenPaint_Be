@@ -1135,8 +1135,7 @@ export default class CPArtwork extends EventEmitter {
 
         if (curLayer != newLayer || editingModeChanged) {
           let oldLayer = curLayer;
-
-          curLayer = newLayer;
+          curLayer = /** @type {CPImageLayer} */ (newLayer);
           maskEditingMode = selectMask;
 
           invalidateUndoBuffers();
@@ -1535,7 +1534,7 @@ export default class CPArtwork extends EventEmitter {
     /**
      * Fill a rectangle with a texture and a base color
      *
-     * @param {CPColorBmp} target - 描画対象のレイヤー
+     * @param {CPColorBmp|CPGreyBmp} target - 描画対象のレイヤー
      * @param {CPRect} rect - 塗りつぶす範囲
      * @param {CPGreyBmp} texture - 8bit grayscale texture
      * @param {number} color - ARGB color
@@ -1720,7 +1719,7 @@ export default class CPArtwork extends EventEmitter {
       let r = this.getSelectionAutoSelect(),
         target = getActiveImage();
 
-      if (target) {
+      if (target instanceof CPColorBmp) {
         prepareForLayerPaintUndo();
         paintUndoArea = r.clone();
 
@@ -1756,7 +1755,7 @@ export default class CPArtwork extends EventEmitter {
       let r = this.getSelectionAutoSelect(),
         target = getActiveImage();
 
-      if (target) {
+      if (target instanceof CPColorBmp || target instanceof CPGreyBmp) {
         prepareForLayerPaintUndo();
         paintUndoArea = r.clone();
 
@@ -1793,7 +1792,7 @@ export default class CPArtwork extends EventEmitter {
       let r = this.getSelectionAutoSelect(),
         target = getActiveImage();
 
-      if (target) {
+      if (target instanceof CPColorBmp) {
         prepareForLayerPaintUndo();
         paintUndoArea = r.clone();
 
@@ -1814,7 +1813,7 @@ export default class CPArtwork extends EventEmitter {
       let r = this.getSelectionAutoSelect(),
         target = getActiveImage();
 
-      if (target) {
+      if (target instanceof CPColorBmp) {
         prepareForLayerPaintUndo();
         paintUndoArea = r.clone();
 
@@ -1834,7 +1833,7 @@ export default class CPArtwork extends EventEmitter {
       let r = this.getSelectionAutoSelect(),
         target = getActiveImage();
 
-      if (target) {
+      if (target instanceof CPColorBmp) {
         prepareForLayerPaintUndo();
         paintUndoArea = r.clone();
 
@@ -1893,7 +1892,7 @@ export default class CPArtwork extends EventEmitter {
       let r = this.getSelectionAutoSelect(),
         target = getActiveImage();
 
-      if (target) {
+      if (target instanceof CPColorBmp) {
         prepareForLayerPaintUndo();
         paintUndoArea = r.clone();
 
@@ -2195,9 +2194,9 @@ export default class CPArtwork extends EventEmitter {
     /**
      * Start a painting operation.
      *
-     * @param {float} x
-     * @param {float} y
-     * @param {float} pressure
+     * @param {number} x
+     * @param {number} y
+     * @param {number} pressure
      * @returns {boolean} - true if the painting began successfully, false otherwise (don't call continueStroke or endStroke!)
      */
     this.beginStroke = function (x, y, pressure) {
@@ -3289,6 +3288,7 @@ export default class CPArtwork extends EventEmitter {
         this.srcRect = occupiedSpace;
       }
 
+      amend(affineTransform) {}
       /**
        * @override
        */
@@ -3618,16 +3618,16 @@ export default class CPArtwork extends EventEmitter {
 
             if (layerInfo.moveMask) {
               if (this.movingWholeLayer) {
-                layerInfo.layer.mask.clearRect(rect, 0xff);
+                layerInfo.layer.mask?.clearRect(rect, 0xff);
               } else {
-                layerInfo.layer.mask.clearRect(rect, EMPTY_MASK_COLOR);
+                layerInfo.layer.mask?.clearRect(rect, EMPTY_MASK_COLOR);
               }
             }
           });
 
           if (!this.dstRect.isEmpty()) {
             if (layerInfo.moveImage) {
-              let imageData = layerInfo.imageUndo.getImageData();
+              let imageData = layerInfo.imageUndo?.getImageData();
 
               /*
                * Make a fresh copy of the undo data into the Canvas so we can compose the transformed data on top of
@@ -3647,10 +3647,10 @@ export default class CPArtwork extends EventEmitter {
 
               // Erase the portion of the source region that we're going to compose onto
               this.composeCanvasContext.clearRect(
-                srcComposeRect.left,
-                srcComposeRect.top,
-                srcComposeRect.getWidth(),
-                srcComposeRect.getHeight(),
+                srcComposeRect?.left,
+                srcComposeRect?.top,
+                srcComposeRect?.getWidth() ?? 0,
+                srcComposeRect?.getHeight() ?? 0,
               );
 
               this.composeCanvasContext.save();
@@ -3696,7 +3696,7 @@ export default class CPArtwork extends EventEmitter {
             if (layerInfo.moveMask) {
               composeOntoRects.forEach((rect) => {
                 this.composeCanvasContext.putImageData(
-                  layerInfo.layer.mask.getImageData(
+                  layerInfo.layer.mask?.getImageData(
                     rect.left,
                     rect.top,
                     rect.getWidth(),
@@ -3714,10 +3714,10 @@ export default class CPArtwork extends EventEmitter {
               }
 
               this.composeCanvasContext.fillRect(
-                srcComposeRect.left,
-                srcComposeRect.top,
-                srcComposeRect.getWidth(),
-                srcComposeRect.getHeight(),
+                srcComposeRect?.left,
+                srcComposeRect?.top,
+                srcComposeRect?.getWidth() ?? 0,
+                srcComposeRect?.getHeight() ?? 0,
               );
 
               this.composeCanvasContext.save();
@@ -3740,7 +3740,7 @@ export default class CPArtwork extends EventEmitter {
 
               this.composeCanvasContext.restore();
 
-              layerInfo.layer.mask.pasteImageData(
+              layerInfo.layer.mask?.pasteImageData(
                 this.composeCanvasContext.getImageData(
                   this.dstRect.left,
                   this.dstRect.top,
@@ -3770,7 +3770,7 @@ export default class CPArtwork extends EventEmitter {
             }
 
             if (layerInfo.moveMask) {
-              layerInfo.layer.mask.copyBitmapRect(
+              layerInfo.layer.mask?.copyBitmapRect(
                 layerInfo.maskUndo,
                 rect.left,
                 rect.top,
@@ -3984,7 +3984,7 @@ export default class CPArtwork extends EventEmitter {
               );
             }
             if (layerInfo.moveMask) {
-              layerInfo.layer.mask.copyBitmapRect(
+              layerInfo.layer.mask?.copyBitmapRect(
                 layerInfo.maskUndo,
                 restore.left,
                 restore.top,
@@ -4150,9 +4150,9 @@ export default class CPArtwork extends EventEmitter {
 
             clone.copyPixelsFromGreyscale(clip.bmp);
 
-            newLayer.image.copyBitmapRect(clone, x, y, sourceRect);
+            newLayer.image?.copyBitmapRect(clone, x, y, sourceRect);
           } else {
-            newLayer.image.copyBitmapRect(clip.bmp, x, y, sourceRect);
+            newLayer.image?.copyBitmapRect(clip.bmp, x, y, sourceRect);
           }
 
           that.emptySelection();
