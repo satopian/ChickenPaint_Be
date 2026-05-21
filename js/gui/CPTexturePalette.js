@@ -555,10 +555,15 @@ export default class CPTexturePalette extends CPPalette {
             return;
           }
           if (this.texture != null) {
-            canvasContext.fillStyle = canvasContext.createPattern(
+            let texturePattern = canvasContext.createPattern(
               this.texture.getAsCanvas(),
               "repeat",
             );
+            if (texturePattern) {
+              canvasContext.fillStyle = texturePattern;
+            } else {
+              canvasContext.fillStyle = "white";
+            }
           } else {
             canvasContext.fillStyle = "white";
           }

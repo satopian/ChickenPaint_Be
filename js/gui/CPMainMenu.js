@@ -596,9 +596,10 @@ export default function CPMainMenu(controller, mainGUI) {
         ".dropdown-item:not(.hidden), .dropdown-divider:not(.hidden)",
       ),
     );
+    /** @type {any} */
     let lastDivider = null;
 
-    visible.forEach((el, i) => {
+    /** @type {any} */ (visible).forEach((el, i) => {
       if (el.classList.contains("dropdown-divider")) {
         if (i === 0 || lastDivider) el.classList.add("hidden");
         else lastDivider = el;

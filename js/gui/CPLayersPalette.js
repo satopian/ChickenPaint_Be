@@ -269,7 +269,9 @@ export default class CPLayersPalette extends CPPalette {
       function getElemFromDisplayIndex(displayIndex) {
         let elems = layerContainer.querySelectorAll(".chickenpaint-layer");
 
-        return elems[elems.length - 1 - displayIndex];
+        return /** @type {HTMLElement} */ (
+          elems[elems.length - 1 - displayIndex]
+        );
       }
 
       function getDisplayIndexFromElem(elem) {
@@ -333,7 +335,11 @@ export default class CPLayersPalette extends CPPalette {
           } else if (clientY >= rect.top) {
             let targetLayer = getLayerFromDisplayIndex(displayIndex),
               targetHeight = rect.bottom - rect.top;
-            target = { layer: targetLayer, displayIndex: displayIndex };
+            target = {
+              layer: targetLayer,
+              displayIndex: displayIndex,
+              direction: "",
+            };
 
             if (targetLayer instanceof CPLayerGroup) {
               if (clientY >= rect.top + targetHeight * 0.75) {
@@ -376,7 +382,6 @@ export default class CPLayersPalette extends CPPalette {
         ) {
           let parentGroup = target.layer.parent,
             targetIndex = parentGroup.indexOf(target.layer);
-
           if (
             (target.direction === "over" &&
               parentGroup.layers[targetIndex + 1] === drag.layer) ||
@@ -864,7 +869,8 @@ export default class CPLayersPalette extends CPPalette {
                 }
 
                 drag.dropTarget = null;
-                drag.layer = layer;
+
+                /** @type {any} */ (drag.layer) = layer;
                 // We might have replaced the layer with a new element due to the CPSetActiveLayer, so fetch that again
                 drag.layerElem = getElemFromDisplayIndex(displayIndex);
                 drag.dragX = e.clientX;
@@ -1438,12 +1444,11 @@ export default class CPLayersPalette extends CPPalette {
     /**
      * Called when the thumbnail of one layer has been updated.
      *
-     * @param {CPLayer} layer
+     * @param {CPImageLayer} layer
      * @this {Object} CPArtwork
      */
     function onChangeLayerImageThumb(layer) {
       artwork = this;
-
       layerWidget.layerImageThumbChanged(layer);
     }
 

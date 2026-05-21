@@ -85,9 +85,12 @@ function CPColorShow(controller) {
   function mouseClick(e) {
     e.preventDefault();
 
-    let colHex = "#" + padLeft(Number(color).toString(16), "0", 6);
+    const _colHex = "#" + padLeft(Number(color).toString(16), "0", 6);
 
-    colHex = window.prompt(_("Please enter a color in hex format"), colHex);
+    let colHex = window.prompt(
+      _("Please enter a color in hex format"),
+      _colHex,
+    );
 
     if (colHex != null) {
       try {

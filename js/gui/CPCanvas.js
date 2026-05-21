@@ -2616,7 +2616,7 @@ export default class CPCanvas extends EventEmitter {
      */
     function coordToDocument(coord) {
       // TODO cache inverted transform
-      return transform.getInverted().getTransformedPoint(coord);
+      return transform.getInverted()?.getTransformedPoint(coord);
     }
 
     /**
@@ -2679,7 +2679,7 @@ export default class CPCanvas extends EventEmitter {
       const coords = rect.toPoints();
 
       for (var i = 0; i < coords.length; i++) {
-        coords[i] = coordToDisplayInt(coords[i]);
+        coords[i] = /** @type {any} */ (coordToDisplayInt(coords[i]));
 
         // Need to inset the co-ordinates by 0.5 display pixels for the line to pass through the middle of the display pixel
         coords[i].x += Math.sign(center.x - coords[i].x) * 0.5;
@@ -3623,8 +3623,12 @@ export default class CPCanvas extends EventEmitter {
             let p1 = coordToDisplay({ x: i, y: bounds.top }),
               p2 = coordToDisplay({ x: i, y: bounds.bottom });
 
-            canvasContext?.moveTo(p1.x + 0.5, p1.y + 0.5);
-            canvasContext?.lineTo(p2.x + 0.5, p2.y + 0.5);
+            if (typeof p1 !== "undefined") {
+              canvasContext?.moveTo(p1.x + 0.5, p1.y + 0.5);
+            }
+            if (typeof p2 !== "undefined") {
+              canvasContext?.lineTo(p2.x + 0.5, p2.y + 0.5);
+            }
           }
 
           // Horizontal lines
@@ -3632,8 +3636,12 @@ export default class CPCanvas extends EventEmitter {
             let p1 = coordToDisplay({ x: 0, y: i }),
               p2 = coordToDisplay({ x: bounds.right, y: i });
 
-            canvasContext?.moveTo(p1.x + 0.5, p1.y + 0.5);
-            canvasContext?.lineTo(p2.x + 0.5, p2.y + 0.5);
+            if (typeof p1 !== "undefined") {
+              canvasContext?.moveTo(p1.x + 0.5, p1.y + 0.5);
+            }
+            if (typeof p2 !== "undefined") {
+              canvasContext?.lineTo(p2.x + 0.5, p2.y + 0.5);
+            }
           }
 
           canvasContext?.stroke();

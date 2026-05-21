@@ -138,7 +138,7 @@ export default function CPBoxBlurDialog(parent, controller) {
   // モーダルが閉じられた後の処理
   dialog.addEventListener("hidden.bs.modal", () => {
     if (document.activeElement instanceof HTMLElement) {
-      document.activeElement?.blur(); // フォーカスを外す
+      document.activeElement.blur(); // フォーカスを外す
     }
     dialog.remove(); // ダイアログを削除
   });
@@ -146,7 +146,7 @@ export default function CPBoxBlurDialog(parent, controller) {
   // モーダルが表示された時の処理
   dialog.addEventListener("shown.bs.modal", () => {
     if (blurAmountElem instanceof HTMLElement) {
-      blurAmountElem?.focus(); // フォーカスを入力欄に当てる
+      blurAmountElem.focus(); // フォーカスを入力欄に当てる
     }
   });
 
