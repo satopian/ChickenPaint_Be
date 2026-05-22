@@ -415,9 +415,9 @@ fetch("./", {
 });
 }
 ```
-`chickenpaint.min.js`から参照可能なスコープの中で`const handleExit`を定義します。  
-`handleExit`という名前の関数が定義されていない時は、`handleExit`は実行されず、従来と同じ動作になります。  
-`handleExit`関数で何を行うのかは掲示板の作者が決定します。 
+`chickenpaint.min.js`から参照可能なスコープの中で`window.handleExit`を定義します。  
+`window.handleExit`が未定義の時は、`window.handleExit()`は実行されず、従来と同じ動作になります。  
+`window.handleExit`関数で何を行うのかは掲示板の作者が決定します。 
  
 ### ファイルサイズを劇的に削減
 - ビルドツールをParcelに変更しました。  
