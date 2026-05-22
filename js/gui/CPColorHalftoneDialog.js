@@ -138,7 +138,7 @@ export default function CPchromaticAberration(parent, controller) {
   // Enterキーが押されたときの処理
   dialog.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      if (applyButton instanceof HTMLInputElement) {
+      if (applyButton instanceof HTMLElement) {
         e.preventDefault(); // フォーム送信を防ぐ
         applyButton.click(); // OKボタンをクリックしたことにする
       }
