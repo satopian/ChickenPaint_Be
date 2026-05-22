@@ -101,7 +101,7 @@ export default class CPMaskView extends EventEmitter {
 
   close() {
     this.buffer = null;
-    this.layer = null;
+    this.layer = /** @type {any} */ (null);
 
     this.emitEvent("changeLayer");
   }

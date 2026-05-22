@@ -376,8 +376,8 @@ export default class CPArtwork extends EventEmitter {
      * @param {(CPLayer|CPLayer[])} layers - Layer or layers to invalidate
      * @param {CPRect} rect - Rect to invalidate. Must have all integer co-ordinates, and the rectangle must be contained
      * within the artwork bounds.
-     * @param {boolean} invalidateImage - True if drawing happened on the layer's image data
-     * @param {boolean} invalidateMask - True if drawing happened on the layer's mask
+     * @param {?boolean} invalidateImage - True if drawing happened on the layer's image data
+     * @param {?boolean} invalidateMask - True if drawing happened on the layer's mask
      */
     function invalidateLayer(layers, rect, invalidateImage, invalidateMask) {
       if (!Array.isArray(layers)) {
@@ -975,10 +975,9 @@ export default class CPArtwork extends EventEmitter {
      */
     this.fusionLayers = function () {
       prepareForFusion();
-
       fusion = blendTree.blendTree().image;
 
-      return fusion;
+      return /** @type {CPColorBmp} */ (fusion);
     };
 
     /**
@@ -997,7 +996,7 @@ export default class CPArtwork extends EventEmitter {
      *
      * Either way, this must not be called on new (ChickenPaint 0.10 format) artworks.
      *
-     * @param {?string} mode
+     * @param {string | boolean | null | undefined} mode
      */
     this.upgradeMultiplyLayers = function (mode) {
       let layers = this.getLayersRoot().getLinearizedLayerList(false, []),
@@ -1233,24 +1232,6 @@ export default class CPArtwork extends EventEmitter {
       );
     };
 
-    /**
-     *
-     * @returns {number}
-     */
-    this.getUndoMemoryUsed = function () {
-      let total = 0;
-
-      for (let redo of redoList) {
-        total += redo.getMemoryUsed(true, null);
-      }
-
-      for (let undo of undoList) {
-        total += undo.getMemoryUsed(false, null);
-      }
-
-      return total;
-    };
-
     this.isUndoAllowed = function () {
       return undoList.length > 0;
     };
@@ -1271,7 +1252,9 @@ export default class CPArtwork extends EventEmitter {
       this.setHasUnsavedChanges(true);
 
       let undo = undoList.pop();
-
+      if (!undo) {
+        return;
+      }
       undo.undo();
 
       redoList.push(undo);
@@ -1285,7 +1268,9 @@ export default class CPArtwork extends EventEmitter {
       this.setHasUnsavedChanges(true);
 
       let redo = redoList.pop();
-
+      if (!redo) {
+        return;
+      }
       redo.redo();
 
       undoList.push(redo);
@@ -1297,13 +1282,14 @@ export default class CPArtwork extends EventEmitter {
         !undoImageInvalidRegion.isEmpty()
       ) {
         // console.log("Copying " + undoImageInvalidRegion + " to the image undo buffer");
-
-        undoImage.copyBitmapRect(
-          curLayer.image,
-          undoImageInvalidRegion.left,
-          undoImageInvalidRegion.top,
-          undoImageInvalidRegion,
-        );
+        if (curLayer.image instanceof CPColorBmp) {
+          undoImage.copyBitmapRect(
+            curLayer.image,
+            undoImageInvalidRegion.left,
+            undoImageInvalidRegion.top,
+            undoImageInvalidRegion,
+          );
+        }
 
         undoImageInvalidRegion.makeEmpty();
       }
@@ -1442,9 +1428,7 @@ export default class CPArtwork extends EventEmitter {
       floodFillReferAllLayers = true,
     ) {
       const fusion =
-        !maskEditingMode && floodFillReferAllLayers
-          ? this.fusionLayers()
-          : null;
+        !maskEditingMode && floodFillReferAllLayers ? this.fusionLayers() : {};
       let target = getActiveImage();
 
       if (target) {
@@ -1557,7 +1541,7 @@ export default class CPArtwork extends EventEmitter {
 
           const alpha = 1 - texture.data[texY * texW + texX] / 255;
 
-          const oldPixel = target.getPixel(px, py);
+          const oldPixel = target.getPixel(px, py) ?? 0;
           const newPixel = blendColor(color, alpha, oldPixel);
           target.setPixel(px, py, newPixel);
         }
@@ -1639,12 +1623,13 @@ export default class CPArtwork extends EventEmitter {
       }
       if (transformMask) {
         prepareForLayerMaskUndo();
-
-        curLayer.mask[routine](rect, undoMask);
+        if (curLayer.mask) {
+          curLayer.mask[routine](rect, undoMask);
+        }
       }
 
       addUndo(new CPUndoPaint(transformImage, transformMask));
-      invalidateLayer(curLayer, rect, transformImage, transformMask);
+      invalidateLayer(curLayer, rect, transformImage, !!transformMask);
     };
 
     this.hFlip = function () {
@@ -1983,7 +1968,7 @@ export default class CPArtwork extends EventEmitter {
         activeOp instanceof CPActionMoveSelection &&
         activeOp.layer == this.getActiveLayer()
       ) {
-        activeOp.amend(offsetX, offsetY);
+        activeOp.amendOffset(offsetX, offsetY);
         redoList = [];
         this.setHasUnsavedChanges(true);
       } else {
@@ -2108,11 +2093,13 @@ export default class CPArtwork extends EventEmitter {
         let selection = that.getSelection(),
           image = getActiveImage();
 
-        clipboard = new CPClip(
-          image.cloneRect(selection),
-          selection.left,
-          selection.top,
-        );
+        if (image) {
+          clipboard = new CPClip(
+            image.cloneRect(selection),
+            selection.left,
+            selection.top,
+          );
+        }
       }
     };
 
@@ -2144,7 +2131,7 @@ export default class CPArtwork extends EventEmitter {
 
     /**
      *
-     * @returns {CPClip}
+     * @returns {?CPClip}
      */
     this.getClipboard = function () {
       return clipboard;
@@ -2289,7 +2276,7 @@ export default class CPArtwork extends EventEmitter {
      *  * @return {boolean}
      */
     this.hasAlpha = function () {
-      return fusion.hasAlpha();
+      return fusion ? fusion.hasAlpha() : false;
     };
 
     /**
@@ -2298,12 +2285,11 @@ export default class CPArtwork extends EventEmitter {
      * Rotation is [0..3] and selects a multiple of 90 degrees of clockwise rotation to be applied to the drawing before
      * saving.
      *
-     * @return {string} A binary string of the PNG file data.
+     * @return {string|false} A binary string of the PNG file data.
      */
     this.getFlatPNG = function (rotation) {
       this.fusionLayers();
-
-      return fusion.getAsPNG(rotation);
+      return fusion?.getAsPNG(Number(rotation)) ?? false;
     };
 
     /**
@@ -2312,12 +2298,12 @@ export default class CPArtwork extends EventEmitter {
      * Rotation is [0..3] and selects a multiple of 90 degrees of clockwise rotation to be applied to the drawing before
      * saving.
      *
-     * @return {Buffer}
+     * @return {Buffer|false}
      */
     this.getFlatPNGBuffer = function (rotation) {
       this.fusionLayers();
 
-      return fusion.getAsPNGBuffer(rotation);
+      return fusion?.getAsPNGBuffer(rotation) ?? false;
     };
 
     /**
@@ -2338,9 +2324,10 @@ export default class CPArtwork extends EventEmitter {
           xorImage = paintedImage
             ? undoImage.copyRectXOR(curLayer.image, rect)
             : null,
-          xorMask = paintedMask
-            ? undoMask.copyRectXOR(curLayer.mask, rect)
-            : null;
+          xorMask =
+            paintedMask && curLayer.mask instanceof CPGreyBmp
+              ? undoMask.copyRectXOR(curLayer.mask, rect)
+              : null;
 
         this.layer = curLayer;
 
@@ -2351,19 +2338,13 @@ export default class CPArtwork extends EventEmitter {
             this.layer.image.setRectXOR(xorImage, rect);
           }
           if (xorMask) {
-            this.layer.mask.setRectXOR(xorMask, rect);
+            this.layer.mask?.setRectXOR(xorMask, rect);
           }
 
           invalidateLayer(this.layer, rect, xorImage != null, xorMask != null);
         };
 
         this.redo = this.undo;
-
-        this.getMemoryUsed = function (undone, param) {
-          return (
-            (xorImage ? xorImage.length : 0) + (xorMask ? xorMask.length : 0)
-          );
-        };
       }
     }
 
@@ -2427,7 +2408,7 @@ export default class CPArtwork extends EventEmitter {
           maskWasSelected = false;
 
         if (apply && layer instanceof CPImageLayer) {
-          oldLayerImage = layer.image.clone();
+          oldLayerImage = layer.image?.clone();
         } else {
           oldLayerImage = null;
         }
@@ -2630,10 +2611,6 @@ export default class CPArtwork extends EventEmitter {
           that.setActiveLayer(newSelectedLayer, false);
         };
 
-        this.getMemoryUsed = function (undone, param) {
-          return undone ? 0 : layer.getMemoryUsed();
-        };
-
         this.redo();
       }
     }
@@ -2663,10 +2640,6 @@ export default class CPArtwork extends EventEmitter {
 
           artworkStructureChanged();
           that.setActiveLayer(mergedLayer, false);
-        };
-
-        this.getMemoryUsed = function (undone, param) {
-          return undone ? 0 : layerGroup.getMemoryUsed();
         };
 
         let blendTree = new CPBlendTree(
@@ -2792,12 +2765,6 @@ export default class CPArtwork extends EventEmitter {
           that.setActiveLayer(mergedLayer, false);
         };
 
-        this.getMemoryUsed = function (undone, param) {
-          return undone
-            ? 0
-            : topLayer.getMemoryUsed() + mergedLayer.getMemoryUsed();
-        };
-
         this.redo();
       }
     }
@@ -2833,12 +2800,6 @@ export default class CPArtwork extends EventEmitter {
 
           artworkStructureChanged();
           that.setActiveLayer(flattenedLayer, false);
-        };
-
-        this.getMemoryUsed = function (undone, param) {
-          return oldRootLayers
-            .map((layer) => layer.getMemoryUsed())
-            .reduce(sum, 0);
         };
 
         this.redo();
@@ -3197,6 +3158,8 @@ export default class CPArtwork extends EventEmitter {
          *
          * @property {Map} imageRect
          * @property {Map} maskRect
+         * @property {any} [imageSourceCanvas]
+         * @property {any} [maskSourceCanvas]
          */
 
         /**
@@ -3316,8 +3279,8 @@ export default class CPArtwork extends EventEmitter {
                   region,
                 );
               }
-              if (layerInfo.moveMask) {
-                layerInfo.layer.mask.copyBitmapRect(
+              if (layerInfo.moveMask && layerInfo.maskUndo) {
+                layerInfo.layer.mask?.copyBitmapRect(
                   layerInfo.maskUndo,
                   region.left,
                   region.top,
@@ -3339,7 +3302,7 @@ export default class CPArtwork extends EventEmitter {
 
             if (layerInfo.moveMask) {
               layerInfo.maskRect.forEach((mask, rect) => {
-                layerInfo.layer.mask.copyBitmapRect(
+                layerInfo.layer.mask?.copyBitmapRect(
                   mask,
                   rect.left,
                   rect.top,
@@ -3373,23 +3336,6 @@ export default class CPArtwork extends EventEmitter {
         callListenersSelectionChange();
       }
 
-      getMemoryUsed(undone, param) {
-        return this.movingLayers
-          .map(function (layerInfo) {
-            let images = [
-              layerInfo.imageUndo,
-              layerInfo.maskUndo,
-              layerInfo.imageRect,
-              layerInfo.maskRect,
-            ];
-
-            return images
-              .map((image) => (image ? image.getMemorySize() : 0))
-              .reduce(sum, 0);
-          })
-          .reduce(sum, 0);
-      }
-
       /**
        * Called internally to reverse the effects of compact()
        */
@@ -3400,7 +3346,7 @@ export default class CPArtwork extends EventEmitter {
               layerInfo.imageUndo = layerInfo.layer.image.clone();
             }
             if (layerInfo.moveMask) {
-              layerInfo.maskUndo = layerInfo.layer.mask.clone();
+              layerInfo.maskUndo = layerInfo.layer.mask?.clone();
             }
 
             layerInfo.imageRect.clear();
@@ -3438,13 +3384,13 @@ export default class CPArtwork extends EventEmitter {
               if (layerInfo.moveImage) {
                 layerInfo.imageRect.set(
                   rect,
-                  layerInfo.imageUndo.cloneRect(rect),
+                  layerInfo.imageUndo?.cloneRect(rect),
                 );
               }
               if (layerInfo.moveMask) {
                 layerInfo.maskRect.set(
                   rect,
-                  layerInfo.maskUndo.cloneRect(rect),
+                  layerInfo.maskUndo?.cloneRect(rect),
                 );
               }
             });
@@ -3476,12 +3422,12 @@ export default class CPArtwork extends EventEmitter {
 
         /**
          * A canvas for composing the transform onto
-         * @type {HTMLCanvasElement}
+         * @type {any}
          */
         this.composeCanvas = null;
 
         /**
-         * @type {CanvasRenderingContext2D}
+         * @type {any}
          */
         this.composeCanvasContext = null;
       }
@@ -3523,7 +3469,7 @@ export default class CPArtwork extends EventEmitter {
                 context = canvas.getContext("2d");
 
               context.putImageData(
-                layerInfo.layer.mask.getImageData(
+                layerInfo.layer.mask?.getImageData(
                   this.srcRect.left,
                   this.srcRect.top,
                   this.srcRect.getWidth(),
@@ -3540,7 +3486,7 @@ export default class CPArtwork extends EventEmitter {
           this.composeCanvas = createCanvas(that.width, that.height);
 
           // willReadFrequently オプションを使用して Canvas コンテキストを取得
-          this.composeCanvasContext = this.composeCanvas.getContext("2d", {
+          this.composeCanvasContext = this.composeCanvas?.getContext("2d", {
             willReadFrequently: true,
           });
           const is_smooth = this.interpolation === "smooth";
@@ -3562,7 +3508,7 @@ export default class CPArtwork extends EventEmitter {
            *
            * Force our results to be consistent by calling that right now:
            */
-          this.junk = this.composeCanvasContext.getImageData(0, 0, 1, 1);
+          this.junk = this.composeCanvasContext?.getImageData(0, 0, 1, 1);
         }
       }
 
@@ -3594,7 +3540,7 @@ export default class CPArtwork extends EventEmitter {
           eraseRects = CPRect.subtract(
             oldDstRect.isEmpty()
               ? this.srcRect
-              : this.srcRect.getIntersection(oldDstRect),
+              : (this.srcRect.getIntersection(oldDstRect) ?? new CPRect()),
             this.dstRect,
           ),
           // The region of the source rectangle that we want to compose onto
@@ -3634,7 +3580,7 @@ export default class CPArtwork extends EventEmitter {
                * it (except the source region since we'll just erase that).
                */
               composeOntoRects.forEach((rect) => {
-                this.composeCanvasContext.putImageData(
+                this.composeCanvasContext?.putImageData(
                   imageData,
                   0,
                   0,
@@ -3732,6 +3678,10 @@ export default class CPArtwork extends EventEmitter {
                 this.affineTransform.m[4],
                 this.affineTransform.m[5],
               );
+              console.log(
+                "layerInfo.maskSourceCanvas",
+                layerInfo.maskSourceCanvas,
+              );
               this.composeCanvasContext.drawImage(
                 layerInfo.maskSourceCanvas,
                 this.srcRect.left,
@@ -3769,7 +3719,7 @@ export default class CPArtwork extends EventEmitter {
               );
             }
 
-            if (layerInfo.moveMask) {
+            if (layerInfo.moveMask && layerInfo.maskUndo) {
               layerInfo.layer.mask?.copyBitmapRect(
                 layerInfo.maskUndo,
                 rect.left,
@@ -3859,21 +3809,6 @@ export default class CPArtwork extends EventEmitter {
         this.movingLayers.forEach(
           (layerInfo) => (layerInfo.imageSourceCanvas = null),
         );
-      }
-
-      /**
-       * @override
-       */
-      getMemoryUsed(undone, param) {
-        let result = super.getMemoryUsed(undone, param);
-
-        result += memoryUsedByCanvas(this.composeCanvas);
-
-        result += this.movingLayers
-          .map((layerInfo) => memoryUsedByCanvas(layerInfo.imageSourceCanvas))
-          .reduce(sum, 0);
-
-        return result;
       }
 
       /**
@@ -3967,7 +3902,7 @@ export default class CPArtwork extends EventEmitter {
               layerInfo.layer.image.clearRect(eraseRegion, EMPTY_LAYER_COLOR);
             }
             if (layerInfo.moveMask) {
-              layerInfo.layer.mask.clearRect(
+              layerInfo.layer.mask?.clearRect(
                 eraseRegion,
                 this.movingWholeLayer ? 0xff : EMPTY_MASK_COLOR,
               );
@@ -3983,7 +3918,7 @@ export default class CPArtwork extends EventEmitter {
                 restore,
               );
             }
-            if (layerInfo.moveMask) {
+            if (layerInfo.moveMask && layerInfo.maskUndo) {
               layerInfo.layer.mask?.copyBitmapRect(
                 layerInfo.maskUndo,
                 restore.left,
@@ -4006,8 +3941,8 @@ export default class CPArtwork extends EventEmitter {
               this.srcRect,
             );
           }
-          if (layerInfo.moveMask) {
-            layerInfo.layer.mask.copyBitmapRect(
+          if (layerInfo.moveMask && layerInfo.maskUndo) {
+            layerInfo.layer.mask?.copyBitmapRect(
               layerInfo.maskUndo,
               destRectUnclipped.left,
               destRectUnclipped.top,
@@ -4039,7 +3974,7 @@ export default class CPArtwork extends EventEmitter {
        * @param {number} offsetX
        * @param {number} offsetY
        */
-      amend(offsetX, offsetY) {
+      amendOffset(offsetX, offsetY) {
         if (!this.hasFullUndo) {
           this.undo();
         }
@@ -4091,10 +4026,6 @@ export default class CPArtwork extends EventEmitter {
           that.setActiveLayer(layer, cutFromMask);
           that.emptySelection();
           invalidateLayer(layer, selection, !cutFromMask, cutFromMask);
-        };
-
-        this.getMemoryUsed = function (undone, param) {
-          return cutData == param ? 0 : cutData.getMemorySize();
         };
 
         this.redo();
@@ -4159,10 +4090,6 @@ export default class CPArtwork extends EventEmitter {
 
           artworkStructureChanged();
           that.setActiveLayer(newLayer, false);
-        };
-
-        this.getMemoryUsed = function (undone, param) {
-          return clip.bmp == param ? 0 : clip.bmp.getMemorySize();
         };
 
         this.redo();

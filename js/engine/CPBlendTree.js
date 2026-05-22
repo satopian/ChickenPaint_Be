@@ -307,20 +307,24 @@ export default class CPBlendTree {
      */
     this.buildTree = function () {
       if (!drawTree) {
-        drawTree = buildTreeInternal(drawingRootGroup);
+        drawTree = /** @type {any} */ (buildTreeInternal(drawingRootGroup));
 
         if (!drawTree) {
           /*
            * No layers in the image to draw, so clear a buffer to transparent and use that.
            * This doesn't need to be fast because documents with no visible layers are not useful at all.
            */
-          drawTree = new CPBlendNode(width, height, {
-            image: allocateBuffer(),
-            blendMode: CPBlend.LM_NORMAL,
-            alpha: 100,
-            getEffectiveMask: () => null,
-            visible: true,
-          });
+          drawTree = new CPBlendNode(
+            width,
+            height,
+            /** @type {any} */ ({
+              image: allocateBuffer(),
+              blendMode: CPBlend.LM_NORMAL,
+              alpha: 100,
+              getEffectiveMask: () => null,
+              visible: true,
+            }),
+          );
           drawTree.image.clearAll(0);
         } else {
           /*
@@ -373,7 +377,7 @@ export default class CPBlendTree {
     this.resetTree = function () {
       if (drawTree) {
         resetTreeInternal(drawTree);
-        drawTree = null;
+        drawTree = /** @type {any} */ (null);
         nodeForLayer.clear();
       }
     };
@@ -622,7 +626,7 @@ export default class CPBlendTree {
     /**
      * Blend the layers in the tree and return the resulting image.
      *
-     * @returns An object with blendMode, alpha and image (CPColorBmp) properties.
+     * @returns {Object} An object with blendMode, alpha and image (CPColorBmp) properties.
      */
     this.blendTree = function () {
       if (DEBUG) {

@@ -87,7 +87,7 @@ export default class CPResourceLoader extends EventEmitter {
                 layer.image = CPColorBmp.createFromImage(image);
                 artwork.addLayerObject(artwork.getLayersRoot(), layer);
 
-                image = null;
+                image = /** @type {any} */ (null);
                 window.URL.revokeObjectURL(imageUrl);
 
                 resolve(artwork);

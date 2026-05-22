@@ -1,4 +1,13 @@
 /*
+    litaChix
+    https://github.com/satopian/ChickenPaint_Be
+    by satopian
+    Customized from ChickenPaint by Nicholas Sherlock.
+    GNU GENERAL PUBLIC LICENSE
+    Version 3, 29 June 2007
+    <http://www.gnu.org/licenses/>
+*/
+/*
 	ChickenPaint
 	
 	ChickenPaint is a translation of ChibiPaint from Java to JavaScript
@@ -19,6 +28,12 @@
 	You should have received a copy of the GNU General Public License
 	along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
+/**
+ *
+ * @param {*} width
+ * @param {*} height
+ * @returns {HTMLCanvasElement}
+ */
 
 export function createCanvas(width, height) {
   var canvas = document.createElement("canvas");
@@ -34,5 +49,5 @@ export function createImageData(width, height) {
   var canvas = document.createElement("canvas"),
     context = canvas.getContext("2d");
 
-  return context.createImageData(width, height);
+  return context?.createImageData(width, height);
 }

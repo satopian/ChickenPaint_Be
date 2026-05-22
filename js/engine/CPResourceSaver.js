@@ -304,7 +304,7 @@ export default class CPResourceSaver extends EventEmitter {
             if (chibiResult) {
               formData.append("chibifileFormat", chibiResult.version);
               formData.append("chibifile", chibiResult.bytes);
-              chibiResult = null;
+              chibiResult = /** @type {any} */ (null);
 
               // Layers will need to be rotated upon opening
               formData.append("rotation", "" + options.rotation);

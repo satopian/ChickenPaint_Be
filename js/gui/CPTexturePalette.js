@@ -355,7 +355,7 @@ export default class CPTexturePalette extends CPPalette {
         }
         processedTexture.applyLUT(lut);
       } else {
-        processedTexture = null;
+        processedTexture = /** @type {any} */ (null);
       }
 
       controller.getArtwork().setBrushTexture(processedTexture);

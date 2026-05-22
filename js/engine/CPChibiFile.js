@@ -83,7 +83,7 @@ function CPChibiFileHeader(stream) {
 CPChibiFileHeader.FIXED_HEADER_LENGTH = 4 * 4;
 
 /**
- * @this{typeof ChibiChunkHeader & Record<string, any>	}
+ * @this{ typeof ChibiChunkHeader & Record<string, any>	}
  */
 
 function ChibiChunkHeader(stream) {
@@ -140,6 +140,7 @@ class ChibiLayerDecoder {
     this.maskDecoder = null;
     /** @type {boolean} */
     this.clip = false;
+    this.childLayers = 0;
   }
 
   /**
@@ -257,7 +258,10 @@ class ChibiLayerDecoder {
             this.maskDecoder = new CPMaskDecoder(this.layer.mask);
           }
 
-          if (this.layer instanceof CPImageLayer) {
+          if (
+            this.layer instanceof CPImageLayer &&
+            this.layer.image instanceof CPColorBmp
+          ) {
             this.colorDecoder = new CPColorPixelsDecoder(this.layer.image);
           }
 
@@ -274,7 +278,7 @@ class ChibiLayerDecoder {
           continue;
 
         case LAYER_DECODE_STATE_IMAGE_DATA:
-          block = this.colorDecoder?.decode(block);
+          block = this.colorDecoder?.decode(block) ?? new Uint8Array();
 
           if (this.colorDecoder?.done) {
             if (this.maskDecoder) {
@@ -287,7 +291,7 @@ class ChibiLayerDecoder {
           break;
 
         case LAYER_DECODE_STATE_MASK_DATA:
-          block = this.maskDecoder?.decode(block);
+          block = this.maskDecoder?.decode(block) ?? new Uint8Array();
 
           if (this.maskDecoder?.done) {
             this.state = LAYER_DECODE_STATE_SKIP_TRAILING;
@@ -674,7 +678,7 @@ function serializeLayerChunk(layer) {
     VARIABLE_HEADER_LENGTH = utf8LayerName.length,
     COMBINED_HEADER_LENGTH = FIXED_HEADER_LENGTH + VARIABLE_HEADER_LENGTH,
     PAYLOAD_LENGTH =
-      (isImageLayer ? layer.image.data.length : 0) +
+      (isImageLayer ? layer.image?.data.length : 0) +
       (layer.mask ? layer.mask.data.length : 0),
     stream = allocateChunkStream(
       isImageLayer ? CHUNK_TAG_LAYER : CHUNK_TAG_GROUP,
@@ -736,11 +740,11 @@ function serializeLayerChunk(layer) {
   stream.pos += utf8LayerName.length;
 
   // Payload:
-  if (isImageLayer) {
+  if (isImageLayer && layer.image instanceof CPColorBmp) {
     writeColorBitmapToStream(stream, layer.image);
   }
 
-  if (layer.mask) {
+  if (layer.mask instanceof CPGreyBmp) {
     writeMaskToStream(stream, layer.mask);
   }
 
@@ -802,8 +806,9 @@ export function save(artwork, options = {}) {
       ];
 
       for (const layer of layers) {
-        chunks.push(serializeLayerChunk(layer));
-
+        if (layer instanceof CPLayerGroup || layer instanceof CPImageLayer) {
+          chunks.push(serializeLayerChunk(layer));
+        }
         await yieldToMain();
       }
 
@@ -841,7 +846,7 @@ export function save(artwork, options = {}) {
         }
 
         // chunk参照を切ってGC促進
-        chunks[ci] = null;
+        chunks[ci] = /** @type {any} */ (null);
       }
 
       // 4. 結果の構築（結合コピーをせず、断片のまま Blob 化）
@@ -862,7 +867,7 @@ export function save(artwork, options = {}) {
       });
 
       // 最後に参照を消して GC（ゴミ捨て）を促す
-      chunks_out = null;
+      chunks_out = [];
     } catch (err) {
       // Zlibでエラーが出た場合はここでキャッチ
       overallReject(err);
@@ -879,7 +884,7 @@ export function save(artwork, options = {}) {
  *                                                         pixel values to use LM_MULTIPLY2 blending. Anything else to
  *                                                         set blendMode to LM_MULTIPLY or LM_MULTIPLY2 as needed.
  *
- * @returns {Promise.<typeof CPArtwork>}
+ * @returns {Promise.<CPArtwork>}
  */
 export function load(source, options = {}) {
   const STATE_WAIT_FOR_CHUNK = 0,
@@ -893,13 +898,13 @@ export function load(source, options = {}) {
     /**
      * Destination artwork
      *
-     * @type {CPArtwork}
+     * @type {any} CPArtwork
      */
     artwork = null,
     /**
      * Group we're currently loading layers into
      *
-     * @type {CPLayerGroup}
+     * @type {any} CPLayerGroup
      */
     destGroup = null,
     /**
@@ -917,26 +922,26 @@ export function load(source, options = {}) {
     /**
      * The overall file descriptor
      *
-     * @type {CPChibiFileHeader}
+     * @type {any} CPChibiFileHeader
      */
     fileHeader = null,
     /**
      *
-     * @type {ChibiChunkHeader}
+     * @type {any} ChibiChunkHeader
      */
     curChunkHeader = null,
     /**
      * Here we store data that we weren't able to process in previous iterations due to not enough
      * data being available at once.
      *
-     * @type {Uint8Array}
+     * @type {any} Uint8Array
      */
     accumulator = null;
 
   /**
    * Called by the Pako Zlib decompressor each time a block of data is ready for processing.
    *
-   * @param {Uint8Array} block
+   * @param {Uint8Array|Null} block
    */
   async function processBlock(block) {
     let stream;
@@ -952,7 +957,7 @@ export function load(source, options = {}) {
           skipCount = 0;
         } else {
           skipCount -= accumulator.length;
-          accumulator = null;
+          /** @type {any} */ (accumulator) = null;
           break;
         }
       } else {
@@ -1038,7 +1043,7 @@ export function load(source, options = {}) {
           continue;
 
         case STATE_DECODE_LAYER:
-          accumulator = layerDecoder.decode(accumulator);
+          accumulator = /** @type {any} */ (layerDecoder.decode(accumulator));
 
           if (layerDecoder.done) {
             artwork.addLayerObject(destGroup, layerDecoder.layer);
@@ -1049,7 +1054,7 @@ export function load(source, options = {}) {
           break;
 
         case STATE_DECODE_GROUP:
-          accumulator = layerDecoder.decode(accumulator);
+          accumulator = /** @type {any} */ (layerDecoder.decode(accumulator));
 
           if (layerDecoder.done) {
             artwork.addLayerGroupObject(

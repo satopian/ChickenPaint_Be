@@ -50,16 +50,6 @@ export default class CPUndo {
   }
 
   undo() {}
-  /**
-   * Return the number of bytes of memory used by this undo, or 0 if it cannot be estimated.
-   *
-   * @param undone
-   * @param param
-   * @returns {number}
-   */
-  getMemoryUsed(undone, param) {
-    return 0;
-  }
 
   /**
    * Call when this undo is no longer on the top of the stack, so it can optimize its memory usage.
