@@ -1267,6 +1267,7 @@ export default class CPArtwork extends EventEmitter {
 
       this.setHasUnsavedChanges(true);
 
+      /** @type {any} */
       let redo = redoList.pop();
       if (!redo) {
         return;

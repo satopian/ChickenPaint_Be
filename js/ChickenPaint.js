@@ -1084,14 +1084,14 @@ export default class ChickenPaint extends EventEmitter {
         CPPost: {
           action: function () {
             //画面移動の関数が定義されている時はユーザーが定義した関数で画面移動
-            if (typeof window.handleExit === "function") {
-              return window.handleExit();
+            if (typeof window["handleExit"] === "function") {
+              return window["handleExit"]();
             }
             window.location = options.postUrl;
           },
           isSupported: function () {
             return !!(
-              options.postUrl || typeof window.handleExit === "function"
+              options.postUrl || typeof window["handleExit"] === "function"
             );
           },
           modifies: { document: true },
@@ -1885,4 +1885,4 @@ ChickenPaint.COLOR_MODE_RGB = 0;
 ChickenPaint.COLOR_MODE_GREYSCALE = 1;
 
 //ChickenPaintをGlobalに設定
-window.ChickenPaint = ChickenPaint;
+window["ChickenPaint"] = ChickenPaint;

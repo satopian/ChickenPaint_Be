@@ -278,6 +278,7 @@ export default class CPCanvas extends EventEmitter {
       transformMode,
       // this must correspond to the stroke modes defined in CPToolInfo
       drawingModes = [],
+      /** @type {any} */
       modeStack = new CPModeStack(),
       curDrawMode,
       horzScroll = new CPScrollbar(false),
@@ -302,7 +303,9 @@ export default class CPCanvas extends EventEmitter {
       };
 
     // Parent class with empty event handlers for those drawing modes that don't need every event
-    function CPMode() {}
+    class CPMode {
+      constructor() {}
+    }
 
     /**
      * True if this mode will be exiting the mode stack as soon as the current interation is complete.
@@ -383,6 +386,8 @@ export default class CPCanvas extends EventEmitter {
         modeStack.peek().mouseDown(e, button, pressure);
       }
     };
+
+    CPDefaultMode.prototype.mouseUp = function (e, button, pressure) {};
 
     let previousMode = null; // 以前のモードを記憶して、あとで復帰させる
 

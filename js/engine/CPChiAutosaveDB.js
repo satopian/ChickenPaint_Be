@@ -20,7 +20,8 @@ async function performAction(mode, callback) {
     const request = indexedDB.open(DB_NAME, 1);
 
     request.onupgradeneeded = (e) => {
-      const db = e.target?.result;
+      const target = /** @type {any} */ (e.target);
+      const db = target.result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME);
       }

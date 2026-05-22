@@ -192,10 +192,10 @@ CPImageLayer.prototype.setClip = function (clip) {
  *
  * @param {CPRect} initialBounds - The rect to search within
  *
- * @returns {CPRect}
+ * @returns {any} CPRect
  */
 CPImageLayer.prototype.getNonTransparentBounds = function (initialBounds) {
-  return this.image.getNonTransparentBounds(initialBounds);
+  return this.image?.getNonTransparentBounds(initialBounds);
 };
 
 /**

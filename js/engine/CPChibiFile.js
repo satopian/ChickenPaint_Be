@@ -817,12 +817,9 @@ export function save(artwork, options = {}) {
       // 3. 段階的に圧縮
       let chunks_out = [];
 
-      const deflator = new Zlib(
-        (chunk) => {
-          chunks_out.push(chunk);
-        },
-        { level: savedb ? 1 : 6 },
-      );
+      const deflator = new Zlib({ level: savedb ? 1 : 6 }, (chunk) => {
+        chunks_out.push(chunk);
+      });
 
       // stepサイズ
       const step = 64 * 1024;

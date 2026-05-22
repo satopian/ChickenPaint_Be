@@ -371,7 +371,7 @@ CPRect.subtract = function (rectsA, rectsB) {
   if (rectsB instanceof CPRect) {
     rectsB = [rectsB];
   }
-
+  /** @type {any} */
   let result = rectsA.slice(0);
 
   for (let i = 0; i < rectsB.length; i++) {
@@ -510,5 +510,5 @@ CPRect.union = function (rects) {
  * Avoid that mess by starting things off with floats in the members.
  */
 if (typeof window == "object") {
-  window.cpRectGarbage = new CPRect(1.5, 2.5, 3.5, 4.5);
+  window["cpRectGarbage"] = new CPRect(1.5, 2.5, 3.5, 4.5);
 }
