@@ -71,7 +71,6 @@ export default class CPUserPreferences extends EventEmitter {
           }
         }
       }
-
       if (differsFromDefaults) {
         localStorage.setItem(
           LOCAL_STORAGE_KEY_NAME,
