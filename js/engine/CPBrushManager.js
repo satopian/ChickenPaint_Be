@@ -75,12 +75,15 @@ function buildBrushAA(brush, brushInfo) {
     const size = brushInfo.curSize;
     const r = size / 2; // 半径
     const area = Math.PI * r * r; // 実質カバー率
-    const alpha = Math.min(255, area * 255);
+    const alpha = Math.min(255, area * 255) | 0;
 
-    brush[0] = alpha | 0; // 中心だけ描く
+    // 1x1 の配列にせず、補間用の余白を持った 2x2（intSize = 2）として処理。
+    brush[0] = alpha;
+    brush[1] = 0;
+    brush[2] = 0;
+    brush[3] = 0;
     return;
   }
-
   const size = brushInfo.curSize;
   // 浮動小数点の中心座標を考慮し、描画に必要なバッファのサイズを決定
   const intSize = Math.ceil(size);
