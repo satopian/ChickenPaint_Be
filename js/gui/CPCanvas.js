@@ -98,15 +98,18 @@ CPModeStack.prototype.setUserMode = function (newMode) {
 /**
  * Deliver the event with the given name and array of parameters to the mode stack.
  *
- * @param event
- * @param params
+ * @param {string} eventName
+ * @param {any[]} params
  * @returns {boolean} True if any mode captured the event
  */
-CPModeStack.prototype.deliverEvent = function (event, params) {
+CPModeStack.prototype.deliverEvent = function (eventName, params) {
   for (var i = this.modes.length - 1; i >= 0; i--) {
     var mode = this.modes[i];
 
-    if (mode[event].apply(mode, params) || (mode.capture && event != "paint")) {
+    if (
+      mode[eventName].apply(mode, params) ||
+      (mode.capture && eventName != "paint")
+    ) {
       /* If the event was handled, don't try to deliver it to anything further up the stack */
       return true;
     }
@@ -145,7 +148,7 @@ CPModeStack.prototype.paint = function (context) {
  * Add a mode to the top of the mode stack.
  *
  * @param mode
- * @param transient {boolean} Set to true if the mode is expected to remove itself from stack upon completion.
+ * @param {boolean} transient  Set to true if the mode is expected to remove itself from stack upon completion.
  */
 CPModeStack.prototype.push = function (mode, transient) {
   var previousTop = this.peek();
