@@ -175,12 +175,12 @@ CPRect.prototype.clipSourceDest = function (srcRect, dstRect) {
   }
 };
 
-/** @return {number} */
+/** @returns {number} */
 CPRect.prototype.getWidth = function () {
   return this.right - this.left;
 };
 
-/** @return {number} */
+/** @returns {number} */
 CPRect.prototype.getHeight = function () {
   return this.bottom - this.top;
 };

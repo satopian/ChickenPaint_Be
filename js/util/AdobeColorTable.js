@@ -20,7 +20,7 @@ export default function AdobeColorTable() {}
  * Supports version 1 palettes, only RGB format.
  *
  * @param {Uint8Array} input - The .aco file contents
- * @return {?Object[]} An array of colours, or null if the file was not supported.
+ * @returns {?Object[]} An array of colours, or null if the file was not supported.
  */
 AdobeColorTable.prototype.read = function (input) {
   if (input == null) {

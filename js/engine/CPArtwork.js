@@ -605,7 +605,7 @@ export default class CPArtwork extends EventEmitter {
     /**
      * Remove the currently selected layer.
      *
-     * @return {boolean} True if the layer was removed, or false when removal failed because there would be no image
+     * @returns {boolean} True if the layer was removed, or false when removal failed because there would be no image
      * layers left in the document after deletion.
      */
     this.removeLayer = function () {
@@ -2217,7 +2217,7 @@ export default class CPArtwork extends EventEmitter {
      * @param {Number} x
      * @param {Number} y
      * @param {Number} pressure
-     * @return {void}
+     * @returns {void}
      */
     this.continueStroke = function (x, y, pressure) {
       if (curBrush == null) return;
@@ -2289,7 +2289,7 @@ export default class CPArtwork extends EventEmitter {
     };
 
     /**
-     *  * @return {boolean}
+     *  * @returns {boolean}
      */
     this.hasAlpha = function () {
       return fusion ? fusion.hasAlpha() : false;
@@ -2301,7 +2301,7 @@ export default class CPArtwork extends EventEmitter {
      * Rotation is [0..3] and selects a multiple of 90 degrees of clockwise rotation to be applied to the drawing before
      * saving.
      *
-     * @return {string|false} A binary string of the PNG file data.
+     * @returns {string|false} A binary string of the PNG file data.
      */
     this.getFlatPNG = function (rotation) {
       this.fusionLayers();
@@ -2314,7 +2314,7 @@ export default class CPArtwork extends EventEmitter {
      * Rotation is [0..3] and selects a multiple of 90 degrees of clockwise rotation to be applied to the drawing before
      * saving.
      *
-     * @return {Buffer|false}
+     * @returns {Buffer|false}
      */
     this.getFlatPNGBuffer = function (rotation) {
       this.fusionLayers();

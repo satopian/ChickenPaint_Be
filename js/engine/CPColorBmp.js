@@ -2106,7 +2106,7 @@ CPColorBmp.prototype.getNonTransparentBounds = function (initialBounds) {
  *
  * @param {any} canvas
  * @param {number} rotation - [0..3], selects a multiple of 90 degrees of clockwise rotation to be applied.
- * @return {any}
+ * @returns {any}
  */
 export function getRotatedCanvas(canvas, rotation) {
   rotation = rotation % 4;

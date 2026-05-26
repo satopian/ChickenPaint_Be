@@ -2994,7 +2994,7 @@ export default class CPCanvas extends EventEmitter {
      *
      * @param {PointerEvent} e
      *
-     * @return {Number}
+     * @returns {Number}
      */
     function getPointerPressure(e) {
       // Safari fails to set pressure = 0.5 for mouse button down like it is supposed to
