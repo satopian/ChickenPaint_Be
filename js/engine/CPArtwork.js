@@ -762,6 +762,7 @@ export default class CPArtwork extends EventEmitter {
      * @param {number} x - ブラシ先端の X 座標
      * @param {number} y - ブラシ先端の Y 座標
      * @param {number} pressure - ペンの筆圧（タブレット対応）
+     * @param {boolean} isFirstPoint - 描き始めか?
      */
     this.paintDab = function (x, y, pressure, isFirstPoint = false) {
       if (!curBrush) return;
@@ -2181,6 +2182,7 @@ export default class CPArtwork extends EventEmitter {
 
     /**
      * Start a painting operation.
+     * ビギンストローク
      *
      * @param {number} x
      * @param {number} y
@@ -2210,6 +2212,13 @@ export default class CPArtwork extends EventEmitter {
       return true;
     };
 
+    /**
+     * コンティニューストローク
+     * @param {Number} x
+     * @param {Number} y
+     * @param {Number} pressure
+     * @return {void}
+     */
     this.continueStroke = function (x, y, pressure) {
       if (curBrush == null) return;
 
@@ -2249,6 +2258,10 @@ export default class CPArtwork extends EventEmitter {
       }
     };
 
+    /**
+     * エンドストローク
+     * @returns {void}
+     */
     this.endStroke = function () {
       if (curBrush == null) {
         return;
