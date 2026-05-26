@@ -140,7 +140,7 @@ export default function CPchromaticAberration(parent, controller) {
     if (e.key === "Enter") {
       e.preventDefault(); // フォーム送信を防ぐ
       if (applyButton instanceof HTMLElement) {
-        applyButton?.click(); // OKボタンをクリックしたことにする
+        applyButton.click(); // OKボタンをクリックしたことにする
       }
     }
   });

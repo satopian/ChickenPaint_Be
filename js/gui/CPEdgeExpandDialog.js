@@ -144,7 +144,7 @@ export default function CPEdge(parent, controller) {
   dialog.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault(); // フォーム送信を防ぐ
-      if (applyButton instanceof HTMLInputElement) {
+      if (applyButton instanceof HTMLElement) {
         applyButton.click(); // OKボタンをクリックしたことにする
       }
     }

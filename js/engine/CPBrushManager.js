@@ -34,7 +34,7 @@ import CPBrushInfo from "./CPBrushInfo.js";
 const MAX_SQUEEZE = 10;
 
 /**
- *
+ * 円ピクセル
  * @param {Uint8Array} brush
  * @param {CPBrushInfo} brushInfo
  */
@@ -66,6 +66,7 @@ function buildBrush(brush, brushInfo) {
 }
 
 /**
+ * 円ハードエッジ
  * @param {Uint8Array} brush
  * @param {CPBrushInfo} brushInfo
  */
@@ -114,12 +115,13 @@ function buildBrushAA(brush, brushInfo) {
       } else if (sqrDist > sqrRadiusOuter) {
         brush[offset++] = 0;
       } else {
-        // アンチエイリアス用の4x4サブサンプリング
+        // 元の4x4の入れ物そのままで、サンプリングだけを安全に8x8に拡張
         let count = 0;
-        for (let oy = 0; oy < 4; oy++) {
-          for (let ox = 0; ox < 4; ox++) {
-            let sx = i + ox * 0.25 - center;
-            let sy = j + oy * 0.25 - center;
+        for (let oy = 0; oy < 8; oy++) {
+          for (let ox = 0; ox < 8; ox++) {
+            // 0.25 (1/4) だったステップを、0.125 (1/8) に細分化
+            let sx = i + ox * 0.125 - center;
+            let sy = j + oy * 0.125 - center;
             let sdx = (sx * cosA - sy * sinA) * xFactor;
             let sdy = sy * cosA + sx * sinA;
 
@@ -128,13 +130,15 @@ function buildBrushAA(brush, brushInfo) {
             }
           }
         }
-        brush[offset++] = Math.min(count * 16, 255);
+        // 最大64カウントを 0〜255 に収める（64 * 4 = 256 → 最大255）
+        brush[offset++] = Math.min(count * 4, 255);
       }
     }
   }
 }
 
 /**
+ * 角ピクセル
  * @param {Uint8Array} brush
  * @param {CPBrushInfo} brushInfo
  */
@@ -169,6 +173,7 @@ function buildBrushSquare(brush, brushInfo) {
 }
 
 /**
+ * 角ハードエッジ
  * @param {Uint8Array} brush
  * @param {CPBrushInfo} brushInfo
  */
@@ -182,8 +187,8 @@ function buildBrushSquareAA(brush, brushInfo) {
     brush[0] = alpha | 0; // 中心だけ描く
     return;
   }
-  // let intSize = Math.ceil(brushInfo.curSize),
-  let intSize = brushInfo.curSize,
+  let intSize = Math.ceil(brushInfo.curSize),
+    // let intSize = brushInfo.curSize,
     center = intSize / 2.0,
     size = brushInfo.curSize * Math.sin(Math.PI / 4),
     sizeX = size / 2 / (1.0 + brushInfo.curSqueeze * MAX_SQUEEZE),
@@ -210,11 +215,11 @@ function buildBrushSquareAA(brush, brushInfo) {
       } else {
         let count = 0;
 
-        for (let oy = 0; oy < 4; oy++) {
-          for (let ox = 0; ox < 4; ox++) {
-            // 4×4 スーパーサンプリング：角度依存の偏りを防ぐため、サブピクセルの中心をサンプリングする
-            x = i + (ox + 0.5) * (1.0 / 4.0) - center;
-            y = j + (oy + 0.5) * (1.0 / 4.0) - center;
+        for (let oy = 0; oy < 8; oy++) {
+          for (let ox = 0; ox < 8; ox++) {
+            // 0.25 (1/4) だったステップを、0.125 (1/8) に細分化
+            x = i + ox * 0.125 - center;
+            y = j + ox * 0.125 - center;
             dx = Math.abs(x * cosA - y * sinA);
             dy = Math.abs(y * cosA + x * sinA);
 
@@ -223,14 +228,14 @@ function buildBrushSquareAA(brush, brushInfo) {
             }
           }
         }
-        brush[offset++] = Math.min(count * 16, 255);
+        brush[offset++] = Math.min(count * 4, 255);
       }
     }
   }
 }
 
 /**
- *
+ * 円ソフト
  * @param {Uint8Array} brush
  * @param {CPBrushInfo} brushInfo
  */

@@ -2251,10 +2251,13 @@ export default class CPArtwork extends EventEmitter {
           currentDist += spacing;
         }
 
-        // 最後に打ったスタンプの位置ではなく、マウス位置を正確に追跡する
-        lastX = x;
-        lastY = y;
-        lastPressure = pressure;
+        //  ループの外側最後の処理
+        let lastStampingDist = currentDist - spacing;
+
+        // 実際にスタンプを打った「最後のドットの座標と筆圧」を正確に引き出して、次回への基準にする
+        lastX = lastX + vx * lastStampingDist;
+        lastY = lastY + vy * lastStampingDist;
+        lastPressure = lastPressure + vp * lastStampingDist;
       }
     };
 
@@ -2282,7 +2285,6 @@ export default class CPArtwork extends EventEmitter {
          */
         prepareForLayerPaintUndo();
       }
-
       endPaintingInteraction(false);
     };
 
