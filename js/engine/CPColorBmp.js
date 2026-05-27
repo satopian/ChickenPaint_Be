@@ -2151,6 +2151,11 @@ export function getRotatedCanvas(canvas, rotation) {
   return rotatedCanvas;
 }
 
+/**
+ *
+ * @param {string} url
+ * @returns {string|false}
+ */
 function decodeBase64PNGDataURL(url) {
   if (typeof url !== "string" || !url.match(/^data:image\/png;base64,/i)) {
     return false;
