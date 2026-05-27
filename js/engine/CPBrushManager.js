@@ -42,7 +42,7 @@ function buildBrush(brush, brushInfo) {
   // let intSize = Math.ceil(brushInfo.curSize),
   let intSize = Math.max(brushInfo.curSize, 1),
     center = intSize / 2.0,
-    sqrRadius = (brushInfo.curSize / 2) * (brushInfo.curSize / 2),
+    sqrRadius = (intSize / 2) * (intSize / 2),
     xFactor = 1.0 + brushInfo.curSqueeze * MAX_SQUEEZE,
     cosA = Math.cos(brushInfo.curAngle),
     sinA = Math.sin(brushInfo.curAngle),
@@ -147,9 +147,9 @@ function buildBrushSquare(brush, brushInfo) {
     brush[0] = 255; // 1pxブラシは無条件のハード1px
     return;
   }
-  let intSize = brushInfo.curSize,
+  let intSize = Math.ceil(brushInfo.curSize),
     center = intSize / 2.0,
-    size = brushInfo.curSize * Math.sin(Math.PI / 4),
+    size = intSize * Math.sin(Math.PI / 4),
     sizeX = size / 2 / (1.0 + brushInfo.curSqueeze * MAX_SQUEEZE),
     sizeY = size / 2,
     cosA = Math.cos(brushInfo.curAngle),

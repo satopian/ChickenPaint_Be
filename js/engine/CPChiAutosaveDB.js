@@ -14,6 +14,8 @@ const STORAGE_KEY = "latest_backup";
 
 /**
  * 内部用：DB接続・トランザクション処理の抽象化
+ * @param {IDBTransactionMode} mode
+ * @param {Function} callback
  */
 async function performAction(mode, callback) {
   return new Promise((resolve, reject) => {
@@ -90,6 +92,7 @@ export async function CPPutChiAutosaveToDB(bytes, swatchesBlob) {
 }
 /**
  * 復元対象があるか確認し、あればデータを取得する (Load)
+ * @returns {Promise}
  */
 export async function CPGetChiAutosaveFromDB() {
   const result = await performAction("readonly", (store) =>
@@ -101,6 +104,7 @@ export async function CPGetChiAutosaveFromDB() {
 /**
  * 復元が完了した、あるいは不要になった場合に「復元済み」とする (Clear)
  * ※次に保存(backup)した時に上書きされるので、必須ではありません。
+ * @returns {Promise}
  */
 export async function CPClearChiAutosaveFromDB() {
   // 復元可能なバックアップが存在することを示すフラグをlocalStorageから削除

@@ -43,6 +43,8 @@ import { Zlib, unzlibSync } from "fflate";
  *
  * Either one may be set to null. If either one is null, the other is returned. If both are null, null is
  * returned.
+ * @param {Object|null} one
+ * @param {Object|null} two
  */
 function concatBuffers(one, two) {
   if (one === null || one.length === 0) {
@@ -71,7 +73,8 @@ const OUR_MAJOR_VERSION = 0,
 
 /**
  * @constructor
- * @this {any}
+ * @param {Object} stream
+ * @this {Object}
  */
 function CPChibiFileHeader(stream) {
   this.version = stream.readU32BE();
@@ -83,7 +86,8 @@ function CPChibiFileHeader(stream) {
 CPChibiFileHeader.FIXED_HEADER_LENGTH = 4 * 4;
 
 /**
- * @this{ typeof ChibiChunkHeader & Record<string, any>	}
+ * @param {Object} stream
+ * @this { typeof ChibiChunkHeader & Record<string, any>	}
  */
 
 function ChibiChunkHeader(stream) {
