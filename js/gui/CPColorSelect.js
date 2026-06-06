@@ -53,7 +53,7 @@ export default class CPColorSelect {
   color = new CPColor(0);
 
   /**
-   * @param {import('./CPColorSwatch.js').default} controller
+   * @param {import('../ChickenPaint.js').default|import('./CPColorSwatch.js').default} controller
    * @param {CPColor} [initialColor]
    */
   constructor(controller, initialColor) {

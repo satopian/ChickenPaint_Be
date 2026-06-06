@@ -69,7 +69,7 @@ export default class CPColorSlider {
   _capturedMouse = false;
 
   /**
-   * @param {import('./CPColorSwatch.js').default} controller
+   * @param {import('../ChickenPaint.js').default|import('./CPColorSwatch.js').default} controller
    * @param {import('./CPColorSelect.js').default} selecter
    * @param {number} [initialHue]
    */

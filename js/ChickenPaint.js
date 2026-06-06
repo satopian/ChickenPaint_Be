@@ -67,6 +67,13 @@ import {
 import CPUserPreferences from "./gui/CPUserPreferences.js";
 import CPCanvas from "./gui/CPCanvas.js";
 
+/**
+ * @typedef {Object} UIActionEvent
+ * @property {string} action    - 実行されたアクション名
+ * @property {boolean} [checkbox] - チェックボックス要素であるか
+ * @property {boolean} selected - 選択状態
+ */
+
 function isSmallScreen() {
   return Boolean(
     typeof navigator.maxTouchPoints === "number" &&
@@ -847,7 +854,7 @@ export default class ChickenPaint extends EventEmitter {
         },
 
         CPToggleGrid: {
-          action: function (e) {
+          action: function (/** @type {UIActionEvent} */ e) {
             canvas.showGrid(e.selected);
           },
           modifies: { gui: true },
@@ -860,7 +867,7 @@ export default class ChickenPaint extends EventEmitter {
         },
 
         CPLinearInterpolation: {
-          action: function (e) {
+          action: function (/** @type {UIActionEvent} */ e) {
             canvas.setInterpolation(e.selected);
           },
           modifies: { gui: true },
@@ -1114,11 +1121,18 @@ export default class ChickenPaint extends EventEmitter {
         },
       };
 
+    /**
+     * @param {string} palName
+     */
     function PaletteToggleAction(palName) {
       this.palName = palName;
     }
-
-    PaletteToggleAction.prototype.action = function (e) {
+    /**
+     * @param {*} e
+     */
+    PaletteToggleAction.prototype.action = function (
+      /** @type {UIActionEvent} */ e,
+    ) {
       mainGUI.showPalette(this.palName, e.selected);
     };
     PaletteToggleAction.prototype.modifies = { gui: true };

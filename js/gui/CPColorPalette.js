@@ -35,11 +35,10 @@ import CPColorSlider from "./CPColorSlider.js";
 import CPColor from "../util/CPColor.js";
 import { _ } from "../languages/lang.js";
 
-/**
- * @param {import('./CPColorSwatch.js').default} cpController
- */
-
 export default class CPColorPalette extends CPPalette {
+  /**
+   * @param {import('../ChickenPaint.js').default} cpController
+   */
   constructor(cpController) {
     super(cpController, "color", "Color (picker)");
 
@@ -67,7 +66,7 @@ export default class CPColorPalette extends CPPalette {
 }
 
 /**
- * @param {import('./CPColorSwatch.js').default} controller
+ * @param {import('../ChickenPaint.js').default|import('./CPColorSwatch.js').default} controller
  */
 function CPColorShow(controller) {
   let color = 0,

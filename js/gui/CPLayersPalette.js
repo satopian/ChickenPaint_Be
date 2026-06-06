@@ -42,7 +42,10 @@ function absorbTouch(e) {
   e.preventDefault();
   e.stopPropagation();
 }
-
+/**
+ * @param {string} iconName
+ * @returns {HTMLSpanElement}
+ */
 function createFontAwesomeIcon(iconName) {
   let icon = document.createElement("span");
 
@@ -51,6 +54,10 @@ function createFontAwesomeIcon(iconName) {
   return icon;
 }
 
+/**
+ * @param {string} iconName
+ * @returns {HTMLSpanElement}
+ */
 function createChickenPaintIcon(iconName) {
   let icon = document.createElement("span");
 
@@ -88,7 +95,26 @@ function wrapBootstrapCheckbox(checkbox, title) {
 
   return div;
 }
-
+/**
+ * 指定されたレイヤーの現在の状態に基づき、UI要素の表示・非表示や
+ * アクティブ状態を制御するための述語（真偽値）リストを生成する。
+ * * @param {CPLayer} layer - 判定対象のレイヤー
+ * @param {boolean} isEditingMask - 現在マスク編集モードかどうか
+ * レイヤーの状態を示す真偽値のオブジェクト
+ * @returns {{
+ * "image-layer": boolean,
+ * "layer-group": boolean,
+ * "clipping-mask": boolean,
+ * "no-clipping-mask": boolean,
+ * "no-clipping-mask-or-is-group": boolean,
+ * mask: boolean,
+ * "no-mask": boolean,
+ * "mask-enabled": boolean,
+ * "mask-disabled": boolean,
+ * isNotEditingMask: boolean,
+ * isEditingMask: boolean
+ * }}
+ */
 function computeLayerPredicates(layer, isEditingMask) {
   return {
     "image-layer": layer instanceof CPImageLayer,

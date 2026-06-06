@@ -100,7 +100,6 @@ export default class CPColorSwatch extends EventEmitter {
     function buildColorEditPanel() {
       const panel = document.createElement("div");
       const group = document.createElement("div");
-      console.log("that", that);
       const select = new CPColorSelect(that, color);
       const slider = new CPColorSlider(that, select, color.getHue());
       const alphaSlider = new CPSlider(0, 255);

@@ -38,6 +38,7 @@ import { _ } from "../languages/lang.js";
 
 export default class CPMiscPalette extends CPPalette {
   constructor(cpController) {
+    console.log("cpController", cpController);
     super(cpController, "misc", "Misc");
 
     /** @type {HTMLElement|null} */

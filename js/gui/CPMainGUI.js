@@ -67,7 +67,10 @@ export default class CPMainGUI extends EventEmitter {
     this.constrainPalettes = function () {
       paletteManager.constrainPalettes();
     };
-
+    /**
+     * @param {string} paletteName
+     * @param {boolean} show
+     */
     this.showPalette = function (paletteName, show) {
       paletteManager.showPaletteByName(paletteName, show);
     };

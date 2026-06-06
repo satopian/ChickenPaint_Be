@@ -45,6 +45,11 @@ import key from "../../lib/keymaster.js";
 
 import { _ } from "../languages/lang.js";
 
+/**
+ * @param {CPCheckbox} checkbox
+ * @param {CPSlider} slider
+ * @returns {HTMLDivElement}
+ */
 function sliderCheckboxGroup(checkbox, slider) {
   let group = document.createElement("div");
 
@@ -68,7 +73,9 @@ function fillCombobox(combo, optionNames) {
     }
   }
 }
-
+/**
+ * @param {ChickenPaint} controller
+ */
 function CPGradientPreview(controller) {
   let w = 150,
     h = 32,
@@ -118,7 +125,7 @@ function CPGradientPreview(controller) {
 
 export default class CPBrushPalette extends CPPalette {
   /**
-   *  @param {import('../ChickenPaint.js').default} controller
+   * @param {ChickenPaint} controller
    */
   constructor(controller) {
     super(controller, "brush", "Tool options");
@@ -272,6 +279,9 @@ export default class CPBrushPalette extends CPPalette {
   }
 }
 
+/**
+ * @param {ChickenPaint} controller
+ */
 function CPBrushPanel(controller) {
   const TIP_NAMES = [
       "Round Pixelated",
@@ -493,6 +503,9 @@ function CPBrushPanel(controller) {
   });
 }
 
+/**
+ * @param {ChickenPaint} controller
+ */
 CPBrushPalette.CPBrushPreview = function (controller) {
   let size = 16,
     canvas = document.createElement("canvas"),
@@ -595,7 +608,9 @@ CPBrushPalette.CPBrushPreview = function (controller) {
 
   paint();
 };
-
+/**
+ * @param {ChickenPaint} controller
+ */
 function CPGradientPanel(controller) {
   const gradientPanel = document.createElement("div"),
     gradientPreview = new CPGradientPreview(controller),
@@ -692,6 +707,9 @@ function setButtonIcon(button, iconClass) {
   button.appendChild(spanText);
 }
 
+/**
+ * @param {ChickenPaint} controller
+ */
 function CPTransformPanel(controller) {
   const TRANSFORM_INTERPOLATION = { smooth: _("Smooth"), sharp: _("Sharp") };
 
@@ -777,7 +795,10 @@ function CPTransformPanel(controller) {
     }
   });
 }
-// 選択パネル
+/**
+ * 選択パネル
+ * @param {ChickenPaint} controller
+ */
 function CPSelectionPanel(controller) {
   let panel = document.createElement("div"),
     formGroup = document.createElement("div"),
@@ -894,8 +915,7 @@ function createBootstrapCheckbox(id, title, checked = false) {
   return { wrapper, checkbox };
 }
 /**
- * @param {*} controller
- * @this {any}
+ * @param {ChickenPaint} controller
  */
 function CPPanPanel(controller) {
   let panel = document.createElement("div");
@@ -1046,6 +1066,9 @@ function CPPanPanel(controller) {
     }
   });
 }
+/**
+ * @param {ChickenPaint} controller
+ */
 function CPFloodFillPanel(controller) {
   let panel = document.createElement("div");
   let formGroup = document.createElement("div");
@@ -1115,6 +1138,9 @@ function CPFloodFillPanel(controller) {
   fillWithInitialValues();
 }
 
+/**
+ * @param {ChickenPaint} controller
+ */
 function CPColorPickerPanel(controller) {
   let panel = document.createElement("div");
   panel.className = "chickenpaint-colorPicker-panel";

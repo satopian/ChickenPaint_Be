@@ -31,11 +31,13 @@
 
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
+import CPCanvas from "./CPCanvas.js";
 
 /**
  * @this {any}
+ * @param {HTMLElement} parent
+ * @param {CPCanvas} canvas
  */
-
 export default function CPGridDialog(parent, canvas) {
   // ダイアログ要素を作成
   const dialog = document.createElement("div");
@@ -92,7 +94,7 @@ export default function CPGridDialog(parent, canvas) {
 
   // グリッドサイズの初期値を設定
   if (gridSizeElem instanceof HTMLInputElement) {
-    gridSizeElem.value = canvas.getGridSize();
+    gridSizeElem.value = String(canvas.getGridSize());
   }
 
   // モーダルが閉じられた後にダイアログを削除
