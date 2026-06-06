@@ -714,7 +714,7 @@ export default class CPLayersPalette extends CPPalette {
           }
         } catch (e) {
           // We don't expect this to ever happen but it'd be nice if everything keeps running if it does
-          console.log("Failed to create layer thumb");
+          console.warn("Failed to create layer thumb");
         }
 
         let layerName =
@@ -1082,7 +1082,7 @@ export default class CPLayersPalette extends CPPalette {
             );
           }
         } catch (e) {
-          console.log("Error rebuilding thumbnail: ", e);
+          console.warn("Error rebuilding thumbnail: ", e);
         }
       }
 
@@ -1159,13 +1159,16 @@ export default class CPLayersPalette extends CPPalette {
         let layerElem = getElemFromDisplayIndex(
           getDisplayIndexFromLayer(newLayer),
         );
+        if (!layerElem) {
+          console.warn("Layer DOM element not found for display index");
+        }
 
-        layerElem.classList.add(CLASSNAME_LAYER_ACTIVE);
+        layerElem?.classList.add(CLASSNAME_LAYER_ACTIVE);
 
-        let imageThumb = layerElem.querySelector(
+        let imageThumb = layerElem?.querySelector(
           "." + CLASSNAME_LAYER_IMAGE_THUMBNAIL,
         );
-        let maskThumb = layerElem.querySelector(
+        let maskThumb = layerElem?.querySelector(
           "." + CLASSNAME_LAYER_MASK_THUMBNAIL,
         );
 

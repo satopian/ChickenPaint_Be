@@ -70,11 +70,15 @@ import {
 function capitalizeFirst(string) {
   return string.substring(0, 1).toUpperCase() + string.substring(1);
 }
-
-function sum(a, b) {
-  return a + b;
-}
-
+/**
+ * 2つのレイヤーの配列を比較して同一かどうかを判定する。
+ * * Undo（取り消し）履歴を統合（マージ）する際、
+ * 操作対象となるレイヤーが一致しているかを確認する。
+ *
+ * @param {(CPImageLayer|CPLayerGroup)[]} a - 比較元レイヤー配列
+ * @param {(CPImageLayer|CPLayerGroup)[]} b - 比較先レイヤー配列
+ * @returns {boolean} 両者の長さと、各インデックスのレイヤーがすべて一致すれば true が返る。
+ */
 function arrayEquals(a, b) {
   if (a.length != b.length) {
     return false;
@@ -87,14 +91,6 @@ function arrayEquals(a, b) {
   }
 
   return true;
-}
-
-/**
- * @param {HTMLCanvasElement} canvas
- * @returns {number}
- */
-function memoryUsedByCanvas(canvas) {
-  return canvas ? canvas.width * canvas.height * 4 : 0;
 }
 
 /**
@@ -712,13 +708,17 @@ export default class CPArtwork extends EventEmitter {
         layerPropertyChanged(group, "expanded", true);
       }
     };
-
+    /**
+     * レイヤーの不透明度をセット
+     * @param {number} alpha 0-100%
+     */
     this.setLayerAlpha = function (alpha) {
       if (curLayer.getAlpha() != alpha) {
         addUndo(new CPActionChangeLayerAlpha(curLayer, alpha));
       }
     };
 
+    //どこからも呼ばれていない?
     this.setLayerMaskLinked = function (linked) {
       if (curLayer.maskLinked != linked) {
         addUndo(new CPActionChangeLayerMaskLinked(curLayer, linked));
@@ -726,7 +726,7 @@ export default class CPArtwork extends EventEmitter {
     };
 
     /**
-     *
+     * マスク可視性
      * @param {CPLayer} layer
      * @param {boolean} visible
      */
@@ -735,7 +735,10 @@ export default class CPArtwork extends EventEmitter {
         addUndo(new CPActionChangeLayerMaskVisible(layer, visible));
       }
     };
-
+    /**
+     * レイヤーの合成方法を変更
+     * @param {number} blendMode
+     */
     this.setLayerBlendMode = function (blendMode) {
       if (
         curLayer.getBlendMode() != blendMode &&
@@ -757,7 +760,7 @@ export default class CPArtwork extends EventEmitter {
     };
 
     /**
-     * ブラシの先端でキャンバスに描画します。
+     * ブラシの先端でキャンバスに描画する。
      *
      * @param {number} x - ブラシ先端の X 座標
      * @param {number} y - ブラシ先端の Y 座標
@@ -854,6 +857,12 @@ export default class CPArtwork extends EventEmitter {
       invalidateLayerPaint(curLayer, imageRect);
     };
 
+    /**
+     * レイヤーまたはレイヤーグループの追加時にレイヤーグループかどうか確認して
+     * 接頭辞"Group " または "Layer "を追加する。
+     * @param {boolean} isGroup
+     * @returns {string} レイヤー名またはレイヤーグループ名
+     */
     this.getDefaultLayerName = function (isGroup) {
       let prefix = isGroup ? "Group " : "Layer ",
         nameRegex = isGroup ? /^Group [0-9]+$/ : /^Layer [0-9]+$/,
@@ -1087,6 +1096,15 @@ export default class CPArtwork extends EventEmitter {
       }
     };
 
+    /**
+     * 対象レイヤーがクリッピングマスクとして設定可能かどうかを判定する。
+     *
+     * ・対象が CPImageLayer のインスタンスであること
+     * ・対象が既にクリッピングマスクとして設定されていないこと
+     * ・対象の直下に CPImageLayer のインスタンスが存在すること
+     *
+     * @returns {boolean} 条件をすべて満たす場合は true、それ以外は false を返す。
+     */
     this.isCreateClippingMaskAllowed = function () {
       let layerIndex = curLayer.parent.indexOf(curLayer),
         underLayer = curLayer.parent.layers[layerIndex - 1];
@@ -3035,10 +3053,15 @@ export default class CPArtwork extends EventEmitter {
           layerPropertyChanged(layer, propertyName, !invalidatesLayer),
         );
       };
-
-      ChangeAction.prototype.merge = function (u) {
-        if (u instanceof ChangeAction && arrayEquals(this.layers, u.layers)) {
-          this.to = u.to;
+      /**
+       * @param {CPUndo} undo
+       */
+      ChangeAction.prototype.merge = function (undo) {
+        if (
+          undo instanceof ChangeAction &&
+          arrayEquals(this.layers, undo.layers)
+        ) {
+          this.to = undo.to;
           return true;
         }
         return false;
