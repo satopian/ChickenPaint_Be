@@ -733,7 +733,7 @@ CPColorBmp.prototype.copyArrayToPixelColumn = function (x, y, len, buffer) {
  * 横方向に radiusX、縦方向に radiusY の半径でぼかす。
  * 透明部分はアルファ値を考慮して処理する。
  *
- * @param rect - ぼかしを適用する範囲。
+ * @param {CPRect} rect - ぼかしを適用する範囲。
  * @param {number} radiusX - 横方向のぼかし半径（ピクセル単位）。
  * @param {number} radiusY - 縦方向のぼかし半径（ピクセル単位）。
  */
