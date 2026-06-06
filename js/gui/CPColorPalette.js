@@ -36,7 +36,7 @@ import CPColor from "../util/CPColor.js";
 import { _ } from "../languages/lang.js";
 
 /**
- * @this {any}
+ * @param {import('./CPColorSwatch.js').default} cpController
  */
 
 export default class CPColorPalette extends CPPalette {
@@ -66,6 +66,9 @@ export default class CPColorPalette extends CPPalette {
   }
 }
 
+/**
+ * @param {import('./CPColorSwatch.js').default} controller
+ */
 function CPColorShow(controller) {
   let color = 0,
     element = document.createElement("div");

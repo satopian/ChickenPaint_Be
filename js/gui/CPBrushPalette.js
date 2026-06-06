@@ -117,6 +117,9 @@ function CPGradientPreview(controller) {
  */
 
 export default class CPBrushPalette extends CPPalette {
+  /**
+   *  @param {import('../ChickenPaint.js').default} controller
+   */
   constructor(controller) {
     super(controller, "brush", "Tool options");
 

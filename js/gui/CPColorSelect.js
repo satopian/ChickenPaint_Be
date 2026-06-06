@@ -39,12 +39,6 @@ const CONTROL_WIDTH = 128,
   CANVAS_WIDTH = Math.round(CONTROL_WIDTH * PIXEL_SCALE),
   CANVAS_HEIGHT = Math.round(CONTROL_HEIGHT * PIXEL_SCALE);
 
-/**
- *
- * @param controller
- * @param {CPColor} initialColor
- * @constructor
- */
 export default class CPColorSelect {
   _controller;
 
@@ -58,6 +52,10 @@ export default class CPColorSelect {
 
   color = new CPColor(0);
 
+  /**
+   * @param {import('./CPColorSwatch.js').default} controller
+   * @param {CPColor} [initialColor]
+   */
   constructor(controller, initialColor) {
     this._controller = controller;
 
@@ -98,8 +96,11 @@ export default class CPColorSelect {
     if (initialColor) {
       this.color.copyFrom(initialColor);
     }
-
     controller.on("colorChange", (c) => {
+      /**
+       * @type {CPColor} c
+       */
+
       this.color.copyFrom(c);
 
       this._bitmapInvalid = true;

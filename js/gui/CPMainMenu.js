@@ -520,14 +520,15 @@ const MENU_ENTRIES = [
   },
 ];
 
-/**
- * @this {any}
- */
-
-export default function CPMainMenu(controller, mainGUI) {
-  const bar = document.createElement("nav");
-  bar.className = "navbar navbar-expand-md bg-light";
-  bar.innerHTML = `
+export default class CPMainMenu {
+  /**
+   * @param {import('../ChickenPaint.js').default} controller
+   * @param {import('./CPMainGUI.js').default} mainGUI
+   */
+  constructor(controller, mainGUI) {
+    const bar = document.createElement("nav");
+    bar.className = "navbar navbar-expand-md bg-light";
+    bar.innerHTML = `
     <div class="navbar-upper">
       <span class="navbar-brand">litaChix</span>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#chickenpaint-main-menu-content" aria-controls="chickenpaint-main-menu-content" aria-expanded="false" aria-label="Toggle main menu">
@@ -540,362 +541,363 @@ export default function CPMainMenu(controller, mainGUI) {
     <div class="widget-nav" id="chickenpaint-palette-toggler-content"></div>
   `;
 
-  const macPlatform = navigator.userAgent.toLowerCase().includes("mac os");
+    const macPlatform = navigator.userAgent.toLowerCase().includes("mac os");
 
-  bar.addEventListener("touchmove", (e) => e.preventDefault(), {
-    passive: false,
-  });
+    bar.addEventListener("touchmove", (e) => e.preventDefault(), {
+      passive: false,
+    });
 
-  function menuItemClicked(target) {
-    const action = target.dataset.action;
-    const checkbox = target.dataset.checkbox === "true";
-    let selected;
+    function menuItemClicked(target) {
+      const action = target.dataset.action;
+      const checkbox = target.dataset.checkbox === "true";
+      let selected;
 
-    if (!action) return;
+      if (!action) return;
 
-    if (action === "CPTransform" || controller.isActionAllowed(action)) {
-      //変形モードは、メニューのグレーアウト状態に関わらず実行し、
-      //処理の開始時にバリデーションを行う。
-      if (checkbox) {
-        target.classList.toggle("selected");
-        selected = target.classList.contains("selected");
-      } else {
-        selected = false;
+      if (action === "CPTransform" || controller.isActionAllowed(action)) {
+        //変形モードは、メニューのグレーアウト状態に関わらず実行し、
+        //処理の開始時にバリデーションを行う。
+        if (checkbox) {
+          target.classList.toggle("selected");
+          selected = target.classList.contains("selected");
+        } else {
+          selected = false;
+        }
+
+        controller.actionPerformed({ action, checkbox, selected });
       }
-
-      controller.actionPerformed({ action, checkbox, selected });
     }
-  }
 
-  function presentShortcutText(shortcut) {
-    shortcut = shortcut
-      .toUpperCase()
-      .replace(/(,.+)$/, "")
-      .replace("=", "+");
-    return macPlatform
-      ? shortcut.replace(/([^+])\+/g, "$1")
-      : shortcut.replace(/([^+])\+/g, "$1 ");
-  }
+    function presentShortcutText(shortcut) {
+      shortcut = shortcut
+        .toUpperCase()
+        .replace(/(,.+)$/, "")
+        .replace("=", "+");
+      return macPlatform
+        ? shortcut.replace(/([^+])\+/g, "$1")
+        : shortcut.replace(/([^+])\+/g, "$1 ");
+    }
 
-  function updateMenuStates(menuElem) {
-    menuElem.querySelectorAll("[data-action]").forEach((elem) => {
-      const action = elem.dataset.action;
-      const allowed = controller.isActionAllowed(action);
-      elem.classList.toggle("disabled", !allowed);
-      if (elem.dataset.hideIfNotAvailable === "true") {
-        elem.classList.toggle("hidden", !allowed);
-      }
-    });
+    function updateMenuStates(menuElem) {
+      menuElem.querySelectorAll("[data-action]").forEach((elem) => {
+        const action = elem.dataset.action;
+        const allowed = controller.isActionAllowed(action);
+        elem.classList.toggle("disabled", !allowed);
+        if (elem.dataset.hideIfNotAvailable === "true") {
+          elem.classList.toggle("hidden", !allowed);
+        }
+      });
 
-    menuElem
-      .querySelectorAll(".dropdown-divider")
-      .forEach((div) => div.classList.remove("hidden"));
+      menuElem
+        .querySelectorAll(".dropdown-divider")
+        .forEach((div) => div.classList.remove("hidden"));
 
-    const visible = Array.from(
-      menuElem.querySelectorAll(
-        ".dropdown-item:not(.hidden), .dropdown-divider:not(.hidden)",
-      ),
-    );
-    /** @type {any} */
-    let lastDivider = null;
+      const visible = Array.from(
+        menuElem.querySelectorAll(
+          ".dropdown-item:not(.hidden), .dropdown-divider:not(.hidden)",
+        ),
+      );
+      /** @type {any} */
+      let lastDivider = null;
 
-    /** @type {any} */ (visible).forEach((el, i) => {
-      if (el.classList.contains("dropdown-divider")) {
-        if (i === 0 || lastDivider) el.classList.add("hidden");
-        else lastDivider = el;
-      } else {
-        lastDivider = null;
-      }
-    });
-    if (lastDivider) lastDivider.classList.add("hidden");
-  }
+      /** @type {any} */ (visible).forEach((el, i) => {
+        if (el.classList.contains("dropdown-divider")) {
+          if (i === 0 || lastDivider) el.classList.add("hidden");
+          else lastDivider = el;
+        } else {
+          lastDivider = null;
+        }
+      });
+      if (lastDivider) lastDivider.classList.add("hidden");
+    }
 
-  function fillMenu(menuElem, entries) {
-    entries.forEach((topEntry) => {
-      const div = document.createElement("div");
-      div.className = "nav-item dropdown";
-      div.innerHTML = `
+    function fillMenu(menuElem, entries) {
+      entries.forEach((topEntry) => {
+        const div = document.createElement("div");
+        div.className = "nav-item dropdown";
+        div.innerHTML = `
         <span class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${_(
           topEntry.name,
         )}</span>
         <ul class="dropdown-menu"></ul>
       `;
 
-      const dropdownMenu = div.querySelector(".dropdown-menu");
+        const dropdownMenu = div.querySelector(".dropdown-menu");
 
-      // ドロップダウンメニューのフォーカスを外す
-      // 変形操作で↓キーを押下時にメニューが開くのを防止
-      function blurIfDropdownFocused() {
-        setTimeout(() => {
-          const activeEl = document.activeElement;
-          if (
-            activeEl instanceof HTMLElement &&
-            (activeEl.matches('[data-bs-toggle="dropdown"]') ||
-              activeEl.matches(".dropdown-item") ||
-              activeEl.closest(".dropdown-menu"))
-          ) {
-            activeEl.blur();
-          }
-        }, 10);
-      }
-      div
-        .querySelector(".dropdown-toggle")
-        ?.addEventListener("show.bs.dropdown", () => {
-          // ドロップダウンメニューのフォーカスを外す
-          // 変形操作で↓キーを押下時にメニューが開くのを防止
-          blurIfDropdownFocused();
-          updateMenuStates(div);
-        });
-
-      div
-        .querySelector(".dropdown-toggle")
-        ?.addEventListener("hide.bs.dropdown", () => {
-          // ドロップダウンメニューのフォーカスを外す
-          // 変形操作で↓キーを押下時にメニューが開くのを防止
-          blurIfDropdownFocused();
-        });
-
-      topEntry.children.forEach((entry) => {
-        if (entry.name === "-") {
-          // 区切り線の場合は直接処理
-          const entryElem = document.createElement("hr");
-          entryElem.className = "dropdown-divider";
-          dropdownMenu?.appendChild(entryElem);
-          return; // この後の処理は不要なので、次のエントリに進む
+        // ドロップダウンメニューのフォーカスを外す
+        // 変形操作で↓キーを押下時にメニューが開くのを防止
+        function blurIfDropdownFocused() {
+          setTimeout(() => {
+            const activeEl = document.activeElement;
+            if (
+              activeEl instanceof HTMLElement &&
+              (activeEl.matches('[data-bs-toggle="dropdown"]') ||
+                activeEl.matches(".dropdown-item") ||
+                activeEl.closest(".dropdown-menu"))
+            ) {
+              activeEl.blur();
+            }
+          }, 10);
         }
-
-        if (!entry.action || !controller.isActionSupported(entry.action))
-          return;
-
-        if (
-          entry.action === "CPSend" &&
-          !controller.isActionSupported("CPContinue")
-        ) {
-          const entryElem = document.createElement("hr");
-          entryElem.className = "dropdown-divider";
-          dropdownMenu?.appendChild(entryElem);
-          entry.name = _("Post Oekaki");
-          entry.shortcut = "ctrl+p";
-        }
-
-        let entryElem;
-        entryElem = document.createElement("span");
-        entryElem.className = "dropdown-item";
-        entryElem.dataset.action = entry.action;
-        entryElem.innerHTML = `<span>${_(entry.name)}</span>`;
-
-        if (entry.checkbox) {
-          entryElem.dataset.checkbox = "true";
-          if (entry.checked) entryElem.classList.add("selected");
-        }
-        if (entry.hideIfNotAvailable) {
-          entryElem.dataset.hideIfNotAvailable = "true";
-        }
-        if (entry.title) {
-          entryElem.title = _(entry.title);
-        }
-        if (entry.shortcut) {
-          if (macPlatform) {
-            entry.shortcut = entry.shortcut
-              .replace(/SHIFT/im, "⇧")
-              .replace(/ALT/im, "⌥")
-              .replace(/CTRL/im, "⌘");
-          }
-          const small = document.createElement("small");
-          small.className = "chickenpaint-shortcut";
-          small.textContent = presentShortcutText(entry.shortcut);
-          entryElem.appendChild(small);
-          key(entry.shortcut, (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            // if (e.repeat) return false;
-            menuItemClicked(entryElem);
-            return false;
+        div
+          .querySelector(".dropdown-toggle")
+          ?.addEventListener("show.bs.dropdown", () => {
+            // ドロップダウンメニューのフォーカスを外す
+            // 変形操作で↓キーを押下時にメニューが開くのを防止
+            blurIfDropdownFocused();
+            updateMenuStates(div);
           });
-        }
 
-        const li = document.createElement("li");
-        li.appendChild(entryElem);
-        dropdownMenu?.appendChild(li);
+        div
+          .querySelector(".dropdown-toggle")
+          ?.addEventListener("hide.bs.dropdown", () => {
+            // ドロップダウンメニューのフォーカスを外す
+            // 変形操作で↓キーを押下時にメニューが開くのを防止
+            blurIfDropdownFocused();
+          });
+
+        topEntry.children.forEach((entry) => {
+          if (entry.name === "-") {
+            // 区切り線の場合は直接処理
+            const entryElem = document.createElement("hr");
+            entryElem.className = "dropdown-divider";
+            dropdownMenu?.appendChild(entryElem);
+            return; // この後の処理は不要なので、次のエントリに進む
+          }
+
+          if (!entry.action || !controller.isActionSupported(entry.action))
+            return;
+
+          if (
+            entry.action === "CPSend" &&
+            !controller.isActionSupported("CPContinue")
+          ) {
+            const entryElem = document.createElement("hr");
+            entryElem.className = "dropdown-divider";
+            dropdownMenu?.appendChild(entryElem);
+            entry.name = _("Post Oekaki");
+            entry.shortcut = "ctrl+p";
+          }
+
+          let entryElem;
+          entryElem = document.createElement("span");
+          entryElem.className = "dropdown-item";
+          entryElem.dataset.action = entry.action;
+          entryElem.innerHTML = `<span>${_(entry.name)}</span>`;
+
+          if (entry.checkbox) {
+            entryElem.dataset.checkbox = "true";
+            if (entry.checked) entryElem.classList.add("selected");
+          }
+          if (entry.hideIfNotAvailable) {
+            entryElem.dataset.hideIfNotAvailable = "true";
+          }
+          if (entry.title) {
+            entryElem.title = _(entry.title);
+          }
+          if (entry.shortcut) {
+            if (macPlatform) {
+              entry.shortcut = entry.shortcut
+                .replace(/SHIFT/im, "⇧")
+                .replace(/ALT/im, "⌥")
+                .replace(/CTRL/im, "⌘");
+            }
+            const small = document.createElement("small");
+            small.className = "chickenpaint-shortcut";
+            small.textContent = presentShortcutText(entry.shortcut);
+            entryElem.appendChild(small);
+            key(entry.shortcut, (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              // if (e.repeat) return false;
+              menuItemClicked(entryElem);
+              return false;
+            });
+          }
+
+          const li = document.createElement("li");
+          li.appendChild(entryElem);
+          dropdownMenu?.appendChild(li);
+        });
+        menuElem.appendChild(div);
       });
-      menuElem.appendChild(div);
-    });
-  }
+    }
 
-  function fillWidgetTray(menuElem, entries) {
-    entries
-      .filter((e) => e.mnemonic && controller.isActionSupported(e.action))
-      .forEach((entry) => {
-        const btn = document.createElement("button");
-        btn.className = "widget-toggler selected";
-        btn.type = "button";
-        btn.dataset.action = entry.action;
-        btn.dataset.checkbox = "true";
-        btn.dataset.selected = (!entry.checked).toString();
-        // spanを作って textContent を設定
-        const span = document.createElement("span");
-        span.textContent = entry.mnemonic;
-        btn.appendChild(span);
-        menuElem.appendChild(btn);
-      });
-    //全画面モードのオプションがforceの時は
-    if (controller.fullScreenModeOptions() === "force") {
-      //全画面アイコンを追加
-      const fullScreenIcon = document.createElement("span");
-      // まず既存の内容をクリア
-      fullScreenIcon.textContent = "";
-      fullScreenIcon.className = "upperIcon clear icon-md-crop_free";
-      fullScreenIcon.style.fontSize = "25px";
-      fullScreenIcon.style.verticalAlign = "bottom";
-      fullScreenIcon.title = _("Full-screen mode");
-      fullScreenIcon.dataset.action = "CPArrangePalettes";
+    function fillWidgetTray(menuElem, entries) {
+      entries
+        .filter((e) => e.mnemonic && controller.isActionSupported(e.action))
+        .forEach((entry) => {
+          const btn = document.createElement("button");
+          btn.className = "widget-toggler selected";
+          btn.type = "button";
+          btn.dataset.action = entry.action;
+          btn.dataset.checkbox = "true";
+          btn.dataset.selected = (!entry.checked).toString();
+          // spanを作って textContent を設定
+          const span = document.createElement("span");
+          span.textContent = entry.mnemonic;
+          btn.appendChild(span);
+          menuElem.appendChild(btn);
+        });
+      //全画面モードのオプションがforceの時は
+      if (controller.fullScreenModeOptions() === "force") {
+        //全画面アイコンを追加
+        const fullScreenIcon = document.createElement("span");
+        // まず既存の内容をクリア
+        fullScreenIcon.textContent = "";
+        fullScreenIcon.className = "upperIcon clear icon-md-crop_free";
+        fullScreenIcon.style.fontSize = "25px";
+        fullScreenIcon.style.verticalAlign = "bottom";
+        fullScreenIcon.title = _("Full-screen mode");
+        fullScreenIcon.dataset.action = "CPArrangePalettes";
 
-      fullScreenIcon.addEventListener("click", (e) => {
-        if (document.fullscreenElement) {
-          // 今フルスクリーンなので解除
-          document.exitFullscreen();
-        } else {
-          // フルスクリーンに入る
-          document.documentElement.requestFullscreen();
-        }
-      });
+        fullScreenIcon.addEventListener("click", (e) => {
+          if (document.fullscreenElement) {
+            // 今フルスクリーンなので解除
+            document.exitFullscreen();
+          } else {
+            // フルスクリーンに入る
+            document.documentElement.requestFullscreen();
+          }
+        });
 
-      menuElem.appendChild(fullScreenIcon);
+        menuElem.appendChild(fullScreenIcon);
 
-      document.addEventListener("fullscreenchange", () => {
-        mainGUI.resize();
-        requestAnimationFrame(() => {
-          //3フレーム待機
+        document.addEventListener("fullscreenchange", () => {
+          mainGUI.resize();
           requestAnimationFrame(() => {
+            //3フレーム待機
             requestAnimationFrame(() => {
-              //一回では並び変わらないため3回リアレンジ
-              menuItemClicked(fullScreenIcon);
-              menuItemClicked(fullScreenIcon);
-              menuItemClicked(fullScreenIcon);
+              requestAnimationFrame(() => {
+                //一回では並び変わらないため3回リアレンジ
+                menuItemClicked(fullScreenIcon);
+                menuItemClicked(fullScreenIcon);
+                menuItemClicked(fullScreenIcon);
+              });
             });
           });
         });
+      }
+
+      const mobileEntry = entries.find(
+        (e) => e.action === "CPToggleSetSmallScreenMode",
+      );
+
+      if (mobileEntry) {
+        const smallScreenMode = controller.getSmallScreenMode();
+        const mobileBtn = document.createElement("button");
+        mobileBtn.className = "widget-toggler mobile selected";
+        mobileBtn.dataset.checkbox = "true";
+        mobileBtn.type = "button";
+        mobileBtn.dataset.selected = "true";
+        mobileBtn.style.minWidth = "110px";
+
+        // CPPaletteManagerでも同様の変更
+        // まず既存の内容をクリア
+        mobileBtn.textContent = "";
+
+        // span要素を作成
+        const span = document.createElement("span");
+        span.textContent = smallScreenMode ? _("PC mode") : _("Mobile mode");
+
+        // ボタンに追加
+        mobileBtn.appendChild(span);
+        mobileBtn.dataset.action = mobileEntry.action;
+
+        menuElem.appendChild(mobileBtn);
+      }
+      //消去アイコンを追加
+      const clearIcon = document.createElement("span");
+      // まず既存の内容をクリア
+      clearIcon.textContent = "";
+      clearIcon.className = "upperIcon clear icon-md-remove_selection";
+      clearIcon.style.fontSize = "25px";
+      clearIcon.style.verticalAlign = "bottom";
+      clearIcon.title = _("Clear");
+      clearIcon.dataset.action = "CPClear";
+
+      menuElem.appendChild(clearIcon);
+      //塗り潰しアイコンを追加
+      const fillIcon = document.createElement("span");
+      // まず既存の内容をクリア
+      fillIcon.textContent = "";
+      fillIcon.className = "upperIcon fill icon-md-ink_selection";
+      fillIcon.style.fontSize = "25px";
+      fillIcon.style.verticalAlign = "bottom";
+      fillIcon.title = _("Fill");
+      fillIcon.dataset.action = "CPFill";
+
+      menuElem.appendChild(fillIcon);
+      //変形アイコンを追加
+      const transFormIcon = document.createElement("span");
+      // まず既存の内容をクリア
+      transFormIcon.textContent = "";
+      transFormIcon.className = "upperIcon transform icon-md-resize";
+      transFormIcon.style.fontSize = "25px";
+      transFormIcon.style.verticalAlign = "bottom";
+      transFormIcon.title = _("Transform");
+      transFormIcon.dataset.action = "CPTransform";
+
+      menuElem.appendChild(transFormIcon);
+      //選択解除アイコンを追加
+      const deselectIcon = document.createElement("span");
+      // まず既存の内容をクリア
+      deselectIcon.textContent = "";
+      deselectIcon.className = "upperIcon deselectIcon icon-md-deselect";
+      deselectIcon.style.fontSize = "25px";
+      deselectIcon.style.verticalAlign = "bottom";
+      deselectIcon.dataset.action = "CPDeselectAll";
+      deselectIcon.title = _("Deselect");
+
+      menuElem.appendChild(deselectIcon);
+    }
+
+    bar.addEventListener("click", (e) => {
+      const target =
+        e.target instanceof HTMLElement
+          ? e.target.closest("[data-action]")
+          : null;
+      if (!target) return;
+
+      menuItemClicked(target);
+      e.preventDefault();
+    });
+
+    /**
+     * 指定されたパレットの表示状態に応じて、対応するトグルボタンやメニュー項目の
+     * "selected" クラスの付け外しを行う。
+     *
+     * @param {string} paletteName - パレット名（例: "Tool", "Color"など）
+     * @param {boolean} show - パレットが表示されている場合は true、非表示の場合は false
+     *
+     * ボタンは #chickenpaint-palette-toggler-content 内の[data-action=CPPalXxx]要素を対象とし、
+     * メニュー項目は bar 要素内の[data-action=CPPalXxx]要素を対象とする。
+     * これらをまとめて処理し、"selected" クラスを適切に切り替える。
+     */
+    function onPaletteVisChange(paletteName, show) {
+      const key =
+        "CPPal" + paletteName.charAt(0).toUpperCase() + paletteName.slice(1);
+
+      const menus = bar?.querySelectorAll(`[data-action="${key}"]`) || [];
+      [...menus].forEach((element) => {
+        // button and menu item
+        element.classList.toggle("selected", show);
       });
     }
 
-    const mobileEntry = entries.find(
-      (e) => e.action === "CPToggleSetSmallScreenMode",
+    fillMenu(bar.querySelector(".navbar-nav"), MENU_ENTRIES);
+    fillWidgetTray(bar.querySelector(".widget-nav"), MENU_ENTRIES[5].children);
+
+    mainGUI.getPaletteManager().on("paletteVisChange", onPaletteVisChange);
+
+    const fullScreenToggle = bar.querySelector(
+      ".dropdown-item[data-action=CPFullScreen]",
     );
+    controller.on("fullScreen", (isFS) =>
+      fullScreenToggle?.classList.toggle("selected", isFS),
+    );
+    fullScreenToggle?.classList.toggle("selected", controller.isFullScreen());
 
-    if (mobileEntry) {
-      const smallScreenMode = controller.getSmallScreenMode();
-      const mobileBtn = document.createElement("button");
-      mobileBtn.className = "widget-toggler mobile selected";
-      mobileBtn.dataset.checkbox = "true";
-      mobileBtn.type = "button";
-      mobileBtn.dataset.selected = "true";
-      mobileBtn.style.minWidth = "110px";
-
-      // CPPaletteManagerでも同様の変更
-      // まず既存の内容をクリア
-      mobileBtn.textContent = "";
-
-      // span要素を作成
-      const span = document.createElement("span");
-      span.textContent = smallScreenMode ? _("PC mode") : _("Mobile mode");
-
-      // ボタンに追加
-      mobileBtn.appendChild(span);
-      mobileBtn.dataset.action = mobileEntry.action;
-
-      menuElem.appendChild(mobileBtn);
-    }
-    //消去アイコンを追加
-    const clearIcon = document.createElement("span");
-    // まず既存の内容をクリア
-    clearIcon.textContent = "";
-    clearIcon.className = "upperIcon clear icon-md-remove_selection";
-    clearIcon.style.fontSize = "25px";
-    clearIcon.style.verticalAlign = "bottom";
-    clearIcon.title = _("Clear");
-    clearIcon.dataset.action = "CPClear";
-
-    menuElem.appendChild(clearIcon);
-    //塗り潰しアイコンを追加
-    const fillIcon = document.createElement("span");
-    // まず既存の内容をクリア
-    fillIcon.textContent = "";
-    fillIcon.className = "upperIcon fill icon-md-ink_selection";
-    fillIcon.style.fontSize = "25px";
-    fillIcon.style.verticalAlign = "bottom";
-    fillIcon.title = _("Fill");
-    fillIcon.dataset.action = "CPFill";
-
-    menuElem.appendChild(fillIcon);
-    //変形アイコンを追加
-    const transFormIcon = document.createElement("span");
-    // まず既存の内容をクリア
-    transFormIcon.textContent = "";
-    transFormIcon.className = "upperIcon transform icon-md-resize";
-    transFormIcon.style.fontSize = "25px";
-    transFormIcon.style.verticalAlign = "bottom";
-    transFormIcon.title = _("Transform");
-    transFormIcon.dataset.action = "CPTransform";
-
-    menuElem.appendChild(transFormIcon);
-    //選択解除アイコンを追加
-    const deselectIcon = document.createElement("span");
-    // まず既存の内容をクリア
-    deselectIcon.textContent = "";
-    deselectIcon.className = "upperIcon deselectIcon icon-md-deselect";
-    deselectIcon.style.fontSize = "25px";
-    deselectIcon.style.verticalAlign = "bottom";
-    deselectIcon.dataset.action = "CPDeselectAll";
-    deselectIcon.title = _("Deselect");
-
-    menuElem.appendChild(deselectIcon);
+    this.getElement = () => bar;
   }
-
-  bar.addEventListener("click", (e) => {
-    const target =
-      e.target instanceof HTMLElement
-        ? e.target.closest("[data-action]")
-        : null;
-    if (!target) return;
-
-    menuItemClicked(target);
-    e.preventDefault();
-  });
-
-  /**
-   * 指定されたパレットの表示状態に応じて、対応するトグルボタンやメニュー項目の
-   * "selected" クラスの付け外しを行う。
-   *
-   * @param {string} paletteName - パレット名（例: "Tool", "Color"など）
-   * @param {boolean} show - パレットが表示されている場合は true、非表示の場合は false
-   *
-   * ボタンは #chickenpaint-palette-toggler-content 内の[data-action=CPPalXxx]要素を対象とし、
-   * メニュー項目は bar 要素内の[data-action=CPPalXxx]要素を対象とする。
-   * これらをまとめて処理し、"selected" クラスを適切に切り替える。
-   */
-  function onPaletteVisChange(paletteName, show) {
-    const key =
-      "CPPal" + paletteName.charAt(0).toUpperCase() + paletteName.slice(1);
-
-    const menus = bar?.querySelectorAll(`[data-action="${key}"]`) || [];
-    [...menus].forEach((element) => {
-      // button and menu item
-      element.classList.toggle("selected", show);
-    });
-  }
-
-  fillMenu(bar.querySelector(".navbar-nav"), MENU_ENTRIES);
-  fillWidgetTray(bar.querySelector(".widget-nav"), MENU_ENTRIES[5].children);
-
-  mainGUI.getPaletteManager().on("paletteVisChange", onPaletteVisChange);
-
-  const fullScreenToggle = bar.querySelector(
-    ".dropdown-item[data-action=CPFullScreen]",
-  );
-  controller.on("fullScreen", (isFS) =>
-    fullScreenToggle?.classList.toggle("selected", isFS),
-  );
-  fullScreenToggle?.classList.toggle("selected", controller.isFullScreen());
-
-  this.getElement = () => bar;
 }

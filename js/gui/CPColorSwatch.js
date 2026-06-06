@@ -98,11 +98,12 @@ export default class CPColorSwatch extends EventEmitter {
     this.setCurColor = this.setColor;
 
     function buildColorEditPanel() {
-      const panel = document.createElement("div"),
-        group = document.createElement("div"),
-        select = new CPColorSelect(that, color),
-        slider = new CPColorSlider(that, select, color.getHue()),
-        alphaSlider = new CPSlider(0, 255);
+      const panel = document.createElement("div");
+      const group = document.createElement("div");
+      console.log("that", that);
+      const select = new CPColorSelect(that, color);
+      const slider = new CPColorSlider(that, select, color.getHue());
+      const alphaSlider = new CPSlider(0, 255);
 
       panel.className = "chickenpaint-color-pick-panel";
 
@@ -139,6 +140,8 @@ export default class CPColorSwatch extends EventEmitter {
     if (initialAlpha) {
       alpha = initialAlpha;
     }
+
+    //グラデーションの色を選択するカラーパネル
     const bootstrapPopover = new bootstrap.Popover(element, {
       html: true,
       content: function () {

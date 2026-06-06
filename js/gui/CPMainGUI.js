@@ -42,6 +42,10 @@ import EventEmitter from "wolfy87-eventemitter";
  */
 
 export default class CPMainGUI extends EventEmitter {
+  /**
+   * @param {import('../ChickenPaint.js').default} controller
+   * @param {HTMLElement} uiElem
+   */
   constructor(controller, uiElem) {
     super();
     let lowerArea = document.createElement("div"),

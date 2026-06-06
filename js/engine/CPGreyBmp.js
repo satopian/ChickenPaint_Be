@@ -537,7 +537,7 @@ CPGreyBmp.prototype.copyBitmapRect = function (bmp, dstX, dstY, srcRect) {
 };
 
 /**
- * @param rect CPRect
+ * @param {CPRect} rect CPRect
  * @param source CPColorBmp
  */
 CPGreyBmp.prototype.copyRegionHFlip = function (rect, source) {
@@ -554,7 +554,7 @@ CPGreyBmp.prototype.copyRegionHFlip = function (rect, source) {
 };
 
 /**
- * @param rect CPRect
+ * @param {CPRect} rect CPRect
  * @param source CPColorBmp
  */
 CPGreyBmp.prototype.copyRegionVFlip = function (rect, source) {
@@ -653,6 +653,13 @@ CPGreyBmp.prototype.copyArrayToPixelColumn = function (x, y, len, buffer) {
   }
 };
 
+/**
+ * 指定矩形内のピクセルに対してボックスぼかし （Box Blur） を適用する。
+ * 横方向に radiusX、縦方向に radiusY の半径でぼかす。
+ * @param {CPRect} rect - ぼかしを適用する範囲。
+ * @param {number} radiusX - 横方向のぼかし半径（ピクセル単位）。
+ * @param {number} radiusY - 縦方向のぼかし半径（ピクセル単位）。
+ */
 CPGreyBmp.prototype.boxBlur = function (rect, radiusX, radiusY) {
   rect = this.getBounds().clipTo(rect);
 
@@ -976,7 +983,7 @@ CPGreyBmp.prototype.getValueBounds = function (initialBounds, value) {
 /**
  * Replace the pixels in the given rect with the given horizontal gradient.
  *
- * @param rect CPRect
+ * @param {CPRect} rect CPRect
  * @param fromX int
  * @param toX int
  * @param gradientPoints int[]
@@ -1107,7 +1114,7 @@ CPGreyBmp.prototype.gradientVertReplace = function (
 /**
  * Replace the pixels in the given rect with the given gradient.
  *
- * @param rect CPRect
+ * @param {CPRect} rect CPRect
  * @param fromX int
  * @param fromY int
  * @param toX int
@@ -1151,7 +1158,7 @@ CPGreyBmp.prototype.gradientReplace = function (
 /**
  * Alpha blend the given gradient onto the pixels in the given rect.
  *
- * @param rect CPRect
+ * @param {CPRect} rect CPRect
  * @param fromX int
  * @param fromY int
  * @param toX int

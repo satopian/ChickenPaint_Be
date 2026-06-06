@@ -1386,7 +1386,7 @@ CPColorBmp.prototype.clearRect = function (rect, color) {
 };
 
 /**
- * @param rect CPRect
+ * @param {CPRect} rect CPRect
  * @param source CPColorBmp
  */
 CPColorBmp.prototype.copyRegionHFlip = function (rect, source) {
@@ -1409,7 +1409,7 @@ CPColorBmp.prototype.copyRegionHFlip = function (rect, source) {
 };
 
 /**
- * @param rect CPRect
+ * @param {CPRect} rect CPRect
  * @param source CPColorBmp
  */
 CPColorBmp.prototype.copyRegionVFlip = function (rect, source) {
@@ -1488,7 +1488,7 @@ CPColorBmp.prototype.fillWithNoise = function (rect, color = 0, opacity = 1) {
 /**
  * Replace the pixels in the given rect with the given horizontal gradient.
  *
- * @param rect CPRect
+ * @param {CPRect} rect CPRect
  * @param fromX int
  * @param toX int
  * @param gradientPoints int[]
@@ -1679,7 +1679,7 @@ CPColorBmp.prototype.gradientVertReplace = function (
 /**
  * Replace the pixels in the given rect with the given gradient.
  *
- * @param rect CPRect
+ * @param {CPRect} rect CPRect
  * @param fromX int
  * @param fromY int
  * @param toX int
@@ -1740,7 +1740,7 @@ CPColorBmp.prototype.gradientReplace = function (
 /**
  * Alpha blend the given gradient onto the pixels in the given rect.
  *
- * @param rect CPRect
+ * @param {CPRect} rect CPRect
  * @param fromX int
  * @param fromY int
  * @param toX int

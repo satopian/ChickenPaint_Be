@@ -38,6 +38,12 @@ import { _ } from "../languages/lang.js";
  */
 
 export default class CPSendDialog extends EventEmitter {
+  /**
+   * @param {import('../ChickenPaint.js').default} controller
+   * @param {HTMLElement} parent
+   * @param {import('../engine/CPResourceSaver.js').default} resourceSaver
+   * @param {boolean} savedbFromMenu
+   */
   constructor(controller, parent, resourceSaver, savedbFromMenu = false) {
     super();
     let dialog = document.createElement("div");

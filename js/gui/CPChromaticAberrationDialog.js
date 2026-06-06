@@ -34,8 +34,9 @@ import { _ } from "../languages/lang.js";
 
 /**
  * @this {any}
+ * @param {HTMLElement} parent
+ * @param {import('../ChickenPaint.js').default} controller
  */
-
 export default function CPchromaticAberration(parent, controller) {
   // ダイアログ要素を作成
   const dialog = document.createElement("div");

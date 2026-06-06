@@ -124,6 +124,9 @@ function loadTextures(textureFilename, width, height, textureCount, then) {
  */
 
 export default class CPTexturePalette extends CPPalette {
+  /**
+   * @param {import('../ChickenPaint.js').default} controller
+   */
   constructor(controller) {
     super(controller, "textures", "Textures");
 

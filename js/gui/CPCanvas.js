@@ -197,6 +197,9 @@ CPModeStack.prototype.pop = function () {
  */
 
 export default class CPCanvas extends EventEmitter {
+  /**
+   * @param {import('../ChickenPaint.js').default} controller
+   */
   constructor(controller) {
     super();
 
@@ -1169,7 +1172,14 @@ export default class CPCanvas extends EventEmitter {
           artwork.isPointWithin(pf.x, pf.y) &&
           artwork.colorPicker(pf.x, pf.y) !== null //取得色が透明以外の時
         ) {
-          this.curColor = new CPColor(artwork.colorPicker(pf.x, pf.y));
+          const colorPicker = artwork.colorPicker(pf.x, pf.y);
+          if (!colorPicker) {
+            console.error(
+              "Failed to pick color: coordinates out of bounds or no pixel data available.",
+            );
+            return;
+          }
+          this.curColor = new CPColor(colorPicker);
           controller.setCurColor(this.curColor);
         }
         setCursor(CURSOR_CROSSHAIR);
@@ -2205,9 +2215,12 @@ export default class CPCanvas extends EventEmitter {
           CPMode.prototype.enter.call(this);
 
           // Start off with the identity transform
-          var initial = artwork.transformAffineBegin(),
+          let initial = artwork.transformAffineBegin(),
             initialSelection;
-
+          if (!initial) {
+            console.error("Failed to begin affine transformation.");
+            return;
+          }
           affine = initial.transform;
           srcRect = initial.rect;
 

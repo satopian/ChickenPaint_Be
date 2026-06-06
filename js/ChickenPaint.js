@@ -314,7 +314,7 @@ export default class ChickenPaint extends EventEmitter {
     if (options.language) {
       setLanguage(options.language);
     }
-
+    /** @type {HTMLElement} */
     const uiElem = options.uiElem;
 
     // Prevent double-click iOS page zoom events
@@ -1237,7 +1237,7 @@ export default class ChickenPaint extends EventEmitter {
     }
 
     /**
-     * @returns {typeof CPArtwork}
+     * @returns {CPArtwork}
      */
     this.getArtwork = function () {
       return this.artwork;

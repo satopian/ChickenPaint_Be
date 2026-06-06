@@ -35,8 +35,9 @@ import { _ } from "../languages/lang.js";
 
 /**
  * @this {any}
+ * @param {HTMLElement} parent
+ * @param {import('../ChickenPaint.js').default} controller
  */
-
 export default class CPConfirmTransformDialog extends EventEmitter {
   constructor(parent, controller) {
     super();

@@ -114,6 +114,9 @@ function computeLayerPredicates(layer, isEditingMask) {
  */
 
 export default class CPLayersPalette extends CPPalette {
+  /**
+   *  @param {import('../ChickenPaint.js').default} controller
+   */
   constructor(controller) {
     super(controller, "layers", "Layers", {
       resizeHorz: true,
@@ -1398,7 +1401,7 @@ export default class CPLayersPalette extends CPPalette {
       updateAvailableBlendModes();
 
       if (activeLayer.getBlendMode() != parseInt(blendCombo.value, 10)) {
-        blendCombo.value = activeLayer.getBlendMode();
+        blendCombo.value = String(activeLayer.getBlendMode());
       }
 
       if (activeLayer.getLockAlpha() != cbLockAlpha.checked) {

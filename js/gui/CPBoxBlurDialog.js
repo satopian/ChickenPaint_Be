@@ -34,8 +34,9 @@ import { _ } from "../languages/lang.js";
 
 /**
  * @this {any}
+ * @param {HTMLElement} parent
+ * @param {import('../ChickenPaint.js').default} controller
  */
-
 export default function CPBoxBlurDialog(parent, controller) {
   // ダイアログ要素を作成
   const dialog = document.createElement("div");
@@ -126,7 +127,6 @@ export default function CPBoxBlurDialog(parent, controller) {
       const createMergedLayer =
         createMergedLayerElem instanceof HTMLInputElement &&
         createMergedLayerElem.checked;
-
       controller
         .getArtwork()
         .boxBlur(blur, blur, iterations, createMergedLayer);

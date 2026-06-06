@@ -55,6 +55,9 @@ function fileAPIsSupported() {
  */
 
 export default class CPSwatchesPalette extends CPPalette {
+  /**
+   * @param {import('../ChickenPaint.js').default} controller
+   */
   constructor(controller) {
     super(controller, "swatches", "Color swatches");
 
@@ -107,7 +110,7 @@ export default class CPSwatchesPalette extends CPPalette {
       mnuSetToCurrent.addEventListener("click", function (e) {
         e.preventDefault();
 
-        that.setColor(controller.getCurColor().getRgb());
+        that.setColor(controller.getCurColor()?.getRgb());
 
         modified = true;
       });
@@ -319,7 +322,7 @@ export default class CPSwatchesPalette extends CPPalette {
       btnSettingsContainer.appendChild(settingsMenu);
 
       btnAdd.addEventListener("click", function (e) {
-        addSwatch(controller.getCurColor().getRgb());
+        addSwatch(controller.getCurColor()?.getRgb());
         modified = true;
       });
 
