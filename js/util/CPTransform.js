@@ -236,6 +236,10 @@ CPTransform.prototype.shear = function (x, y) {
   this.m[3] = m22;
 };
 
+/**
+ * @param {{x:number,y:number}} p
+ * @returns {{x:number,y:number}|undefined}
+ */
 CPTransform.prototype.getTransformedPoint = function (p) {
   if (!this.m) {
     return;

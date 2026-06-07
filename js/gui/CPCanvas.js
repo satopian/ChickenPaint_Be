@@ -119,26 +119,35 @@ CPModeStack.prototype.deliverEvent = function (eventName, params) {
 };
 
 // We can call these routines to deliver events that bubble up the mode stack
-for (let eventName of ["mouseDown", "mouseUp"]) {
-  CPModeStack.prototype[eventName] = function (e, button, pressure) {
-    this.deliverEvent(eventName, [e, button, pressure]);
-  };
-}
+CPModeStack.prototype.mouseDown = function (e, button, pressure) {
+  this.deliverEvent("mouseDown", [e, button, pressure]);
+};
 
-for (let eventName of ["mouseDrag", "mouseMove"]) {
-  CPModeStack.prototype[eventName] = function (e, pressure) {
-    this.deliverEvent(eventName, [e, pressure]);
-  };
-}
+CPModeStack.prototype.mouseUp = function (e, button, pressure) {
+  this.deliverEvent("mouseUp", [e, button, pressure]);
+};
 
-for (let eventName of ["keyDown", "keyUp"]) {
-  CPModeStack.prototype[eventName] = function (e) {
-    if (this.deliverEvent(eventName, [e])) {
-      // Swallow handled keypresses
-      e.preventDefault();
-    }
-  };
-}
+CPModeStack.prototype.mouseDrag = function (e, pressure) {
+  this.deliverEvent("mouseDrag", [e, pressure]);
+};
+
+CPModeStack.prototype.mouseMove = function (e, pressure) {
+  this.deliverEvent("mouseMove", [e, pressure]);
+};
+
+CPModeStack.prototype.keyDown = function (e) {
+  if (this.deliverEvent("keyDown", [e])) {
+    // Swallow handled keypresses
+    e.preventDefault();
+  }
+};
+
+CPModeStack.prototype.keyUp = function (e) {
+  if (this.deliverEvent("keyUp", [e])) {
+    // Swallow handled keypresses
+    e.preventDefault();
+  }
+};
 
 CPModeStack.prototype.paint = function (context) {
   this.deliverEvent("paint", [context]);
@@ -218,20 +227,20 @@ export default class CPCanvas extends EventEmitter {
       CURSOR_EW_RESIZE = "ew-resize",
       CURSOR_ZOOM_IN = "zoom-in";
 
-    let that = this,
-      canvasContainer = document.createElement("div"),
-      canvasContainerTop = document.createElement("div"),
-      canvasContainerBottom = document.createElement("div"),
-      // Our canvas that fills the entire screen
-      canvas = document.createElement("canvas"),
-      canvasContext = canvas.getContext("2d"),
-      // Our cache of the artwork's fusion to be drawn onto our main canvas using our current transform
-      artworkCanvas = document.createElement("canvas"),
-      artworkCanvasContext = artworkCanvas.getContext("2d"),
-      checkerboardPattern = createCheckerboardPattern(canvasContext),
-      artwork = controller.getArtwork(),
-      // Canvas transformations
-      zoom = 1,
+    const that = this;
+    const canvasContainer = document.createElement("div");
+    const canvasContainerTop = document.createElement("div");
+    const canvasContainerBottom = document.createElement("div");
+    // Our canvas that fills the entire screen
+    const canvas = document.createElement("canvas");
+    const canvasContext = canvas.getContext("2d");
+    // Our cache of the artwork's fusion to be drawn onto our main canvas using our current transform
+    const artworkCanvas = document.createElement("canvas");
+    const artworkCanvasContext = artworkCanvas.getContext("2d");
+    const checkerboardPattern = createCheckerboardPattern(canvasContext);
+    const artwork = controller.getArtwork();
+    // Canvas transformations
+    let zoom = 1,
       offsetX = 0,
       offsetY = 0,
       canvasRotation = 0.0,
@@ -1308,8 +1317,12 @@ export default class CPCanvas extends EventEmitter {
       }
     };
 
-    this.setColorPickerSampleAllLayers = function (checked) {
-      colorPickerSampleAllLayers = !!checked;
+    /**
+     * スポイトのサンプリングを全レイヤー対象にするかどうか
+     * @param {boolean} merged
+     */
+    this.setColorPickerSampleAllLayers = function (merged) {
+      colorPickerSampleAllLayers = !!merged;
     };
 
     class CPPanCanvasMode extends CPMode {
@@ -2053,22 +2066,35 @@ export default class CPCanvas extends EventEmitter {
                   if (!affineGetInverted) {
                     return;
                   }
-                  let newHandle = affineGetInverted.getTransformedPoint(
-                      roundPoint(coordToDocument(dragPointDisplay)),
-                    ),
-                    // The opposite handle to the one we dragged must not move
-                    fixHandle = averagePoints(
-                      origCornerPoints.points[(cornerIndex + 2) % 4],
-                      origCornerPoints.points[(cornerIndex + 3) % 4],
-                    ),
-                    scaleX,
-                    scaleY,
-                    oldVector = CPVector.subtractPoints(oldHandle, fixHandle),
-                    newVector = CPVector.subtractPoints(newHandle, fixHandle),
-                    oldLength = oldVector.getLength(),
-                    // We only take the length in the perpendicular direction to the transform edge:
-                    newLength = oldVector.getDotProduct(newVector) / oldLength,
-                    newScale = newLength / oldLength;
+                  const newHandle = affineGetInverted.getTransformedPoint(
+                    roundPoint(coordToDocument(dragPointDisplay)),
+                  );
+                  if (!newHandle) {
+                    console.error(
+                      "Failed to calculate the transformed point for the handle.",
+                    );
+                    return;
+                  }
+                  // The opposite handle to the one we dragged must not move
+                  const fixHandle = averagePoints(
+                    origCornerPoints.points[(cornerIndex + 2) % 4],
+                    origCornerPoints.points[(cornerIndex + 3) % 4],
+                  );
+                  let scaleX;
+                  let scaleY;
+                  const oldVector = CPVector.subtractPoints(
+                    oldHandle,
+                    fixHandle,
+                  );
+                  const newVector = CPVector.subtractPoints(
+                    newHandle,
+                    fixHandle,
+                  );
+                  const oldLength = oldVector.getLength();
+                  // We only take the length in the perpendicular direction to the transform edge:
+                  const newLength =
+                    oldVector.getDotProduct(newVector) / oldLength;
+                  const newScale = newLength / oldLength;
 
                   /*
                    * If the user resized it until it was zero-sized, just ignore that position and assume they'll move
@@ -2667,6 +2693,10 @@ export default class CPCanvas extends EventEmitter {
       };
     }
 
+    /**
+     * @param {{x:number,y:number}} p
+     * @returns {{x:number,y:number}|undefined}
+     */
     function coordToDisplay(p) {
       return transform.getTransformedPoint(p);
     }

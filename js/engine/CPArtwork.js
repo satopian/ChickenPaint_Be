@@ -251,6 +251,10 @@ export default class CPArtwork extends EventEmitter {
 
     this.texture = null;
 
+    /**
+     * スポイトのサンプリングを全レイヤー対象にするかどうか
+     * @param {boolean} merged
+     */
     this.setColorPickerSampleAllLayers = function (merged) {
       colorPickerSampleAllLayers = !!merged;
     };

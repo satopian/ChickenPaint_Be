@@ -1177,9 +1177,11 @@ export default class ChickenPaint extends EventEmitter {
         case ChickenPaint.COLOR_MODE_GREYSCALE:
           newColor = new CPColor(CPColor.greyToRGB(curMaskColor));
           break;
+        default:
+          newColor = curColor.clone();
       }
 
-      that.artwork.setForegroundColor(newColor?.getRgb());
+      that.artwork.setForegroundColor(newColor.getRgb());
       that.emitEvent("colorChange", [newColor]);
     }
 
@@ -1406,6 +1408,10 @@ export default class ChickenPaint extends EventEmitter {
     this.setFloodFillReferAllLayers = function (checked) {
       canvas.setFloodFillReferAllLayers(checked);
     };
+    /**
+     * スポイトのサンプリングを全レイヤー対象にするかどうか
+     * @param {boolean} merged
+     */
     this.setColorPickerSampleAllLayers = function (merged) {
       that.artwork.setColorPickerSampleAllLayers(merged);
       canvas.setColorPickerSampleAllLayers(merged);
@@ -1834,6 +1840,9 @@ export default class ChickenPaint extends EventEmitter {
         if (options.artwork) {
           this.artwork = options.artwork;
         } else {
+          /**
+           * @type {CPArtwork}
+           */
           this.artwork = new CPArtwork(
             options.canvasWidth || 800,
             options.canvasHeight || 600,

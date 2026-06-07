@@ -1193,7 +1193,10 @@ function CPColorPickerPanel(controller) {
         if (input.checked) {
           input.blur(); // フォーカス解除
         }
-        // "merged" なら true、"layer" なら false を渡す
+        /**
+         * "merged" なら true、"layer" なら false を渡す
+         * @type {boolean}
+         */
         const isMerged = input.value === "merged";
         controller.setColorPickerSampleAllLayers(isMerged);
       }
