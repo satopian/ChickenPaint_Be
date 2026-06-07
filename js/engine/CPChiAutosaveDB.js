@@ -86,7 +86,7 @@ export async function CPPutChiAutosaveToDB(bytes, swatchesBlob) {
     return result;
   } catch (error) {
     // DB保存に失敗した場合は、フラグを立てずにエラーを投げる
-    console.log("Failed to save to IndexedDB:", error);
+    console.error("Failed to save to IndexedDB:", error);
     throw error;
   }
 }

@@ -109,7 +109,7 @@ function loadTextures(textureFilename, width, height, textureCount, then) {
         textures.push(texture);
       } catch (e) {
         // Quietly ignore errors that occur while loading the image (e.g. cross-origin security failures)
-        console.log(e);
+        console.error(e);
       }
     }
 

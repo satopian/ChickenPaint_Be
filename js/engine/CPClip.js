@@ -31,17 +31,19 @@
 import CPColorBmp from "./CPColorBmp.js";
 import CPGreyBmp from "./CPGreyBmp.js";
 
-/**
- *
- * @param {(CPColorBmp|CPGreyBmp)} bmp
- * @param int x - Position of the clipboard bmp within the document
- * @param int y
- * @constructor
- * @this {any}
- */
-export default function CPClip(bmp, x, y) {
-  this.bmp = bmp;
+export default class CPClip {
+  /**
+   *
+   * @param {(CPColorBmp|CPGreyBmp)} bmp
+   * @param int x - Position of the clipboard bmp within the document
+   * @param int y
+   * @constructor
+   * @this {any}
+   */
+  constructor(bmp, x, y) {
+    this.bmp = bmp;
 
-  this.x = x;
-  this.y = y;
+    this.x = x;
+    this.y = y;
+  }
 }

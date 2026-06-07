@@ -31,76 +31,85 @@
 
 import CPTransform from "./CPTransform.js";
 
-export default function CPPolygon(points) {
-  this.points = points || [];
-}
-
-CPPolygon.prototype.clone = function () {
-  var result = new CPPolygon(new Array(this.points.length));
-
-  for (var i = 0; i < this.points.length; i++) {
-    // Deep clone
-    result.points[i] = { x: this.points[i].x, y: this.points[i].y };
+export default class CPPolygon {
+  /**
+   * @param {{x: number, y: number}[]} points
+   */
+  constructor(points) {
+    this.points = points || [];
   }
+  clone() {
+    var result = new CPPolygon(new Array(this.points.length));
 
-  return result;
-};
-
-/**
- * Get a new polygon which is the result of transforming the points of this polygon with the given affine transform.
- *
- * @param {CPTransform} affineTransform
- * @returns {CPPolygon}
- */
-CPPolygon.prototype.getTransformed = function (affineTransform) {
-  var result = new CPPolygon(new Array(this.points.length));
-
-  for (var i = 0; i < this.points.length; i++) {
-    result.points[i] = affineTransform.getTransformedPoint(this.points[i]);
-  }
-
-  return result;
-};
-
-/**
- * Get the average of all the points in the polygon (the "center").
- *
- * @returns {{x: number, y: number}}
- */
-CPPolygon.prototype.getCenter = function () {
-  var centerX = this.points[0].x,
-    centerY = this.points[0].y;
-
-  for (var i = 1; i < this.points.length; i++) {
-    centerX += this.points[i].x;
-    centerY += this.points[i].y;
-  }
-
-  return { x: centerX / this.points.length, y: centerY / this.points.length };
-};
-
-/**
- * From https://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
- *
- * @param point
- * @returns {boolean}
- */
-CPPolygon.prototype.containsPoint = function (point) {
-  var i,
-    j,
-    contained = false;
-
-  for (i = 0, j = this.points.length - 1; i < this.points.length; j = i++) {
-    if (
-      this.points[i].y > point.y != this.points[j].y > point.y &&
-      point.x <
-        ((this.points[j].x - this.points[i].x) * (point.y - this.points[i].y)) /
-          (this.points[j].y - this.points[i].y) +
-          this.points[i].x
-    ) {
-      contained = !contained;
+    for (var i = 0; i < this.points.length; i++) {
+      // Deep clone
+      result.points[i] = { x: this.points[i].x, y: this.points[i].y };
     }
+
+    return result;
   }
 
-  return contained;
-};
+  /**
+   * Get a new polygon which is the result of transforming the points of this polygon with the given affine transform.
+   *
+   * @param {CPTransform} affineTransform
+   * @returns {CPPolygon}
+   */
+  getTransformed(affineTransform) {
+    var result = new CPPolygon(new Array(this.points.length));
+
+    for (var i = 0; i < this.points.length; i++) {
+      const transformed = affineTransform.getTransformedPoint(this.points[i]);
+      // 変換結果が有効な場合のみ代入する
+      if (transformed) {
+        result.points[i] = transformed;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Get the average of all the points in the polygon (the "center").
+   *
+   * @returns {{x: number, y: number}}
+   */
+  getCenter() {
+    var centerX = this.points[0].x,
+      centerY = this.points[0].y;
+
+    for (var i = 1; i < this.points.length; i++) {
+      centerX += this.points[i].x;
+      centerY += this.points[i].y;
+    }
+
+    return { x: centerX / this.points.length, y: centerY / this.points.length };
+  }
+
+  /**
+   * From https://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+   *
+   * @param point
+   * @returns {boolean}
+   */
+  containsPoint(point) {
+    var i,
+      j,
+      contained = false;
+
+    for (i = 0, j = this.points.length - 1; i < this.points.length; j = i++) {
+      if (
+        this.points[i].y > point.y != this.points[j].y > point.y &&
+        point.x <
+          ((this.points[j].x - this.points[i].x) *
+            (point.y - this.points[i].y)) /
+            (this.points[j].y - this.points[i].y) +
+            this.points[i].x
+      ) {
+        contained = !contained;
+      }
+    }
+
+    return contained;
+  }
+}

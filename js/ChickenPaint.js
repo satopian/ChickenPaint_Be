@@ -1335,6 +1335,10 @@ export default class ChickenPaint extends EventEmitter {
       return tools[curBrush].size;
     };
 
+    /**
+     * @param {number} alpha
+     * @note 0-255
+     */
     this.setAlpha = function (alpha) {
       tools[curBrush].alpha = alpha;
       callToolListeners();

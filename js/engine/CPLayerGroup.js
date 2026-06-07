@@ -32,14 +32,13 @@
 import CPLayer from "./CPLayer.js";
 import CPRect from "../util/CPRect.js";
 
-/**
- *
- * @param {string} name
- * @param {number} blendMode
- * @constructor
- * @this {any}
- */
 export default class CPLayerGroup extends CPLayer {
+  /**
+   *
+   * @param {string} name
+   * @param {number} blendMode
+   */
+
   constructor(name = "", blendMode = 0) {
     super(name);
 
@@ -50,127 +49,129 @@ export default class CPLayerGroup extends CPLayer {
     this.expanded = true;
     this.blendMode = blendMode;
   }
-}
 
-/**
- * Returns an array of layers in this group in display order, excluding this group itself.
- *
- * @param {boolean} respectCollapse - Set to true to omit the children of collapsed groups
- * @param {CPLayer[]} list
- * @returns {CPLayer[]}
- */
-CPLayerGroup.prototype.getLinearizedLayerList = function (
-  respectCollapse,
-  list = [],
-) {
-  for (let layer of this.layers) {
-    if (layer instanceof CPLayerGroup && (layer.expanded || !respectCollapse)) {
-      layer.getLinearizedLayerList(respectCollapse, list);
+  /**
+   * Returns an array of layers in this group in display order, excluding this group itself.
+   *
+   * @param {boolean} respectCollapse - Set to true to omit the children of collapsed groups
+   * @param {CPLayer[]} list
+   * @returns {CPLayer[]}
+   */
+  getLinearizedLayerList(respectCollapse, list = []) {
+    for (let layer of this.layers) {
+      if (
+        layer instanceof CPLayerGroup &&
+        (layer.expanded || !respectCollapse)
+      ) {
+        layer.getLinearizedLayerList(respectCollapse, list);
+      }
+      list.push(layer);
     }
-    list.push(layer);
+
+    return list;
   }
 
-  return list;
-};
-
-CPLayerGroup.prototype.clearLayers = function () {
-  this.layers = [];
-};
-
-CPLayerGroup.prototype.addLayer = function (layer) {
-  layer.parent = this;
-  this.layers.push(layer);
-};
-
-CPLayerGroup.prototype.insertLayer = function (index, layer) {
-  layer.parent = this;
-  this.layers.splice(index, 0, layer);
-};
-
-CPLayerGroup.prototype.removeLayer = function (layer) {
-  var index = this.layers.indexOf(layer);
-
-  if (index > -1) {
-    this.layers.splice(index, 1);
-  }
-};
-
-CPLayerGroup.prototype.removeLayerAtIndex = function (index) {
-  var layer = this.layers[index];
-
-  if (layer) {
-    this.layers.splice(index, 1);
+  clearLayers() {
+    this.layers = [];
   }
 
-  return layer;
-};
+  addLayer(layer) {
+    layer.parent = this;
+    this.layers.push(layer);
+  }
 
-CPLayerGroup.prototype.setLayerAtIndex = function (index, layer) {
-  var oldLayer = this.layers[index];
+  insertLayer(index, layer) {
+    layer.parent = this;
+    this.layers.splice(index, 0, layer);
+  }
 
-  layer.parent = this;
-  this.layers[index] = layer;
+  removeLayer(layer) {
+    var index = this.layers.indexOf(layer);
 
-  return oldLayer;
-};
+    if (index > -1) {
+      this.layers.splice(index, 1);
+    }
+  }
 
-CPLayerGroup.prototype.setExpanded = function (expanded) {
-  this.expanded = expanded;
-};
+  removeLayerAtIndex(index) {
+    var layer = this.layers[index];
 
-CPLayerGroup.prototype.getExpanded = function () {
-  return this.expanded;
-};
+    if (layer) {
+      this.layers.splice(index, 1);
+    }
 
-/**
- * Get the index of the given layer in this group, or -1 if the layer is not in the group.
- *
- * @param {CPLayer} layer
- * @returns {number}
- */
-CPLayerGroup.prototype.indexOf = function (layer) {
-  return this.layers.indexOf(layer);
-};
+    return layer;
+  }
 
-function sum(a, b) {
-  return a + b;
+  setLayerAtIndex(index, layer) {
+    var oldLayer = this.layers[index];
+
+    layer.parent = this;
+    this.layers[index] = layer;
+
+    return oldLayer;
+  }
+
+  setExpanded(expanded) {
+    this.expanded = expanded;
+  }
+
+  getExpanded() {
+    return this.expanded;
+  }
+
+  /**
+   * Get the index of the given layer in this group, or -1 if the layer is not in the group.
+   *
+   * @param {CPLayer} layer
+   * @returns {number}
+   */
+  indexOf(layer) {
+    return this.layers.indexOf(layer);
+  }
+
+  static sum(a, b) {
+    return a + b;
+  }
+
+  /**
+   * Get an approximation of the number of bytes of memory used by this layer.
+   *
+   * @returns {number}
+   */
+  getMemoryUsed() {
+    return this.layers
+      .map((layer) => layer.getMemoryUsed())
+      .reduce(CPLayerGroup.sum);
+  }
+
+  clone() {
+    var result = new CPLayerGroup(this.name, this.blendMode);
+
+    CPLayer.prototype.copyFrom.call(result, this);
+
+    result.expanded = this.expanded;
+    result.layers = this.layers.map((layer) => layer.clone());
+    result.layers.forEach((layer) => (layer.parent = result));
+
+    return result;
+  }
+
+  /**
+   * Get a rectangle that encloses any non-transparent pixels in the layer within the given initialBounds (or an empty
+   * rect if the pixels inside the given bounds are 100% transparent).
+   *
+   * @param {CPRect} initialBounds - The rect to search within
+   *
+   * @returns {CPRect}
+   */
+  getNonTransparentBounds(initialBounds) {
+    var nonTransparentRect = new CPRect(0, 0, 0, 0);
+
+    this.layers.forEach((layer) =>
+      nonTransparentRect.union(layer.getNonTransparentBounds(initialBounds)),
+    );
+
+    return nonTransparentRect;
+  }
 }
-
-/**
- * Get an approximation of the number of bytes of memory used by this layer.
- *
- * @returns {number}
- */
-CPLayerGroup.prototype.getMemoryUsed = function () {
-  return this.layers.map((layer) => layer.getMemoryUsed()).reduce(sum, 0);
-};
-
-CPLayerGroup.prototype.clone = function () {
-  var result = new CPLayerGroup(this.name, this.blendMode);
-
-  CPLayer.prototype.copyFrom.call(result, this);
-
-  result.expanded = this.expanded;
-  result.layers = this.layers.map((layer) => layer.clone());
-  result.layers.forEach((layer) => (layer.parent = result));
-
-  return result;
-};
-
-/**
- * Get a rectangle that encloses any non-transparent pixels in the layer within the given initialBounds (or an empty
- * rect if the pixels inside the given bounds are 100% transparent).
- *
- * @param {CPRect} initialBounds - The rect to search within
- *
- * @returns {CPRect}
- */
-CPLayerGroup.prototype.getNonTransparentBounds = function (initialBounds) {
-  var nonTransparentRect = new CPRect(0, 0, 0, 0);
-
-  this.layers.forEach((layer) =>
-    nonTransparentRect.union(layer.getNonTransparentBounds(initialBounds)),
-  );
-
-  return nonTransparentRect;
-};

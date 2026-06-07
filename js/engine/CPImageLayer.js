@@ -33,18 +33,15 @@ import CPColorBmp from "./CPColorBmp.js";
 import CPLayer from "./CPLayer.js";
 import CPRect from "../util/CPRect.js";
 
-/**
- * Note layer image data is not cleared to any specific values upon creation, use layer.image.clearAll().
- *
- * @param {number} width - Width of the bitmap, or zero to start the bitmap out empty (if you're planning to call copyFrom())
- * @param {number} height
- * @param {String} name
- *
- * @constructor
- * @extends CPLayer
- * @this {any}
- */
 export default class CPImageLayer extends CPLayer {
+  /**
+   * Note layer image data is not cleared to any specific values upon creation, use layer.image.clearAll().
+   *
+   * @param {number} width - Width of the bitmap, or zero to start the bitmap out empty (if you're planning to call copyFrom())
+   * @param {number} height
+   * @param {String} name
+   *
+   */
   constructor(width, height, name) {
     super(name);
     this.image = null;
@@ -65,189 +62,188 @@ export default class CPImageLayer extends CPLayer {
      */
     this.imageThumbnail = null;
   }
-}
+  static createFromImage(image, name) {
+    let result = new CPImageLayer(0, 0, name);
 
-CPImageLayer.createFromImage = function (image, name) {
-  let result = new CPImageLayer(0, 0, name);
+    result.image = image;
 
-  result.image = image;
-
-  return result;
-};
-
-/**
- * Returns an independent copy of this layer.
- *
- * @returns {CPImageLayer}
- * @this {any}
- */
-CPImageLayer.prototype.clone = function () {
-  var result = new CPImageLayer(0, 0, this.name);
-
-  result.copyFrom(this);
-
-  return result;
-};
-
-/**
- *
- * @param {CPImageLayer} layer
- */
-CPImageLayer.prototype.copyFrom = function (layer) {
-  CPLayer.prototype.copyFrom.call(this, layer);
-
-  this.clip = layer.clip;
-  if (layer.image) {
-    if (!this.image) {
-      this.image = layer.image.clone();
-    } else {
-      this.image.copyPixelsFrom(layer.image);
-    }
+    return result;
   }
-};
 
-/**
- * Do we have any non-opaque pixels in the entire layer?
- * @returns {boolean}
- */
-CPImageLayer.prototype.hasAlpha = function () {
-  if (this.alpha != 100) {
-    return true;
-  }
-  if (!this.image) {
-    return false;
-  }
-  return this.image.hasAlpha();
-};
+  /**
+   * Returns an independent copy of this layer.
+   *
+   * @returns {CPImageLayer}
+   * @this {any}
+   */
+  clone() {
+    var result = new CPImageLayer(0, 0, this.name);
 
-/**
- * Do we have any semi-transparent pixels in the given rectangle?
- *
- * @param {CPRect} rect
- * @returns {boolean}
- */
-CPImageLayer.prototype.hasAlphaInRect = function (rect) {
-  if (this.alpha != 100) {
-    return true;
-  }
-  if (!this.image) {
-    return false;
-  }
-  return this.image.hasAlphaInRect(rect);
-};
+    result.copyFrom(this);
 
-/**
- *
- * @param {CPColorBmp} that
- */
-CPImageLayer.prototype.copyImageFrom = function (that) {
-  if (!this.image) {
-    return;
+    return result;
   }
-  this.image.copyPixelsFrom(that);
-};
 
-/**
- * If this layer is clipped, return the layer that this layer is clipped to, otherwise return null.
- *
- * @returns {?CPImageLayer}
- */
-CPImageLayer.prototype.getClippingBase = function () {
-  if (this.clip && this.parent) {
-    for (var i = this.parent.indexOf(this) - 1; i >= 0; i--) {
-      if (this.parent.layers[i] instanceof CPImageLayer) {
-        if (!this.parent.layers[i].clip) {
-          return this.parent.layers[i];
-        }
+  /**
+   *
+   * @param {CPImageLayer} layer
+   */
+  copyFrom(layer) {
+    super.copyFrom(layer);
+
+    this.clip = layer.clip;
+    if (layer.image) {
+      if (!this.image) {
+        this.image = layer.image.clone();
       } else {
-        // We can't clip to non-image layers, so something went wrong here...
-        break;
+        this.image.copyPixelsFrom(layer.image);
       }
     }
   }
-  return null;
-};
 
-/**
- *
- * @returns {boolean}
- */
-CPImageLayer.prototype.getClip = function () {
-  return this.clip;
-};
+  /**
+   * Do we have any non-opaque pixels in the entire layer?
+   * @returns {boolean}
+   */
+  hasAlpha() {
+    if (this.alpha != 100) {
+      return true;
+    }
+    if (!this.image) {
+      return false;
+    }
+    return this.image.hasAlpha();
+  }
 
-/**
- *
- * @param {boolean} clip
- */
-CPImageLayer.prototype.setClip = function (clip) {
-  this.clip = clip;
-};
+  /**
+   * Do we have any semi-transparent pixels in the given rectangle?
+   *
+   * @param {CPRect} rect
+   * @returns {boolean}
+   */
+  hasAlphaInRect(rect) {
+    if (this.alpha != 100) {
+      return true;
+    }
+    if (!this.image) {
+      return false;
+    }
+    return this.image.hasAlphaInRect(rect);
+  }
 
-/**
- * Get a rectangle that encloses any non-transparent pixels in the layer within the given initialBounds (or an empty
- * rect if the pixels inside the given bounds are 100% transparent).
- *
- * Ignores the layer alpha and visibility properties, you may want to check .getEffectiveAlpha() > 0 before calling.
- *
- * @param {CPRect} initialBounds - The rect to search within
- *
- * @returns {any} CPRect
- */
-CPImageLayer.prototype.getNonTransparentBounds = function (initialBounds) {
-  return this.image?.getNonTransparentBounds(initialBounds);
-};
+  /**
+   *
+   * @param {CPColorBmp} that
+   */
+  copyImageFrom(that) {
+    if (!this.image) {
+      return;
+    }
+    this.image.copyPixelsFrom(that);
+  }
 
-/**
- * @returns {CPRect}
- */
-CPImageLayer.prototype.getBounds = function () {
-  return new CPRect(0, 0, this.image?.width ?? 0, this.image?.height ?? 0);
-};
-
-/**
- * Get an approximation of the number of bytes of memory used by this layer.
- *
- * @returns {number}
- */
-CPImageLayer.prototype.getMemoryUsed = function () {
-  return this.image ? this.image.getMemorySize() : 0;
-};
-
-/**
- * Recreate the image thumbnail for this layer.
- */
-CPImageLayer.prototype.rebuildImageThumbnail = function () {
-  if (!this.image) {
+  /**
+   * If this layer is clipped, return the layer that this layer is clipped to, otherwise return null.
+   *
+   * @returns {?CPImageLayer}
+   */
+  getClippingBase() {
+    if (this.clip && this.parent) {
+      for (var i = this.parent.indexOf(this) - 1; i >= 0; i--) {
+        if (this.parent.layers[i] instanceof CPImageLayer) {
+          if (!this.parent.layers[i].clip) {
+            return this.parent.layers[i];
+          }
+        } else {
+          // We can't clip to non-image layers, so something went wrong here...
+          break;
+        }
+      }
+    }
     return null;
   }
 
-  if (!this.imageThumbnail) {
-    var scaleDivider = Math.ceil(
-      Math.max(
-        this.image.width / CPLayer.LAYER_THUMBNAIL_WIDTH,
-        this.image.height / CPLayer.LAYER_THUMBNAIL_HEIGHT,
-      ),
-    );
-
-    this.imageThumbnail = new CPColorBmp(
-      Math.floor(this.image.width / scaleDivider),
-      Math.floor(this.image.height / scaleDivider),
-    );
+  /**
+   *
+   * @returns {boolean}
+   */
+  getClip() {
+    return this.clip;
   }
 
-  this.imageThumbnail.createThumbnailFrom(this.image);
-};
-
-/**
- * Get the image thumbnail for this layer (or build one if one was not already built)
- *
- * @returns {?CPColorBmp}
- */
-CPImageLayer.prototype.getImageThumbnail = function () {
-  if (!this.imageThumbnail) {
-    this.rebuildImageThumbnail();
+  /**
+   *
+   * @param {boolean} clip
+   */
+  setClip(clip) {
+    this.clip = clip;
   }
 
-  return this.imageThumbnail;
-};
+  /**
+   * Get a rectangle that encloses any non-transparent pixels in the layer within the given initialBounds (or an empty
+   * rect if the pixels inside the given bounds are 100% transparent).
+   *
+   * Ignores the layer alpha and visibility properties, you may want to check .getEffectiveAlpha() > 0 before calling.
+   *
+   * @param {CPRect} initialBounds - The rect to search within
+   *
+   * @returns {any} CPRect
+   */
+  getNonTransparentBounds(initialBounds) {
+    return this.image?.getNonTransparentBounds(initialBounds);
+  }
+
+  /**
+   * @returns {CPRect}
+   */
+  getBounds() {
+    return new CPRect(0, 0, this.image?.width ?? 0, this.image?.height ?? 0);
+  }
+
+  /**
+   * Get an approximation of the number of bytes of memory used by this layer.
+   *
+   * @returns {number}
+   */
+  getMemoryUsed() {
+    return this.image ? this.image.getMemorySize() : 0;
+  }
+
+  /**
+   * Recreate the image thumbnail for this layer.
+   */
+  rebuildImageThumbnail() {
+    if (!this.image) {
+      return null;
+    }
+
+    if (!this.imageThumbnail) {
+      var scaleDivider = Math.ceil(
+        Math.max(
+          this.image.width / CPLayer.LAYER_THUMBNAIL_WIDTH,
+          this.image.height / CPLayer.LAYER_THUMBNAIL_HEIGHT,
+        ),
+      );
+
+      this.imageThumbnail = new CPColorBmp(
+        Math.floor(this.image.width / scaleDivider),
+        Math.floor(this.image.height / scaleDivider),
+      );
+    }
+
+    this.imageThumbnail.createThumbnailFrom(this.image);
+  }
+
+  /**
+   * Get the image thumbnail for this layer (or build one if one was not already built)
+   *
+   * @returns {?CPColorBmp}
+   */
+  getImageThumbnail() {
+    if (!this.imageThumbnail) {
+      this.rebuildImageThumbnail();
+    }
+
+    return this.imageThumbnail;
+  }
+}

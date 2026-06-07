@@ -118,130 +118,142 @@ function convertHsvToRgb(hsv) {
   }
 }
 
-/**
- *
- * @param {number} rgb - Initial color
- * @constructor
- */
-export default function CPColor(rgb) {
+export default class CPColor {
   /**
-   * Color in RGB byte order (no alpha component)
+   * @param {number} rgb Initial color 10進数
+   */
+  constructor(rgb) {
+    /**
+     * Color in RGB byte order (no alpha component)
+     *
+     * @type {Number}
+     */
+    this.rgb = 0;
+
+    /**
+     * Hue 0-359 degrees
+     *
+     * @type {Number}
+     */
+    this.hue = 0;
+
+    /**
+     * Color saturation 0 - 255
+     * @type {Number}
+     */
+    this.saturation = 0;
+
+    /**
+     * Brightness 0 - 255
+     *
+     * @type {Number}
+     */
+    this.value = 0;
+
+    this.setRgb(rgb || 0);
+  }
+  getRgb() {
+    return this.rgb;
+  }
+
+  getSaturation() {
+    return this.saturation;
+  }
+
+  getHue() {
+    return this.hue;
+  }
+
+  getValue() {
+    return this.value;
+  }
+
+  /**
+   * @param {number} r
+   * @param {number} g
+   * @param {number} b
+   */
+  setRgbComponents(r, g, b) {
+    this.setRgb((r << 16) | (g << 8) | b);
+  }
+  /**
+   * @param {number} rgb
+   */
+  setRgb(rgb) {
+    this.rgb = rgb;
+    convertRgbToHsv(rgb, this);
+  }
+
+  /**
+   * 色を設定 HSV
+   * @param {number} hue
+   * @param {number} saturation
+   * @param {number} value
+   */
+  setHsv(hue, saturation, value) {
+    this.hue = hue;
+    this.saturation = saturation;
+    this.value = value;
+
+    this.rgb = convertHsvToRgb(this);
+  }
+
+  setHue(hue) {
+    this.hue = hue;
+    this.rgb = convertHsvToRgb(this);
+  }
+
+  setSaturation(saturation) {
+    this.saturation = saturation;
+    this.rgb = convertHsvToRgb(this);
+  }
+
+  setValue(value) {
+    this.value = value;
+    this.rgb = convertHsvToRgb(this);
+  }
+
+  setGreyscale(value) {
+    this.rgb = CPColor.greyToRGB(value);
+    this.hue = 0;
+    this.saturation = 0;
+    this.value = value;
+  }
+
+  clone() {
+    var result = new CPColor(0);
+
+    result.copyFrom(this);
+
+    return result;
+  }
+
+  /**
    *
-   * @type {Number}
+   * @param {CPColor} that
    */
-  this.rgb = 0;
+  copyFrom(that) {
+    this.rgb = that.rgb;
+    this.hue = that.hue;
+    this.saturation = that.saturation;
+    this.value = that.value;
+  }
 
   /**
-   * Hue 0-359 degrees
    *
-   * @type {Number}
+   * @param {CPColor} color
+   * @returns {boolean}
    */
-  this.hue = 0;
+  isEqual(color) {
+    return (
+      this.rgb == color.rgb &&
+      this.hue == color.hue &&
+      this.saturation == color.saturation &&
+      this.value == color.value
+    );
+  }
 
-  /**
-   * Color saturation 0 - 255
-   * @type {Number}
-   */
-  this.saturation = 0;
-
-  /**
-   * Brightness 0 - 255
-   *
-   * @type {Number}
-   */
-  this.value = 0;
-
-  this.setRgb(rgb || 0);
+  static greyToRGB(grey) {
+    return grey | (grey << 8) | (grey << 16);
+  }
 }
-
-CPColor.prototype.getRgb = function () {
-  return this.rgb;
-};
-
-CPColor.prototype.getSaturation = function () {
-  return this.saturation;
-};
-
-CPColor.prototype.getHue = function () {
-  return this.hue;
-};
-
-CPColor.prototype.getValue = function () {
-  return this.value;
-};
-
-CPColor.prototype.setRgbComponents = function (r, g, b) {
-  this.setRgb((r << 16) | (g << 8) | b);
-};
-
-CPColor.prototype.setRgb = function (rgb) {
-  this.rgb = rgb;
-  convertRgbToHsv(rgb, this);
-};
-
-CPColor.prototype.setHsv = function (hue, saturation, value) {
-  this.hue = hue;
-  this.saturation = saturation;
-  this.value = value;
-
-  this.rgb = convertHsvToRgb(this);
-};
-
-CPColor.prototype.setHue = function (hue) {
-  this.hue = hue;
-  this.rgb = convertHsvToRgb(this);
-};
-
-CPColor.prototype.setSaturation = function (saturation) {
-  this.saturation = saturation;
-  this.rgb = convertHsvToRgb(this);
-};
-
-CPColor.prototype.setValue = function (value) {
-  this.value = value;
-  this.rgb = convertHsvToRgb(this);
-};
-
-CPColor.prototype.setGreyscale = function (value) {
-  this.rgb = CPColor.greyToRGB(value);
-  this.hue = 0;
-  this.saturation = 0;
-  this.value = value;
-};
-
-CPColor.prototype.clone = function () {
-  var result = new CPColor(0);
-
-  result.copyFrom(this);
-
-  return result;
-};
-
-/**
- *
- * @param {CPColor} that
- */
-CPColor.prototype.copyFrom = function (that) {
-  this.rgb = that.rgb;
-  this.hue = that.hue;
-  this.saturation = that.saturation;
-  this.value = that.value;
-};
-
-/**
- *
- * @param {CPColor} color
- * @returns {boolean}
- */
-CPColor.prototype.isEqual = function (color) {
-  return (
-    this.rgb == color.rgb &&
-    this.hue == color.hue &&
-    this.saturation == color.saturation &&
-    this.value == color.value
-  );
-};
-
-CPColor.greyToRGB = function (grey) {
-  return grey | (grey << 8) | (grey << 16);
-};
