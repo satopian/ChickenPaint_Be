@@ -32,7 +32,9 @@
 import CPBlend from "./CPBlend.js";
 import CPGreyBmp from "./CPGreyBmp.js";
 import CPRect from "../util/CPRect.js";
-import CPImageLayer from "./CPImageLayer.js";
+/**
+ * @typedef {import("./CPImageLayer.js").default} CPImageLayer
+ */
 /**
  * @typedef {import("./CPLayerGroup.js").default} CPLayerGroup
  */
