@@ -1711,7 +1711,7 @@ export default class ChickenPaint extends EventEmitter {
        * titleタグを更新してメモリーセーバーによる破棄を防ぐ
        */
       // 共通の装飾用文字列
-      const msgs = ["(0)", "(1)"];
+      const msgs = ["(^_-)-☆", "♪(^∇^*)"];
 
       // 1. 隠れた時の処理
       document.addEventListener("visibilitychange", () => {
