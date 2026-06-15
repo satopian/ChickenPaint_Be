@@ -1707,9 +1707,50 @@ export default class ChickenPaint extends EventEmitter {
           e.preventDefault();
         }
       });
-    }
+      /**
+       * titleタグを更新してメモリーセーバーによる破棄を防ぐ
+       */
+      // 共通の装飾用文字列
+      const msgs = ["(0)", "(1)"];
 
-    function startMainGUI(swatches, initialRotation90) {
+      // 1. 隠れた時の処理
+      document.addEventListener("visibilitychange", () => {
+        if (
+          document.visibilityState === "hidden" &&
+          that.artwork.getHasUnsavedChanges()
+        ) {
+          setTimeout(() => {
+            // まだ隠れているか再度確認
+            if (document.visibilityState === "hidden") {
+              // タイトルにまだ装飾がないか確認して付与
+              if (!msgs.some((m) => document.title.includes(m))) {
+                const nextMsg = msgs[Math.floor(Math.random() * msgs.length)];
+                document.title = `${document.title} ${nextMsg}`;
+              }
+            }
+          }, 3000);
+        }
+      });
+
+      // 2. 表示された時の処理
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+          // 装飾があれば除去
+          let newTitle = document.title;
+          msgs.forEach((m) => {
+            newTitle = newTitle.replace(` ${m}`, "");
+          });
+          document.title = newTitle;
+        }
+      });
+    }
+    /**
+     *
+     * @param {number[]} [swatches]
+     * @param {number} [initialRotation90]
+     * @returns {void}
+     */
+    function startMainGUI(swatches = [], initialRotation90 = 0) {
       if (!uiElem) {
         return;
       }
@@ -1726,8 +1767,7 @@ export default class ChickenPaint extends EventEmitter {
 
       setTool(ChickenPaint.T_PEN);
       mainGUI.arrangePalettes();
-
-      if (swatches) {
+      if (swatches.length > 0) {
         mainGUI.setSwatches(swatches);
       }
 
