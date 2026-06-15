@@ -1710,37 +1710,29 @@ export default class ChickenPaint extends EventEmitter {
       /**
        * titleタグを更新してメモリーセーバーによる破棄を防ぐ
        */
-      // 共通の装飾用文字列
-      const msgs = ["(^_-)-☆", "♪(^∇^*)"];
+      const symbol = "*";
 
-      // 1. 隠れた時の処理
       document.addEventListener("visibilitychange", () => {
+        // 1. 隠れた時の処理
         if (
           document.visibilityState === "hidden" &&
           that.artwork.getHasUnsavedChanges()
         ) {
           setTimeout(() => {
-            // まだ隠れているか再度確認
-            if (document.visibilityState === "hidden") {
-              // タイトルにまだ装飾がないか確認して付与
-              if (!msgs.some((m) => document.title.includes(m))) {
-                const nextMsg = msgs[Math.floor(Math.random() * msgs.length)];
-                document.title = `${document.title} ${nextMsg}`;
-              }
+            if (
+              document.visibilityState === "hidden" &&
+              !document.title.includes(symbol)
+            ) {
+              document.title = `${document.title} ${symbol}`;
             }
           }, 3000);
         }
-      });
 
-      // 2. 表示された時の処理
-      document.addEventListener("visibilitychange", () => {
+        // 2. 表示された時の処理
         if (document.visibilityState === "visible") {
-          // 装飾があれば除去
-          let newTitle = document.title;
-          msgs.forEach((m) => {
-            newTitle = newTitle.replace(` ${m}`, "");
-          });
-          document.title = newTitle;
+          if (document.title.includes(symbol)) {
+            document.title = document.title.replace(` ${symbol}`, "");
+          }
         }
       });
     }
