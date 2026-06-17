@@ -1717,7 +1717,10 @@ export default class ChickenPaint extends EventEmitter {
         // 1. 隠れた時の処理
         if (document.visibilityState === "hidden") {
           setTimeout(() => {
-            if (document.visibilityState === "hidden") {
+            if (
+              document.visibilityState === "hidden" &&
+              document.title === originalTitle
+            ) {
               document.title = `${document.title} ${symbol}`;
             }
           }, 3000);
