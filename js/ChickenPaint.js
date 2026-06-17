@@ -1710,26 +1710,22 @@ export default class ChickenPaint extends EventEmitter {
       /**
        * titleタグを更新してメモリーセーバーによる破棄を防ぐ
        */
+      const originalTitle = document.title;
       const symbol = "*";
 
       document.addEventListener("visibilitychange", () => {
         // 1. 隠れた時の処理
         if (document.visibilityState === "hidden") {
           setTimeout(() => {
-            if (
-              document.visibilityState === "hidden" &&
-              !document.title.includes(symbol)
-            ) {
+            if (document.visibilityState === "hidden") {
               document.title = `${document.title} ${symbol}`;
             }
           }, 3000);
-        }
-
-        // 2. 表示された時の処理
-        if (document.visibilityState === "visible") {
-          if (document.title.includes(symbol)) {
-            document.title = document.title.replace(` ${symbol}`, "");
-          }
+        } else if (
+          // 2. 表示された時の処理
+          document.visibilityState === "visible"
+        ) {
+          document.title = originalTitle;
         }
       });
     }
