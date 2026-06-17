@@ -1714,10 +1714,7 @@ export default class ChickenPaint extends EventEmitter {
 
       document.addEventListener("visibilitychange", () => {
         // 1. 隠れた時の処理
-        if (
-          document.visibilityState === "hidden" &&
-          that.artwork.getHasUnsavedChanges()
-        ) {
+        if (document.visibilityState === "hidden") {
           setTimeout(() => {
             if (
               document.visibilityState === "hidden" &&
