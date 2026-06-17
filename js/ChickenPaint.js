@@ -201,12 +201,12 @@ function createDrawingTools() {
     spacing: 0.03,
     pressureSize: false,
     pressureAlpha: true,
-    tip: CPBrushInfo.TIP_ROUND_AA,
+    tip: CPBrushInfo.TIP_ROUND_AIRBRUSH,
     brushMode: CPBrushInfo.BRUSH_MODE_WATER,
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 8,
-    resat: 0.35,
-    bleed: 0.65,
+    resat: 0.2,
+    bleed: 0.38,
   });
 
   tools[ChickenPaint.T_BLUR] = new CPBrushInfo({
