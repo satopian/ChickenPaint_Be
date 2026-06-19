@@ -1326,7 +1326,6 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
       ) {
         // 1. strokeData から Oil クラスで混合済みの色 (ARGB 32bit) を取り出す
         let paintColor = strokeData[srcOffset];
-        console.log("paintColor", paintColor);
 
         // 2. 筆が持っているアルファ値 (0-255) を抽出
         // ※ >>> 24 で最上位バイトを取り出す
@@ -1536,18 +1535,26 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
           color1Green = sampleData[dstOffset + CPColorBmp.GREEN_BYTE_OFFSET],
           color1Blue = sampleData[dstOffset + CPColorBmp.BLUE_BYTE_OFFSET];
 
+        const r2 = (color2 >> 16) & 0xff;
+        const g2 = (color2 >> 8) & 0xff;
+        const b2 = color2 & 0xff;
+        const r1L = (color1Red / 255) * (color1Red / 255);
+        const g1L = (color1Green / 255) * (color1Green / 255);
+        const b1L = (color1Blue / 255) * (color1Blue / 255);
+        const r2L = (r2 / 255) * (r2 / 255);
+        const g2L = (g2 / 255) * (g2 / 255);
+        const b2L = (b2 / 255) * (b2 / 255);
+
         brushData[srcOffset] =
           (newAlpha << 24) |
-          ((color1Red +
-            (((color2 >> 16) & 0xff) * invAlpha - color1Red * invAlpha) /
-              255) <<
+          (((Math.sqrt(r1L + (r2L * invAlpha - r1L * invAlpha) / 255) * 255) |
+            0) <<
             16) |
-          ((color1Green +
-            (((color2 >> 8) & 0xff) * invAlpha - color1Green * invAlpha) /
-              255) <<
+          (((Math.sqrt(g1L + (g2L * invAlpha - g1L * invAlpha) / 255) * 255) |
+            0) <<
             8) |
-          (color1Blue +
-            ((color2 & 0xff) * invAlpha - color1Blue * invAlpha) / 255);
+          ((Math.sqrt(b1L + (b2L * invAlpha - b1L * invAlpha) / 255) * 255) |
+            0);
       }
     }
   }
