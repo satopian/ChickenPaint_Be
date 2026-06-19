@@ -915,8 +915,8 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
     return average(samples.map((coord) => mask.getPixel(coord.x, coord.y)));
   }
   /**
-   * (x, y) 周辺の RGB ピクセルをサンプリングし、完全に透明なピクセルは無視します。
-   * もしサンプリングした全てのピクセルが透明だった場合は、フォールバックとしてブラシの色を返します。
+   * (x, y) 周辺の RGB ピクセルをサンプリングし、完全に透明なピクセルは無視する。
+   * もしサンプリングした全てのピクセルが透明だった場合は、フォールバックとしてブラシの色を返す。
    * (Sample RGB pixels around (x, y) and ignore fully transparent pixels.
    * If all sampled pixels are transparent, return the brush color as fallback.)
    *
@@ -1291,8 +1291,8 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
 
   /**
    * @override
-   * 筆が作った色と透明度を、直接キャンバスの指定領域に転送（上書き）します。
-   * undoImage を参照しないことで、同じストローク内で「一度消した場所を再度消す」ことが可能になります。
+   * 筆が作った色と透明度を、直接キャンバスの指定領域に転送（上書き）する。
+   * undoImage を参照しないことで、同じストローク内で「一度消した場所を再度消す」ことが可能になる。
    */
   mergeOntoImage(destImage, undoImage, color) {
     let strokeData = this._strokeBuffer.data,
@@ -1607,10 +1607,10 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
   }
 
   /**
-   * 筆の絵具とレイヤーを混合します。
-   * 透明な箇所からドラッグすれば色が消え透明が広がります。
-   * 色がある場所同士では混ざります。
-   * 透明の中にある白や黒とはまざりません。
+   * 筆の絵具とレイヤーを混合する。
+   * 透明な箇所からドラッグすれば色が消え透明が広がる。
+   * 色がある場所同士で混ざる。
+   * 透明の中にある白や黒とは混ざらない。
    *
    * @param {CPColorBmp} destImage - 描画対象のレイヤー画像
    * @param {CPRect} brushRect - 筆の矩形領域
@@ -1687,7 +1687,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         } else if (bAlphaActual <= 0) {
           // 筆が現在透明（透明側から来た）：
           // 色はキャンバス側(r2)を維持したまま、newAlphaだけが下がる。
-          // これにより「色が黒ずむことなく、そのまま消えていく」表現になります。
+          // これにより「色が黒ずむことなく、そのまま消えていく」表現になる。
           newR = r2;
           newG = g2;
           newB = b2;
