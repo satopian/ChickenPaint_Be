@@ -936,10 +936,10 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
     const imgH = image.height;
     const imgData = image.data;
 
-    let rSum = 0,
-      gSum = 0,
-      bSum = 0,
-      count = 0;
+    let rSum = 0;
+    let gSum = 0;
+    let bSum = 0;
+    let count = 0;
 
     /**
      * 有効なピクセルを判定し、集計する内部処理
@@ -949,13 +949,16 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
       const iy = ~~sy;
       if (ix >= 0 && iy >= 0 && ix < imgW && iy < imgH) {
         const offset = (iy * imgW + ix) * 4;
-        const a = imgData[offset + 3]; // アルファ値を取得
+        const a = imgData[offset + 3];
 
-        // Fully transparent pixelは無視 (Ignore fully transparent pixels)
         if (a > 0) {
-          rSum += imgData[offset]; // R
-          gSum += imgData[offset + 1]; // G
-          bSum += imgData[offset + 2]; // B
+          // sRGB→リニアに変換してから集計
+          const r = imgData[offset] / 255;
+          const g = imgData[offset + 1] / 255;
+          const b = imgData[offset + 2] / 255;
+          rSum += r * r; // ** 2.2の近似として2乗
+          gSum += g * g;
+          bSum += b * b;
           count++;
         }
       }
@@ -986,11 +989,12 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
       if (noFallback) return null; //（混色ブラシ用）
       return brushColor; // 従来（水彩）
     }
-    // RGB成分の平均値を算出
-    const avgR = (rSum / count) | 0;
-    const avgG = (gSum / count) | 0;
-    const avgB = (bSum / count) | 0;
 
+    // 混色処理
+    // 平均後にsRGBに戻す（平方根）
+    const avgR = (Math.sqrt(rSum / count) * 255) | 0;
+    const avgG = (Math.sqrt(gSum / count) * 255) | 0;
+    const avgB = (Math.sqrt(bSum / count) * 255) | 0;
     // 不透明な CPColorFloat オブジェクトを生成して返す
     return CPColorFloat.createFromInt(
       (255 << 24) | (avgR << 16) | (avgG << 8) | avgB,
