@@ -952,12 +952,10 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
    * @param {number} dx - 中心からのサンプリングの広がり（幅）
    * @param {number} dy - 中心からのサンプリングの広がり（高さ）
    * @param {CPColorFloat} brushColor - 全て透明だった場合に返される現在のブラシ色（fallback用）
+   * @param {Object} options - オプション
    * @returns {?CPColorFloat} 算出された平均色、またはブラシ色
    */
   static _sampleRGB(image, x, y, dx, dy, brushColor, options = {}) {
-    //混色ブラシ?
-    const noFallback = options.noFallback || false;
-
     const imgW = image.width;
     const imgH = image.height;
     const imgData = image.data;
@@ -1012,8 +1010,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
 
     // 全て透明なら
     if (count === 0) {
-      if (noFallback) return null; //（混色ブラシ用）
-      return brushColor; // 従来（水彩）
+      return brushColor; // ブラシの色を返す
     }
 
     // 混色処理
@@ -1561,6 +1558,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
           color1Green = sampleData[dstOffset + CPColorBmp.GREEN_BYTE_OFFSET],
           color1Blue = sampleData[dstOffset + CPColorBmp.BLUE_BYTE_OFFSET];
 
+        //  リニアRGB空間で混合（彩度・明度低下を防止）
         const r2 = (color2 >> 16) & 0xff;
         const g2 = (color2 >> 8) & 0xff;
         const b2 = color2 & 0xff;
@@ -1614,20 +1612,31 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
           realAlpha = ((alpha1 * 255) / newAlpha) | 0,
           invAlpha = 255 - realAlpha;
 
+        // sRGB→リニアRGB変換（混色時の彩度・明度低下を防止）
+        const c1r = (color1 >>> 16) & 0xff,
+          c1g = (color1 >>> 8) & 0xff,
+          c1b = color1 & 0xff;
+        const c2r = (color2 >>> 16) & 0xff,
+          c2g = (color2 >>> 8) & 0xff,
+          c2b = color2 & 0xff;
+        const r1L = (c1r / 255) * (c1r / 255),
+          g1L = (c1g / 255) * (c1g / 255),
+          b1L = (c1b / 255) * (c1b / 255);
+        const r2L = (c2r / 255) * (c2r / 255),
+          g2L = (c2g / 255) * (c2g / 255),
+          b2L = (c2b / 255) * (c2b / 255);
+
+        // リニアRGB空間で混合しsRGBに戻す
         brushData[brushOffset] =
           (newAlpha << 24) |
-          ((((color1 >>> 16) & 0xff) +
-            (((color2 >>> 16) & 0xff) * invAlpha -
-              ((color1 >>> 16) & 0xff) * invAlpha) /
-              255) <<
+          (((Math.sqrt(r1L + (r2L * invAlpha - r1L * invAlpha) / 255) * 255) |
+            0) <<
             16) |
-          ((((color1 >>> 8) & 0xff) +
-            (((color2 >>> 8) & 0xff) * invAlpha -
-              ((color1 >>> 8) & 0xff) * invAlpha) /
-              255) <<
+          (((Math.sqrt(g1L + (g2L * invAlpha - g1L * invAlpha) / 255) * 255) |
+            0) <<
             8) |
-          ((color1 & 0xff) +
-            ((color2 & 0xff) * invAlpha - (color1 & 0xff) * invAlpha) / 255);
+          ((Math.sqrt(b1L + (b2L * invAlpha - b1L * invAlpha) / 255) * 255) |
+            0);
       }
     }
   }
@@ -1718,11 +1727,17 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
           newG = g2;
           newB = b2;
         } else {
-          // 両方に色がある場合：背景の不透明度を重みにして混ぜる（濁り防止）
+          // 両方に色がある場合：リニアRGB空間で混合（彩度・明度低下を防止）
           let a2Weight = mixRatio * (alpha2 / 255);
-          newR = r2 + (r1 - r2) * a2Weight;
-          newG = g2 + (g1 - g2) * a2Weight;
-          newB = b2 + (b1 - b2) * a2Weight;
+          const r1L = (r1 / 255) * (r1 / 255),
+            r2L = (r2 / 255) * (r2 / 255);
+          const g1L = (g1 / 255) * (g1 / 255),
+            g2L = (g2 / 255) * (g2 / 255);
+          const b1L = (b1 / 255) * (b1 / 255),
+            b2L = (b2 / 255) * (b2 / 255);
+          newR = (Math.sqrt(r2L + (r1L - r2L) * a2Weight) * 255) | 0;
+          newG = (Math.sqrt(g2L + (g1L - g2L) * a2Weight) * 255) | 0;
+          newB = (Math.sqrt(b2L + (b1L - b2L) * a2Weight) * 255) | 0;
         }
 
         // 4. パッキングして strokeBuffer へ
