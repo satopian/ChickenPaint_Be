@@ -191,7 +191,7 @@ export class CPBrushTool {
     const dstYStride =
       ((destImage.width - width) * CPColorBmp.BYTES_PER_PIXEL) | 0;
 
-    // ブラシ色をsRGB→リニアRGBに変換（ループ外で一度だけ）
+    // sRGB→リニアRGB変換（混色時の彩度・明度低下を防止)
     const redL = (red / 255) * (red / 255);
     const greenL = (green / 255) * (green / 255);
     const blueL = (blue / 255) * (blue / 255);
@@ -215,7 +215,7 @@ export class CPBrushTool {
             realAlpha = ((255 * strokeAlpha) / newLayerAlpha) | 0,
             invAlpha = 255 - realAlpha;
 
-          // sRGB→リニアRGB
+          // sRGB→リニアRGB変換（混色時の彩度・明度低下を防止)
           const r2L = (undoData[dstOffset] / 255) * (undoData[dstOffset] / 255);
           const g2L =
             (undoData[dstOffset + 1] / 255) * (undoData[dstOffset + 1] / 255);
@@ -978,7 +978,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         const a = imgData[offset + 3];
 
         if (a > 0) {
-          // sRGB→リニアに変換してから集計
+          // sRGB→リニアRGB変換（混色時の彩度・明度低下を防止)
           const r = imgData[offset] / 255;
           const g = imgData[offset + 1] / 255;
           const b = imgData[offset + 2] / 255;
