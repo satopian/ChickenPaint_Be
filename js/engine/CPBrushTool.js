@@ -191,6 +191,11 @@ export class CPBrushTool {
     const dstYStride =
       ((destImage.width - width) * CPColorBmp.BYTES_PER_PIXEL) | 0;
 
+    // ブラシ色をsRGB→リニアRGBに変換（ループ外で一度だけ）
+    const redL = (red / 255) * (red / 255);
+    const greenL = (green / 255) * (green / 255);
+    const blueL = (blue / 255) * (blue / 255);
+
     for (
       let y = 0;
       y < height;
@@ -210,14 +215,25 @@ export class CPBrushTool {
             realAlpha = ((255 * strokeAlpha) / newLayerAlpha) | 0,
             invAlpha = 255 - realAlpha;
 
+          // sRGB→リニアRGB
+          const r2L = (undoData[dstOffset] / 255) * (undoData[dstOffset] / 255);
+          const g2L =
+            (undoData[dstOffset + 1] / 255) * (undoData[dstOffset + 1] / 255);
+          const b2L =
+            (undoData[dstOffset + 2] / 255) * (undoData[dstOffset + 2] / 255);
+          //リニアRGBをsRGBに戻す
           destData[dstOffset] =
-            ((red * realAlpha + undoData[dstOffset] * invAlpha) / 255) & 0xff;
+            (Math.sqrt((redL * realAlpha) / 255 + (r2L * invAlpha) / 255) *
+              255) |
+            0;
           destData[dstOffset + 1] =
-            ((green * realAlpha + undoData[dstOffset + 1] * invAlpha) / 255) &
-            0xff;
+            (Math.sqrt((greenL * realAlpha) / 255 + (g2L * invAlpha) / 255) *
+              255) |
+            0;
           destData[dstOffset + 2] =
-            ((blue * realAlpha + undoData[dstOffset + 2] * invAlpha) / 255) &
-            0xff;
+            (Math.sqrt((blueL * realAlpha) / 255 + (b2L * invAlpha) / 255) *
+              255) |
+            0;
           destData[dstOffset + 3] = newLayerAlpha;
         }
       }
@@ -811,19 +827,29 @@ class CPBrushToolDirectBrush extends CPBrushTool {
           realAlpha = ((alpha1 * 255) / newAlpha) | 0,
           invAlpha = 255 - realAlpha;
 
+        const r1 = (color1 >> 16) & 0xff;
+        const g1 = (color1 >> 8) & 0xff;
+        const b1 = color1 & 0xff;
+        const r2 = undoData[dstOffset];
+        const g2 = undoData[dstOffset + 1];
+        const b2 = undoData[dstOffset + 2];
+
+        const r1L = (r1 / 255) * (r1 / 255);
+        const g1L = (g1 / 255) * (g1 / 255);
+        const b1L = (b1 / 255) * (b1 / 255);
+        const r2L = (r2 / 255) * (r2 / 255);
+        const g2L = (g2 / 255) * (g2 / 255);
+        const b2L = (b2 / 255) * (b2 / 255);
+
+        // リニア→sRGBに戻す
         destImageData[dstOffset] =
-          ((((color1 >> 16) & 0xff) * realAlpha +
-            undoData[dstOffset] * invAlpha) /
-            255) |
+          (Math.sqrt((r1L * realAlpha) / 255 + (r2L * invAlpha) / 255) * 255) |
           0;
         destImageData[dstOffset + 1] =
-          ((((color1 >> 8) & 0xff) * realAlpha +
-            undoData[dstOffset + 1] * invAlpha) /
-            255) |
+          (Math.sqrt((g1L * realAlpha) / 255 + (g2L * invAlpha) / 255) * 255) |
           0;
         destImageData[dstOffset + 2] =
-          (((color1 & 0xff) * realAlpha + undoData[dstOffset + 2] * invAlpha) /
-            255) |
+          (Math.sqrt((b1L * realAlpha) / 255 + (b2L * invAlpha) / 255) * 255) |
           0;
         destImageData[dstOffset + 3] = newAlpha;
       }
