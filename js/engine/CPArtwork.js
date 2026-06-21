@@ -1617,18 +1617,20 @@ export default class CPArtwork extends EventEmitter {
      * @param {boolean} horizontal
      */
     this.flip = function (horizontal) {
-      let rect = this.getSelection(),
-        flipWholeLayer = rect.isEmpty(),
-        transformBoth =
-          flipWholeLayer &&
-          curLayer instanceof CPImageLayer &&
-          curLayer.mask &&
-          curLayer.maskLinked,
-        transformImage =
-          (!maskEditingMode || transformBoth) &&
-          curLayer instanceof CPImageLayer,
-        transformMask = (maskEditingMode || transformBoth) && curLayer.mask,
-        routine = horizontal ? "copyRegionHFlip" : "copyRegionVFlip";
+      let rect = this.getSelection();
+      let flipWholeLayer = rect.isEmpty();
+      let transformBoth =
+        flipWholeLayer &&
+        curLayer instanceof CPImageLayer &&
+        curLayer.mask &&
+        curLayer.maskLinked;
+      let transformImage =
+        (!maskEditingMode || transformBoth) && curLayer instanceof CPImageLayer;
+      let transformMask = !!(
+        (maskEditingMode || transformBoth) &&
+        curLayer.mask
+      );
+      let routine = horizontal ? "copyRegionHFlip" : "copyRegionVFlip";
 
       if (!transformImage && !transformMask) {
         return;
@@ -2348,10 +2350,13 @@ export default class CPArtwork extends EventEmitter {
      * Save the difference between the current layer and the undoImage / undoMask (within the undoArea) for undo, and
      * clear the undoArea.
      *
-     * @constructor
      */
     class CPUndoPaint extends CPUndo {
-      constructor(paintedImage, paintedMask) {
+      /**
+       * @param {boolean} [paintedImage]
+       * @param {boolean} [paintedMask]
+       */
+      constructor(paintedImage = false, paintedMask = false) {
         super();
         if (!paintedImage && !paintedMask) {
           paintedImage = !maskEditingMode;
