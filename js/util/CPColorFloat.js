@@ -60,19 +60,28 @@ export default class CPColorFloat {
    * @param {number} alpha - 混合比率 (0.0 = 現在の色のまま, 1.0 = colorに完全に置き換え)
    */
   mixWith(color, alpha) {
-    // sRGB→リニアRGB変換（混色時の彩度・明度低下を防止）
     const r1L = this.r * this.r,
       r2L = color.r * color.r;
     const g1L = this.g * this.g,
       g2L = color.g * color.g;
     const b1L = this.b * this.b,
       b2L = color.b * color.b;
-    // リニアRGB空間で混合しsRGBに戻す
-    this.r = Math.sqrt(r1L * (1.0 - alpha) + r2L * alpha);
-    this.g = Math.sqrt(g1L * (1.0 - alpha) + g2L * alpha);
-    this.b = Math.sqrt(b1L * (1.0 - alpha) + b2L * alpha);
-  }
 
+    const rMixed = r1L * (1.0 - alpha) + r2L * alpha;
+    const gMixed = g1L * (1.0 - alpha) + g2L * alpha;
+    const bMixed = b1L * (1.0 - alpha) + b2L * alpha;
+
+    const BRIGHTNESS_RETENTION = 0.3;
+    this.r = Math.sqrt(
+      Math.max(rMixed, Math.max(r1L, r2L) * BRIGHTNESS_RETENTION),
+    );
+    this.g = Math.sqrt(
+      Math.max(gMixed, Math.max(g1L, g2L) * BRIGHTNESS_RETENTION),
+    );
+    this.b = Math.sqrt(
+      Math.max(bMixed, Math.max(b1L, b2L) * BRIGHTNESS_RETENTION),
+    );
+  }
   clone() {
     return new CPColorFloat(this.r, this.g, this.b);
   }
