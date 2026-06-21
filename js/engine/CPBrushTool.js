@@ -1586,7 +1586,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         const bMixed = b1L + (b2L * invAlpha - b1L * invAlpha) / 255;
 
         // 明るさの保持率
-        const BRIGHTNESS_RETENTION = 0.95;
+        const BRIGHTNESS_RETENTION = 0.98;
 
         brushData[srcOffset] =
           (newAlpha << 24) |
