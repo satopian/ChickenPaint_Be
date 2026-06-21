@@ -1072,23 +1072,31 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
           realAlpha = ((alpha1 * 255) / newAlpha) | 0,
           invAlpha = 255 - realAlpha;
 
-        // The usual alpha blending formula C = A * alpha + B * (1 - alpha)
-        // has to rewritten in the form C = A + (1 - alpha) * B - (1 - alpha) *A
-        // that way the rounding up errors won't cause problems
+        // sRGB→リニアRGB変換（混色時の彩度・明度低下を防止）
+        const c1r = (color1 >> 16) & 0xff,
+          c1g = (color1 >> 8) & 0xff,
+          c1b = color1 & 0xff;
+        const c2r = (color2 >> 16) & 0xff,
+          c2g = (color2 >> 8) & 0xff,
+          c2b = color2 & 0xff;
+        // sRGB→リニアRGB変換（混色時の彩度・明度低下を防止）
+        const r1L = (c1r / 255) * (c1r / 255),
+          g1L = (c1g / 255) * (c1g / 255),
+          b1L = (c1b / 255) * (c1b / 255);
+        const r2L = (c2r / 255) * (c2r / 255),
+          g2L = (c2g / 255) * (c2g / 255),
+          b2L = (c2b / 255) * (c2b / 255);
+        // リニアRGB空間で混合しsRGBに戻す
         strokeData[imageOffset] =
           (newAlpha << 24) |
-          ((((color1 >> 16) & 0xff) +
-            (((color2 >> 16) & 0xff) * invAlpha -
-              ((color1 >> 16) & 0xff) * invAlpha) /
-              255) <<
+          (((Math.sqrt(r1L + (r2L * invAlpha - r1L * invAlpha) / 255) * 255) |
+            0) <<
             16) |
-          ((((color1 >> 8) & 0xff) +
-            (((color2 >> 8) & 0xff) * invAlpha -
-              ((color1 >> 8) & 0xff) * invAlpha) /
-              255) <<
+          (((Math.sqrt(g1L + (g2L * invAlpha - g1L * invAlpha) / 255) * 255) |
+            0) <<
             8) |
-          ((color1 & 0xff) +
-            ((color2 & 0xff) * invAlpha - (color1 & 0xff) * invAlpha) / 255);
+          ((Math.sqrt(b1L + (b2L * invAlpha - b1L * invAlpha) / 255) * 255) |
+            0);
       }
     }
   }
@@ -1286,6 +1294,9 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         brushColorFloat,
       );
       this.isTransparentCanvas = brushColorFloat === sampled;
+      if (!sampled) {
+        return;
+      }
       // bleed
       wcColor.mixWith(sampled, brushConfig.bleed);
 

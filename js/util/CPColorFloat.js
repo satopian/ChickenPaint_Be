@@ -29,16 +29,15 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * An RGB color with floating point values for each channel (between 0.0 and 1.0)
- *
- * @param {number} r
- * @param {number} g
- * @param {number} b
- *
- * @constructor
- */
 export default class CPColorFloat {
+  /**
+   * An RGB color with floating point values for each channel (between 0.0 and 1.0)
+   *
+   * @param {number} r
+   * @param {number} g
+   * @param {number} b
+   *
+   */
   constructor(r, g, b) {
     this.r = r;
     this.g = g;
@@ -53,16 +52,37 @@ export default class CPColorFloat {
     );
   }
 
+  /**
+   * 2つの色をリニアRGB空間で補間する。
+   * sRGB空間での線形補間と比較して、混色時の彩度・明度低下を防止する。
+   *
+   * @param {CPColorFloat} color - 混合する色
+   * @param {number} alpha - 混合比率 (0.0 = 現在の色のまま, 1.0 = colorに完全に置き換え)
+   */
   mixWith(color, alpha) {
-    this.r = this.r * (1.0 - alpha) + color.r * alpha;
-    this.g = this.g * (1.0 - alpha) + color.g * alpha;
-    this.b = this.b * (1.0 - alpha) + color.b * alpha;
+    // sRGB→リニアRGB変換（混色時の彩度・明度低下を防止）
+    const r1L = this.r * this.r,
+      r2L = color.r * color.r;
+    const g1L = this.g * this.g,
+      g2L = color.g * color.g;
+    const b1L = this.b * this.b,
+      b2L = color.b * color.b;
+    // リニアRGB空間で混合しsRGBに戻す
+    this.r = Math.sqrt(r1L * (1.0 - alpha) + r2L * alpha);
+    this.g = Math.sqrt(g1L * (1.0 - alpha) + g2L * alpha);
+    this.b = Math.sqrt(b1L * (1.0 - alpha) + b2L * alpha);
   }
 
   clone() {
     return new CPColorFloat(this.r, this.g, this.b);
   }
 
+  /**
+   * 32ビット整数のRGB値からCPColorFloatを生成する。
+   *
+   * @param {number} color - 32ビット整数 (0xAARRGGBB形式。アルファは無視される)
+   * @returns {CPColorFloat}
+   */
   static createFromInt(color) {
     return new CPColorFloat(
       ((color >>> 16) & 0xff) / 255,
