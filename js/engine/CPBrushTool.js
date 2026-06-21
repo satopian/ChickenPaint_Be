@@ -1580,15 +1580,32 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         const g2L = (g2 / 255) * (g2 / 255);
         const b2L = (b2 / 255) * (b2 / 255);
 
+        // 現在のリニアRGB混合の代わりに
+        const rMixed = r1L + (r2L * invAlpha - r1L * invAlpha) / 255;
+        const gMixed = g1L + (g2L * invAlpha - g1L * invAlpha) / 255;
+        const bMixed = b1L + (b2L * invAlpha - b1L * invAlpha) / 255;
+
+        // 明るさの保持率
+        const BRIGHTNESS_RETENTION = 0.95;
+
         brushData[srcOffset] =
           (newAlpha << 24) |
-          (((Math.sqrt(r1L + (r2L * invAlpha - r1L * invAlpha) / 255) * 255) |
+          (((Math.sqrt(
+            Math.max(rMixed, Math.max(r1L, r2L) * BRIGHTNESS_RETENTION),
+          ) *
+            255) |
             0) <<
             16) |
-          (((Math.sqrt(g1L + (g2L * invAlpha - g1L * invAlpha) / 255) * 255) |
+          (((Math.sqrt(
+            Math.max(gMixed, Math.max(g1L, g2L) * BRIGHTNESS_RETENTION),
+          ) *
+            255) |
             0) <<
             8) |
-          ((Math.sqrt(b1L + (b2L * invAlpha - b1L * invAlpha) / 255) * 255) |
+          ((Math.sqrt(
+            Math.max(bMixed, Math.max(b1L, b2L) * BRIGHTNESS_RETENTION),
+          ) *
+            255) |
             0);
       }
     }
