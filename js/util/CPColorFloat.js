@@ -71,7 +71,7 @@ export default class CPColorFloat {
     const gMixed = g1L * (1.0 - alpha) + g2L * alpha;
     const bMixed = b1L * (1.0 - alpha) + b2L * alpha;
 
-    const BRIGHTNESS_RETENTION = 0.35;
+    const BRIGHTNESS_RETENTION = 0.5;
     this.r = Math.sqrt(
       Math.max(rMixed, Math.max(r1L, r2L) * BRIGHTNESS_RETENTION),
     );
