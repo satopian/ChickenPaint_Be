@@ -38,78 +38,79 @@ import CPImageLayer from "./CPImageLayer.js";
 import CPRect from "../util/CPRect.js";
 import CPGreyBmp from "./CPGreyBmp.js";
 
-/**
- *
- * @param {number} width
- * @param {number} height
- * @param {(CPLayer|CPLayerGroup|null)} layer
- * @constructor
- */
-function CPBlendNode(width, height, layer = null) {
-  if (layer) {
-    this.isGroup = layer instanceof CPLayerGroup;
-    this.image = layer.image;
-    this.mask = layer.getEffectiveMask();
-    this.layer = layer;
-    this.blendMode = layer.blendMode;
-    this.alpha = layer.alpha;
-    this.visible = layer.visible;
-  } else {
-    this.isGroup = true;
-    this.image = null;
-    this.mask = null;
-    this.layer = null;
-    this.blendMode = CPBlend.LM_PASSTHROUGH;
-    this.alpha = 100;
-    this.visible = true;
+class CPBlendNode {
+  /**
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {(CPLayer|CPLayerGroup|null)} layer
+   */
+  constructor(width, height, layer = null) {
+    if (layer) {
+      this.isGroup = layer instanceof CPLayerGroup;
+      this.image = layer.image;
+      this.mask = layer.getEffectiveMask();
+      this.layer = layer;
+      this.blendMode = layer.blendMode;
+      this.alpha = layer.alpha;
+      this.visible = layer.visible;
+    } else {
+      this.isGroup = true;
+      this.image = null;
+      this.mask = null;
+      this.layer = null;
+      this.blendMode = CPBlend.LM_PASSTHROUGH;
+      this.alpha = 100;
+      this.visible = true;
+    }
+
+    /**
+     * For group nodes, this is the rectangle of data which is dirty (due to changes in child nodes) and needs to be re-merged
+     *
+     * @type {CPRect}
+     */
+    this.dirtyRect = new CPRect(0, 0, width, height);
+
+    /**
+     *
+     * @type {CPBlendNode[]}
+     */
+    this.layers = [];
+
+    /**
+     * @type {?CPBlendNode}
+     */
+    this.parent = null;
+
+    /**
+     * When true, we should clip the layers in this group to the bottom layer of the stack
+     *
+     * @type {boolean}
+     */
+    this.clip = false;
   }
 
   /**
-   * For group nodes, this is the rectangle of data which is dirty (due to changes in child nodes) and needs to be re-merged
+   * Add zero (null), one (CPBlendNode) or more (CPBlendNode[]) children to this node.
    *
-   * @type {CPRect}
+   * @param {(?CPBlendNode|CPBlendNode[])} children
    */
-  this.dirtyRect = new CPRect(0, 0, width, height);
+  addChildren(children) {
+    if (children != null) {
+      if (Array.isArray(children)) {
+        children.forEach((child) => (child.parent = this));
 
-  /**
-   *
-   * @type {CPBlendNode[]}
-   */
-  this.layers = [];
+        this.layers = this.layers.concat(children);
+      } else {
+        let child = children;
 
-  /**
-   * @type {?CPBlendNode}
-   */
-  this.parent = null;
+        child.parent = this;
 
-  /**
-   * When true, we should clip the layers in this group to the bottom layer of the stack
-   *
-   * @type {boolean}
-   */
-  this.clip = false;
-}
-
-/**
- * Add zero (null), one (CPBlendNode) or more (CPBlendNode[]) children to this node.
- *
- * @param {(?CPBlendNode|CPBlendNode[])} children
- */
-CPBlendNode.prototype.addChildren = function (children) {
-  if (children != null) {
-    if (Array.isArray(children)) {
-      children.forEach((child) => (child.parent = this));
-
-      this.layers = this.layers.concat(children);
-    } else {
-      let child = children;
-
-      child.parent = this;
-
-      this.layers.push(child);
+        this.layers.push(child);
+      }
     }
   }
-};
+}
 
 /**
  * Analyses a stack of layers in a CPLayerGroup and optimizes a drawing scheme for them. Then you can reuse that

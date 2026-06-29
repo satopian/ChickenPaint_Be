@@ -28,39 +28,36 @@
     You should have received a copy of the GNU General Public License
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
-
-/**
- * @param {Object} properties - Non-default properties to set on the brush
- *
- * @property  {Number} alpha - The user-chosen alpha of this brush
- * @property {float} alphaScale - A scale factor applied to curAlpha before drawing
- * @property  {Number} curAlpha - The current alpha after pen pressure etc. has been applied
- *
- * @property  {Number} spacing
- * @property  {Number} minSpacing
- *
- * @property  {Number} size - The user-chosen size of this brush
- * @property  {Number} curSize - The current size of the brush after pen pressure has been applied
- *
- * @property  {Number} brushMode - Selects the CPBrushTool that will be used to render the brush (CPBrushInfo.BRUSH_MODE_*)
- * @property  {Number} paintMode - Controls how paint builds up on the canvas during painting (for brush modes that don't
- * override the default paintDab() function). (CPBrushInfo.PAINT_MODE_*)
- * @property  {Number} strokeMode - How stroke points will be connected during drawing (CPBrushInfo.STROKE_MODE_*)
- * @property  {Number} tip - Kind of brush tip to be used (CPBrushInfo.TIP_*)
- *
- * @property {number} scattering
- * @property {number} curScattering
- * @property {number} angle
- * @property {number} resat - 0-1.0, controls how much of the user's selected paint color is mixed into the brush while painting.
- * @property {number} bleed - 0-1.0, controls how much of the color from the canvas is picked up by the brush.
- *
- * @property {boolean} isAA
- *
- * @constructor
- * @this {any}
- */
-
 export default class CPBrushInfo {
+  /**
+   * @param {Object} properties - Non-default properties to set on the brush
+   *
+   * @property  {Number} alpha - The user-chosen alpha of this brush
+   * @property {float} alphaScale - A scale factor applied to curAlpha before drawing
+   * @property  {Number} curAlpha - The current alpha after pen pressure etc. has been applied
+   *
+   * @property  {Number} spacing
+   * @property  {Number} minSpacing
+   *
+   * @property  {Number} size - The user-chosen size of this brush
+   * @property  {Number} curSize - The current size of the brush after pen pressure has been applied
+   *
+   * @property  {Number} brushMode - Selects the CPBrushTool that will be used to render the brush (CPBrushInfo.BRUSH_MODE_*)
+   * @property  {Number} paintMode - Controls how paint builds up on the canvas during painting (for brush modes that don't
+   * override the default paintDab() function). (CPBrushInfo.PAINT_MODE_*)
+   * @property  {Number} strokeMode - How stroke points will be connected during drawing (CPBrushInfo.STROKE_MODE_*)
+   * @property  {Number} tip - Kind of brush tip to be used (CPBrushInfo.TIP_*)
+   *
+   * @property {number} scattering
+   * @property {number} curScattering
+   * @property {number} angle
+   * @property {number} resat - 0-1.0, controls how much of the user's selected paint color is mixed into the brush while painting.
+   * @property {number} bleed - 0-1.0, controls how much of the color from the canvas is picked up by the brush.
+   *
+   * @property {boolean} isAA
+   *
+   */
+
   constructor(properties) {
     var propName;
 
@@ -103,9 +100,13 @@ export default class CPBrushInfo {
       }
     }
   }
+  /**
+   * @param {Number} pressure - ペンの筆圧（タブレット対応）
+   * @param {boolean} isFirstPoint - 描き始めか?
+   */
   applyPressure(pressure, isFirstPoint) {
     // 1. 目標サイズ
-    let targetSize = this.pressureSize
+    let targetSize = this.pressureSize /**筆圧が有効なら */
       ? Math.max(0.6, this.size * pressure)
       : Math.max(0.6, this.size);
 

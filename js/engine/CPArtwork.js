@@ -3064,50 +3064,49 @@ export default class CPArtwork extends EventEmitter {
 
           this.redo();
         }
-      }
 
-      ChangeAction.prototype.undo = function () {
-        this.layers.forEach((layer, index) =>
-          layer["set" + capitalPropertyName](this.from[index]),
-        );
+        undo() {
+          this.layers.forEach((layer, index) =>
+            layer["set" + capitalPropertyName](this.from[index]),
+          );
 
-        this.layers.forEach((layer) =>
-          layerPropertyChanged(layer, propertyName, !invalidatesLayer),
-        );
-      };
+          this.layers.forEach((layer) =>
+            layerPropertyChanged(layer, propertyName, !invalidatesLayer),
+          );
+        }
 
-      ChangeAction.prototype.redo = function () {
-        this.layers.forEach((layer) =>
-          layer["set" + capitalPropertyName](this.to),
-        );
+        redo() {
+          this.layers.forEach((layer) =>
+            layer["set" + capitalPropertyName](this.to),
+          );
 
-        this.layers.forEach((layer) =>
-          layerPropertyChanged(layer, propertyName, !invalidatesLayer),
-        );
-      };
-      /**
-       * @param {CPUndo} undo
-       */
-      ChangeAction.prototype.merge = function (undo) {
-        if (
-          undo instanceof ChangeAction &&
-          arrayEquals(this.layers, undo.layers)
-        ) {
-          this.to = undo.to;
+          this.layers.forEach((layer) =>
+            layerPropertyChanged(layer, propertyName, !invalidatesLayer),
+          );
+        }
+        /**
+         * @param {CPUndo} undo
+         */
+        merge(undo) {
+          if (
+            undo instanceof ChangeAction &&
+            arrayEquals(this.layers, undo.layers)
+          ) {
+            this.to = undo.to;
+            return true;
+          }
+          return false;
+        }
+
+        noChange() {
+          for (let i = 0; i < this.from.length; i++) {
+            if (this.from[i] != this.to) {
+              return false;
+            }
+          }
           return true;
         }
-        return false;
-      };
-
-      ChangeAction.prototype.noChange = function () {
-        for (let i = 0; i < this.from.length; i++) {
-          if (this.from[i] != this.to) {
-            return false;
-          }
-        }
-        return true;
-      };
-
+      }
       return ChangeAction;
     }
 
