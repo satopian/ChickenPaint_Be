@@ -308,6 +308,10 @@ export default class CPArtwork extends EventEmitter {
       return this.getBounds();
     };
 
+    /**
+     * 現在の選択範囲を取得
+     * @returns {CPRect}
+     */
     this.getSelection = function () {
       return curSelection.clone();
     };
@@ -1427,6 +1431,10 @@ export default class CPArtwork extends EventEmitter {
       // 透明なら null、色があれば RGB 部分を抽出
       return color === null ? null : color & 0xffffff;
     };
+    /**
+     * 選択範囲をセット
+     * @param {CPRect} rect
+     */
     this.setSelection = function (rect) {
       curSelection.set(rect);
       // Ensure we never have fractional coordinates in our selections:
@@ -2106,6 +2114,9 @@ export default class CPArtwork extends EventEmitter {
 
     this.isCopySelectionAllowed = this.isCutSelectionAllowed;
 
+    /**
+     * 選択範囲をカット
+     */
     this.cutSelection = function () {
       if (this.isCutSelectionAllowed()) {
         addUndo(
@@ -2114,6 +2125,9 @@ export default class CPArtwork extends EventEmitter {
       }
     };
 
+    /**
+     * 選択範囲をコピー
+     */
     this.copySelection = function () {
       if (this.isCopySelectionAllowed()) {
         let selection = that.getSelection(),
@@ -2163,8 +2177,8 @@ export default class CPArtwork extends EventEmitter {
       return clipboard;
     };
 
-    /*
-     * @param {CPClip} clipboard
+    /**
+     * @param {CPClip} newClipboard
      */
     this.setClipboard = function (newClipboard) {
       clipboard = newClipboard;
@@ -2173,7 +2187,9 @@ export default class CPArtwork extends EventEmitter {
     this.isClipboardEmpty = function () {
       return clipboard == null;
     };
-
+    /**
+     * @param {boolean} checked
+     */
     this.setSampleAllLayers = function (checked) {
       sampleAllLayers = checked;
     };
@@ -2181,7 +2197,9 @@ export default class CPArtwork extends EventEmitter {
     this.getLayerLockAlpha = function () {
       return this.getActiveLayer().getLockAlpha();
     };
-
+    /**
+     * @param {boolean} lock
+     */
     this.setLayerLockAlpha = function (lock) {
       if (curLayer.getLockAlpha() != lock) {
         addUndo(new CPActionChangeLayerLockAlpha(curLayer, lock));
@@ -2195,10 +2213,15 @@ export default class CPArtwork extends EventEmitter {
       curColor = color;
     };
 
+    /**
+     * @param {CPBrushInfo} brush
+     */
     this.setBrush = function (brush) {
       curBrush = brush;
     };
-
+    /**
+     * @param {CPGreyBmp|null} texture
+     */
     this.setBrushTexture = function (texture) {
       brushManager.setTexture(texture);
       this.texture = texture;
@@ -2353,8 +2376,8 @@ export default class CPArtwork extends EventEmitter {
      */
     class CPUndoPaint extends CPUndo {
       /**
-       * @param {boolean} [paintedImage]
-       * @param {boolean} [paintedMask]
+       * @param {boolean|null} [paintedImage]
+       * @param {boolean|null} [paintedMask]
        */
       constructor(paintedImage = false, paintedMask = false) {
         super();
@@ -3125,6 +3148,10 @@ export default class CPArtwork extends EventEmitter {
      * @constructor
      */
     class CPUndoRectangleSelection extends CPUndo {
+      /**
+       * @param {CPRect} from
+       * @param {CPRect} to
+       */
       constructor(from, to) {
         super();
         from = from.clone();
@@ -4164,6 +4191,11 @@ CPArtwork.prototype.getBounds = function () {
   return new CPRect(0, 0, this.width, this.height);
 };
 
+/**
+ * @param {Number} x
+ * @param {Number} y
+ * @returns {boolean}
+ */
 CPArtwork.prototype.isPointWithin = function (x, y) {
   return x >= 0 && y >= 0 && x < this.width && y < this.height;
 };
