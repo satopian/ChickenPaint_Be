@@ -223,9 +223,9 @@ export default class CPSlider extends EventEmitter {
         case DRAG_MODE_PRECISE:
           let title = that.title();
           //ブラシサイズと不透明度以外は細やかなスライダーの動作をしない
-          if (
-            !(title.includes(_("Brush size")) || title.includes(_("Opacity")))
-          ) {
+          if (!(
+            title.includes(_("Brush size")) || title.includes(_("Opacity"))
+          )) {
             return mouseSelect(e);
           }
           let diff = (e.pageX - dragPreciseX) / PRECISE_DRAG_SCALE;

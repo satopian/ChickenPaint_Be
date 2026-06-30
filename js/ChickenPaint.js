@@ -393,11 +393,9 @@ export default class ChickenPaint extends EventEmitter {
           },
           isSupported: function () {
             return !(
-              (
-                options.fullScreenMode === "disable" ||
-                options.fullScreenMode === "force" ||
-                options.allowFullScreen === false
-              ) /* For backwards compat */
+              options.fullScreenMode === "disable" ||
+              options.fullScreenMode === "force" ||
+              options.allowFullScreen === false /* For backwards compat */
             );
           },
           modifies: { gui: true },
