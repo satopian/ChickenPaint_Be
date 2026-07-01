@@ -72,9 +72,7 @@ const OUR_MAJOR_VERSION = 0,
   CHUNK_TAG_END = "ZEND";
 
 /**
- * @constructor
  * @param {Object} stream
- * @this {Object}
  */
 function CPChibiFileHeader(stream) {
   this.version = stream.readU32BE();
@@ -87,9 +85,7 @@ CPChibiFileHeader.FIXED_HEADER_LENGTH = 4 * 4;
 
 /**
  * @param {Object} stream
- * @this { typeof ChibiChunkHeader & Record<string, any>	}
  */
-
 function ChibiChunkHeader(stream) {
   let chunkType = new Array(4);
 
