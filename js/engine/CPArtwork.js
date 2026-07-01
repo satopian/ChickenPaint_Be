@@ -105,6 +105,13 @@ function arrayEquals(a, b) {
  * @this {any}
  */
 export default class CPArtwork extends EventEmitter {
+  static EDITING_MODE_IMAGE = 0;
+  static EDITING_MODE_MASK = 1;
+
+  /**
+   * @param {Number} _width
+   * @param {Number} _height
+   */
   constructor(_width, _height) {
     super();
     _width = _width | 0;
@@ -1015,6 +1022,7 @@ export default class CPArtwork extends EventEmitter {
      * Either way, this must not be called on new (ChickenPaint 0.10 format) artworks.
      *
      * @param {string | boolean | null | undefined} mode
+     * @deprecated
      */
     this.upgradeMultiplyLayers = function (mode) {
       let layers = this.getLayersRoot().getLinearizedLayerList(false, []),
@@ -1042,7 +1050,7 @@ export default class CPArtwork extends EventEmitter {
           first = true,
           blendRect = this.getBounds();
 
-        fusion.clearAll(blendRect); // Transparent white
+        fusion.clearAll(0); // Transparent white
 
         for (let i = 0; i <= lastMultiplyLayerIndex; i++) {
           let layer = layers[i];
@@ -4184,20 +4192,17 @@ export default class CPArtwork extends EventEmitter {
     this.width = _width;
     this.height = _height;
   }
+
+  getBounds() {
+    return new CPRect(0, 0, this.width, this.height);
+  }
+
+  /**
+   * @param {Number} x
+   * @param {Number} y
+   * @returns {boolean}
+   */
+  isPointWithin(x, y) {
+    return x >= 0 && y >= 0 && x < this.width && y < this.height;
+  }
 }
-
-CPArtwork.prototype.getBounds = function () {
-  return new CPRect(0, 0, this.width, this.height);
-};
-
-/**
- * @param {Number} x
- * @param {Number} y
- * @returns {boolean}
- */
-CPArtwork.prototype.isPointWithin = function (x, y) {
-  return x >= 0 && y >= 0 && x < this.width && y < this.height;
-};
-
-CPArtwork.EDITING_MODE_IMAGE = 0;
-CPArtwork.EDITING_MODE_MASK = 1;

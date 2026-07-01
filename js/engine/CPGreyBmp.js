@@ -34,547 +34,1178 @@ import CPRect from "../util/CPRect.js";
 import { createCanvas, createImageData } from "../util/Canvas.js";
 import { getRotatedCanvas } from "./CPColorBmp.js";
 
-/**
- * Create a new greyscale bitmap with the given parameters. The bitmap will be filled with black upon creation.
- *
- * @param {number} width
- * @param {number} height
- * @param {number} bitDepth - Bits per channel
- *
- * @constructor
- * @extends CPBitmap
- * @this {any}
- */
-
 export default class CPGreyBmp extends CPBitmap {
+  /**
+   * Create a new greyscale bitmap with the given parameters. The bitmap will be filled with black upon creation.
+   *
+   * @param {number} width
+   * @param {number} height
+   * @param {number} bitDepth - Bits per channel
+   *
+   */
+
   constructor(width, height, bitDepth) {
     super(width, height);
 
     this.createBitmap(width, height, bitDepth);
   }
-}
 
-CPGreyBmp.prototype.createBitmap = function (width, height, bitDepth) {
-  this.bitDepth = bitDepth;
+  /**
+   * @param {number} width
+   * @param {number} height
+   * @param {number} bitDepth - Bits per channel
+   */
+  createBitmap(width, height, bitDepth) {
+    this.bitDepth = bitDepth;
 
-  switch (bitDepth) {
-    case 32:
-      this.data = new Uint32Array(width * height);
-      break;
-    case 16:
-      this.data = new Uint16Array(width * height);
-      break;
-    case 8:
-    default:
-      this.data = new Uint8Array(width * height);
-  }
-};
-
-/**
- * @this {any}
- */
-CPGreyBmp.prototype.clone = function () {
-  var result = new CPGreyBmp(this.width, this.height, this.bitDepth);
-
-  result.copyPixelsFrom(this);
-
-  return result;
-};
-
-/**
- * Creates a CPGreyBmp from a portion of this bitmap
- *
- * @param {CPRect} rect
- * @returns {CPGreyBmp}
- */
-CPGreyBmp.prototype.cloneRect = function (rect) {
-  var result = new CPGreyBmp(rect.getWidth(), rect.getHeight(), this.bitDepth);
-
-  result.copyBitmapRect(this, 0, 0, rect);
-
-  return result;
-};
-
-/**
- * Pixel access with friendly clipping.
- *
- * @returns {Number} Pixel value
- */
-CPGreyBmp.prototype.getPixel = function (x, y) {
-  x = Math.max(0, Math.min(this.width - 1, x));
-  y = Math.max(0, Math.min(this.height - 1, y));
-
-  return this.data[this.offsetOfPixel(x, y)];
-};
-
-/**
- * 指定座標のピクセルにグレースケール値を設定します
- * （座標は自動でキャンバス内に補正されます）
- *
- * @param {number} x - X 座標
- * @param {number} y - Y 座標
- * @param {number} value - グレースケール値 (0-255)
- */
-CPGreyBmp.prototype.setPixel = function (x, y, value) {
-  x = Math.max(0, Math.min(this.width - 1, x));
-  y = Math.max(0, Math.min(this.height - 1, y));
-
-  const pixIndex = this.offsetOfPixel(x, y);
-
-  this.data[pixIndex] = value;
-};
-
-CPGreyBmp.prototype.clearAll = function (value) {
-  this.data.fill(value);
-};
-
-/**
- * Fill the given rectangle with the given value
- *
- * @param {CPRect} rect
- * @param {number} value
- */
-CPGreyBmp.prototype.clearRect = function (rect, value) {
-  rect = this.getBounds().clipTo(rect);
-
-  if (rect.equals(this.getBounds())) {
-    this.clearAll(value);
-  } else {
-    let yStride = this.width,
-      fillWidth = rect.right - rect.left,
-      rowStartIndex = this.offsetOfPixel(rect.left, rect.top);
-
-    for (let y = rect.top; y < rect.bottom; y++, rowStartIndex += yStride) {
-      this.data.fill(value, rowStartIndex, rowStartIndex + fillWidth);
+    switch (bitDepth) {
+      case 32:
+        this.data = new Uint32Array(width * height);
+        break;
+      case 16:
+        this.data = new Uint16Array(width * height);
+        break;
+      case 8:
+      default:
+        this.data = new Uint8Array(width * height);
     }
   }
-};
 
-/**
- * Use nearest-neighbor (subsampling) to scale that bitmap to replace the pixels of this one.
- *
- * @param {CPGreyBmp} that
- */
-CPGreyBmp.prototype.copyScaledNearestNeighbor = function (that) {
-  var destPixIndex = 0,
-    xSkip = that.width / this.width,
-    ySkip = that.height / this.height,
-    srcRowStart;
+  clone() {
+    var result = new CPGreyBmp(this.width, this.height, this.bitDepth);
 
-  for (var y = 0, srcRow = 0; y < this.height; y++, srcRow += ySkip) {
-    srcRowStart = that.offsetOfPixel(0, Math.round(srcRow));
+    result.copyPixelsFrom(this);
+
+    return result;
+  }
+
+  /**
+   * Creates a CPGreyBmp from a portion of this bitmap
+   *
+   * @param {CPRect} rect
+   * @returns {CPGreyBmp}
+   */
+  cloneRect(rect) {
+    var result = new CPGreyBmp(
+      rect.getWidth(),
+      rect.getHeight(),
+      this.bitDepth,
+    );
+
+    result.copyBitmapRect(this, 0, 0, rect);
+
+    return result;
+  }
+
+  /**
+   * Pixel access with friendly clipping.
+   * @param {Number} x
+   * @param {Number} y
+   * @returns {Number} Pixel value
+   */
+  getPixel(x, y) {
+    x = Math.max(0, Math.min(this.width - 1, x));
+    y = Math.max(0, Math.min(this.height - 1, y));
+
+    return this.data[this.offsetOfPixel(x, y)];
+  }
+
+  /**
+   * 指定座標のピクセルにグレースケール値を設定します
+   * （座標は自動でキャンバス内に補正されます）
+   *
+   * @param {number} x - X 座標
+   * @param {number} y - Y 座標
+   * @param {number} value - グレースケール値 (0-255)
+   */
+  setPixel(x, y, value) {
+    x = Math.max(0, Math.min(this.width - 1, x));
+    y = Math.max(0, Math.min(this.height - 1, y));
+
+    const pixIndex = this.offsetOfPixel(x, y);
+
+    this.data[pixIndex] = value;
+  }
+  /**
+   *@param {Number} value
+   */
+  clearAll(value) {
+    this.data.fill(value);
+  }
+
+  /**
+   * Fill the given rectangle with the given value
+   *
+   * @param {CPRect} rect
+   * @param {number} value
+   */
+  clearRect(rect, value) {
+    rect = this.getBounds().clipTo(rect);
+
+    if (rect.equals(this.getBounds())) {
+      this.clearAll(value);
+    } else {
+      let yStride = this.width,
+        fillWidth = rect.right - rect.left,
+        rowStartIndex = this.offsetOfPixel(rect.left, rect.top);
+
+      for (let y = rect.top; y < rect.bottom; y++, rowStartIndex += yStride) {
+        this.data.fill(value, rowStartIndex, rowStartIndex + fillWidth);
+      }
+    }
+  }
+
+  /**
+   * Use nearest-neighbor (subsampling) to scale that bitmap to replace the pixels of this one.
+   *
+   * @param {CPGreyBmp} that
+   */
+  copyScaledNearestNeighbor(that) {
+    var destPixIndex = 0,
+      xSkip = that.width / this.width,
+      ySkip = that.height / this.height,
+      srcRowStart;
+
+    for (var y = 0, srcRow = 0; y < this.height; y++, srcRow += ySkip) {
+      srcRowStart = that.offsetOfPixel(0, Math.round(srcRow));
+
+      for (
+        var x = 0, srcCol = 0;
+        x < this.width;
+        x++, destPixIndex++, srcCol += xSkip
+      ) {
+        var srcPixIndex = srcRowStart + Math.round(srcCol);
+
+        this.data[destPixIndex] = that.data[srcPixIndex];
+      }
+    }
+  }
+
+  /**
+   * Flood fill gray pixels starting from (x, y) with optional border expansion.
+   * @param {Number} x
+   * @param {Number} y
+   * @param {Number} color - 明度
+   * @param {Number} expandBy - 塗りつぶし範囲を拡張するピクセル数
+   */
+  floodFillWithBorder(x, y, color, expandBy = 2) {
+    if (!this.isInside(x, y)) return;
+
+    const gray = color & 0xff;
+
+    const w = this.width;
+    const h = this.height;
+    const data = this.data;
+    const Processed = new Uint8Array(w * h);
+    const threshold = 10;
+
+    const oldGray = data[y * w + x];
+    const alpha = 1;
+
+    const stack = [{ x, y }];
+
+    while (stack.length) {
+      const { x: px, y: py } = /** @type {{x: number, y: number}} */ (
+        stack.pop()
+      );
+      if (px < 0 || py < 0 || px >= w || py >= h) continue;
+      const idx = py * w + px;
+      if (Processed[idx]) continue;
+
+      if (Math.abs(data[idx] - oldGray) > threshold) continue;
+
+      Processed[idx] = 1;
+
+      let applied;
+      // 元の色と選択色を補間: old * (1 - alpha) + selected * alpha
+      applied = Math.round(data[idx] * (1 - alpha) + gray * alpha);
+      data[idx] = applied;
+
+      stack.push({ x: px + 1, y: py });
+      stack.push({ x: px - 1, y: py });
+      stack.push({ x: px, y: py + 1 });
+      stack.push({ x: px, y: py - 1 });
+    }
+
+    // 縁取り拡張
+    if (expandBy > 0) {
+      // 拡張の基準として、元の状態をコピーしておく
+      const orig = new Uint8ClampedArray(data);
+      const expandedData = new Uint8ClampedArray(orig);
+
+      for (let py = 0; py < h; py++) {
+        for (let px = 0; px < w; px++) {
+          if (!Processed[py * w + px]) continue;
+
+          for (let dy = -expandBy; dy <= expandBy; dy++) {
+            for (let dx = -expandBy; dx <= expandBy; dx++) {
+              const nx = px + dx;
+              const ny = py + dy;
+              if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+              const nidx = ny * w + nx;
+              if (Processed[nidx]) continue;
+
+              // ここで必ず元の値から補間する
+              const base = orig[nidx];
+              const applied = Math.round(base * (1 - alpha) + gray * alpha);
+              expandedData[nidx] = applied;
+            }
+          }
+        }
+      }
+      data.set(expandedData);
+    }
+  }
+
+  /**
+   * Replace the pixels in this image with a scaled down thumbnail of that image.
+   *
+   * @param {CPGreyBmp} that
+   */
+  createThumbnailFrom(that) {
+    const MAX_SAMPLES_PER_OUTPUT_PIXEL = 3,
+      numSamples = Math.min(
+        Math.floor(that.width / this.width),
+        MAX_SAMPLES_PER_OUTPUT_PIXEL,
+      );
+
+    if (numSamples < 2) {
+      // If we only take one sample per output pixel, there's no need for our filtering strategy
+      this.copyScaledNearestNeighbor(that);
+      return;
+    }
+
+    const rowBuffer = new Uint16Array(this.width),
+      srcRowByteLength = that.width,
+      sourceBytesBetweenOutputCols = Math.floor(that.width / this.width),
+      intersampleXByteSpacing = Math.floor(
+        that.width / this.width / numSamples,
+      ),
+      /* Due to the floor() in intersampleXByteSkip, it's likely that the gap between the last sample for an output pixel
+       * and the start of the sample for the next pixel will be higher than the intersample gap. So we'll add this between
+       * pixels if needed.
+       */
+      interpixelXByteSkip =
+        sourceBytesBetweenOutputCols - intersampleXByteSpacing * numSamples,
+      // Now we do the same for rows...
+      sourceRowsBetweenOutputRows = Math.floor(that.height / this.height),
+      intersampleYRowsSpacing = Math.floor(
+        that.height / this.height / numSamples,
+      ),
+      intersampleYByteSkip =
+        intersampleYRowsSpacing * srcRowByteLength -
+        sourceBytesBetweenOutputCols * this.width,
+      interpixelYByteSkip =
+        (sourceRowsBetweenOutputRows - intersampleYRowsSpacing * numSamples) *
+        srcRowByteLength;
+
+    let srcPixIndex = 0,
+      dstPixIndex = 0;
+
+    // For each output thumbnail row...
+    for (let y = 0; y < this.height; y++, srcPixIndex += interpixelYByteSkip) {
+      let bufferIndex = 0;
+
+      rowBuffer.fill(0);
+
+      // Sum the contributions of the input rows that correspond to this output row
+      for (
+        let y2 = 0;
+        y2 < numSamples;
+        y2++, srcPixIndex += intersampleYByteSkip
+      ) {
+        bufferIndex = 0;
+        for (
+          let x = 0;
+          x < this.width;
+          x++, bufferIndex++, srcPixIndex += interpixelXByteSkip
+        ) {
+          for (
+            let x2 = 0;
+            x2 < numSamples;
+            x2++, srcPixIndex += intersampleXByteSpacing
+          ) {
+            rowBuffer[bufferIndex] += that.data[srcPixIndex];
+          }
+        }
+      }
+
+      // Now this thumbnail row is complete and we can write the buffer to the output
+      bufferIndex = 0;
+      for (let x = 0; x < this.width; x++, bufferIndex++, dstPixIndex++) {
+        this.data[dstPixIndex] =
+          rowBuffer[bufferIndex] / (numSamples * numSamples);
+      }
+    }
+  }
+
+  mirrorHorizontally() {
+    let width = this.width,
+      height = this.height,
+      newData = new Uint8Array(width * height),
+      dstOffset = 0,
+      srcOffset = width;
+
+    for (let y = 0; y < height; y++, srcOffset += width + width) {
+      for (let x = 0; x < width; x++) {
+        newData[dstOffset++] = this.data[--srcOffset];
+      }
+    }
+
+    this.data = newData;
+  }
+
+  applyLUT(lut) {
+    for (var i = 0; i < this.data.length; i++) {
+      this.data[i] = lut.table[this.data[i]];
+    }
+  }
+
+  /**
+   * Get the image as Canvas.
+   *
+   * @param {Number?} imageRotation - 90 degree clockwise rotations to apply to image
+   * @returns {HTMLCanvasElement}
+   */
+  getAsCanvas(imageRotation) {
+    var imageData = this.getImageData(0, 0, this.width, this.height),
+      canvas = createCanvas(this.width, this.height),
+      context = canvas.getContext("2d");
+
+    context.putImageData(imageData, 0, 0);
+
+    return getRotatedCanvas(canvas, imageRotation || 0);
+  }
+
+  /**
+   * Get the image data within the given rectangle as an opaque RGBA ImageData object.
+   *
+   * @param {number} x
+   * @param {number} y
+   * @param {number} width
+   * @param {number} height
+   *
+   * @returns {any}
+   */
+  getImageData(x, y, width, height) {
+    let imageData = createImageData(width, height),
+      srcIndex = this.offsetOfPixel(x, y),
+      dstIndex = 0,
+      ySkip = this.width - width;
+
+    for (let y = 0; y < height; y++, srcIndex += ySkip) {
+      for (let x = 0; x < width; x++, srcIndex++) {
+        imageData.data[dstIndex++] = this.data[srcIndex];
+        imageData.data[dstIndex++] = this.data[srcIndex];
+        imageData.data[dstIndex++] = this.data[srcIndex];
+        imageData.data[dstIndex++] = 0xff;
+      }
+    }
+
+    return imageData;
+  }
+
+  /**
+   * Replace the pixels at the given coordinates with the red channel from the given image data.
+   *
+   * @param {ImageData} imageData
+   * @param {number} x
+   * @param {number} y
+   */
+  pasteImageData(imageData, x, y) {
+    let srcIndex = 0,
+      dstIndex = this.offsetOfPixel(x, y),
+      ySkip = this.width - imageData.width;
+
+    for (let y = 0; y < imageData.height; y++, dstIndex += ySkip) {
+      for (let x = 0; x < imageData.width; x++, srcIndex += 4, dstIndex++) {
+        this.data[dstIndex] = imageData.data[srcIndex]; // Use the first (red) channel as the intensity
+      }
+    }
+
+    return imageData;
+  }
+
+  /**
+   * Copy pixels from that bitmap.
+   *
+   * @param {CPGreyBmp} bmp
+   */
+  copyPixelsFrom(bmp) {
+    if (
+      bmp.width != this.width ||
+      bmp.height != this.height ||
+      bmp.bitDepth != this.bitDepth
+    ) {
+      this.data = bmp.data.slice(0);
+
+      this.width = bmp.width;
+      this.height = bmp.height;
+      this.bitDepth = bmp.bitDepth;
+    } else {
+      this.data.set(bmp.data);
+    }
+  }
+
+  /**
+   * Get a pixel array of the xor of this bitmap and the given one, within the given rectangle
+   *
+   * @param {CPGreyBmp} bmp
+   * @param {CPRect} rect
+   *
+   * @returns {Uint8Array}
+   */
+  copyRectXOR(bmp, rect) {
+    rect = this.getBounds().clipTo(rect);
+
+    var w = rect.getWidth(),
+      h = rect.getHeight(),
+      buffer = new Uint8Array(w * h),
+      outputIndex = 0,
+      bmp1Index = this.offsetOfPixel(rect.left, rect.top),
+      bmp2Index = bmp.offsetOfPixel(rect.left, rect.top),
+      bmp1YSkip = this.width - w,
+      bmp2YSkip = bmp.width - w;
 
     for (
-      var x = 0, srcCol = 0;
-      x < this.width;
-      x++, destPixIndex++, srcCol += xSkip
+      var y = rect.top;
+      y < rect.bottom;
+      y++, bmp1Index += bmp1YSkip, bmp2Index += bmp2YSkip
     ) {
-      var srcPixIndex = srcRowStart + Math.round(srcCol);
+      for (var x = 0; x < w; x++, outputIndex++, bmp1Index++, bmp2Index++) {
+        buffer[outputIndex] = this.data[bmp1Index] ^ bmp.data[bmp2Index];
+      }
+    }
 
-      this.data[destPixIndex] = that.data[srcPixIndex];
+    return buffer;
+  }
+
+  /**
+   * @param {Uint8Array<ArrayBufferLike> | null} buffer
+   * @param {CPRect} rect
+   */
+  setRectXOR(buffer, rect) {
+    rect = this.getBounds().clipTo(rect);
+
+    var w = rect.getWidth(),
+      h = rect.getHeight(),
+      bmp1Index = this.offsetOfPixel(rect.left, rect.top),
+      bufferIndex = 0,
+      bmp1YSkip = this.width - w;
+    if (buffer) {
+      for (var y = 0; y < h; y++) {
+        for (var x = 0; x < w; x++) {
+          this.data[bmp1Index++] ^= buffer[bufferIndex++];
+        }
+        bmp1Index += bmp1YSkip;
+      }
     }
   }
-};
 
-/**
- * Flood fill gray pixels starting from (x, y) with optional border expansion.
- * - expandBy: 塗りつぶし範囲を拡張するピクセル数
- * - alpha255: 不透明度 (1-255)
- */
-CPGreyBmp.prototype.floodFillWithBorder = function (
-  x,
-  y,
-  color,
-  expandBy = 2,
-  alpha255 = 255,
-) {
-  if (!this.isInside(x, y)) return;
+  /**
+   * Copy the rectangle at srcRect from bmp onto this image at (dstX, dstY).
+   *
+   * @param {CPGreyBmp} bmp
+   * @param {number} dstX
+   * @param {number} dstY
+   * @param {CPRect} srcRect
+   */
+  copyBitmapRect(bmp, dstX, dstY, srcRect) {
+    var dstRect = new CPRect(dstX, dstY, 0, 0);
 
-  const gray = color & 0xff;
+    srcRect = srcRect.clone();
 
-  const w = this.width;
-  const h = this.height;
-  const data = this.data;
-  const Processed = new Uint8Array(w * h);
-  const threshold = 10;
+    this.getBounds().clipSourceDest(srcRect, dstRect);
 
-  const oldGray = data[y * w + x];
-  const alpha = alpha255 / 255;
+    var w = dstRect.getWidth() | 0,
+      h = dstRect.getHeight() | 0;
 
-  const stack = [{ x, y }];
+    // Are we just trying to duplicate the bitmap?
+    if (
+      dstRect.left == 0 &&
+      dstRect.top == 0 &&
+      w == this.width &&
+      h == this.height &&
+      w == bmp.width &&
+      h == bmp.height
+    ) {
+      this.copyPixelsFrom(bmp);
+    } else {
+      var dstIndex = this.offsetOfPixel(dstRect.left, dstRect.top),
+        dstYSkip = this.width - w,
+        srcIndex = bmp.offsetOfPixel(srcRect.left, srcRect.top),
+        srcYSkip = bmp.width - w;
 
-  while (stack.length) {
-    const { x: px, y: py } = /** @type {{x: number, y: number}} */ (
-      stack.pop()
-    );
-    if (px < 0 || py < 0 || px >= w || py >= h) continue;
-    const idx = py * w + px;
-    if (Processed[idx]) continue;
-
-    if (Math.abs(data[idx] - oldGray) > threshold) continue;
-
-    Processed[idx] = 1;
-
-    let applied;
-    // 元の色と選択色を補間: old * (1 - alpha) + selected * alpha
-    applied = Math.round(data[idx] * (1 - alpha) + gray * alpha);
-    data[idx] = applied;
-
-    stack.push({ x: px + 1, y: py });
-    stack.push({ x: px - 1, y: py });
-    stack.push({ x: px, y: py + 1 });
-    stack.push({ x: px, y: py - 1 });
+      for (var y = 0; y < h; y++, srcIndex += srcYSkip, dstIndex += dstYSkip) {
+        for (var x = 0; x < w; x++, srcIndex++, dstIndex++) {
+          this.data[dstIndex] = bmp.data[srcIndex];
+        }
+      }
+    }
   }
 
-  // 縁取り拡張
-  if (expandBy > 0) {
-    // 拡張の基準として、元の状態をコピーしておく
-    const orig = new Uint8ClampedArray(data);
-    const expandedData = new Uint8ClampedArray(orig);
+  /**
+   * @param {CPRect} rect CPRect
+   * @param source CPColorBmp
+   */
+  copyRegionHFlip(rect, source) {
+    rect = this.getBounds().clipTo(rect);
 
-    for (let py = 0; py < h; py++) {
-      for (let px = 0; px < w; px++) {
-        if (!Processed[py * w + px]) continue;
+    for (var y = rect.top; y < rect.bottom; y++) {
+      var dstOffset = this.offsetOfPixel(rect.left, y),
+        srcOffset = source.offsetOfPixel(rect.right - 1, y);
 
-        for (let dy = -expandBy; dy <= expandBy; dy++) {
-          for (let dx = -expandBy; dx <= expandBy; dx++) {
-            const nx = px + dx;
-            const ny = py + dy;
-            if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
-            const nidx = ny * w + nx;
-            if (Processed[nidx]) continue;
+      for (var x = rect.left; x < rect.right; x++, srcOffset -= 2) {
+        this.data[dstOffset++] = source.data[srcOffset++];
+      }
+    }
+  }
 
-            // ここで必ず元の値から補間する
-            const base = orig[nidx];
-            const applied = Math.round(base * (1 - alpha) + gray * alpha);
-            expandedData[nidx] = applied;
+  /**
+   * @param {CPRect} rect CPRect
+   * @param source CPColorBmp
+   */
+  copyRegionVFlip(rect, source) {
+    rect = this.getBounds().clipTo(rect);
+
+    var width = rect.getWidth();
+
+    for (var y = rect.top; y < rect.bottom; y++) {
+      var dstOffset = this.offsetOfPixel(rect.left, y),
+        srcOffset = source.offsetOfPixel(
+          rect.left,
+          rect.bottom - 1 - (y - rect.top),
+        );
+
+      for (var x = 0; x < width; x++) {
+        this.data[dstOffset++] = source.data[srcOffset++];
+      }
+    }
+  }
+
+  /**
+   * Copy a column of pixels in the bitmap to the given R,G,B,A buffer.
+   *
+   * @param {number} x X-coordinate of column
+   * @param {number} y Y-coordinate of top of column to copy
+   * @param {number} len Number of pixels to copy
+   * @param {Uint8Array|Uint8ClampedArray} buffer Pixel array
+   */
+  copyPixelColumnToArray(x, y, len, buffer) {
+    var yJump = this.width,
+      dstOffset = 0,
+      srcOffset = this.offsetOfPixel(x, y);
+
+    for (var i = 0; i < len; i++) {
+      buffer[dstOffset] = this.data[srcOffset];
+
+      srcOffset += yJump;
+      dstOffset++;
+    }
+  }
+
+  /**
+   * Copy the pixels from the buffer to a column of pixels in the bitmap.
+   *
+   * @param {number} x X-coordinate of column
+   * @param {number} y Y-coordinate of top of column to copy
+   * @param {number} len Number of pixels to copy
+   * @param {Uint8Array|Uint8ClampedArray} buffer Pixel array to copy from
+   */
+  copyArrayToPixelColumn(x, y, len, buffer) {
+    var yJump = this.width,
+      srcOffset = 0,
+      dstOffset = this.offsetOfPixel(x, y);
+
+    for (var i = 0; i < len; i++) {
+      this.data[dstOffset] = buffer[srcOffset];
+
+      dstOffset += yJump;
+      srcOffset++;
+    }
+  }
+
+  /**
+   * 指定矩形内のピクセルに対してボックスぼかし （Box Blur） を適用する。
+   * 横方向に radiusX、縦方向に radiusY の半径でぼかす。
+   * @param {CPRect} rect - ぼかしを適用する範囲。
+   * @param {number} radiusX - 横方向のぼかし半径（ピクセル単位）。
+   * @param {number} radiusY - 縦方向のぼかし半径（ピクセル単位）。
+   */
+  boxBlur(rect, radiusX, radiusY) {
+    rect = this.getBounds().clipTo(rect);
+
+    let rectWidth = rect.getWidth(),
+      rectHeight = rect.getHeight(),
+      rectLength = Math.max(rectWidth, rectHeight),
+      src = new this.data.constructor(rectLength),
+      dst = new this.data.constructor(rectLength);
+
+    for (let y = rect.top; y < rect.bottom; y++) {
+      var pixOffset = this.offsetOfPixel(rect.left, y);
+
+      for (let x = 0; x < rectWidth; x++) {
+        src[x] = this.data[pixOffset++];
+      }
+
+      boxBlurLine(src, dst, rectWidth, radiusX);
+
+      pixOffset = this.offsetOfPixel(rect.left, y);
+
+      for (let x = 0; x < rectWidth; x++) {
+        this.data[pixOffset++] = dst[x];
+      }
+    }
+
+    for (let x = rect.left; x < rect.right; x++) {
+      this.copyPixelColumnToArray(x, rect.top, rectHeight, src);
+
+      boxBlurLine(src, dst, rectHeight, radiusY);
+
+      this.copyArrayToPixelColumn(x, rect.top, rectHeight, dst);
+    }
+  }
+
+  offsetOfPixel(x, y) {
+    return y * this.width + x;
+  }
+
+  /**
+   * 指定矩形内のピクセルに対してモザイクを適用する（グレースケール用）
+   *
+   * @param rect - モザイクを適用する範囲
+   * @param {number} blockSize - ブロックサイズ（ピクセル）
+   */
+  mosaic(rect, blockSize) {
+    rect = this.getBounds().clipTo(rect);
+    blockSize = Math.max(1, blockSize | 0);
+
+    const width = this.width;
+    const data = this.data;
+
+    for (let by = rect.top; by < rect.bottom; by += blockSize) {
+      const yEnd = Math.min(by + blockSize, rect.bottom);
+
+      for (let bx = rect.left; bx < rect.right; bx += blockSize) {
+        const xEnd = Math.min(bx + blockSize, rect.right);
+
+        let sum = 0;
+        let count = 0;
+
+        // --- ブロック内の平均輝度 ---
+        for (let y = by; y < yEnd; y++) {
+          let idx = y * width + bx;
+          for (let x = bx; x < xEnd; x++) {
+            sum += data[idx++];
+            count++;
+          }
+        }
+
+        const avg = (sum / count) | 0;
+
+        // --- ブロック全体を同一輝度で塗る ---
+        for (let y = by; y < yEnd; y++) {
+          let idx = y * width + bx;
+          for (let x = bx; x < xEnd; x++) {
+            data[idx++] = avg;
           }
         }
       }
     }
-    data.set(expandedData);
-  }
-};
-
-/**
- * Replace the pixels in this image with a scaled down thumbnail of that image.
- *
- * @param {CPGreyBmp} that
- */
-CPGreyBmp.prototype.createThumbnailFrom = function (that) {
-  const MAX_SAMPLES_PER_OUTPUT_PIXEL = 3,
-    numSamples = Math.min(
-      Math.floor(that.width / this.width),
-      MAX_SAMPLES_PER_OUTPUT_PIXEL,
-    );
-
-  if (numSamples < 2) {
-    // If we only take one sample per output pixel, there's no need for our filtering strategy
-    this.copyScaledNearestNeighbor(that);
-    return;
   }
 
-  const rowBuffer = new Uint16Array(this.width),
-    srcRowByteLength = that.width,
-    sourceBytesBetweenOutputCols = Math.floor(that.width / this.width),
-    intersampleXByteSpacing = Math.floor(that.width / this.width / numSamples),
-    /* Due to the floor() in intersampleXByteSkip, it's likely that the gap between the last sample for an output pixel
-     * and the start of the sample for the next pixel will be higher than the intersample gap. So we'll add this between
-     * pixels if needed.
-     */
-    interpixelXByteSkip =
-      sourceBytesBetweenOutputCols - intersampleXByteSpacing * numSamples,
-    // Now we do the same for rows...
-    sourceRowsBetweenOutputRows = Math.floor(that.height / this.height),
-    intersampleYRowsSpacing = Math.floor(
-      that.height / this.height / numSamples,
-    ),
-    intersampleYByteSkip =
-      intersampleYRowsSpacing * srcRowByteLength -
-      sourceBytesBetweenOutputCols * this.width,
-    interpixelYByteSkip =
-      (sourceRowsBetweenOutputRows - intersampleYRowsSpacing * numSamples) *
-      srcRowByteLength;
+  /**
+   * モノクロハーフトーン（45°・円ドット）
+   *
+   * ・1セル1ドット
+   * ・角度 45°
+   * ・明るいほど小さく、暗いほど大きい
+   * ・黒ドットのみ
+   * ・αなし（マスク濃度のみ）
+   * ・白は不透明のまま
+   *
+   * @param {Object} rect    対象矩形
+   * @param {number} dotSize ドット基準サイズ（px）
+   * @param {number} [color=0x000000] ドットの色（ダミー）
+   * @param {number} [density=1.0] ドット配置間隔の倍率（0.5–2.0）
+   *        小さいほど密／大きいほど疎
+   */
+  monoHalftone(rect, dotSize, color = 0x000000, density = 1.0) {
+    dotSize = Math.max(2, dotSize | 0);
+    rect = this.getBounds().clipTo(rect);
 
-  let srcPixIndex = 0,
-    dstPixIndex = 0;
+    const w = this.width;
+    const h = this.height;
 
-  // For each output thumbnail row...
-  for (let y = 0; y < this.height; y++, srcPixIndex += interpixelYByteSkip) {
-    let bufferIndex = 0;
+    const src = new Uint8ClampedArray(this.data);
+    const dst = new Uint8ClampedArray(this.data.length);
 
-    rowBuffer.fill(0);
+    // 背景：白
+    for (let i = 0; i < dst.length; i++) {
+      dst[i] = 255;
+    }
 
-    // Sum the contributions of the input rows that correspond to this output row
-    for (
-      let y2 = 0;
-      y2 < numSamples;
-      y2++, srcPixIndex += intersampleYByteSkip
-    ) {
-      bufferIndex = 0;
-      for (
-        let x = 0;
-        x < this.width;
-        x++, bufferIndex++, srcPixIndex += interpixelXByteSkip
-      ) {
-        for (
-          let x2 = 0;
-          x2 < numSamples;
-          x2++, srcPixIndex += intersampleXByteSpacing
-        ) {
-          rowBuffer[bufferIndex] += that.data[srcPixIndex];
+    const centerX = w * 0.5;
+    const centerY = h * 0.5;
+
+    const angle = (45 * Math.PI) / 180;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    const step = dotSize * density;
+    const maxR = dotSize * 0.5;
+    const minR = 0.5;
+
+    // 端欠け防止
+    const diag = Math.ceil(Math.sqrt(w * w + h * h));
+    const offsetX = (diag - w) * 0.5;
+    const offsetY = (diag - h) * 0.5;
+
+    for (let gy = -offsetY; gy < h + offsetY; gy += step) {
+      for (let gx = -offsetX; gx < w + offsetX; gx += step) {
+        const cx = gx + step * 0.5;
+        const cy = gy + step * 0.5;
+
+        // 回転
+        const dx = cx - centerX;
+        const dy = cy - centerY;
+        const rx = dx * cos - dy * sin + centerX;
+        const ry = dx * sin + dy * cos + centerY;
+
+        const sx = rx | 0;
+        const sy = ry | 0;
+        if (sx < 0 || sy < 0 || sx >= w || sy >= h) continue;
+
+        const i = sy * w + sx;
+
+        const lum = src[i] / 255; // マスク濃度そのもの
+        const v = 1 - lum;
+        if (v <= 0) continue;
+
+        const radius = minR + (maxR - minR) * Math.pow(v, 0.9);
+        drawDot(rx, ry, radius);
+      }
+    }
+
+    this.data.set(dst);
+
+    /* ===== 内部 ===== */
+
+    function drawDot(cx, cy, radius) {
+      const r2 = radius * radius;
+
+      for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -radius; dx <= radius; dx++) {
+          if (dx * dx + dy * dy > r2) continue;
+
+          const px = (cx + dx) | 0;
+          const py = (cy + dy) | 0;
+          if (px < 0 || py < 0 || px >= w || py >= h) continue;
+
+          const p = py * w + px;
+          dst[p] = 0; // 黒マスク
         }
       }
     }
-
-    // Now this thumbnail row is complete and we can write the buffer to the output
-    bufferIndex = 0;
-    for (let x = 0; x < this.width; x++, bufferIndex++, dstPixIndex++) {
-      this.data[dstPixIndex] =
-        rowBuffer[bufferIndex] / (numSamples * numSamples);
-    }
-  }
-};
-
-CPGreyBmp.prototype.mirrorHorizontally = function () {
-  let width = this.width,
-    height = this.height,
-    newData = new Uint8Array(width * height),
-    dstOffset = 0,
-    srcOffset = width;
-
-  for (let y = 0; y < height; y++, srcOffset += width + width) {
-    for (let x = 0; x < width; x++) {
-      newData[dstOffset++] = this.data[--srcOffset];
-    }
   }
 
-  this.data = newData;
-};
+  /**
+   * @param {CPRect} rect
+   */
+  fillWithNoise(rect) {
+    rect = this.getBounds().clipTo(rect);
 
-CPGreyBmp.prototype.applyLUT = function (lut) {
-  for (var i = 0; i < this.data.length; i++) {
-    this.data[i] = lut.table[this.data[i]];
-  }
-};
+    var yStride = this.width - rect.getWidth(),
+      pixIndex = this.offsetOfPixel(rect.left, rect.top);
 
-/**
- * Get the image as Canvas.
- *
- * @param {Number?} imageRotation - 90 degree clockwise rotations to apply to image
- * @returns {HTMLCanvasElement}
- */
-CPGreyBmp.prototype.getAsCanvas = function (imageRotation) {
-  var imageData = this.getImageData(0, 0, this.width, this.height),
-    canvas = createCanvas(this.width, this.height),
-    context = canvas.getContext("2d");
-
-  context.putImageData(imageData, 0, 0);
-
-  return getRotatedCanvas(canvas, imageRotation || 0);
-};
-
-/**
- * Get the image data within the given rectangle as an opaque RGBA ImageData object.
- *
- * @param {number} x
- * @param {number} y
- * @param {number} width
- * @param {number} height
- *
- * @returns {any}
- */
-CPGreyBmp.prototype.getImageData = function (x, y, width, height) {
-  let imageData = createImageData(width, height),
-    srcIndex = this.offsetOfPixel(x, y),
-    dstIndex = 0,
-    ySkip = this.width - width;
-
-  for (let y = 0; y < height; y++, srcIndex += ySkip) {
-    for (let x = 0; x < width; x++, srcIndex++) {
-      imageData.data[dstIndex++] = this.data[srcIndex];
-      imageData.data[dstIndex++] = this.data[srcIndex];
-      imageData.data[dstIndex++] = this.data[srcIndex];
-      imageData.data[dstIndex++] = 0xff;
-    }
-  }
-
-  return imageData;
-};
-
-/**
- * Replace the pixels at the given coordinates with the red channel from the given image data.
- *
- * @param {ImageData} imageData
- * @param {number} x
- * @param {number} y
- */
-CPGreyBmp.prototype.pasteImageData = function (imageData, x, y) {
-  let srcIndex = 0,
-    dstIndex = this.offsetOfPixel(x, y),
-    ySkip = this.width - imageData.width;
-
-  for (let y = 0; y < imageData.height; y++, dstIndex += ySkip) {
-    for (let x = 0; x < imageData.width; x++, srcIndex += 4, dstIndex++) {
-      this.data[dstIndex] = imageData.data[srcIndex]; // Use the first (red) channel as the intensity
-    }
-  }
-
-  return imageData;
-};
-
-/**
- * Copy pixels from that bitmap.
- *
- * @param {CPGreyBmp} bmp
- */
-CPGreyBmp.prototype.copyPixelsFrom = function (bmp) {
-  if (
-    bmp.width != this.width ||
-    bmp.height != this.height ||
-    bmp.bitDepth != this.bitDepth
-  ) {
-    this.data = bmp.data.slice(0);
-
-    this.width = bmp.width;
-    this.height = bmp.height;
-    this.bitDepth = bmp.bitDepth;
-  } else {
-    this.data.set(bmp.data);
-  }
-};
-
-/**
- * Get a pixel array of the xor of this bitmap and the given one, within the given rectangle
- *
- * @param {CPGreyBmp} bmp
- * @param {CPRect} rect
- *
- * @returns {Uint8Array}
- */
-CPGreyBmp.prototype.copyRectXOR = function (bmp, rect) {
-  rect = this.getBounds().clipTo(rect);
-
-  var w = rect.getWidth(),
-    h = rect.getHeight(),
-    buffer = new Uint8Array(w * h),
-    outputIndex = 0,
-    bmp1Index = this.offsetOfPixel(rect.left, rect.top),
-    bmp2Index = bmp.offsetOfPixel(rect.left, rect.top),
-    bmp1YSkip = this.width - w,
-    bmp2YSkip = bmp.width - w;
-
-  for (
-    var y = rect.top;
-    y < rect.bottom;
-    y++, bmp1Index += bmp1YSkip, bmp2Index += bmp2YSkip
-  ) {
-    for (var x = 0; x < w; x++, outputIndex++, bmp1Index++, bmp2Index++) {
-      buffer[outputIndex] = this.data[bmp1Index] ^ bmp.data[bmp2Index];
-    }
-  }
-
-  return buffer;
-};
-
-CPGreyBmp.prototype.setRectXOR = function (buffer, rect) {
-  rect = this.getBounds().clipTo(rect);
-
-  var w = rect.getWidth(),
-    h = rect.getHeight(),
-    bmp1Index = this.offsetOfPixel(rect.left, rect.top),
-    bufferIndex = 0,
-    bmp1YSkip = this.width - w;
-
-  for (var y = 0; y < h; y++) {
-    for (var x = 0; x < w; x++) {
-      this.data[bmp1Index++] ^= buffer[bufferIndex++];
-    }
-    bmp1Index += bmp1YSkip;
-  }
-};
-
-/**
- * Copy the rectangle at srcRect from bmp onto this image at (dstX, dstY).
- *
- * @param {CPGreyBmp} bmp
- * @param {number} dstX
- * @param {number} dstY
- * @param {CPRect} srcRect
- */
-CPGreyBmp.prototype.copyBitmapRect = function (bmp, dstX, dstY, srcRect) {
-  var dstRect = new CPRect(dstX, dstY, 0, 0);
-
-  srcRect = srcRect.clone();
-
-  this.getBounds().clipSourceDest(srcRect, dstRect);
-
-  var w = dstRect.getWidth() | 0,
-    h = dstRect.getHeight() | 0;
-
-  // Are we just trying to duplicate the bitmap?
-  if (
-    dstRect.left == 0 &&
-    dstRect.top == 0 &&
-    w == this.width &&
-    h == this.height &&
-    w == bmp.width &&
-    h == bmp.height
-  ) {
-    this.copyPixelsFrom(bmp);
-  } else {
-    var dstIndex = this.offsetOfPixel(dstRect.left, dstRect.top),
-      dstYSkip = this.width - w,
-      srcIndex = bmp.offsetOfPixel(srcRect.left, srcRect.top),
-      srcYSkip = bmp.width - w;
-
-    for (var y = 0; y < h; y++, srcIndex += srcYSkip, dstIndex += dstYSkip) {
-      for (var x = 0; x < w; x++, srcIndex++, dstIndex++) {
-        this.data[dstIndex] = bmp.data[srcIndex];
+    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+      for (var x = rect.left; x < rect.right; x++, pixIndex++) {
+        this.data[pixIndex] = (Math.random() * 0x100) | 0; // TODO we might usefully support bitmaps > 8 bits/channel here?
       }
     }
   }
-};
 
-/**
- * @param {CPRect} rect CPRect
- * @param source CPColorBmp
- */
-CPGreyBmp.prototype.copyRegionHFlip = function (rect, source) {
-  rect = this.getBounds().clipTo(rect);
+  /**
+   * @param {CPRect} rect
+   */
+  invert(rect) {
+    rect = this.getBounds().clipTo(rect);
 
-  for (var y = rect.top; y < rect.bottom; y++) {
-    var dstOffset = this.offsetOfPixel(rect.left, y),
-      srcOffset = source.offsetOfPixel(rect.right - 1, y);
+    var yStride = this.width - rect.getWidth(),
+      pixIndex = this.offsetOfPixel(rect.left, rect.top);
 
-    for (var x = rect.left; x < rect.right; x++, srcOffset -= 2) {
-      this.data[dstOffset++] = source.data[srcOffset++];
+    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+      for (var x = rect.left; x < rect.right; x++, pixIndex++) {
+        this.data[pixIndex] = ~this.data[pixIndex];
+      }
     }
   }
-};
 
-/**
- * @param {CPRect} rect CPRect
- * @param source CPColorBmp
- */
-CPGreyBmp.prototype.copyRegionVFlip = function (rect, source) {
-  rect = this.getBounds().clipTo(rect);
+  /**
+   * Get a rectangle that encloses pixels in the bitmap which don't match the given value within the given initialBounds
+   * (or an empty rect if all pixels inside the given bounds match the value).
+   *
+   * This can be used to find a rectangle which encloses the non-white pixels of a mask.
+   *
+   * @param {CPRect} initialBounds - The rect to search within (pass getBounds() to search the whole bitmap)
+   * @param {number} value
+   *
+   * @returns {CPRect}
+   */
+  getValueBounds(initialBounds, value) {
+    var pixIndex,
+      result = initialBounds.clone(),
+      x,
+      y,
+      yStride,
+      found;
 
-  var width = rect.getWidth();
+    // Find the first non-matching row
+    yStride = this.width - result.getWidth();
+    pixIndex = this.offsetOfPixel(result.left, result.top);
 
-  for (var y = rect.top; y < rect.bottom; y++) {
-    var dstOffset = this.offsetOfPixel(rect.left, y),
-      srcOffset = source.offsetOfPixel(
-        rect.left,
-        rect.bottom - 1 - (y - rect.top),
-      );
+    for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
+      found = false;
 
-    for (var x = 0; x < width; x++) {
-      this.data[dstOffset++] = source.data[srcOffset++];
+      for (x = result.left; x < result.right; x++, pixIndex++) {
+        if (this.data[pixIndex] != value) {
+          found = true;
+          break;
+        }
+      }
+
+      if (found) {
+        break;
+      }
+    }
+
+    result.top = y;
+
+    if (result.top == result.bottom) {
+      // Rect is empty, no opaque pixels in the initialBounds
+      return result;
+    }
+
+    // Now the last non-matching row
+    pixIndex = this.offsetOfPixel(result.right - 1, result.bottom - 1);
+    for (y = result.bottom - 1; y >= result.top; y--, pixIndex -= yStride) {
+      found = false;
+      for (x = result.right - 1; x >= result.left; x--, pixIndex--) {
+        if (this.data[pixIndex] != value) {
+          found = true;
+          break;
+        }
+      }
+
+      if (found) {
+        break;
+      }
+    }
+
+    result.bottom =
+      y + 1; /* +1 since the bottom/right edges of the rect are exclusive */
+
+    // Now columns from the left
+    yStride = this.width;
+    for (x = result.left; x < result.right; x++) {
+      pixIndex = this.offsetOfPixel(x, result.top);
+
+      found = false;
+      for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
+        if (this.data[pixIndex] != value) {
+          found = true;
+          break;
+        }
+      }
+
+      if (found) {
+        break;
+      }
+    }
+
+    result.left = x;
+
+    // And columns from the right
+    for (x = result.right - 1; x >= result.left; x--) {
+      pixIndex = this.offsetOfPixel(x, result.top);
+
+      found = false;
+      for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
+        if (this.data[pixIndex] != value) {
+          found = true;
+          break;
+        }
+      }
+
+      if (found) {
+        break;
+      }
+    }
+
+    result.right = x + 1;
+
+    return result;
+  }
+
+  /**
+   * Replace the pixels in the given rect with the given horizontal gradient.
+   *
+   * @param {CPRect} rect CPRect
+   * @param fromX int
+   * @param toX int
+   * @param gradientPoints int[]
+   */
+  gradientHorzReplace(rect, fromX, toX, gradientPoints) {
+    var fromColor = gradientPoints[0] & 0xff,
+      toColor = gradientPoints[1] & 0xff,
+      yStride = this.width - rect.getWidth(),
+      pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
+      h = (rect.bottom - rect.top) | 0;
+
+    if (toX < fromX) {
+      var temp = toX;
+      toX = fromX;
+      fromX = temp;
+
+      temp = fromColor;
+      fromColor = toColor;
+      toColor = temp;
+    }
+
+    var gradientRange = (toX - fromX) | 0,
+      colorStep = (toColor - fromColor) / gradientRange,
+      jump = Math.max(rect.left - fromX, 0);
+
+    for (var y = 0; y < h; y++, pixIndex += yStride) {
+      // The solid color section before the gradient
+      var x = rect.left;
+
+      for (
+        var xEnd = Math.min(fromX, rect.right) | 0;
+        x < xEnd;
+        x++, pixIndex++
+      ) {
+        this.data[pixIndex] = fromColor;
+      }
+
+      // In the gradient
+      var color1 = fromColor + colorStep * jump;
+
+      for (xEnd = Math.min(toX, rect.right) | 0; x < xEnd; x++, pixIndex++) {
+        this.data[pixIndex] = color1;
+
+        color1 += colorStep;
+      }
+
+      // The section after the end of the gradient
+      for (; x < rect.right; x++, pixIndex++) {
+        this.data[pixIndex] = toColor;
+      }
     }
   }
-};
 
+  /**
+   * Replace the pixels in the given rect with the given vertical gradient.
+   *
+   * @param {CPRect} rect
+   * @param fromY int
+   * @param toY int
+   * @param gradientPoints int[]
+   */
+  gradientVertReplace(rect, fromY, toY, gradientPoints) {
+    let fromColor = gradientPoints[0] & 0xff,
+      toColor = gradientPoints[1] & 0xff,
+      yStride = this.width - rect.getWidth(),
+      pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
+      w = (rect.right - rect.left) | 0;
+
+    if (toY < fromY) {
+      let temp = toY;
+      toY = fromY;
+      fromY = temp;
+
+      temp = fromColor;
+      fromColor = toColor;
+      toColor = temp;
+    }
+
+    let y = rect.top;
+
+    // The solid color section before the start of the gradient
+    for (
+      let yEnd = Math.min(rect.bottom, fromY) | 0;
+      y < yEnd;
+      y++, pixIndex += yStride
+    ) {
+      for (let x = 0; x < w; x++, pixIndex++) {
+        this.data[pixIndex] = fromColor;
+      }
+    }
+
+    // Inside the gradient
+    var gradientRange = (toY - fromY) | 0,
+      colorStep = (toColor - fromColor) / gradientRange,
+      jump = Math.max(y - fromY, 0),
+      color1 = fromColor + colorStep * jump;
+
+    for (
+      let yEnd = Math.min(rect.bottom, toY) | 0;
+      y < yEnd;
+      y++, pixIndex += yStride
+    ) {
+      for (let x = 0; x < w; x++, pixIndex++) {
+        this.data[pixIndex] = color1;
+      }
+
+      color1 += colorStep;
+    }
+
+    // The section after the end of the gradient
+    for (; y < rect.bottom; y++, pixIndex += yStride) {
+      for (let x = 0; x < w; x++, pixIndex++) {
+        this.data[pixIndex] = toColor;
+      }
+    }
+  }
+
+  /**
+   * Replace the pixels in the given rect with the given gradient.
+   *
+   * @param {CPRect} rect CPRect
+   * @param fromX int
+   * @param fromY int
+   * @param toX int
+   * @param toY int
+   * @param gradientPoints int[]
+   */
+  gradientReplace(rect, fromX, fromY, toX, toY, gradientPoints) {
+    var yStride = this.width - rect.getWidth(),
+      pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
+      w = (rect.right - rect.left) | 0,
+      fromColor = gradientPoints[0] & 0xff,
+      toColor = gradientPoints[1] & 0xff,
+      // How many pixels vertically does the gradient sequence complete over (+infinity for horizontal gradients!)
+      vertRange = toY - fromY + ((toX - fromX) * (toX - fromX)) / (toY - fromY),
+      // Same for horizontal
+      horzRange = toX - fromX + ((toY - fromY) * (toY - fromY)) / (toX - fromX),
+      horzStep = 1 / horzRange;
+
+    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+      var // The position the row starts at in the gradient [0.0 ... 1.0)
+        prop = (rect.left - fromX) / horzRange + (y - fromY) / vertRange;
+
+      for (var x = 0; x < w; x++, pixIndex++) {
+        var propClamped = Math.min(Math.max(prop, 0.0), 1.0),
+          invPropClamped = 1 - propClamped;
+
+        this.data[pixIndex] =
+          fromColor * invPropClamped + toColor * propClamped;
+
+        prop += horzStep;
+      }
+    }
+  }
+
+  /**
+   * Alpha blend the given gradient onto the pixels in the given rect.
+   *
+   * @param {CPRect} rect CPRect
+   * @param fromX int
+   * @param fromY int
+   * @param toX int
+   * @param toY int
+   * @param gradientPoints int[]
+   */
+  gradientAlpha(rect, fromX, fromY, toX, toY, gradientPoints) {
+    var yStride = this.width - rect.getWidth(),
+      pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
+      w = (rect.right - rect.left) | 0,
+      fromColor = {
+        c: gradientPoints[0] & 0xff,
+        a: (gradientPoints[0] >> 24) & 0xff,
+      },
+      toColor = {
+        c: gradientPoints[1] & 0xff,
+        a: (gradientPoints[1] >> 24) & 0xff,
+      },
+      // How many pixels vertically does the gradient sequence complete over (+infinity for horizontal gradients!)
+      vertRange = toY - fromY + ((toX - fromX) * (toX - fromX)) / (toY - fromY),
+      // Same for horizontal
+      horzRange = toX - fromX + ((toY - fromY) * (toY - fromY)) / (toX - fromX),
+      horzStep = 1 / horzRange;
+
+    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+      var // The position the row starts at in the gradient [0.0 ... 1.0)
+        prop = (rect.left - fromX) / horzRange + (y - fromY) / vertRange;
+
+      for (var x = 0; x < w; x++, pixIndex++) {
+        var propClamped = Math.min(Math.max(prop, 0.0), 1.0),
+          invPropClamped = 1 - propClamped,
+          // The gradient color to draw
+          color1 = fromColor.c * invPropClamped + toColor.c * propClamped,
+          alpha1 = fromColor.a * invPropClamped + toColor.a * propClamped;
+
+        var invAlpha = 255 - alpha1;
+
+        this.data[pixIndex] =
+          ((color1 * alpha1 + this.data[pixIndex] * invAlpha) / 255) | 0;
+
+        prop += horzStep;
+      }
+    }
+  }
+
+  /**
+   * Draw a gradient which begins at fromX, fromY and ends at toX, toY, clipped to the given rect, on top of the
+   * pixels in the bitmap.
+   *
+   * @param {CPRect} rect
+   * @param {Object[]} gradientPoints Array with gradient colors (ARGB integers)
+   * @param {number} fromX
+   * @param {number} fromY
+   * @param {number} toX
+   * @param {number} toY
+   * @param {boolean} replace - True if the contents of the destination should be ignored (opaque blend)
+   */
+  gradient(rect, fromX, fromY, toX, toY, gradientPoints, replace) {
+    rect = this.getBounds().clipTo(rect);
+
+    // Degenerate case
+    if (fromX == toX && fromY == toY) {
+      return;
+    }
+
+    // Opaque blend if possible
+    if (
+      replace ||
+      (gradientPoints[0] >>> 24 == 255 && gradientPoints[1] >>> 24 == 255)
+    ) {
+      if (fromX == toX) {
+        this.gradientVertReplace(rect, fromY, toY, gradientPoints);
+      } else if (fromY == toY) {
+        this.gradientHorzReplace(rect, fromX, toX, gradientPoints);
+      } else {
+        this.gradientReplace(rect, fromX, fromY, toX, toY, gradientPoints);
+      }
+    } else {
+      this.gradientAlpha(rect, fromX, fromY, toX, toY, gradientPoints);
+    }
+  }
+
+  equals(that) {
+    if (this.width != that.width || this.height != that.height) {
+      return false;
+    }
+
+    for (let pixIndex = 0; pixIndex < this.data.length; pixIndex++) {
+      if (this.data[pixIndex] != that.data[pixIndex]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+}
 /**
  * Blur the first `len` pixels in the src array by `radius` pixels, and store the result in the `dst` array.
  *
@@ -610,662 +1241,3 @@ function boxBlurLine(src, dst, len, radius) {
     }
   }
 }
-
-/**
- * Copy a column of pixels in the bitmap to the given R,G,B,A buffer.
- *
- * @param {number} x X-coordinate of column
- * @param {number} y Y-coordinate of top of column to copy
- * @param {number} len Number of pixels to copy
- * @param {Uint8Array|Uint8ClampedArray} buffer Pixel array
- */
-CPGreyBmp.prototype.copyPixelColumnToArray = function (x, y, len, buffer) {
-  var yJump = this.width,
-    dstOffset = 0,
-    srcOffset = this.offsetOfPixel(x, y);
-
-  for (var i = 0; i < len; i++) {
-    buffer[dstOffset] = this.data[srcOffset];
-
-    srcOffset += yJump;
-    dstOffset++;
-  }
-};
-
-/**
- * Copy the pixels from the buffer to a column of pixels in the bitmap.
- *
- * @param {number} x X-coordinate of column
- * @param {number} y Y-coordinate of top of column to copy
- * @param {number} len Number of pixels to copy
- * @param {Uint8Array|Uint8ClampedArray} buffer Pixel array to copy from
- */
-CPGreyBmp.prototype.copyArrayToPixelColumn = function (x, y, len, buffer) {
-  var yJump = this.width,
-    srcOffset = 0,
-    dstOffset = this.offsetOfPixel(x, y);
-
-  for (var i = 0; i < len; i++) {
-    this.data[dstOffset] = buffer[srcOffset];
-
-    dstOffset += yJump;
-    srcOffset++;
-  }
-};
-
-/**
- * 指定矩形内のピクセルに対してボックスぼかし （Box Blur） を適用する。
- * 横方向に radiusX、縦方向に radiusY の半径でぼかす。
- * @param {CPRect} rect - ぼかしを適用する範囲。
- * @param {number} radiusX - 横方向のぼかし半径（ピクセル単位）。
- * @param {number} radiusY - 縦方向のぼかし半径（ピクセル単位）。
- */
-CPGreyBmp.prototype.boxBlur = function (rect, radiusX, radiusY) {
-  rect = this.getBounds().clipTo(rect);
-
-  let rectWidth = rect.getWidth(),
-    rectHeight = rect.getHeight(),
-    rectLength = Math.max(rectWidth, rectHeight),
-    src = new this.data.constructor(rectLength),
-    dst = new this.data.constructor(rectLength);
-
-  for (let y = rect.top; y < rect.bottom; y++) {
-    var pixOffset = this.offsetOfPixel(rect.left, y);
-
-    for (let x = 0; x < rectWidth; x++) {
-      src[x] = this.data[pixOffset++];
-    }
-
-    boxBlurLine(src, dst, rectWidth, radiusX);
-
-    pixOffset = this.offsetOfPixel(rect.left, y);
-
-    for (let x = 0; x < rectWidth; x++) {
-      this.data[pixOffset++] = dst[x];
-    }
-  }
-
-  for (let x = rect.left; x < rect.right; x++) {
-    this.copyPixelColumnToArray(x, rect.top, rectHeight, src);
-
-    boxBlurLine(src, dst, rectHeight, radiusY);
-
-    this.copyArrayToPixelColumn(x, rect.top, rectHeight, dst);
-  }
-};
-
-CPGreyBmp.prototype.offsetOfPixel = function (x, y) {
-  return y * this.width + x;
-};
-
-/**
- * 指定矩形内のピクセルに対してモザイクを適用する（グレースケール用）
- *
- * @param rect - モザイクを適用する範囲
- * @param {number} blockSize - ブロックサイズ（ピクセル）
- */
-CPGreyBmp.prototype.mosaic = function (rect, blockSize) {
-  rect = this.getBounds().clipTo(rect);
-  blockSize = Math.max(1, blockSize | 0);
-
-  const width = this.width;
-  const data = this.data;
-
-  for (let by = rect.top; by < rect.bottom; by += blockSize) {
-    const yEnd = Math.min(by + blockSize, rect.bottom);
-
-    for (let bx = rect.left; bx < rect.right; bx += blockSize) {
-      const xEnd = Math.min(bx + blockSize, rect.right);
-
-      let sum = 0;
-      let count = 0;
-
-      // --- ブロック内の平均輝度 ---
-      for (let y = by; y < yEnd; y++) {
-        let idx = y * width + bx;
-        for (let x = bx; x < xEnd; x++) {
-          sum += data[idx++];
-          count++;
-        }
-      }
-
-      const avg = (sum / count) | 0;
-
-      // --- ブロック全体を同一輝度で塗る ---
-      for (let y = by; y < yEnd; y++) {
-        let idx = y * width + bx;
-        for (let x = bx; x < xEnd; x++) {
-          data[idx++] = avg;
-        }
-      }
-    }
-  }
-};
-
-/**
- * モノクロハーフトーン（45°・円ドット）
- *
- * ・1セル1ドット
- * ・角度 45°
- * ・明るいほど小さく、暗いほど大きい
- * ・黒ドットのみ
- * ・αなし（マスク濃度のみ）
- * ・白は不透明のまま
- *
- * @param {Object} rect    対象矩形
- * @param {number} dotSize ドット基準サイズ（px）
- * @param {number} [color=0x000000] ドットの色（ダミー）
- * @param {number} [density=1.0] ドット配置間隔の倍率（0.5–2.0）
- *        小さいほど密／大きいほど疎
- */
-CPGreyBmp.prototype.monoHalftone = function (
-  rect,
-  dotSize,
-  color = 0x000000,
-  density = 1.0,
-) {
-  dotSize = Math.max(2, dotSize | 0);
-  rect = this.getBounds().clipTo(rect);
-
-  const w = this.width;
-  const h = this.height;
-
-  const src = new Uint8ClampedArray(this.data);
-  const dst = new Uint8ClampedArray(this.data.length);
-
-  // 背景：白
-  for (let i = 0; i < dst.length; i++) {
-    dst[i] = 255;
-  }
-
-  const centerX = w * 0.5;
-  const centerY = h * 0.5;
-
-  const angle = (45 * Math.PI) / 180;
-  const cos = Math.cos(angle);
-  const sin = Math.sin(angle);
-
-  const step = dotSize * density;
-  const maxR = dotSize * 0.5;
-  const minR = 0.5;
-
-  // 端欠け防止
-  const diag = Math.ceil(Math.sqrt(w * w + h * h));
-  const offsetX = (diag - w) * 0.5;
-  const offsetY = (diag - h) * 0.5;
-
-  for (let gy = -offsetY; gy < h + offsetY; gy += step) {
-    for (let gx = -offsetX; gx < w + offsetX; gx += step) {
-      const cx = gx + step * 0.5;
-      const cy = gy + step * 0.5;
-
-      // 回転
-      const dx = cx - centerX;
-      const dy = cy - centerY;
-      const rx = dx * cos - dy * sin + centerX;
-      const ry = dx * sin + dy * cos + centerY;
-
-      const sx = rx | 0;
-      const sy = ry | 0;
-      if (sx < 0 || sy < 0 || sx >= w || sy >= h) continue;
-
-      const i = sy * w + sx;
-
-      const lum = src[i] / 255; // マスク濃度そのもの
-      const v = 1 - lum;
-      if (v <= 0) continue;
-
-      const radius = minR + (maxR - minR) * Math.pow(v, 0.9);
-      drawDot(rx, ry, radius);
-    }
-  }
-
-  this.data.set(dst);
-
-  /* ===== 内部 ===== */
-
-  function drawDot(cx, cy, radius) {
-    const r2 = radius * radius;
-
-    for (let dy = -radius; dy <= radius; dy++) {
-      for (let dx = -radius; dx <= radius; dx++) {
-        if (dx * dx + dy * dy > r2) continue;
-
-        const px = (cx + dx) | 0;
-        const py = (cy + dy) | 0;
-        if (px < 0 || py < 0 || px >= w || py >= h) continue;
-
-        const p = py * w + px;
-        dst[p] = 0; // 黒マスク
-      }
-    }
-  }
-};
-
-/**
- * @param {CPRect} rect
- */
-CPGreyBmp.prototype.fillWithNoise = function (rect) {
-  rect = this.getBounds().clipTo(rect);
-
-  var yStride = this.width - rect.getWidth(),
-    pixIndex = this.offsetOfPixel(rect.left, rect.top);
-
-  for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
-    for (var x = rect.left; x < rect.right; x++, pixIndex++) {
-      this.data[pixIndex] = (Math.random() * 0x100) | 0; // TODO we might usefully support bitmaps > 8 bits/channel here?
-    }
-  }
-};
-
-/**
- * @param {CPRect} rect
- */
-CPGreyBmp.prototype.invert = function (rect) {
-  rect = this.getBounds().clipTo(rect);
-
-  var yStride = this.width - rect.getWidth(),
-    pixIndex = this.offsetOfPixel(rect.left, rect.top);
-
-  for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
-    for (var x = rect.left; x < rect.right; x++, pixIndex++) {
-      this.data[pixIndex] = ~this.data[pixIndex];
-    }
-  }
-};
-
-/**
- * Get a rectangle that encloses pixels in the bitmap which don't match the given value within the given initialBounds
- * (or an empty rect if all pixels inside the given bounds match the value).
- *
- * This can be used to find a rectangle which encloses the non-white pixels of a mask.
- *
- * @param {CPRect} initialBounds - The rect to search within (pass getBounds() to search the whole bitmap)
- * @param {number} value
- *
- * @returns {CPRect}
- */
-CPGreyBmp.prototype.getValueBounds = function (initialBounds, value) {
-  var pixIndex,
-    result = initialBounds.clone(),
-    x,
-    y,
-    yStride,
-    found;
-
-  // Find the first non-matching row
-  yStride = this.width - result.getWidth();
-  pixIndex = this.offsetOfPixel(result.left, result.top);
-
-  for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
-    found = false;
-
-    for (x = result.left; x < result.right; x++, pixIndex++) {
-      if (this.data[pixIndex] != value) {
-        found = true;
-        break;
-      }
-    }
-
-    if (found) {
-      break;
-    }
-  }
-
-  result.top = y;
-
-  if (result.top == result.bottom) {
-    // Rect is empty, no opaque pixels in the initialBounds
-    return result;
-  }
-
-  // Now the last non-matching row
-  pixIndex = this.offsetOfPixel(result.right - 1, result.bottom - 1);
-  for (y = result.bottom - 1; y >= result.top; y--, pixIndex -= yStride) {
-    found = false;
-    for (x = result.right - 1; x >= result.left; x--, pixIndex--) {
-      if (this.data[pixIndex] != value) {
-        found = true;
-        break;
-      }
-    }
-
-    if (found) {
-      break;
-    }
-  }
-
-  result.bottom =
-    y + 1; /* +1 since the bottom/right edges of the rect are exclusive */
-
-  // Now columns from the left
-  yStride = this.width;
-  for (x = result.left; x < result.right; x++) {
-    pixIndex = this.offsetOfPixel(x, result.top);
-
-    found = false;
-    for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
-      if (this.data[pixIndex] != value) {
-        found = true;
-        break;
-      }
-    }
-
-    if (found) {
-      break;
-    }
-  }
-
-  result.left = x;
-
-  // And columns from the right
-  for (x = result.right - 1; x >= result.left; x--) {
-    pixIndex = this.offsetOfPixel(x, result.top);
-
-    found = false;
-    for (y = result.top; y < result.bottom; y++, pixIndex += yStride) {
-      if (this.data[pixIndex] != value) {
-        found = true;
-        break;
-      }
-    }
-
-    if (found) {
-      break;
-    }
-  }
-
-  result.right = x + 1;
-
-  return result;
-};
-
-/**
- * Replace the pixels in the given rect with the given horizontal gradient.
- *
- * @param {CPRect} rect CPRect
- * @param fromX int
- * @param toX int
- * @param gradientPoints int[]
- */
-CPGreyBmp.prototype.gradientHorzReplace = function (
-  rect,
-  fromX,
-  toX,
-  gradientPoints,
-) {
-  var fromColor = gradientPoints[0] & 0xff,
-    toColor = gradientPoints[1] & 0xff,
-    yStride = this.width - rect.getWidth(),
-    pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
-    h = (rect.bottom - rect.top) | 0;
-
-  if (toX < fromX) {
-    var temp = toX;
-    toX = fromX;
-    fromX = temp;
-
-    temp = fromColor;
-    fromColor = toColor;
-    toColor = temp;
-  }
-
-  var gradientRange = (toX - fromX) | 0,
-    colorStep = (toColor - fromColor) / gradientRange,
-    jump = Math.max(rect.left - fromX, 0);
-
-  for (var y = 0; y < h; y++, pixIndex += yStride) {
-    // The solid color section before the gradient
-    var x = rect.left;
-
-    for (
-      var xEnd = Math.min(fromX, rect.right) | 0;
-      x < xEnd;
-      x++, pixIndex++
-    ) {
-      this.data[pixIndex] = fromColor;
-    }
-
-    // In the gradient
-    var color1 = fromColor + colorStep * jump;
-
-    for (xEnd = Math.min(toX, rect.right) | 0; x < xEnd; x++, pixIndex++) {
-      this.data[pixIndex] = color1;
-
-      color1 += colorStep;
-    }
-
-    // The section after the end of the gradient
-    for (; x < rect.right; x++, pixIndex++) {
-      this.data[pixIndex] = toColor;
-    }
-  }
-};
-
-/**
- * Replace the pixels in the given rect with the given vertical gradient.
- *
- * @param {CPRect} rect
- * @param fromY int
- * @param toY int
- * @param gradientPoints int[]
- */
-CPGreyBmp.prototype.gradientVertReplace = function (
-  rect,
-  fromY,
-  toY,
-  gradientPoints,
-) {
-  let fromColor = gradientPoints[0] & 0xff,
-    toColor = gradientPoints[1] & 0xff,
-    yStride = this.width - rect.getWidth(),
-    pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
-    w = (rect.right - rect.left) | 0;
-
-  if (toY < fromY) {
-    let temp = toY;
-    toY = fromY;
-    fromY = temp;
-
-    temp = fromColor;
-    fromColor = toColor;
-    toColor = temp;
-  }
-
-  let y = rect.top;
-
-  // The solid color section before the start of the gradient
-  for (
-    let yEnd = Math.min(rect.bottom, fromY) | 0;
-    y < yEnd;
-    y++, pixIndex += yStride
-  ) {
-    for (let x = 0; x < w; x++, pixIndex++) {
-      this.data[pixIndex] = fromColor;
-    }
-  }
-
-  // Inside the gradient
-  var gradientRange = (toY - fromY) | 0,
-    colorStep = (toColor - fromColor) / gradientRange,
-    jump = Math.max(y - fromY, 0),
-    color1 = fromColor + colorStep * jump;
-
-  for (
-    let yEnd = Math.min(rect.bottom, toY) | 0;
-    y < yEnd;
-    y++, pixIndex += yStride
-  ) {
-    for (let x = 0; x < w; x++, pixIndex++) {
-      this.data[pixIndex] = color1;
-    }
-
-    color1 += colorStep;
-  }
-
-  // The section after the end of the gradient
-  for (; y < rect.bottom; y++, pixIndex += yStride) {
-    for (let x = 0; x < w; x++, pixIndex++) {
-      this.data[pixIndex] = toColor;
-    }
-  }
-};
-
-/**
- * Replace the pixels in the given rect with the given gradient.
- *
- * @param {CPRect} rect CPRect
- * @param fromX int
- * @param fromY int
- * @param toX int
- * @param toY int
- * @param gradientPoints int[]
- */
-CPGreyBmp.prototype.gradientReplace = function (
-  rect,
-  fromX,
-  fromY,
-  toX,
-  toY,
-  gradientPoints,
-) {
-  var yStride = this.width - rect.getWidth(),
-    pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
-    w = (rect.right - rect.left) | 0,
-    fromColor = gradientPoints[0] & 0xff,
-    toColor = gradientPoints[1] & 0xff,
-    // How many pixels vertically does the gradient sequence complete over (+infinity for horizontal gradients!)
-    vertRange = toY - fromY + ((toX - fromX) * (toX - fromX)) / (toY - fromY),
-    // Same for horizontal
-    horzRange = toX - fromX + ((toY - fromY) * (toY - fromY)) / (toX - fromX),
-    horzStep = 1 / horzRange;
-
-  for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
-    var // The position the row starts at in the gradient [0.0 ... 1.0)
-      prop = (rect.left - fromX) / horzRange + (y - fromY) / vertRange;
-
-    for (var x = 0; x < w; x++, pixIndex++) {
-      var propClamped = Math.min(Math.max(prop, 0.0), 1.0),
-        invPropClamped = 1 - propClamped;
-
-      this.data[pixIndex] = fromColor * invPropClamped + toColor * propClamped;
-
-      prop += horzStep;
-    }
-  }
-};
-
-/**
- * Alpha blend the given gradient onto the pixels in the given rect.
- *
- * @param {CPRect} rect CPRect
- * @param fromX int
- * @param fromY int
- * @param toX int
- * @param toY int
- * @param gradientPoints int[]
- */
-CPGreyBmp.prototype.gradientAlpha = function (
-  rect,
-  fromX,
-  fromY,
-  toX,
-  toY,
-  gradientPoints,
-) {
-  var yStride = this.width - rect.getWidth(),
-    pixIndex = this.offsetOfPixel(rect.left, rect.top) | 0,
-    w = (rect.right - rect.left) | 0,
-    fromColor = {
-      c: gradientPoints[0] & 0xff,
-      a: (gradientPoints[0] >> 24) & 0xff,
-    },
-    toColor = {
-      c: gradientPoints[1] & 0xff,
-      a: (gradientPoints[1] >> 24) & 0xff,
-    },
-    // How many pixels vertically does the gradient sequence complete over (+infinity for horizontal gradients!)
-    vertRange = toY - fromY + ((toX - fromX) * (toX - fromX)) / (toY - fromY),
-    // Same for horizontal
-    horzRange = toX - fromX + ((toY - fromY) * (toY - fromY)) / (toX - fromX),
-    horzStep = 1 / horzRange;
-
-  for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
-    var // The position the row starts at in the gradient [0.0 ... 1.0)
-      prop = (rect.left - fromX) / horzRange + (y - fromY) / vertRange;
-
-    for (var x = 0; x < w; x++, pixIndex++) {
-      var propClamped = Math.min(Math.max(prop, 0.0), 1.0),
-        invPropClamped = 1 - propClamped,
-        // The gradient color to draw
-        color1 = fromColor.c * invPropClamped + toColor.c * propClamped,
-        alpha1 = fromColor.a * invPropClamped + toColor.a * propClamped;
-
-      var invAlpha = 255 - alpha1;
-
-      this.data[pixIndex] =
-        ((color1 * alpha1 + this.data[pixIndex] * invAlpha) / 255) | 0;
-
-      prop += horzStep;
-    }
-  }
-};
-
-/**
- * Draw a gradient which begins at fromX, fromY and ends at toX, toY, clipped to the given rect, on top of the
- * pixels in the bitmap.
- *
- * @param {CPRect} rect
- * @param {Object[]} gradientPoints Array with gradient colors (ARGB integers)
- * @param {number} fromX
- * @param {number} fromY
- * @param {number} toX
- * @param {number} toY
- * @param {boolean} replace - True if the contents of the destination should be ignored (opaque blend)
- */
-CPGreyBmp.prototype.gradient = function (
-  rect,
-  fromX,
-  fromY,
-  toX,
-  toY,
-  gradientPoints,
-  replace,
-) {
-  rect = this.getBounds().clipTo(rect);
-
-  // Degenerate case
-  if (fromX == toX && fromY == toY) {
-    return;
-  }
-
-  // Opaque blend if possible
-  if (
-    replace ||
-    (gradientPoints[0] >>> 24 == 255 && gradientPoints[1] >>> 24 == 255)
-  ) {
-    if (fromX == toX) {
-      this.gradientVertReplace(rect, fromY, toY, gradientPoints);
-    } else if (fromY == toY) {
-      this.gradientHorzReplace(rect, fromX, toX, gradientPoints);
-    } else {
-      this.gradientReplace(rect, fromX, fromY, toX, toY, gradientPoints);
-    }
-  } else {
-    this.gradientAlpha(rect, fromX, fromY, toX, toY, gradientPoints);
-  }
-};
-
-CPGreyBmp.prototype.equals = function (that) {
-  if (this.width != that.width || this.height != that.height) {
-    return false;
-  }
-
-  for (let pixIndex = 0; pixIndex < this.data.length; pixIndex++) {
-    if (this.data[pixIndex] != that.data[pixIndex]) {
-      return false;
-    }
-  }
-
-  return true;
-};
