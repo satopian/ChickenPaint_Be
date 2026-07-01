@@ -251,9 +251,11 @@ export default class CPColorBmp extends CPBitmap {
     }
   }
 
-  //
-  // Copies the Alpha channel from another bitmap. Assumes both bitmaps are the same width.
-  //
+  /**
+   * Copies the Alpha channel from another bitmap. Assumes both bitmaps are the same width.
+   * @param {CPColorBmp} bmp
+   * @param {CPRect} rect
+   */
   copyAlphaFrom(bmp, rect) {
     rect = this.getBounds().clipTo(rect);
 
@@ -694,7 +696,7 @@ export default class CPColorBmp extends CPBitmap {
   /**
    * 指定矩形内のピクセルに対してモザイクを適用する。
    *
-   * @param rect - モザイクを適用する範囲
+   * @param {CPRect} rect - モザイクを適用する範囲
    * @param {number} blockSize - ブロックサイズ（ピクセル）
    */
   mosaic(rect, blockSize) {
@@ -1213,6 +1215,12 @@ export default class CPColorBmp extends CPBitmap {
     }
   }
 
+  /**
+   * 座標に基づいてデータ配列内のピクセルのオフセットを計算する。
+   * @param {number} x - ピクセルのx座標。
+   * @param {number} y - ピクセルのy座標。
+   * @returns {number} データ配列内におけるピクセルのオフセット。
+   */
   offsetOfPixel(x, y) {
     return ((y * this.width + x) * 4) | 0;
   }

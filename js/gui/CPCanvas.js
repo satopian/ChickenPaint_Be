@@ -50,157 +50,185 @@ import CPScrollbar from "./CPScrollbar.js";
 import CPColor from "../util/CPColor.js";
 import { setContrastingDrawStyle } from "./CPGUIUtils.js";
 
-function CPModeStack() {
-  this.modes = [];
-}
+class CPModeStack {
+  static MODE_INDEX_DEFAULT = 0;
+  static MODE_INDEX_USER = 1;
 
-/* We have two distinguished mode indexes which correspond to the CPDefaultMode and the mode that the user has selected
- * in the tool palette (the global drawing mode). On top of that are other transient modes.
- */
-CPModeStack.MODE_INDEX_DEFAULT = 0;
-CPModeStack.MODE_INDEX_USER = 1;
-
-CPModeStack.prototype.setMode = function (index, newMode) {
-  var oldMode = this.modes[index];
-
-  if (oldMode == newMode) {
-    return;
+  constructor() {
+    this.modes = [];
   }
 
-  if (oldMode) {
-    oldMode.leave();
+  /* We have two distinguished mode indexes which correspond to the CPDefaultMode and the mode that the user has selected
+   * in the tool palette (the global drawing mode). On top of that are other transient modes.
+   */
+
+  setMode(index, newMode) {
+    var oldMode = this.modes[index];
+
+    if (oldMode == newMode) {
+      return;
+    }
+
+    if (oldMode) {
+      oldMode.leave();
+    }
+
+    this.modes[index] = newMode;
+    newMode.enter();
   }
 
-  this.modes[index] = newMode;
-  newMode.enter();
-};
+  setDefaultMode(newMode) {
+    newMode.transient = false;
+    newMode.capture = false;
 
-CPModeStack.prototype.setDefaultMode = function (newMode) {
-  newMode.transient = false;
-  newMode.capture = false;
-
-  this.setMode(CPModeStack.MODE_INDEX_DEFAULT, newMode);
-};
-
-CPModeStack.prototype.setUserMode = function (newMode) {
-  // Leave any transient modes that were on top of the user mode
-  for (var i = this.modes.length - 1; i > CPModeStack.MODE_INDEX_USER; i--) {
-    this.modes[i].leave();
-    this.modes.splice(i, 1);
+    this.setMode(CPModeStack.MODE_INDEX_DEFAULT, newMode);
   }
 
-  newMode.transient = false;
-  newMode.capture = false;
+  setUserMode(newMode) {
+    // Leave any transient modes that were on top of the user mode
+    for (var i = this.modes.length - 1; i > CPModeStack.MODE_INDEX_USER; i--) {
+      this.modes[i].leave();
+      this.modes.splice(i, 1);
+    }
 
-  this.setMode(CPModeStack.MODE_INDEX_USER, newMode);
-};
+    newMode.transient = false;
+    newMode.capture = false;
 
-/**
- * Deliver the event with the given name and array of parameters to the mode stack.
- *
- * @param {string} eventName
- * @param {any[]} params
- * @returns {boolean} True if any mode captured the event
- */
-CPModeStack.prototype.deliverEvent = function (eventName, params) {
-  for (var i = this.modes.length - 1; i >= 0; i--) {
-    var mode = this.modes[i];
+    this.setMode(CPModeStack.MODE_INDEX_USER, newMode);
+  }
 
-    if (
-      mode[eventName].apply(mode, params) ||
-      (mode.capture && eventName != "paint")
-    ) {
-      /* If the event was handled, don't try to deliver it to anything further up the stack */
-      return true;
+  /**
+   * Deliver the event with the given name and array of parameters to the mode stack.
+   *
+   * @param {string} eventName
+   * @param {any[]} params
+   * @returns {boolean} True if any mode captured the event
+   */
+  deliverEvent(eventName, params) {
+    for (var i = this.modes.length - 1; i >= 0; i--) {
+      var mode = this.modes[i];
+
+      if (
+        mode[eventName].apply(mode, params) ||
+        (mode.capture && eventName != "paint")
+      ) {
+        /* If the event was handled, don't try to deliver it to anything further up the stack */
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  // We can call these routines to deliver events that bubble up the mode stack
+  /**
+   *
+   * @param {PointerEvent} e
+   * @param {Number} button
+   * @param {Number} pressure
+   */
+  mouseDown(e, button, pressure) {
+    this.deliverEvent("mouseDown", [e, button, pressure]);
+  }
+
+  /**
+   *
+   * @param {PointerEvent} e
+   * @param {Number} button
+   * @param {Number} pressure
+   */
+  mouseUp(e, button, pressure) {
+    this.deliverEvent("mouseUp", [e, button, pressure]);
+  }
+
+  /**
+   *
+   * @param {PointerEvent} e
+   * @param {Number} pressure
+   */
+  mouseDrag(e, pressure) {
+    this.deliverEvent("mouseDrag", [e, pressure]);
+  }
+
+  /**
+   *
+   * @param {PointerEvent} e
+   * @param {Number} pressure
+   */
+  mouseMove(e, pressure) {
+    this.deliverEvent("mouseMove", [e, pressure]);
+  }
+
+  /**
+   * @param {KeyboardEvent} e
+   */
+  keyDown(e) {
+    if (this.deliverEvent("keyDown", [e])) {
+      // Swallow handled keypresses
+      e.preventDefault();
     }
   }
 
-  return false;
-};
-
-// We can call these routines to deliver events that bubble up the mode stack
-CPModeStack.prototype.mouseDown = function (e, button, pressure) {
-  this.deliverEvent("mouseDown", [e, button, pressure]);
-};
-
-CPModeStack.prototype.mouseUp = function (e, button, pressure) {
-  this.deliverEvent("mouseUp", [e, button, pressure]);
-};
-
-CPModeStack.prototype.mouseDrag = function (e, pressure) {
-  this.deliverEvent("mouseDrag", [e, pressure]);
-};
-
-CPModeStack.prototype.mouseMove = function (e, pressure) {
-  this.deliverEvent("mouseMove", [e, pressure]);
-};
-
-CPModeStack.prototype.keyDown = function (e) {
-  if (this.deliverEvent("keyDown", [e])) {
-    // Swallow handled keypresses
-    e.preventDefault();
-  }
-};
-
-CPModeStack.prototype.keyUp = function (e) {
-  if (this.deliverEvent("keyUp", [e])) {
-    // Swallow handled keypresses
-    e.preventDefault();
-  }
-};
-
-CPModeStack.prototype.paint = function (context) {
-  this.deliverEvent("paint", [context]);
-};
-
-/**
- * Add a mode to the top of the mode stack.
- *
- * @param mode
- * @param {boolean} transient  Set to true if the mode is expected to remove itself from stack upon completion.
- */
-CPModeStack.prototype.push = function (mode, transient) {
-  var previousTop = this.peek();
-
-  if (previousTop) {
-    previousTop.suspend();
+  keyUp(e) {
+    if (this.deliverEvent("keyUp", [e])) {
+      // Swallow handled keypresses
+      e.preventDefault();
+    }
   }
 
-  mode.transient = transient;
-  mode.capture = false;
-
-  mode.enter();
-
-  this.modes.push(mode);
-};
-
-CPModeStack.prototype.peek = function () {
-  if (this.modes.length > 0) {
-    return this.modes[this.modes.length - 1];
-  } else {
-    return null;
-  }
-};
-
-/**
- * Remove the node at the top of the stack and return the new top of the stack.
- *
- * @returns {*}
- */
-CPModeStack.prototype.pop = function () {
-  var outgoingMode = this.modes.pop(),
-    newTop = this.peek();
-
-  if (outgoingMode) {
-    outgoingMode.leave();
+  paint(context) {
+    this.deliverEvent("paint", [context]);
   }
 
-  if (newTop) {
-    newTop.resume();
+  /**
+   * Add a mode to the top of the mode stack.
+   *
+   * @param mode
+   * @param {boolean} transient  Set to true if the mode is expected to remove itself from stack upon completion.
+   */
+  push(mode, transient) {
+    var previousTop = this.peek();
+
+    if (previousTop) {
+      previousTop.suspend();
+    }
+
+    mode.transient = transient;
+    mode.capture = false;
+
+    mode.enter();
+
+    this.modes.push(mode);
   }
 
-  return newTop;
-};
+  peek() {
+    if (this.modes.length > 0) {
+      return this.modes[this.modes.length - 1];
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Remove the node at the top of the stack and return the new top of the stack.
+   *
+   * @returns {*}
+   */
+  pop() {
+    var outgoingMode = this.modes.pop(),
+      newTop = this.peek();
+
+    if (outgoingMode) {
+      outgoingMode.leave();
+    }
+
+    if (newTop) {
+      newTop.resume();
+    }
+
+    return newTop;
+  }
+}
 /**
  * @this {any}
  */
@@ -259,6 +287,7 @@ export default class CPCanvas extends EventEmitter {
       sawTouchWithPressure = false,
       is_transformMode = false,
       is_moveToolMode = false,
+      previousMode = null, // 以前のモードを記憶して、あとで復帰させる
       /* The area of the document that should have its layers fused and repainted to the screen
        * (i.e. an area modified by drawing tools).
        *
@@ -319,44 +348,42 @@ export default class CPCanvas extends EventEmitter {
 
     // Parent class with empty event handlers for those drawing modes that don't need every event
     class CPMode {
-      constructor() {}
+      constructor() {
+        /**
+         * True if this mode will be exiting the mode stack as soon as the current interation is complete.
+         *
+         * @type {boolean}
+         */
+        this.transient = false;
+
+        /**
+         * If true, no input events will be sent to any modes underneath this one (event stream is captured).
+         *
+         * Painting events will continue to bubble.
+         *
+         * @type {boolean}
+         */
+        this.capture = false;
+      }
+
+      enter() {
+        setCursor(CURSOR_DEFAULT);
+      }
+
+      leave() {
+        this.capture = false;
+      }
+
+      mouseMove() {}
+      paint() {}
+      mouseDown() {}
+      mouseDrag() {}
+      mouseUp() {}
+      keyDown() {}
+      suspend() {}
+      resume() {}
+      keyUp() {}
     }
-
-    /**
-     * True if this mode will be exiting the mode stack as soon as the current interation is complete.
-     *
-     * @type {boolean}
-     */
-    CPMode.prototype.transient = false;
-
-    /**
-     * If true, no input events will be sent to any modes underneath this one (event stream is captured).
-     *
-     * Painting events will continue to bubble.
-     *
-     * @type {boolean}
-     */
-    CPMode.prototype.capture = false;
-
-    CPMode.prototype.enter = function () {
-      setCursor(CURSOR_DEFAULT);
-    };
-
-    CPMode.prototype.leave = function () {
-      this.capture = false;
-    };
-
-    CPMode.prototype.mouseMove =
-      CPMode.prototype.paint =
-      CPMode.prototype.mouseDown =
-      CPMode.prototype.mouseDrag =
-      CPMode.prototype.mouseUp =
-      CPMode.prototype.keyDown =
-      CPMode.prototype.suspend =
-      CPMode.prototype.resume =
-      CPMode.prototype.keyUp =
-        function () {};
-
     //
     // Default UI Mode when not doing anything: used to start the other modes
     //
@@ -365,211 +392,209 @@ export default class CPCanvas extends EventEmitter {
       constructor() {
         super();
       }
-    }
 
-    CPDefaultMode.prototype.mouseDown = function (e, button, pressure) {
-      const spacePressed = key.isPressed("space");
-      const is_moveToolMode = modeStack.peek() === moveToolMode;
+      mouseDown(e, button, pressure) {
+        const spacePressed = key.isPressed("space");
+        const is_moveToolMode = modeStack.peek() === moveToolMode;
 
-      if (
-        !is_moveToolMode &&
-        !spacePressed &&
-        (button == BUTTON_SECONDARY ||
-          (button == BUTTON_PRIMARY && !(e.ctrlKey || e.metaKey) && e.altKey))
-      ) {
-        setCursor(CURSOR_CROSSHAIR);
-        modeStack.push(colorPickerMode, true);
-        // Avoid infinite recursion by only delivering the event to the new mode (don't let it bubble back to us!)
-        modeStack.peek().mouseDown(e, button, pressure);
-      } else if (
-        !spacePressed &&
-        button == BUTTON_PRIMARY &&
-        !e.altKey &&
-        key.isPressed("r")
-      ) {
-        modeStack.push(rotateCanvasMode, true);
-        modeStack.peek().mouseDown(e, button, pressure);
-      } else if (
-        button == BUTTON_WHEEL ||
-        (!e.altKey &&
-          !(e.ctrlKey || e.metaKey) &&
-          !key.isPressed("z") &&
-          spacePressed &&
-          button == BUTTON_PRIMARY)
-      ) {
-        modeStack.push(panMode, true);
-        modeStack.peek().mouseDown(e, button, pressure);
-      }
-    };
-
-    CPDefaultMode.prototype.mouseUp = function (e, button, pressure) {};
-
-    let previousMode = null; // 以前のモードを記憶して、あとで復帰させる
-
-    CPDefaultMode.prototype.mouseMove = function (e, button) {
-      const is_moveToolMode = modeStack.peek() === moveToolMode;
-      const spacePressed = key.isPressed("space");
-
-      //パンモード･回転モードのカーソルを表示
-      if (
-        (spacePressed && (e.ctrlKey || e.metaKey)) ||
-        (key.isPressed("z") && !(e.ctrlKey || e.metaKey))
-      ) {
-        setCursor(CURSOR_ZOOM_IN);
-        return true;
-      }
-
-      //スポイトのカーソルを表示
-      if (
-        !is_moveToolMode &&
-        !spacePressed &&
-        (button == BUTTON_SECONDARY ||
-          (button == BUTTON_PRIMARY && !(e.ctrlKey || e.metaKey) && e.altKey))
-      ) {
-        //スポイトの十字カーソル
-        setCursor(CURSOR_CROSSHAIR);
-      }
-    };
-
-    CPDefaultMode.prototype.keyDown = function (e) {
-      if (e.repeat) return; // キーが押され続けている場合は無視
-      const spacePressed = key.isPressed("space");
-      const is_moveToolMode = modeStack.peek() === moveToolMode;
-
-      if (
-        !e.altKey &&
-        ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
-          (e.ctrlKey && key.isPressed("space")))
-      ) {
-        setCursor(CURSOR_ZOOM_IN);
-        // console.log("Zooming in with Ctrl+Space or Ctrl+Z");
-
-        if (modeStack.peek() === curDrawMode) {
-          previousMode = curDrawMode;
-          modeStack.pop();
-        }
-        e.preventDefault();
-        return true;
-      } else if (
-        !is_moveToolMode &&
-        !spacePressed &&
-        !(e.ctrlKey || e.metaKey) &&
-        e.altKey
-      ) {
-        //スポイトの十字カーソル
-        setCursor(CURSOR_CROSSHAIR);
-        if (modeStack.peek() === curDrawMode) {
-          //描画モード
-          previousMode = curDrawMode;
-          modeStack.pop(); //現在のモードを解除
-        } else if (modeStack.peek() === panMode) {
-          //手のひらツール
-          previousMode = panMode;
-          modeStack.pop(); //現在のモードを解除
-        }
-        e.preventDefault();
-        return true;
-      } else if (
-        //回転
-        e.key.toLowerCase() === "r" &&
-        e.key !== " "
-      ) {
-        modeStack.push(rotateCanvasMode, true);
-        modeStack.peek().keyDown(e);
-        return true;
-      } else if (
-        e.key === " " &&
-        (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z")
-      ) {
-        //スペースキーのみの時は通常のパン
-        // We can start the pan mode before the mouse button is even pressed, so that the "grabbable" cursor appears
-        modeStack.push(panMode, true);
-        modeStack.peek().keyDown(e);
-        e.preventDefault();
-        return true;
-      } else if (e.ctrlKey || e.metaKey) {
-        if (previousMode) {
-          modeStack.setUserMode(previousMode); // 元モード復帰
-          previousMode = null;
-        }
-      }
-      if (
-        modeStack.peek() === rectSelectionMode ||
-        modeStack.peek() === moveToolMode
-      ) {
-        if (e.key === "Enter") {
-          if (modalIsShown || desableEnterKey) {
-            // モーダル表示中
-            // またはモーダルを閉じてから300ms経過していない場合
-            return;
-          }
-          controller.actionPerformed({ action: "CPTransform" });
-          e.preventDefault();
-        }
-      } else if (
-        modeStack.peek() === panMode ||
-        modeStack.peek() === rotateCanvasMode
-      ) {
-        if (e.key === "Enter") {
-          if (modalIsShown || desableEnterKey) {
-            // モーダル表示中
-            // またはモーダルを閉じてから300ms経過していない場合
-            return;
-          }
-
-          controller.actionPerformed({
-            action: "CPResetZoomAndRotation",
-          });
-          e.preventDefault();
-        }
-      }
-
-      return false;
-    };
-
-    CPDefaultMode.prototype.keyUp = function (e) {
-      if (
-        key.alt && // altはキーダウン
-        (e.key.toLowerCase() === "control" || e.key.toLowerCase() === "meta")
-      ) {
-        //スポイトの十字カーソル
-        setCursor(CURSOR_CROSSHAIR);
-        if (modeStack.peek() === curDrawMode) {
-          previousMode = curDrawMode;
-          modeStack.pop();
-        }
-        e.preventDefault();
-        return true;
-      } else if (
-        //スペース押下中にctrlが離された時はパンカーソルにする
-        (key.isPressed("space") && e.key.toLowerCase() === "control") ||
-        e.key.toLowerCase() === "meta"
-      ) {
-        setCursor(CURSOR_PANNABLE);
-      } else if (
-        e.key === " " ||
-        e.key.toLowerCase() === "control" ||
-        e.key.toLowerCase() === "meta" ||
-        e.key.toLowerCase() === "z" ||
-        e.key.toLowerCase() === "alt"
-      ) {
         if (
+          !is_moveToolMode &&
+          !spacePressed &&
+          (button == BUTTON_SECONDARY ||
+            (button == BUTTON_PRIMARY && !(e.ctrlKey || e.metaKey) && e.altKey))
+        ) {
+          setCursor(CURSOR_CROSSHAIR);
+          modeStack.push(colorPickerMode, true);
+          // Avoid infinite recursion by only delivering the event to the new mode (don't let it bubble back to us!)
+          modeStack.peek().mouseDown(e, button, pressure);
+        } else if (
+          !spacePressed &&
+          button == BUTTON_PRIMARY &&
+          !e.altKey &&
+          key.isPressed("r")
+        ) {
+          modeStack.push(rotateCanvasMode, true);
+          modeStack.peek().mouseDown(e, button, pressure);
+        } else if (
+          button == BUTTON_WHEEL ||
+          (!e.altKey &&
+            !(e.ctrlKey || e.metaKey) &&
+            !key.isPressed("z") &&
+            spacePressed &&
+            button == BUTTON_PRIMARY)
+        ) {
+          modeStack.push(panMode, true);
+          modeStack.peek().mouseDown(e, button, pressure);
+        }
+      }
+
+      mouseUp(e, button, pressure) {}
+
+      mouseMove(e, button) {
+        const is_moveToolMode = modeStack.peek() === moveToolMode;
+        const spacePressed = key.isPressed("space");
+
+        //パンモード･回転モードのカーソルを表示
+        if (
+          (spacePressed && (e.ctrlKey || e.metaKey)) ||
+          (key.isPressed("z") && !(e.ctrlKey || e.metaKey))
+        ) {
+          setCursor(CURSOR_ZOOM_IN);
+          return true;
+        }
+
+        //スポイトのカーソルを表示
+        if (
+          !is_moveToolMode &&
+          !spacePressed &&
+          (button == BUTTON_SECONDARY ||
+            (button == BUTTON_PRIMARY && !(e.ctrlKey || e.metaKey) && e.altKey))
+        ) {
+          //スポイトの十字カーソル
+          setCursor(CURSOR_CROSSHAIR);
+        }
+      }
+
+      keyDown(e) {
+        if (e.repeat) return; // キーが押され続けている場合は無視
+        const spacePressed = key.isPressed("space");
+        const is_moveToolMode = modeStack.peek() === moveToolMode;
+
+        if (
+          !e.altKey &&
+          ((!(e.ctrlKey || e.metaKey) && key.isPressed("z")) ||
+            (e.ctrlKey && key.isPressed("space")))
+        ) {
+          setCursor(CURSOR_ZOOM_IN);
+          // console.log("Zooming in with Ctrl+Space or Ctrl+Z");
+
+          if (modeStack.peek() === curDrawMode) {
+            previousMode = curDrawMode;
+            modeStack.pop();
+          }
+          e.preventDefault();
+          return true;
+        } else if (
+          !is_moveToolMode &&
+          !spacePressed &&
+          !(e.ctrlKey || e.metaKey) &&
+          e.altKey
+        ) {
+          //スポイトの十字カーソル
+          setCursor(CURSOR_CROSSHAIR);
+          if (modeStack.peek() === curDrawMode) {
+            //描画モード
+            previousMode = curDrawMode;
+            modeStack.pop(); //現在のモードを解除
+          } else if (modeStack.peek() === panMode) {
+            //手のひらツール
+            previousMode = panMode;
+            modeStack.pop(); //現在のモードを解除
+          }
+          e.preventDefault();
+          return true;
+        } else if (
+          //回転
+          e.key.toLowerCase() === "r" &&
+          e.key !== " "
+        ) {
+          modeStack.push(rotateCanvasMode, true);
+          modeStack.peek().keyDown(e);
+          return true;
+        } else if (
+          e.key === " " &&
+          (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z")
+        ) {
+          //スペースキーのみの時は通常のパン
+          // We can start the pan mode before the mouse button is even pressed, so that the "grabbable" cursor appears
+          modeStack.push(panMode, true);
+          modeStack.peek().keyDown(e);
+          e.preventDefault();
+          return true;
+        } else if (e.ctrlKey || e.metaKey) {
+          if (previousMode) {
+            modeStack.setUserMode(previousMode); // 元モード復帰
+            previousMode = null;
+          }
+        }
+        if (
+          modeStack.peek() === rectSelectionMode ||
+          modeStack.peek() === moveToolMode
+        ) {
+          if (e.key === "Enter") {
+            if (modalIsShown || desableEnterKey) {
+              // モーダル表示中
+              // またはモーダルを閉じてから300ms経過していない場合
+              return;
+            }
+            controller.actionPerformed({ action: "CPTransform" });
+            e.preventDefault();
+          }
+        } else if (
           modeStack.peek() === panMode ||
           modeStack.peek() === rotateCanvasMode
         ) {
-          //もともとパンモードだった時はパンカーソルのままにする
-          setCursor(CURSOR_PANNABLE);
-        } else {
-          setCursor(CURSOR_DEFAULT); // カーソルをデフォルトに戻す
+          if (e.key === "Enter") {
+            if (modalIsShown || desableEnterKey) {
+              // モーダル表示中
+              // またはモーダルを閉じてから300ms経過していない場合
+              return;
+            }
+
+            controller.actionPerformed({
+              action: "CPResetZoomAndRotation",
+            });
+            e.preventDefault();
+          }
         }
 
-        if (previousMode) {
-          modeStack.setUserMode(previousMode); // 元モード復帰
-          previousMode = null;
-        }
-        e.preventDefault(); // 既定動作キャンセル
+        return false;
       }
-    };
+
+      keyUp(e) {
+        if (
+          key.alt && // altはキーダウン
+          (e.key.toLowerCase() === "control" || e.key.toLowerCase() === "meta")
+        ) {
+          //スポイトの十字カーソル
+          setCursor(CURSOR_CROSSHAIR);
+          if (modeStack.peek() === curDrawMode) {
+            previousMode = curDrawMode;
+            modeStack.pop();
+          }
+          e.preventDefault();
+          return true;
+        } else if (
+          //スペース押下中にctrlが離された時はパンカーソルにする
+          (key.isPressed("space") && e.key.toLowerCase() === "control") ||
+          e.key.toLowerCase() === "meta"
+        ) {
+          setCursor(CURSOR_PANNABLE);
+        } else if (
+          e.key === " " ||
+          e.key.toLowerCase() === "control" ||
+          e.key.toLowerCase() === "meta" ||
+          e.key.toLowerCase() === "z" ||
+          e.key.toLowerCase() === "alt"
+        ) {
+          if (
+            modeStack.peek() === panMode ||
+            modeStack.peek() === rotateCanvasMode
+          ) {
+            //もともとパンモードだった時はパンカーソルのままにする
+            setCursor(CURSOR_PANNABLE);
+          } else {
+            setCursor(CURSOR_DEFAULT); // カーソルをデフォルトに戻す
+          }
+
+          if (previousMode) {
+            modeStack.setUserMode(previousMode); // 元モード復帰
+            previousMode = null;
+          }
+          e.preventDefault(); // 既定動作キャンセル
+        }
+      }
+    }
     /**
      * A base for the three drawing modes, so they can all share the same brush-preview-circle drawing behaviour.
      *
@@ -583,109 +608,114 @@ export default class CPCanvas extends EventEmitter {
         /* The last rectangle we dirtied with a brush preview circle, or null if one hasn't been drawn yet */
         this.oldPreviewRect = null;
       }
-    }
 
-    /**
-     * Get a rectangle that encloses the preview brush, in screen coordinates.
-     */
-    CPDrawingMode.prototype.getBrushPreviewOval = function () {
-      var brushSize = controller.getBrushSize() * zoom;
-      const halfBrushSize = brushSize / 2;
-
-      return new CPRect(
-        mouseX - halfBrushSize,
-        mouseY - halfBrushSize,
-        mouseX + halfBrushSize,
-        mouseY + halfBrushSize,
-      );
-    };
-
-    /**
-     * Queues up the brush preview oval to be drawn.
-     */
-    CPDrawingMode.prototype.queueBrushPreview = function () {
-      /* If we're not the top-most mode, it's unlikely that left clicking will drawing for us, so don't consider
-       * painting the brush preview
+      /**
+       * Get a rectangle that encloses the preview brush, in screen coordinates.
        */
-      if (modeStack.peek() != this) {
-        return;
+      getBrushPreviewOval() {
+        var brushSize = controller.getBrushSize() * zoom;
+        const halfBrushSize = brushSize / 2;
+
+        return new CPRect(
+          mouseX - halfBrushSize,
+          mouseY - halfBrushSize,
+          mouseX + halfBrushSize,
+          mouseY + halfBrushSize,
+        );
       }
 
-      this.shouldPaintBrushPreview = true;
+      /**
+       * Queues up the brush preview oval to be drawn.
+       */
+      queueBrushPreview() {
+        /* If we're not the top-most mode, it's unlikely that left clicking will drawing for us, so don't consider
+         * painting the brush preview
+         */
+        if (modeStack.peek() != this) {
+          return;
+        }
 
-      var rect = this.getBrushPreviewOval();
+        this.shouldPaintBrushPreview = true;
 
-      rect.grow(2, 2);
+        var rect = this.getBrushPreviewOval();
 
-      // If a brush preview was drawn previously, stretch the repaint region to remove that old copy
-      if (this.oldPreviewRect != null) {
-        rect.union(this.oldPreviewRect);
-        this.oldPreviewRect = null;
+        rect.grow(2, 2);
+
+        // If a brush preview was drawn previously, stretch the repaint region to remove that old copy
+        if (this.oldPreviewRect != null) {
+          rect.union(this.oldPreviewRect);
+          this.oldPreviewRect = null;
+        }
+
+        repaintRect(rect);
       }
 
-      repaintRect(rect);
-    };
-
-    /**
-     * Erase the brush preview if one had been drawn
-     */
-    CPDrawingMode.prototype.eraseBrushPreview = function () {
-      this.shouldPaintBrushPreview = false;
-
-      if (this.oldPreviewRect != null) {
-        repaintRect(this.oldPreviewRect);
-        this.oldPreviewRect = null;
-      }
-    };
-
-    CPDrawingMode.prototype.mouseMove = function (e, pressure) {
-      this.queueBrushPreview();
-    };
-
-    CPDrawingMode.prototype.enter = function () {
-      CPMode.prototype.enter.call(this);
-
-      if (mouseIn) {
-        this.queueBrushPreview();
-      }
-    };
-
-    CPDrawingMode.prototype.leave = function () {
-      CPMode.prototype.leave.call(this);
-      this.eraseBrushPreview();
-    };
-
-    CPDrawingMode.prototype.suspend = CPDrawingMode.prototype.leave;
-    CPDrawingMode.prototype.resume = CPDrawingMode.prototype.enter;
-
-    CPDrawingMode.prototype.paint = function () {
-      if (this.shouldPaintBrushPreview) {
-        //円カーソルを表示
+      /**
+       * Erase the brush preview if one had been drawn
+       */
+      eraseBrushPreview() {
         this.shouldPaintBrushPreview = false;
 
-        var r = this.getBrushPreviewOval();
-
-        canvasContext?.beginPath();
-
-        canvasContext?.arc(
-          (r.left + r.right) / 2,
-          (r.top + r.bottom) / 2,
-          r.getWidth() / 2,
-          0,
-          Math.PI * 2,
-        );
-
-        canvasContext?.stroke();
-
-        r.grow(2, 2);
-
-        if (this.oldPreviewRect == null) {
-          this.oldPreviewRect = r;
-        } else {
-          this.oldPreviewRect.union(r);
+        if (this.oldPreviewRect != null) {
+          repaintRect(this.oldPreviewRect);
+          this.oldPreviewRect = null;
         }
       }
-    };
+
+      mouseMove(e, pressure) {
+        this.queueBrushPreview();
+      }
+
+      enter() {
+        CPMode.prototype.enter.call(this);
+
+        if (mouseIn) {
+          this.queueBrushPreview();
+        }
+      }
+
+      leave() {
+        CPMode.prototype.leave.call(this);
+        this.eraseBrushPreview();
+      }
+
+      suspend() {
+        return this.leave();
+      }
+
+      resume() {
+        return this.enter();
+      }
+
+      paint() {
+        if (this.shouldPaintBrushPreview) {
+          //円カーソルを表示
+          this.shouldPaintBrushPreview = false;
+
+          var r = this.getBrushPreviewOval();
+
+          canvasContext?.beginPath();
+
+          canvasContext?.arc(
+            (r.left + r.right) / 2,
+            (r.top + r.bottom) / 2,
+            r.getWidth() / 2,
+            0,
+            Math.PI * 2,
+          );
+
+          canvasContext?.stroke();
+
+          r.grow(2, 2);
+
+          if (this.oldPreviewRect == null) {
+            this.oldPreviewRect = r;
+          } else {
+            this.oldPreviewRect.union(r);
+          }
+        }
+      }
+    }
 
     class CPFreehandMode extends CPDrawingMode {
       constructor() {
@@ -693,79 +723,79 @@ export default class CPCanvas extends EventEmitter {
 
         this.smoothMouse = { x: 0.0, y: 0.0 };
       }
-    }
 
-    CPFreehandMode.prototype.mouseDown = function (e, button, pressure) {
-      if (
-        !this.capture &&
-        button == BUTTON_PRIMARY &&
-        !e.altKey &&
-        !key.isPressed("space") &&
-        shouldDrawToThisLayer()
-      ) {
-        const pf = coordToDocument({ x: mouseX, y: mouseY });
+      mouseDown(e, button, pressure) {
+        if (
+          !this.capture &&
+          button == BUTTON_PRIMARY &&
+          !e.altKey &&
+          !key.isPressed("space") &&
+          shouldDrawToThisLayer()
+        ) {
+          const pf = coordToDocument({ x: mouseX, y: mouseY });
 
-        if (!pf) {
-          return;
+          if (!pf) {
+            return;
+          }
+
+          this.eraseBrushPreview();
+
+          if (artwork.beginStroke(pf.x, pf.y, pressure)) {
+            this.capture = true;
+
+            this.smoothMouse = pf;
+
+            return true;
+          }
         }
+      }
 
-        this.eraseBrushPreview();
+      mouseDrag(e, pressure) {
+        if (
+          typeof navigator.maxTouchPoints !== "number" ||
+          navigator.maxTouchPoints < 3
+        ) {
+          //タッチデバイスでは無い時に
+          CPDrawingMode.prototype.mouseMove.call(this, e, pressure); //円カーソルをmouseDrag時に表示
+        }
+        if (this.capture) {
+          const pf = coordToDocument({ x: mouseX, y: mouseY });
+          if (!pf) {
+            return;
+          }
 
-        if (artwork.beginStroke(pf.x, pf.y, pressure)) {
-          this.capture = true;
+          let smoothing = Math.min(
+            0.999,
+            Math.pow(controller.getBrushInfo().smoothing, 0.3),
+          );
+          const smoothingFactor = 1.0 - smoothing;
+          this.smoothMouse.x =
+            smoothingFactor * pf.x + smoothing * this.smoothMouse.x;
+          this.smoothMouse.y =
+            smoothingFactor * pf.y + smoothing * this.smoothMouse.y;
 
-          this.smoothMouse = pf;
+          artwork.continueStroke(
+            this.smoothMouse.x,
+            this.smoothMouse.y,
+            pressure,
+          );
 
+          return true;
+        } else {
+          this.mouseMove(e);
+        }
+      }
+
+      mouseUp(e, button, pressure) {
+        if (this.capture) {
+          if (button == BUTTON_PRIMARY) {
+            this.capture = false;
+            artwork.endStroke();
+          }
           return true;
         }
       }
-    };
-
-    CPFreehandMode.prototype.mouseDrag = function (e, pressure) {
-      if (
-        typeof navigator.maxTouchPoints !== "number" ||
-        navigator.maxTouchPoints < 3
-      ) {
-        //タッチデバイスでは無い時に
-        CPDrawingMode.prototype.mouseMove.call(this, e, pressure); //円カーソルをmouseDrag時に表示
-      }
-      if (this.capture) {
-        const pf = coordToDocument({ x: mouseX, y: mouseY });
-        if (!pf) {
-          return;
-        }
-
-        let smoothing = Math.min(
-          0.999,
-          Math.pow(controller.getBrushInfo().smoothing, 0.3),
-        );
-        const smoothingFactor = 1.0 - smoothing;
-        this.smoothMouse.x =
-          smoothingFactor * pf.x + smoothing * this.smoothMouse.x;
-        this.smoothMouse.y =
-          smoothingFactor * pf.y + smoothing * this.smoothMouse.y;
-
-        artwork.continueStroke(
-          this.smoothMouse.x,
-          this.smoothMouse.y,
-          pressure,
-        );
-
-        return true;
-      } else {
-        this.mouseMove(e);
-      }
-    };
-
-    CPFreehandMode.prototype.mouseUp = function (e, button, pressure) {
-      if (this.capture) {
-        if (button == BUTTON_PRIMARY) {
-          this.capture = false;
-          artwork.endStroke();
-        }
-        return true;
-      }
-    };
+    }
 
     class CPLineMode extends CPDrawingMode {
       constructor() {
@@ -914,13 +944,13 @@ export default class CPCanvas extends EventEmitter {
           }
         };
       }
-    }
 
-    CPLineMode.prototype.drawLine = function (from, to) {
-      artwork.beginStroke(from.x, from.y, 1);
-      artwork.continueStroke(to.x, to.y, 1);
-      artwork.endStroke();
-    };
+      drawLine(from, to) {
+        artwork.beginStroke(from.x, from.y, 1);
+        artwork.continueStroke(to.x, to.y, 1);
+        artwork.endStroke();
+      }
+    }
 
     class CPBezierMode extends CPDrawingMode {
       constructor() {
@@ -1129,33 +1159,186 @@ export default class CPCanvas extends EventEmitter {
         this.oldPreviewRect = null;
         this.shouldPaintBrushPreview = false;
       }
-    }
 
-    CPColorPickerMode.prototype.mouseDown = function (e, button, pressure) {
-      if (this.capture) {
-        return true;
-      } else if (
-        !key.isPressed("space") &&
-        ((button == BUTTON_PRIMARY && (!this.transient || e.altKey)) ||
-          button == BUTTON_SECONDARY)
-      ) {
-        //スポイトの取得元が非表示レイヤーの時は取得しない
-        if (!colorPickerSampleAllLayers && !that.checkCurrentLayerIsVisible()) {
-          return false;
+      mouseDown(e, button, pressure) {
+        if (this.capture) {
+          return true;
+        } else if (
+          !key.isPressed("space") &&
+          ((button == BUTTON_PRIMARY && (!this.transient || e.altKey)) ||
+            button == BUTTON_SECONDARY)
+        ) {
+          //スポイトの取得元が非表示レイヤーの時は取得しない
+          if (
+            !colorPickerSampleAllLayers &&
+            !that.checkCurrentLayerIsVisible()
+          ) {
+            return false;
+          }
+          this.mouseButton = button;
+          this.capture = true;
+
+          setCursor(CURSOR_CROSSHAIR);
+
+          this.mouseDrag(e);
+
+          return true;
+        } else if (this.transient) {
+          // If we're not sampling and we get a button not intended for us, we probably shouldn't be on the stack
+          modeStack.pop();
         }
-        this.mouseButton = button;
-        this.capture = true;
-
-        setCursor(CURSOR_CROSSHAIR);
-
-        this.mouseDrag(e);
-
-        return true;
-      } else if (this.transient) {
-        // If we're not sampling and we get a button not intended for us, we probably shouldn't be on the stack
-        modeStack.pop();
       }
-    };
+
+      mouseDrag(e) {
+        this.queueBrushPreview();
+
+        if (this.capture) {
+          const pf = coordToDocument({ x: mouseX, y: mouseY });
+          if (!pf) {
+            return;
+          }
+          if (
+            artwork.isPointWithin(pf.x, pf.y) &&
+            artwork.colorPicker(pf.x, pf.y) !== null //取得色が透明以外の時
+          ) {
+            const colorPicker = artwork.colorPicker(pf.x, pf.y);
+            if (!colorPicker) {
+              console.error(
+                "Failed to pick color: coordinates out of bounds or no pixel data available.",
+              );
+              return;
+            }
+            this.curColor = new CPColor(colorPicker);
+            controller.setCurColor(this.curColor);
+          }
+          setCursor(CURSOR_CROSSHAIR);
+
+          return true;
+        }
+      }
+
+      mouseUp(e, button, pressure) {
+        if (this.capture && button == this.mouseButton) {
+          this.mouseButton = -1;
+          this.capture = false;
+          setCursor(CURSOR_DEFAULT);
+
+          //最後のプレビューの範囲を破棄
+          if (this.oldPreviewRect != null) {
+            repaintRect(this.oldPreviewRect);
+            this.oldPreviewRect = null;
+          }
+          // --------------------------------------------------
+
+          if (this.transient) {
+            modeStack.pop();
+          }
+
+          return true;
+        }
+      }
+
+      enter() {
+        CPMode.prototype.enter.call(this);
+        this.mouseButton = -1;
+      }
+
+      getBrushPreviewOval() {
+        var brushSize = 120;
+        const halfBrushSize = brushSize / 2;
+
+        return new CPRect(
+          mouseX - halfBrushSize,
+          mouseY - halfBrushSize,
+          mouseX + halfBrushSize,
+          mouseY + halfBrushSize,
+        );
+      }
+
+      /**
+       * Queues up the brush preview oval to be drawn.
+       */
+      queueBrushPreview() {
+        /* If we're not the top-most mode, it's unlikely that left clicking will drawing for us, so don't consider
+         * painting the brush preview
+         */
+        if (modeStack.peek() != this) {
+          return;
+        }
+
+        this.shouldPaintBrushPreview = true;
+
+        var rect = this.getBrushPreviewOval();
+
+        rect.grow(2, 2);
+
+        // If a brush preview was drawn previously, stretch the repaint region to remove that old copy
+        if (this.oldPreviewRect != null) {
+          rect.union(this.oldPreviewRect);
+          this.oldPreviewRect = null;
+        }
+
+        repaintRect(rect);
+      }
+
+      paint() {
+        if (!this.capture || !canvasContext) {
+          return;
+        }
+
+        if (this.shouldPaintBrushPreview) {
+          this.shouldPaintBrushPreview = false;
+          var r = this.getBrushPreviewOval();
+          var cx = (r.left + r.right) / 2;
+          var cy = (r.top + r.bottom) / 2;
+          var radius = r.getWidth() / 2;
+
+          canvasContext.save();
+          canvasContext.globalCompositeOperation = "source-over";
+          canvasContext.globalAlpha = 1.0;
+
+          if (this.curColor) {
+            // 輝度計算
+            var rgb = this.curColor.getRgb();
+            var red = (rgb >> 16) & 0xff;
+            var green = (rgb >> 8) & 0xff;
+            var blue = rgb & 0xff;
+
+            // 標準的な輝度（Luminance）計算式
+            var luminance = 0.299 * red + 0.587 * green + 0.114 * blue;
+
+            // 1. 外側の縁
+            // 取得した色が明るければ黒の縁、暗ければ白の縁を描く
+            canvasContext.strokeStyle =
+              luminance > 128
+                ? "rgba(0, 0, 0, 0.3)"
+                : "rgba(255, 255, 255, 0.3)";
+            canvasContext.lineWidth = 18;
+            canvasContext.beginPath();
+            canvasContext.arc(cx, cy, radius, 0, Math.PI * 2);
+            canvasContext.stroke();
+
+            // 2. 内側の色
+            var colorStr = "#" + ("000000" + rgb.toString(16)).slice(-6);
+            canvasContext.strokeStyle = colorStr;
+            canvasContext.lineWidth = 16;
+            canvasContext.beginPath();
+            canvasContext.arc(cx, cy, radius, 0, Math.PI * 2);
+            canvasContext.stroke();
+          }
+
+          canvasContext.restore();
+
+          r.grow(10, 10);
+
+          if (this.oldPreviewRect == null) {
+            this.oldPreviewRect = r;
+          } else {
+            this.oldPreviewRect.union(r);
+          }
+        }
+      }
+    }
 
     this.mouseMove = function (e, pressure) {
       if (modeStack.peek() !== this) return true;
@@ -1167,154 +1350,6 @@ export default class CPCanvas extends EventEmitter {
         setCursor(CURSOR_CROSSHAIR);
       }
       return true;
-    };
-
-    CPColorPickerMode.prototype.mouseDrag = function (e) {
-      this.queueBrushPreview();
-
-      if (this.capture) {
-        const pf = coordToDocument({ x: mouseX, y: mouseY });
-        if (!pf) {
-          return;
-        }
-        if (
-          artwork.isPointWithin(pf.x, pf.y) &&
-          artwork.colorPicker(pf.x, pf.y) !== null //取得色が透明以外の時
-        ) {
-          const colorPicker = artwork.colorPicker(pf.x, pf.y);
-          if (!colorPicker) {
-            console.error(
-              "Failed to pick color: coordinates out of bounds or no pixel data available.",
-            );
-            return;
-          }
-          this.curColor = new CPColor(colorPicker);
-          controller.setCurColor(this.curColor);
-        }
-        setCursor(CURSOR_CROSSHAIR);
-
-        return true;
-      }
-    };
-
-    CPColorPickerMode.prototype.mouseUp = function (e, button, pressure) {
-      if (this.capture && button == this.mouseButton) {
-        this.mouseButton = -1;
-        this.capture = false;
-        setCursor(CURSOR_DEFAULT);
-
-        //最後のプレビューの範囲を破棄
-        if (this.oldPreviewRect != null) {
-          repaintRect(this.oldPreviewRect);
-          this.oldPreviewRect = null;
-        }
-        // --------------------------------------------------
-
-        if (this.transient) {
-          modeStack.pop();
-        }
-
-        return true;
-      }
-    };
-
-    CPColorPickerMode.prototype.enter = function () {
-      CPMode.prototype.enter.call(this);
-      this.mouseButton = -1;
-    };
-
-    CPColorPickerMode.prototype.getBrushPreviewOval = function () {
-      var brushSize = 120;
-      const halfBrushSize = brushSize / 2;
-
-      return new CPRect(
-        mouseX - halfBrushSize,
-        mouseY - halfBrushSize,
-        mouseX + halfBrushSize,
-        mouseY + halfBrushSize,
-      );
-    };
-
-    /**
-     * Queues up the brush preview oval to be drawn.
-     */
-    CPColorPickerMode.prototype.queueBrushPreview = function () {
-      /* If we're not the top-most mode, it's unlikely that left clicking will drawing for us, so don't consider
-       * painting the brush preview
-       */
-      if (modeStack.peek() != this) {
-        return;
-      }
-
-      this.shouldPaintBrushPreview = true;
-
-      var rect = this.getBrushPreviewOval();
-
-      rect.grow(2, 2);
-
-      // If a brush preview was drawn previously, stretch the repaint region to remove that old copy
-      if (this.oldPreviewRect != null) {
-        rect.union(this.oldPreviewRect);
-        this.oldPreviewRect = null;
-      }
-
-      repaintRect(rect);
-    };
-
-    CPColorPickerMode.prototype.paint = function () {
-      if (!this.capture || !canvasContext) {
-        return;
-      }
-
-      if (this.shouldPaintBrushPreview) {
-        this.shouldPaintBrushPreview = false;
-        var r = this.getBrushPreviewOval();
-        var cx = (r.left + r.right) / 2;
-        var cy = (r.top + r.bottom) / 2;
-        var radius = r.getWidth() / 2;
-
-        canvasContext.save();
-        canvasContext.globalCompositeOperation = "source-over";
-        canvasContext.globalAlpha = 1.0;
-
-        if (this.curColor) {
-          // 輝度計算
-          var rgb = this.curColor.getRgb();
-          var red = (rgb >> 16) & 0xff;
-          var green = (rgb >> 8) & 0xff;
-          var blue = rgb & 0xff;
-
-          // 標準的な輝度（Luminance）計算式
-          var luminance = 0.299 * red + 0.587 * green + 0.114 * blue;
-
-          // 1. 外側の縁
-          // 取得した色が明るければ黒の縁、暗ければ白の縁を描く
-          canvasContext.strokeStyle =
-            luminance > 128 ? "rgba(0, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.3)";
-          canvasContext.lineWidth = 18;
-          canvasContext.beginPath();
-          canvasContext.arc(cx, cy, radius, 0, Math.PI * 2);
-          canvasContext.stroke();
-
-          // 2. 内側の色
-          var colorStr = "#" + ("000000" + rgb.toString(16)).slice(-6);
-          canvasContext.strokeStyle = colorStr;
-          canvasContext.lineWidth = 16;
-          canvasContext.beginPath();
-          canvasContext.arc(cx, cy, radius, 0, Math.PI * 2);
-          canvasContext.stroke();
-        }
-
-        canvasContext.restore();
-
-        r.grow(10, 10);
-
-        if (this.oldPreviewRect == null) {
-          this.oldPreviewRect = r;
-        } else {
-          this.oldPreviewRect.union(r);
-        }
-      }
     };
 
     /**
@@ -1450,34 +1485,34 @@ export default class CPCanvas extends EventEmitter {
       constructor() {
         super();
       }
-    }
 
-    CPFloodFillMode.prototype.mouseDown = function (e, button, pressure) {
-      if (
-        button == BUTTON_PRIMARY &&
-        !e.altKey &&
-        !key.isPressed("space") &&
-        shouldDrawToThisLayer()
-      ) {
-        var pf = coordToDocument({ x: mouseX, y: mouseY });
-        if (!pf) {
-          return;
+      mouseDown(e, button, pressure) {
+        if (
+          button == BUTTON_PRIMARY &&
+          !e.altKey &&
+          !key.isPressed("space") &&
+          shouldDrawToThisLayer()
+        ) {
+          var pf = coordToDocument({ x: mouseX, y: mouseY });
+          if (!pf) {
+            return;
+          }
+
+          if (artwork.isPointWithin(pf.x, pf.y)) {
+            artwork.floodFill(
+              pf.x,
+              pf.y,
+              fillExpandPixels,
+              foodFillAlpha,
+              floodFillReferAllLayers,
+            );
+            that.repaintAll();
+          }
+
+          return true;
         }
-
-        if (artwork.isPointWithin(pf.x, pf.y)) {
-          artwork.floodFill(
-            pf.x,
-            pf.y,
-            fillExpandPixels,
-            foodFillAlpha,
-            floodFillReferAllLayers,
-          );
-          that.repaintAll();
-        }
-
-        return true;
       }
-    };
+    }
 
     class CPRectSelectionMode extends CPMode {
       constructor() {
@@ -1672,26 +1707,27 @@ export default class CPCanvas extends EventEmitter {
           }
         };
       }
+
+      mouseMove(e) {
+        // 他のモードがトップなら何もしない
+        if (modeStack.peek() !== this) return true;
+        if (
+          !key.isPressed("r") ||
+          !key.isPressed("space") ||
+          !key.isPressed("z")
+        ) {
+          setCursor(CURSOR_MOVE);
+        }
+        return true;
+      }
+
+      enter() {
+        if (!key.isPressed("r") || !key.isPressed("space")) {
+          setCursor(CURSOR_MOVE);
+        }
+      }
     }
 
-    CPMoveToolMode.prototype.mouseMove = function (e) {
-      // 他のモードがトップなら何もしない
-      if (modeStack.peek() !== this) return true;
-      if (
-        !key.isPressed("r") ||
-        !key.isPressed("space") ||
-        !key.isPressed("z")
-      ) {
-        setCursor(CURSOR_MOVE);
-      }
-      return true;
-    };
-
-    CPMoveToolMode.prototype.enter = function () {
-      if (!key.isPressed("r") || !key.isPressed("space")) {
-        setCursor(CURSOR_MOVE);
-      }
-    };
     class CPTransformMode extends CPMode {
       constructor() {
         super();
@@ -2524,21 +2560,21 @@ export default class CPCanvas extends EventEmitter {
       constructor() {
         super();
       }
+
+      drawLine(from, to) {
+        artwork.gradientFill(
+          Math.round(from.x),
+          Math.round(from.y),
+          Math.round(to.x),
+          Math.round(to.y),
+          controller.getCurGradient(),
+        );
+      }
+
+      queueBrushPreview() {
+        //Suppress the drawing of the brush preview (inherited from CPDrawingMode)
+      }
     }
-
-    CPGradientFillMode.prototype.drawLine = function (from, to) {
-      artwork.gradientFill(
-        Math.round(from.x),
-        Math.round(from.y),
-        Math.round(to.x),
-        Math.round(to.y),
-        controller.getCurGradient(),
-      );
-    };
-
-    CPGradientFillMode.prototype.queueBrushPreview = function () {
-      //Suppress the drawing of the brush preview (inherited from CPDrawingMode)
-    };
 
     function setCursor(cursor) {
       if (canvas.getAttribute("data-cursor") != cursor) {
