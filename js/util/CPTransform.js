@@ -171,7 +171,7 @@ export default class CPTransform {
    * [0  0  1]
    *
    * @param {number} x
-   * @param y
+   * @param {number} y
    */
   translate(x, y) {
     if (!this.m) {
