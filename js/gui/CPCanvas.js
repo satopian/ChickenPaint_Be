@@ -1188,10 +1188,20 @@ export default class CPCanvas extends EventEmitter {
           modeStack.pop();
         }
       }
+      mouseMove(e, pressure) {
+        if (modeStack.peek() !== this) return true;
+        if (
+          !key.isPressed("r") ||
+          !key.isPressed("space") ||
+          !key.isPressed("z")
+        ) {
+          setCursor(CURSOR_CROSSHAIR);
+        }
+        return true;
+      }
 
       mouseDrag(e) {
         this.queueBrushPreview();
-
         if (this.capture) {
           const pf = coordToDocument({ x: mouseX, y: mouseY });
           if (!pf) {
@@ -1221,7 +1231,6 @@ export default class CPCanvas extends EventEmitter {
         if (this.capture && button == this.mouseButton) {
           this.mouseButton = -1;
           this.capture = false;
-          setCursor(CURSOR_DEFAULT);
 
           //最後のプレビューの範囲を破棄
           if (this.oldPreviewRect != null) {
@@ -1339,18 +1348,6 @@ export default class CPCanvas extends EventEmitter {
         }
       }
     }
-
-    this.mouseMove = function (e, pressure) {
-      if (modeStack.peek() !== this) return true;
-      if (
-        !key.isPressed("r") ||
-        !key.isPressed("space") ||
-        !key.isPressed("z")
-      ) {
-        setCursor(CURSOR_CROSSHAIR);
-      }
-      return true;
-    };
 
     /**
      * スポイトのサンプリングを全レイヤー対象にするかどうか
