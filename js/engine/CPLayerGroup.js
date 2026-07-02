@@ -148,8 +148,7 @@ export default class CPLayerGroup extends CPLayer {
   clone() {
     var result = new CPLayerGroup(this.name, this.blendMode);
 
-    CPLayer.prototype.copyFrom.call(result, this);
-
+    result.copyFrom(this);
     result.expanded = this.expanded;
     result.layers = this.layers.map((layer) => layer.clone());
     result.layers.forEach((layer) => (layer.parent = result));

@@ -667,7 +667,7 @@ export default class CPCanvas extends EventEmitter {
       }
 
       enter() {
-        CPMode.prototype.enter.call(this);
+        super.enter();
 
         if (mouseIn) {
           this.queueBrushPreview();
@@ -675,7 +675,7 @@ export default class CPCanvas extends EventEmitter {
       }
 
       leave() {
-        CPMode.prototype.leave.call(this);
+        super.leave();
         this.eraseBrushPreview();
       }
 
@@ -756,7 +756,7 @@ export default class CPCanvas extends EventEmitter {
           navigator.maxTouchPoints < 3
         ) {
           //タッチデバイスでは無い時に
-          CPDrawingMode.prototype.mouseMove.call(this, e, pressure); //円カーソルをmouseDrag時に表示
+          super.mouseMove(e, pressure); //円カーソルをmouseDrag時に表示
         }
         if (this.capture) {
           const pf = coordToDocument({ x: mouseX, y: mouseY });
@@ -1248,7 +1248,7 @@ export default class CPCanvas extends EventEmitter {
       }
 
       enter() {
-        CPMode.prototype.enter.call(this);
+        super.enter();
         this.mouseButton = -1;
       }
 
