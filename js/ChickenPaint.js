@@ -383,778 +383,777 @@ export default class ChickenPaint extends EventEmitter {
       colorHalftoneDialog,
       monoHalftoneDialog,
       chromaticAberrationDialog,
-      edgeExpandDialog,
-      actions = {
-        // GUI actions
-
-        CPFullScreen: {
-          action: function () {
-            that.setFullScreen(!isFullScreen);
-          },
-          isSupported: function () {
-            return !(
-              options.fullScreenMode === "disable" ||
-              options.fullScreenMode === "force" ||
-              options.allowFullScreen === false /* For backwards compat */
-            );
-          },
-          modifies: { gui: true },
-        },
-        CPZoomIn: {
-          action: function () {
-            canvas.zoomIn();
-          },
-          modifies: { gui: true },
-        },
-        CPZoomOut: {
-          action: function () {
-            canvas.zoomOut();
-          },
-          modifies: { gui: true },
-        },
-        CPZoom100: {
-          action: function () {
-            canvas.zoom100();
-          },
-          modifies: { gui: true },
-        },
-        CPResetZoomAndRotation: {
-          action: function () {
-            canvas.resetZoomAndRotation();
-            const paletteManager = mainGUI.getPaletteManager();
-            const flipButton = paletteManager.palettes.misc.flipButton;
-            const mainMenu = mainGUI.getMainMenu();
-            const menuElement = mainMenu.getElement();
-            const flipMenuItem = menuElement.querySelector(
-              '[data-action="CPViewHFlip"]',
-            );
-            if (flipButton) {
-              flipButton.classList.remove("flipped");
-            }
-            //表示の左右反転時には、メニュー→表示→表示の左右反転にチェックマークを外す
-            if (flipMenuItem) {
-              flipMenuItem.classList.remove("selected");
-            }
-          },
-
-          modifies: { gui: true },
-        },
-        CPViewHFlip: {
-          action: function () {
-            const flipped = canvas.toggleViewFlip();
-            const paletteManager = mainGUI.getPaletteManager();
-            const flipButton = paletteManager.palettes.misc.flipButton;
-            const mainMenu = mainGUI.getMainMenu();
-            const menuElement = mainMenu.getElement();
-            // console.log("mainMenu", mainMenu);
-            // console.log("menuElement", menuElement);
-            const flipMenuItem = menuElement.querySelector(
-              '[data-action="CPViewHFlip"]',
-            );
-            if (flipButton) {
-              //表示の左右反転時には、左右反転アイコンに赤枠を付ける
-              if (flipped) {
-                flipButton.classList.add("flipped");
-              } else {
-                flipButton.classList.remove("flipped");
-              }
-            }
-            //表示の左右反転時には、メニュー→表示→表示の左右反転にチェックマークを付ける
-            if (flipMenuItem) {
-              if (flipped) {
-                flipMenuItem.classList.add("selected");
-              } else {
-                flipMenuItem.classList.remove("selected");
-              }
-            }
-          },
-          modifies: { gui: true },
-        },
-        // 古いアイコンは使わない。
-        // CPToolbarStyle: {
-        //     action: function() {
-        //         that.setToolbarStyle(preferences.toolbarStyle === "new" ? "old" : "new");
-        //     },
-        //     modifies: {gui: true}
-        // },
-
-        // History actions
-
-        CPUndo: {
-          action: function () {
-            const is_bezieractive =
-              typeof canvas.bezierMode === "object" &&
-              canvas.bezierMode.capture;
-            if (is_bezieractive) {
-              canvas.bezierMode.cancelBezier();
-            } else {
-              that.artwork.undo();
-            }
-          },
-          modifies: { document: true },
-
-          allowed: function () {
-            // 関数の外にある処理ではなく再計算）
-            //Bezier操作中
-            const isBezierActive = typeof canvas.bezierMode === "object";
-            canvas.bezierMode.capture;
-            //変形操作中
-            const isTransformActive = curMode == ChickenPaint.M_TRANSFORM;
-
-            // 状態に応じて、バリデーション
-            if (isBezierActive || isTransformActive) {
-              return true;
-            } else {
-              // 通常時はUndo可能かチェック
-              return that.artwork.isUndoAllowed();
-            }
-          },
-        },
-        CPRedo: {
-          action: function () {
-            that.artwork.redo();
-          },
-          modifies: { document: true },
-          allowed: "isRedoAllowed",
-        },
-        CPClearHistory: {
-          action: function () {
-            if (
-              confirm(
-                _(
-                  "You're about to clear the current Undo/Redo history.\nThis operation cannot be undone, are you sure you want to do that?",
-                ),
-              )
-            ) {
-              that.artwork.clearHistory();
-            }
-          },
-          modifies: { document: true },
-        },
-
-        // Drawing tools
-
-        CPPencil: new ToolChangeAction(ChickenPaint.T_PENCIL),
-        CPPen: new ToolChangeAction(ChickenPaint.T_PEN),
-        CPEraser: new ToolChangeAction(ChickenPaint.T_ERASER),
-        CPSoftEraser: new ToolChangeAction(ChickenPaint.T_SOFTERASER),
-        CPAirbrush: new ToolChangeAction(ChickenPaint.T_AIRBRUSH),
-        CPDodge: new ToolChangeAction(ChickenPaint.T_DODGE),
-        CPBurn: new ToolChangeAction(ChickenPaint.T_BURN),
-        CPWater: new ToolChangeAction(ChickenPaint.T_WATER),
-        CPBlur: new ToolChangeAction(ChickenPaint.T_BLUR),
-        CPSmudge: new ToolChangeAction(ChickenPaint.T_SMUDGE),
-        CPBlender: new ToolChangeAction(ChickenPaint.T_BLENDER),
-
-        // Modes
-
-        CPFloodFill: new ModeChangeAction(ChickenPaint.M_FLOODFILL),
-        CPGradientFill: new ModeChangeAction(ChickenPaint.M_GRADIENTFILL),
-        CPRectSelection: new ModeChangeAction(ChickenPaint.M_RECT_SELECTION),
-        CPMoveTool: new ModeChangeAction(ChickenPaint.M_MOVE_TOOL),
-        CPRotateCanvas: new ModeChangeAction(ChickenPaint.M_ROTATE_CANVAS),
-        CPPanCanvas: new ModeChangeAction(ChickenPaint.M_PAN_CANVAS),
-        CPColorPicker: new ModeChangeAction(ChickenPaint.M_COLOR_PICKER),
-
-        // Layer transform
-
-        CPTransform: {
-          action: function () {
-            const layer = that.artwork.getActiveLayer();
-            if (!canvas.checkCurrentLayerIsVisible()) {
-              return;
-            }
-
-            if (that.artwork.transformAffineBegin() == null) {
-              that.showLayerNotification(
-                layer,
-                _("Whoops! All of the selected pixels are transparent!"),
-                "layer",
-              );
-            } else {
-              setMode(ChickenPaint.M_TRANSFORM);
-            }
-          },
-          modifies: { mode: true },
-          allowed: function () {
-            //ここのバリデーションはメニューのグレーアウト判定のみで
-            //変形モードに入る前のバリデーションは、変形モードの開始アクション内で行う。
-            const layer = that.artwork.getActiveLayer();
-            return (
-              that.artwork.transformAffineBegin() !== null &&
-              layer.getEffectiveAlpha() != 0
-            );
-          },
-        },
-        CPTransformAccept: {
-          action: function () {
-            if (curMode == ChickenPaint.M_TRANSFORM) {
-              that.artwork.transformAffineFinish();
-              setMode(preTransformMode);
-            }
-          },
-          modifies: { mode: true },
-        },
-        CPTransformReject: {
-          action: function () {
-            if (curMode == ChickenPaint.M_TRANSFORM) {
-              that.artwork.transformAffineAbort();
-              setMode(preTransformMode);
-            }
-          },
-          modifies: { document: true, mode: true },
-        },
-
-        // Stroke modes
-
-        CPFreeHand: {
-          action: function () {
-            tools[curBrush].strokeMode = CPBrushInfo.STROKE_MODE_FREEHAND;
-            callToolListeners();
-          },
-          modifies: { tool: true },
-        },
-        CPLine: {
-          action: function () {
-            tools[curBrush].strokeMode = CPBrushInfo.STROKE_MODE_LINE;
-            callToolListeners();
-          },
-          modifies: { tool: true },
-        },
-        CPBezier: {
-          action: function () {
-            tools[curBrush].strokeMode = CPBrushInfo.STROKE_MODE_BEZIER;
-            callToolListeners();
-          },
-          modifies: { tool: true },
-        },
-
-        // Help dialogs
-
-        CPAbout: {
-          action: function () {
-            new CPAboutDialog(uiElem).show();
-          },
-          modifies: {},
-        },
-        CPShortcuts: {
-          action: function () {
-            new CPShortcutsDialog(uiElem).show();
-          },
-          modifies: {},
-        },
-        CPTabletSupport: {
-          action: function () {
-            new CPTabletDialog(uiElem).show();
-          },
-          modifies: {},
-        },
-
-        // Layer actions
-
-        CPLayerDuplicate: {
-          action: function () {
-            that.artwork.duplicateLayer();
-          },
-          modifies: { document: true },
-        },
-        CPLayerMergeDown: {
-          action: function () {
-            that.artwork.mergeDown();
-          },
-          modifies: { document: true },
-          allowed: "isMergeDownAllowed",
-        },
-        CPGroupMerge: {
-          action: function () {
-            that.artwork.mergeGroup();
-          },
-          modifies: { document: true },
-          allowed: "isMergeGroupAllowed",
-        },
-        CPLayerMergeAll: {
-          action: function () {
-            that.artwork.mergeAllLayers();
-          },
-          modifies: { document: true },
-          allowed: "isMergeAllLayersAllowed",
-        },
-        CPCreateMergedLayer: {
-          action: function () {
-            that.artwork.mergeAllLayers(true);
-          },
-          modifies: { document: true },
-          allowed: "isMergeAllLayersAllowed",
-        },
-        CPExpandLayerGroup: {
-          action: function (e) {
-            that.artwork.expandLayerGroup(e.group, e.expand);
-          },
-          modifies: { document: true },
-        },
-        CPFill: {
-          action: function () {
-            const curColor = that.getCurColor();
-            if (curColor) {
-              that.artwork.fill(curColor.getRgb() | 0xff000000);
-            }
-          },
-          modifies: { document: true },
-          requiresDrawable: true,
-        },
-        CPClear: {
-          action: function () {
-            that.artwork.clear();
-          },
-          modifies: { document: true },
-          requiresDrawable: true,
-        },
-        CPClearWithTexture: {
-          action: function () {
-            that.artwork.clear(false);
-          },
-          modifies: { document: true },
-          requiresDrawable: true,
-        },
-        CPSelectAll: {
-          action: function () {
-            that.artwork.rectangleSelection(that.artwork.getBounds());
-            canvas.repaintAll();
-          },
-          modifies: { document: true },
-        },
-        CPDeselectAll: {
-          action: function () {
-            that.artwork.rectangleSelection(new CPRect(0, 0, 0, 0));
-            canvas.repaintAll();
-          },
-          modifies: { document: true },
-        },
-        CPHFlip: {
-          action: function () {
-            that.artwork.hFlip();
-          },
-          modifies: { document: true },
-          requiresDrawable: true, // TODO
-        },
-        CPVFlip: {
-          action: function () {
-            that.artwork.vFlip();
-          },
-          modifies: { document: true },
-          requiresDrawable: true, //TODO
-        },
-        CPMNoise: {
-          action: function () {
-            that.artwork.monochromaticNoise();
-          },
-          modifies: { document: true },
-          requiresDrawable: true,
-        },
-        CPCNoise: {
-          action: function () {
-            that.artwork.colorNoise();
-          },
-          modifies: { document: true },
-          allowed: "isColorNoiseAllowed",
-        },
-        CPFXBoxBlur: {
-          action: function () {
-            showBoxBlurDialog();
-          },
-          modifies: { document: true },
-          requiresDrawable: true,
-        },
-        CPFXMosaic: {
-          action: function () {
-            showMosaicDialog();
-          },
-          modifies: { gui: true },
-        },
-        CPColorHalftone: {
-          action: function () {
-            showColorHalftoneDialog();
-          },
-          allowed: "isNotEditingMask",
-          modifies: { gui: true },
-        },
-        CPMonoHalftone: {
-          action: function () {
-            showMonoHalftoneDialog();
-          },
-          modifies: { gui: true },
-        },
-        CPChromaticAberration: {
-          action: function () {
-            showChromaticAberrationDialog();
-          },
-          allowed: "isNotEditingMask",
-          modifies: { gui: true },
-        },
-        CPEdgeExpand: {
-          action: function () {
-            showEdgeExpandDialog();
-          },
-          allowed: "isNotEditingMaskAndDrawable",
-          modifies: { gui: true },
-        },
-        CPConvertToDrawingColor: {
-          action: function () {
-            that.artwork.convertToDrawingColor();
-          },
-          allowed: "isNotEditingMaskAndDrawable",
-          modifies: { document: true },
-        },
-        CPFXInvert: {
-          action: function () {
-            that.artwork.invert();
-          },
-          modifies: { document: true },
-          requiresDrawable: true,
-        },
-        CPBrightnessToOpacity: {
-          action: function () {
-            that.artwork.brightnessToOpacity();
-          },
-          modifies: { document: true },
-          allowed: "isNotEditingMaskAndDrawable",
-        },
-
-        CPCut: {
-          action: function () {
-            that.artwork.cutSelection();
-          },
-          modifies: { document: true },
-          requiresDrawable: true,
-          allowed: "isCutSelectionAllowed",
-        },
-        CPCopy: {
-          action: function () {
-            that.artwork.copySelection();
-          },
-          modifies: { document: true },
-          requiresDrawable: true,
-          allowed: "isCopySelectionAllowed",
-        },
-        CPCopyMerged: {
-          action: function () {
-            that.artwork.copySelectionMerged();
-          },
-          modifies: { document: true },
-          allowed: "isCopySelectionMergedAllowed",
-        },
-        CPPaste: {
-          action: function () {
-            that.artwork.pasteClipboard();
-          },
-          modifies: { document: true },
-          allowed: "isPasteClipboardAllowed",
-        },
-
-        CPToggleGrid: {
-          action: function (/** @type {UIActionEvent} */ e) {
-            canvas.showGrid(e.selected);
-          },
-          modifies: { gui: true },
-        },
-        CPGridOptions: {
-          action: function () {
-            showGridOptionsDialog();
-          },
-          modifies: { gui: true },
-        },
-
-        CPLinearInterpolation: {
-          action: function (/** @type {UIActionEvent} */ e) {
-            canvas.setInterpolation(e.selected);
-          },
-          modifies: { gui: true },
-        },
-        CPResetCanvasRotation: {
-          action: function () {
-            canvas.resetRotation();
-          },
-          modifies: { gui: true },
-        },
-
-        // Layer palette
-
-        CPAddLayer: {
-          action: function () {
-            that.artwork.addLayer("layer");
-          },
-          modifies: { document: true },
-        },
-        CPAddGroup: {
-          action: function () {
-            that.artwork.addLayer("group");
-          },
-          modifies: { document: true },
-        },
-        CPAddLayerMask: {
-          action: function () {
-            that.artwork.addLayerMask();
-          },
-          modifies: { document: true },
-          allowed: "isAddLayerMaskAllowed",
-        },
-        CPApplyLayerMask: {
-          action: function () {
-            that.artwork.applyLayerMask(true);
-          },
-          modifies: { document: true },
-          allowed: "isApplyLayerMaskAllowed",
-        },
-        CPRemoveLayerMask: {
-          action: function () {
-            that.artwork.removeLayerMask();
-          },
-          modifies: { document: true },
-          allowed: "isRemoveLayerMaskAllowed",
-        },
-        CPRemoveLayer: {
-          action: function () {
-            if (!that.artwork.removeLayer()) {
-              alert(
-                _(
-                  "Sorry, you can't remove the last remaining layer in the drawing.",
-                ),
-              );
-            }
-          },
-          modifies: { document: true },
-          allowed: "isRemoveLayerAllowed",
-        },
-        CPCreateClippingMask: {
-          action: function () {
-            that.artwork.createClippingMask();
-          },
-          modifies: { document: true },
-          allowed: "isCreateClippingMaskAllowed",
-        },
-        CPReleaseClippingMask: {
-          action: function () {
-            that.artwork.releaseClippingMask();
-          },
-          modifies: { document: true },
-          allowed: "isReleaseClippingMaskAllowed",
-        },
-        CPRelocateLayer: {
-          action: function (e) {
-            that.artwork.relocateLayer(e.layer, e.toGroup, e.toIndex);
-          },
-          modifies: { document: true },
-        },
-        CPSetActiveLayer: {
-          action: function (e) {
-            // Enable disabled layer masks when clicked on
-            if (e.mask && e.layer.mask && !e.layer.maskVisible) {
-              that.artwork.setLayerMaskVisible(e.layer, true);
-            }
-
-            that.artwork.setActiveLayer(e.layer, e.mask);
-
-            // Since this is a slow GUI operation, this is a good chance to get the canvas ready for drawing
-            that.artwork.performIdleTasks();
-          },
-          modifies: { document: true },
-        },
-        CPToggleMaskView: {
-          action: function () {
-            let newView = that.artwork.toggleMaskView();
-
-            if (newView) {
-              that.emitEvent("maskViewOpened", [newView]);
-            }
-          },
-          modifies: { gui: true },
-        },
-        CPSetMaskVisible: {
-          action: function (e) {
-            that.artwork.setLayerMaskVisible(e.layer, e.visible);
-          },
-          modifies: { layerProp: true },
-        },
-        CPSetLayerVisibility: {
-          action: function (e) {
-            that.artwork.setLayerVisibility(e.layer, e.visible);
-          },
-          modifies: { layerProp: true },
-        },
-        CPSetLayerName: {
-          action: function (e) {
-            that.artwork.setLayerName(e.layer, e.name);
-          },
-          modifies: { layerProp: true },
-        },
-        CPSetLayerBlendMode: {
-          action: function (e) {
-            that.artwork.setLayerBlendMode(e.blendMode);
-          },
-          modifies: { layerProp: true },
-        },
-        CPSetLayerAlpha: {
-          action: function (e) {
-            that.artwork.setLayerAlpha(e.alpha);
-          },
-          modifies: { layerProp: true },
-        },
-        CPSetLayerLockAlpha: {
-          action: function (e) {
-            that.artwork.setLayerLockAlpha(e.lock);
-          },
-          modifies: { layerProp: true },
-        },
-
-        // Palettes
-
-        CPPalColor: new PaletteToggleAction("color"),
-        CPPalBrush: new PaletteToggleAction("brush"),
-        CPPalLayers: new PaletteToggleAction("layers"),
-        CPPalStroke: new PaletteToggleAction("stroke"),
-        CPPalSwatches: new PaletteToggleAction("swatches"),
-        CPPalTool: new PaletteToggleAction("tool"),
-        CPPalMisc: new PaletteToggleAction("misc"),
-        CPPalTextures: new PaletteToggleAction("textures"),
-
-        CPTogglePalettes: {
-          action: function () {
-            mainGUI.togglePalettes();
-          },
-          modifies: { gui: true },
-        },
-        CPArrangePalettes: {
-          action: function () {
-            mainGUI.arrangePalettes();
-          },
-          modifies: { gui: true },
-        },
-        CPToggleSetSmallScreenMode: {
-          action: function () {
-            that.setSmallScreenMode(!smallScreenMode);
-            mainGUI.arrangePalettes();
-          },
-          modifies: { gui: true },
-        },
-
-        // Saving
-
-        CPExportAsPNG: {
-          action: function () {
-            const saveUrl = options.saveUrl || false;
-            saveDrawing({ saveUrl: saveUrl });
-          },
-          isSupported: function () {
-            return options.allowDownload !== false;
-          },
-          modifies: { document: true },
-        },
-        CPExportAsZIP: {
-          action: function () {
-            const saveUrl = options.saveUrl || false;
-            saveDrawing({ zip: true, saveUrl: saveUrl });
-          },
-          isSupported: function () {
-            return options.allowDownload !== false;
-          },
-          modifies: { document: true },
-        },
-        CPSaveDB: {
-          action: function () {
-            saveDrawing({ savedb: true, saveUrl: false });
-          },
-          isSupported: function () {
-            return options.allowDownload !== false;
-          },
-          modifies: { document: true },
-        },
-        CPSaveDBFromMenu: {
-          action: function () {
-            sendDrawing(true);
-          },
-          isSupported: function () {
-            return options.allowDownload !== false;
-          },
-          modifies: { document: true },
-        },
-        CPSend: {
-          action: function () {
-            sendDrawing();
-          },
-          isSupported: function () {
-            return !!options.saveUrl;
-          },
-          modifies: { document: true },
-        },
-        CPPost: {
-          action: function () {
-            //画面移動の関数が定義されている時はユーザーが定義した関数で画面移動
-            if (typeof window["handleExit"] === "function") {
-              return window["handleExit"]();
-            }
-            window.location = options.postUrl;
-          },
-          isSupported: function () {
-            return !!(
-              options.postUrl || typeof window["handleExit"] === "function"
-            );
-          },
-          modifies: { document: true },
-        },
-        CPContinue: {
-          action: function () {},
-          isSupported: function () {
-            return !!options.allowMultipleSends;
-          },
-        },
-        CPExit: {
-          action: function () {
-            // Exit the drawing session without posting the drawing to the forum
-            window.location = options.exitUrl;
-          },
-          isSupported: function () {
-            return !!options.exitUrl;
-          },
-          modifies: {},
-        },
-      };
+      edgeExpandDialog;
 
     /**
      * @param {string} palName
      */
-    function PaletteToggleAction(palName) {
-      this.palName = palName;
+    class PaletteToggleAction {
+      constructor(palName) {
+        this.palName = palName;
+        this.modifies = { gui: true };
+      }
+      /**
+       * @param {*} e
+       */
+      action(/** @type {UIActionEvent} */ e) {
+        mainGUI.showPalette(this.palName, e.selected);
+      }
     }
-    /**
-     * @param {*} e
-     */
-    PaletteToggleAction.prototype.action = function (
-      /** @type {UIActionEvent} */ e,
-    ) {
-      mainGUI.showPalette(this.palName, e.selected);
-    };
-    PaletteToggleAction.prototype.modifies = { gui: true };
+    class ToolChangeAction {
+      constructor(toolNum) {
+        this.toolNum = toolNum;
+        this.modifies = { mode: true, tool: true };
+        this.requiresDrawable = true;
+      }
+      action() {
+        setTool(this.toolNum);
+      }
+    }
+    class ModeChangeAction {
+      constructor(modeNum) {
+        this.modeNum = modeNum;
+        this.modifies = { mode: true };
+      }
 
-    function ToolChangeAction(toolNum) {
-      this.toolNum = toolNum;
+      action() {
+        setMode(this.modeNum);
+      }
     }
 
-    ToolChangeAction.prototype.action = function () {
-      setTool(this.toolNum);
+    let actions = {
+      // GUI actions
+
+      CPFullScreen: {
+        action: function () {
+          that.setFullScreen(!isFullScreen);
+        },
+        isSupported: function () {
+          return !(
+            options.fullScreenMode === "disable" ||
+            options.fullScreenMode === "force" ||
+            options.allowFullScreen === false /* For backwards compat */
+          );
+        },
+        modifies: { gui: true },
+      },
+      CPZoomIn: {
+        action: function () {
+          canvas.zoomIn();
+        },
+        modifies: { gui: true },
+      },
+      CPZoomOut: {
+        action: function () {
+          canvas.zoomOut();
+        },
+        modifies: { gui: true },
+      },
+      CPZoom100: {
+        action: function () {
+          canvas.zoom100();
+        },
+        modifies: { gui: true },
+      },
+      CPResetZoomAndRotation: {
+        action: function () {
+          canvas.resetZoomAndRotation();
+          const paletteManager = mainGUI.getPaletteManager();
+          const flipButton = paletteManager.palettes.misc.flipButton;
+          const mainMenu = mainGUI.getMainMenu();
+          const menuElement = mainMenu.getElement();
+          const flipMenuItem = menuElement.querySelector(
+            '[data-action="CPViewHFlip"]',
+          );
+          if (flipButton) {
+            flipButton.classList.remove("flipped");
+          }
+          //表示の左右反転時には、メニュー→表示→表示の左右反転にチェックマークを外す
+          if (flipMenuItem) {
+            flipMenuItem.classList.remove("selected");
+          }
+        },
+
+        modifies: { gui: true },
+      },
+      CPViewHFlip: {
+        action: function () {
+          const flipped = canvas.toggleViewFlip();
+          const paletteManager = mainGUI.getPaletteManager();
+          const flipButton = paletteManager.palettes.misc.flipButton;
+          const mainMenu = mainGUI.getMainMenu();
+          const menuElement = mainMenu.getElement();
+          // console.log("mainMenu", mainMenu);
+          // console.log("menuElement", menuElement);
+          const flipMenuItem = menuElement.querySelector(
+            '[data-action="CPViewHFlip"]',
+          );
+          if (flipButton) {
+            //表示の左右反転時には、左右反転アイコンに赤枠を付ける
+            if (flipped) {
+              flipButton.classList.add("flipped");
+            } else {
+              flipButton.classList.remove("flipped");
+            }
+          }
+          //表示の左右反転時には、メニュー→表示→表示の左右反転にチェックマークを付ける
+          if (flipMenuItem) {
+            if (flipped) {
+              flipMenuItem.classList.add("selected");
+            } else {
+              flipMenuItem.classList.remove("selected");
+            }
+          }
+        },
+        modifies: { gui: true },
+      },
+      // 古いアイコンは使わない。
+      // CPToolbarStyle: {
+      //     action: function() {
+      //         that.setToolbarStyle(preferences.toolbarStyle === "new" ? "old" : "new");
+      //     },
+      //     modifies: {gui: true}
+      // },
+
+      // History actions
+
+      CPUndo: {
+        action: function () {
+          const is_bezieractive =
+            typeof canvas.bezierMode === "object" && canvas.bezierMode.capture;
+          if (is_bezieractive) {
+            canvas.bezierMode.cancelBezier();
+          } else {
+            that.artwork.undo();
+          }
+        },
+        modifies: { document: true },
+
+        allowed: function () {
+          // 関数の外にある処理ではなく再計算）
+          //Bezier操作中
+          const isBezierActive = typeof canvas.bezierMode === "object";
+          canvas.bezierMode.capture;
+          //変形操作中
+          const isTransformActive = curMode == ChickenPaint.M_TRANSFORM;
+
+          // 状態に応じて、バリデーション
+          if (isBezierActive || isTransformActive) {
+            return true;
+          } else {
+            // 通常時はUndo可能かチェック
+            return that.artwork.isUndoAllowed();
+          }
+        },
+      },
+      CPRedo: {
+        action: function () {
+          that.artwork.redo();
+        },
+        modifies: { document: true },
+        allowed: "isRedoAllowed",
+      },
+      CPClearHistory: {
+        action: function () {
+          if (
+            confirm(
+              _(
+                "You're about to clear the current Undo/Redo history.\nThis operation cannot be undone, are you sure you want to do that?",
+              ),
+            )
+          ) {
+            that.artwork.clearHistory();
+          }
+        },
+        modifies: { document: true },
+      },
+
+      // Drawing tools
+
+      CPPencil: new ToolChangeAction(ChickenPaint.T_PENCIL),
+      CPPen: new ToolChangeAction(ChickenPaint.T_PEN),
+      CPEraser: new ToolChangeAction(ChickenPaint.T_ERASER),
+      CPSoftEraser: new ToolChangeAction(ChickenPaint.T_SOFTERASER),
+      CPAirbrush: new ToolChangeAction(ChickenPaint.T_AIRBRUSH),
+      CPDodge: new ToolChangeAction(ChickenPaint.T_DODGE),
+      CPBurn: new ToolChangeAction(ChickenPaint.T_BURN),
+      CPWater: new ToolChangeAction(ChickenPaint.T_WATER),
+      CPBlur: new ToolChangeAction(ChickenPaint.T_BLUR),
+      CPSmudge: new ToolChangeAction(ChickenPaint.T_SMUDGE),
+      CPBlender: new ToolChangeAction(ChickenPaint.T_BLENDER),
+
+      // Modes
+
+      CPFloodFill: new ModeChangeAction(ChickenPaint.M_FLOODFILL),
+      CPGradientFill: new ModeChangeAction(ChickenPaint.M_GRADIENTFILL),
+      CPRectSelection: new ModeChangeAction(ChickenPaint.M_RECT_SELECTION),
+      CPMoveTool: new ModeChangeAction(ChickenPaint.M_MOVE_TOOL),
+      CPRotateCanvas: new ModeChangeAction(ChickenPaint.M_ROTATE_CANVAS),
+      CPPanCanvas: new ModeChangeAction(ChickenPaint.M_PAN_CANVAS),
+      CPColorPicker: new ModeChangeAction(ChickenPaint.M_COLOR_PICKER),
+
+      // Layer transform
+
+      CPTransform: {
+        action: function () {
+          const layer = that.artwork.getActiveLayer();
+          if (!canvas.checkCurrentLayerIsVisible()) {
+            return;
+          }
+
+          if (that.artwork.transformAffineBegin() == null) {
+            that.showLayerNotification(
+              layer,
+              _("Whoops! All of the selected pixels are transparent!"),
+              "layer",
+            );
+          } else {
+            setMode(ChickenPaint.M_TRANSFORM);
+          }
+        },
+        modifies: { mode: true },
+        allowed: function () {
+          //ここのバリデーションはメニューのグレーアウト判定のみで
+          //変形モードに入る前のバリデーションは、変形モードの開始アクション内で行う。
+          const layer = that.artwork.getActiveLayer();
+          return (
+            that.artwork.transformAffineBegin() !== null &&
+            layer.getEffectiveAlpha() != 0
+          );
+        },
+      },
+      CPTransformAccept: {
+        action: function () {
+          if (curMode == ChickenPaint.M_TRANSFORM) {
+            that.artwork.transformAffineFinish();
+            setMode(preTransformMode);
+          }
+        },
+        modifies: { mode: true },
+      },
+      CPTransformReject: {
+        action: function () {
+          if (curMode == ChickenPaint.M_TRANSFORM) {
+            that.artwork.transformAffineAbort();
+            setMode(preTransformMode);
+          }
+        },
+        modifies: { document: true, mode: true },
+      },
+
+      // Stroke modes
+
+      CPFreeHand: {
+        action: function () {
+          tools[curBrush].strokeMode = CPBrushInfo.STROKE_MODE_FREEHAND;
+          callToolListeners();
+        },
+        modifies: { tool: true },
+      },
+      CPLine: {
+        action: function () {
+          tools[curBrush].strokeMode = CPBrushInfo.STROKE_MODE_LINE;
+          callToolListeners();
+        },
+        modifies: { tool: true },
+      },
+      CPBezier: {
+        action: function () {
+          tools[curBrush].strokeMode = CPBrushInfo.STROKE_MODE_BEZIER;
+          callToolListeners();
+        },
+        modifies: { tool: true },
+      },
+
+      // Help dialogs
+
+      CPAbout: {
+        action: function () {
+          new CPAboutDialog(uiElem).show();
+        },
+        modifies: {},
+      },
+      CPShortcuts: {
+        action: function () {
+          new CPShortcutsDialog(uiElem).show();
+        },
+        modifies: {},
+      },
+      CPTabletSupport: {
+        action: function () {
+          new CPTabletDialog(uiElem).show();
+        },
+        modifies: {},
+      },
+
+      // Layer actions
+
+      CPLayerDuplicate: {
+        action: function () {
+          that.artwork.duplicateLayer();
+        },
+        modifies: { document: true },
+      },
+      CPLayerMergeDown: {
+        action: function () {
+          that.artwork.mergeDown();
+        },
+        modifies: { document: true },
+        allowed: "isMergeDownAllowed",
+      },
+      CPGroupMerge: {
+        action: function () {
+          that.artwork.mergeGroup();
+        },
+        modifies: { document: true },
+        allowed: "isMergeGroupAllowed",
+      },
+      CPLayerMergeAll: {
+        action: function () {
+          that.artwork.mergeAllLayers();
+        },
+        modifies: { document: true },
+        allowed: "isMergeAllLayersAllowed",
+      },
+      CPCreateMergedLayer: {
+        action: function () {
+          that.artwork.mergeAllLayers(true);
+        },
+        modifies: { document: true },
+        allowed: "isMergeAllLayersAllowed",
+      },
+      CPExpandLayerGroup: {
+        action: function (e) {
+          that.artwork.expandLayerGroup(e.group, e.expand);
+        },
+        modifies: { document: true },
+      },
+      CPFill: {
+        action: function () {
+          const curColor = that.getCurColor();
+          if (curColor) {
+            that.artwork.fill(curColor.getRgb() | 0xff000000);
+          }
+        },
+        modifies: { document: true },
+        requiresDrawable: true,
+      },
+      CPClear: {
+        action: function () {
+          that.artwork.clear();
+        },
+        modifies: { document: true },
+        requiresDrawable: true,
+      },
+      CPClearWithTexture: {
+        action: function () {
+          that.artwork.clear(false);
+        },
+        modifies: { document: true },
+        requiresDrawable: true,
+      },
+      CPSelectAll: {
+        action: function () {
+          that.artwork.rectangleSelection(that.artwork.getBounds());
+          canvas.repaintAll();
+        },
+        modifies: { document: true },
+      },
+      CPDeselectAll: {
+        action: function () {
+          that.artwork.rectangleSelection(new CPRect(0, 0, 0, 0));
+          canvas.repaintAll();
+        },
+        modifies: { document: true },
+      },
+      CPHFlip: {
+        action: function () {
+          that.artwork.hFlip();
+        },
+        modifies: { document: true },
+        requiresDrawable: true, // TODO
+      },
+      CPVFlip: {
+        action: function () {
+          that.artwork.vFlip();
+        },
+        modifies: { document: true },
+        requiresDrawable: true, //TODO
+      },
+      CPMNoise: {
+        action: function () {
+          that.artwork.monochromaticNoise();
+        },
+        modifies: { document: true },
+        requiresDrawable: true,
+      },
+      CPCNoise: {
+        action: function () {
+          that.artwork.colorNoise();
+        },
+        modifies: { document: true },
+        allowed: "isColorNoiseAllowed",
+      },
+      CPFXBoxBlur: {
+        action: function () {
+          showBoxBlurDialog();
+        },
+        modifies: { document: true },
+        requiresDrawable: true,
+      },
+      CPFXMosaic: {
+        action: function () {
+          showMosaicDialog();
+        },
+        modifies: { gui: true },
+      },
+      CPColorHalftone: {
+        action: function () {
+          showColorHalftoneDialog();
+        },
+        allowed: "isNotEditingMask",
+        modifies: { gui: true },
+      },
+      CPMonoHalftone: {
+        action: function () {
+          showMonoHalftoneDialog();
+        },
+        modifies: { gui: true },
+      },
+      CPChromaticAberration: {
+        action: function () {
+          showChromaticAberrationDialog();
+        },
+        allowed: "isNotEditingMask",
+        modifies: { gui: true },
+      },
+      CPEdgeExpand: {
+        action: function () {
+          showEdgeExpandDialog();
+        },
+        allowed: "isNotEditingMaskAndDrawable",
+        modifies: { gui: true },
+      },
+      CPConvertToDrawingColor: {
+        action: function () {
+          that.artwork.convertToDrawingColor();
+        },
+        allowed: "isNotEditingMaskAndDrawable",
+        modifies: { document: true },
+      },
+      CPFXInvert: {
+        action: function () {
+          that.artwork.invert();
+        },
+        modifies: { document: true },
+        requiresDrawable: true,
+      },
+      CPBrightnessToOpacity: {
+        action: function () {
+          that.artwork.brightnessToOpacity();
+        },
+        modifies: { document: true },
+        allowed: "isNotEditingMaskAndDrawable",
+      },
+
+      CPCut: {
+        action: function () {
+          that.artwork.cutSelection();
+        },
+        modifies: { document: true },
+        requiresDrawable: true,
+        allowed: "isCutSelectionAllowed",
+      },
+      CPCopy: {
+        action: function () {
+          that.artwork.copySelection();
+        },
+        modifies: { document: true },
+        requiresDrawable: true,
+        allowed: "isCopySelectionAllowed",
+      },
+      CPCopyMerged: {
+        action: function () {
+          that.artwork.copySelectionMerged();
+        },
+        modifies: { document: true },
+        allowed: "isCopySelectionMergedAllowed",
+      },
+      CPPaste: {
+        action: function () {
+          that.artwork.pasteClipboard();
+        },
+        modifies: { document: true },
+        allowed: "isPasteClipboardAllowed",
+      },
+
+      CPToggleGrid: {
+        action: function (/** @type {UIActionEvent} */ e) {
+          canvas.showGrid(e.selected);
+        },
+        modifies: { gui: true },
+      },
+      CPGridOptions: {
+        action: function () {
+          showGridOptionsDialog();
+        },
+        modifies: { gui: true },
+      },
+
+      CPLinearInterpolation: {
+        action: function (/** @type {UIActionEvent} */ e) {
+          canvas.setInterpolation(e.selected);
+        },
+        modifies: { gui: true },
+      },
+      CPResetCanvasRotation: {
+        action: function () {
+          canvas.resetRotation();
+        },
+        modifies: { gui: true },
+      },
+
+      // Layer palette
+
+      CPAddLayer: {
+        action: function () {
+          that.artwork.addLayer("layer");
+        },
+        modifies: { document: true },
+      },
+      CPAddGroup: {
+        action: function () {
+          that.artwork.addLayer("group");
+        },
+        modifies: { document: true },
+      },
+      CPAddLayerMask: {
+        action: function () {
+          that.artwork.addLayerMask();
+        },
+        modifies: { document: true },
+        allowed: "isAddLayerMaskAllowed",
+      },
+      CPApplyLayerMask: {
+        action: function () {
+          that.artwork.applyLayerMask(true);
+        },
+        modifies: { document: true },
+        allowed: "isApplyLayerMaskAllowed",
+      },
+      CPRemoveLayerMask: {
+        action: function () {
+          that.artwork.removeLayerMask();
+        },
+        modifies: { document: true },
+        allowed: "isRemoveLayerMaskAllowed",
+      },
+      CPRemoveLayer: {
+        action: function () {
+          if (!that.artwork.removeLayer()) {
+            alert(
+              _(
+                "Sorry, you can't remove the last remaining layer in the drawing.",
+              ),
+            );
+          }
+        },
+        modifies: { document: true },
+        allowed: "isRemoveLayerAllowed",
+      },
+      CPCreateClippingMask: {
+        action: function () {
+          that.artwork.createClippingMask();
+        },
+        modifies: { document: true },
+        allowed: "isCreateClippingMaskAllowed",
+      },
+      CPReleaseClippingMask: {
+        action: function () {
+          that.artwork.releaseClippingMask();
+        },
+        modifies: { document: true },
+        allowed: "isReleaseClippingMaskAllowed",
+      },
+      CPRelocateLayer: {
+        action: function (e) {
+          that.artwork.relocateLayer(e.layer, e.toGroup, e.toIndex);
+        },
+        modifies: { document: true },
+      },
+      CPSetActiveLayer: {
+        action: function (e) {
+          // Enable disabled layer masks when clicked on
+          if (e.mask && e.layer.mask && !e.layer.maskVisible) {
+            that.artwork.setLayerMaskVisible(e.layer, true);
+          }
+
+          that.artwork.setActiveLayer(e.layer, e.mask);
+
+          // Since this is a slow GUI operation, this is a good chance to get the canvas ready for drawing
+          that.artwork.performIdleTasks();
+        },
+        modifies: { document: true },
+      },
+      CPToggleMaskView: {
+        action: function () {
+          let newView = that.artwork.toggleMaskView();
+
+          if (newView) {
+            that.emitEvent("maskViewOpened", [newView]);
+          }
+        },
+        modifies: { gui: true },
+      },
+      CPSetMaskVisible: {
+        action: function (e) {
+          that.artwork.setLayerMaskVisible(e.layer, e.visible);
+        },
+        modifies: { layerProp: true },
+      },
+      CPSetLayerVisibility: {
+        action: function (e) {
+          that.artwork.setLayerVisibility(e.layer, e.visible);
+        },
+        modifies: { layerProp: true },
+      },
+      CPSetLayerName: {
+        action: function (e) {
+          that.artwork.setLayerName(e.layer, e.name);
+        },
+        modifies: { layerProp: true },
+      },
+      CPSetLayerBlendMode: {
+        action: function (e) {
+          that.artwork.setLayerBlendMode(e.blendMode);
+        },
+        modifies: { layerProp: true },
+      },
+      CPSetLayerAlpha: {
+        action: function (e) {
+          that.artwork.setLayerAlpha(e.alpha);
+        },
+        modifies: { layerProp: true },
+      },
+      CPSetLayerLockAlpha: {
+        action: function (e) {
+          that.artwork.setLayerLockAlpha(e.lock);
+        },
+        modifies: { layerProp: true },
+      },
+
+      // Palettes
+
+      CPPalColor: new PaletteToggleAction("color"),
+      CPPalBrush: new PaletteToggleAction("brush"),
+      CPPalLayers: new PaletteToggleAction("layers"),
+      CPPalStroke: new PaletteToggleAction("stroke"),
+      CPPalSwatches: new PaletteToggleAction("swatches"),
+      CPPalTool: new PaletteToggleAction("tool"),
+      CPPalMisc: new PaletteToggleAction("misc"),
+      CPPalTextures: new PaletteToggleAction("textures"),
+
+      CPTogglePalettes: {
+        action: function () {
+          mainGUI.togglePalettes();
+        },
+        modifies: { gui: true },
+      },
+      CPArrangePalettes: {
+        action: function () {
+          mainGUI.arrangePalettes();
+        },
+        modifies: { gui: true },
+      },
+      CPToggleSetSmallScreenMode: {
+        action: function () {
+          that.setSmallScreenMode(!smallScreenMode);
+          mainGUI.arrangePalettes();
+        },
+        modifies: { gui: true },
+      },
+
+      // Saving
+
+      CPExportAsPNG: {
+        action: function () {
+          const saveUrl = options.saveUrl || false;
+          saveDrawing({ saveUrl: saveUrl });
+        },
+        isSupported: function () {
+          return options.allowDownload !== false;
+        },
+        modifies: { document: true },
+      },
+      CPExportAsZIP: {
+        action: function () {
+          const saveUrl = options.saveUrl || false;
+          saveDrawing({ zip: true, saveUrl: saveUrl });
+        },
+        isSupported: function () {
+          return options.allowDownload !== false;
+        },
+        modifies: { document: true },
+      },
+      CPSaveDB: {
+        action: function () {
+          saveDrawing({ savedb: true, saveUrl: false });
+        },
+        isSupported: function () {
+          return options.allowDownload !== false;
+        },
+        modifies: { document: true },
+      },
+      CPSaveDBFromMenu: {
+        action: function () {
+          sendDrawing(true);
+        },
+        isSupported: function () {
+          return options.allowDownload !== false;
+        },
+        modifies: { document: true },
+      },
+      CPSend: {
+        action: function () {
+          sendDrawing();
+        },
+        isSupported: function () {
+          return !!options.saveUrl;
+        },
+        modifies: { document: true },
+      },
+      CPPost: {
+        action: function () {
+          //画面移動の関数が定義されている時はユーザーが定義した関数で画面移動
+          if (typeof window["handleExit"] === "function") {
+            return window["handleExit"]();
+          }
+          window.location = options.postUrl;
+        },
+        isSupported: function () {
+          return !!(
+            options.postUrl || typeof window["handleExit"] === "function"
+          );
+        },
+        modifies: { document: true },
+      },
+      CPContinue: {
+        action: function () {},
+        isSupported: function () {
+          return !!options.allowMultipleSends;
+        },
+      },
+      CPExit: {
+        action: function () {
+          // Exit the drawing session without posting the drawing to the forum
+          window.location = options.exitUrl;
+        },
+        isSupported: function () {
+          return !!options.exitUrl;
+        },
+        modifies: {},
+      },
     };
-
-    ToolChangeAction.prototype.modifies = { mode: true, tool: true };
-
-    ToolChangeAction.prototype.requiresDrawable = true;
-
-    function ModeChangeAction(modeNum) {
-      this.modeNum = modeNum;
-    }
-
-    ModeChangeAction.prototype.action = function () {
-      setMode(this.modeNum);
-    };
-    ModeChangeAction.prototype.modifies = { mode: true };
 
     function onEditModeChanged(newMode) {
       colorMode =
@@ -1887,23 +1886,24 @@ export default class ChickenPaint extends EventEmitter {
   }
 }
 
-ChickenPaint.UnsupportedBrowserException = function (message) {
-  this.message = message;
-};
-
-ChickenPaint.UnsupportedBrowserException.prototype.toString = function () {
-  let msg = "Sorry, your web browser does not support ChickenPaint.";
-
-  if (this.message) {
-    msg += " " + this.message;
-  } else {
-    msg +=
-      " Please try a modern browser like Chrome, Safari, Firefox, or Edge.";
+ChickenPaint.UnsupportedBrowserException = class {
+  constructor(message) {
+    this.message = message;
   }
 
-  return msg;
-};
+  toString() {
+    let msg = "Sorry, your web browser does not support ChickenPaint.";
 
+    if (this.message) {
+      msg += " " + this.message;
+    } else {
+      msg +=
+        " Please try a modern browser like Chrome, Safari, Firefox, or Edge.";
+    }
+
+    return msg;
+  }
+};
 //
 // Definition of all the modes available
 //
