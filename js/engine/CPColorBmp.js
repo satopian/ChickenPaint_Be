@@ -306,6 +306,10 @@ export default class CPColorBmp extends CPBitmap {
     }
   }
 
+  /**
+   *
+   * @param {CPColorBmp} bmp
+   */
   copyPixelsFromGreyscale(bmp) {
     var srcIndex,
       dstIndex = 0,
@@ -501,7 +505,6 @@ export default class CPColorBmp extends CPBitmap {
    * @param {Uint8Array|Uint8ClampedArray} [fusion.data] - 塗りつぶし対象の判定元として使用する画像データ。未指定の場合は自身の `data` を参照。
    * @returns {void}
    */
-
   floodFillWithBorder(
     x,
     y,
@@ -1295,7 +1298,7 @@ export default class CPColorBmp extends CPBitmap {
 
   /**
    * @param {CPRect} rect CPRect
-   * @param source CPColorBmp
+   * @param {CPColorBmp} source CPColorBmp
    */
   copyRegionHFlip(rect, source) {
     rect = this.getBounds().clipTo(rect);
@@ -1318,7 +1321,7 @@ export default class CPColorBmp extends CPBitmap {
 
   /**
    * @param {CPRect} rect CPRect
-   * @param source CPColorBmp
+   * @param {CPColorBmp} source CPColorBmp
    */
   copyRegionVFlip(rect, source) {
     rect = this.getBounds().clipTo(rect);
@@ -1397,9 +1400,9 @@ export default class CPColorBmp extends CPBitmap {
    * Replace the pixels in the given rect with the given horizontal gradient.
    *
    * @param {CPRect} rect CPRect
-   * @param fromX int
-   * @param toX int
-   * @param gradientPoints int[]
+   * @param {number} fromX int
+   * @param {number} toX int
+   * @param {number[]} gradientPoints int[]
    */
   gradientHorzReplace(rect, fromX, toX, gradientPoints) {
     var fromColor = {
@@ -1419,13 +1422,13 @@ export default class CPColorBmp extends CPBitmap {
       h = (rect.bottom - rect.top) | 0;
 
     if (toX < fromX) {
-      var temp = toX;
+      const beforeX = toX;
       toX = fromX;
-      fromX = temp;
+      fromX = beforeX;
 
-      temp = fromColor;
+      const beforeColor = fromColor;
       fromColor = toColor;
-      toColor = temp;
+      toColor = beforeColor;
     }
 
     var gradientRange = (toX - fromX) | 0,
@@ -1486,9 +1489,9 @@ export default class CPColorBmp extends CPBitmap {
    * Replace the pixels in the given rect with the given vertical gradient.
    *
    * @param {CPRect} rect
-   * @param fromY int
-   * @param toY int
-   * @param gradientPoints int[]
+   * @param {Number} fromY
+   * @param {Number} toY
+   * @param {Number[]} gradientPoints
    */
   gradientVertReplace(rect, fromY, toY, gradientPoints) {
     let fromColor = {
@@ -1508,13 +1511,13 @@ export default class CPColorBmp extends CPBitmap {
       w = (rect.right - rect.left) | 0;
 
     if (toY < fromY) {
-      let temp = toY;
+      const beforeY = toY;
       toY = fromY;
-      fromY = temp;
+      fromY = beforeY;
 
-      temp = fromColor;
+      const beforeColor = fromColor;
       fromColor = toColor;
-      toColor = temp;
+      toColor = beforeColor;
     }
 
     let y = rect.top;
@@ -1578,11 +1581,11 @@ export default class CPColorBmp extends CPBitmap {
    * Replace the pixels in the given rect with the given gradient.
    *
    * @param {CPRect} rect CPRect
-   * @param fromX int
-   * @param fromY int
-   * @param toX int
-   * @param toY int
-   * @param gradientPoints int[]
+   * @param {Number} fromX
+   * @param {Number} fromY
+   * @param {Number} toX
+   * @param {Number} toY
+   * @param {Number[]} gradientPoints
    */
   gradientReplace(rect, fromX, fromY, toX, toY, gradientPoints) {
     var yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL,

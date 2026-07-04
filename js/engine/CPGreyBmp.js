@@ -673,7 +673,7 @@ export default class CPGreyBmp extends CPBitmap {
   /**
    * 指定矩形内のピクセルに対してモザイクを適用する（グレースケール用）
    *
-   * @param rect - モザイクを適用する範囲
+   * @param {CPRect} rect  - モザイクを適用する範囲
    * @param {number} blockSize - ブロックサイズ（ピクセル）
    */
   mosaic(rect, blockSize) {
@@ -724,7 +724,7 @@ export default class CPGreyBmp extends CPBitmap {
    * ・αなし（マスク濃度のみ）
    * ・白は不透明のまま
    *
-   * @param {Object} rect    対象矩形
+   * @param {CPRect} rect    対象矩形
    * @param {number} dotSize ドット基準サイズ（px）
    * @param {number} [color=0x000000] ドットの色（ダミー）
    * @param {number} [density=1.0] ドット配置間隔の倍率（0.5–2.0）
