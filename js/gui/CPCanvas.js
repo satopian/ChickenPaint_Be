@@ -169,6 +169,9 @@ class CPModeStack {
     }
   }
 
+  /**
+   * @param {KeyboardEvent} e
+   */
   keyUp(e) {
     if (this.deliverEvent("keyUp", [e])) {
       // Swallow handled keypresses
@@ -397,10 +400,16 @@ export default class CPCanvas extends EventEmitter {
        * @param {Number} pressure
        */
       mouseUp(e, button, pressure) {}
-      keyDown() {}
+      /**
+       * @param {KeyboardEvent} e
+       */
+      keyDown(e) {}
       suspend() {}
       resume() {}
-      keyUp() {}
+      /**
+       * @param {KeyboardEvent} e
+       */
+      keyUp(e) {}
     }
     //
     // Default UI Mode when not doing anything: used to start the other modes
@@ -487,7 +496,9 @@ export default class CPCanvas extends EventEmitter {
           setCursor(CURSOR_CROSSHAIR);
         }
       }
-
+      /**
+       * @param {KeyboardEvent} e
+       */
       keyDown(e) {
         if (e.repeat) return; // キーが押され続けている場合は無視
         const spacePressed = key.isPressed("space");
@@ -584,6 +595,9 @@ export default class CPCanvas extends EventEmitter {
         return false;
       }
 
+      /**
+       * @param {KeyboardEvent} e
+       */
       keyUp(e) {
         if (
           key.alt && // altはキーダウン
@@ -1506,6 +1520,9 @@ export default class CPCanvas extends EventEmitter {
         this.panningOffset;
         this.panningButton;
       }
+      /**
+       * @param {KeyboardEvent} e
+       */
       keyDown(e) {
         if (e.repeat) return; // キーが押され続けている場合は無視
         if (!(e.ctrlKey || e.metaKey) && e.key === " ") {
@@ -1517,7 +1534,9 @@ export default class CPCanvas extends EventEmitter {
           return true;
         }
       }
-
+      /**
+       * @param {KeyboardEvent} e
+       */
       keyUp(e) {
         if (
           this.transient &&
@@ -1925,228 +1944,241 @@ export default class CPCanvas extends EventEmitter {
     }
 
     class CPTransformMode extends CPMode {
+      static HANDLE_RADIUS = 3;
+      static DRAG_NONE = -1;
+      static DRAG_ROTATE = -2;
+      static DRAG_MOVE = -3;
+      static DRAG_NW_CORNER = 0;
+      static DRAG_N_EDGE = 1;
+      static DRAG_NE_CORNER = 2;
+      static DRAG_E_EDGE = 3;
+      static DRAG_SE_CORNER = 4;
+      static DRAG_S_EDGE = 5;
+      static DRAG_SW_CORNER = 6;
+      static DRAG_W_EDGE = 7;
+
       constructor() {
         super();
-        const ref = this;
-        const HANDLE_RADIUS = 3,
-          DRAG_NONE = -1,
-          DRAG_ROTATE = -2,
-          DRAG_MOVE = -3,
-          DRAG_NW_CORNER = 0,
-          DRAG_N_EDGE = 1,
-          DRAG_NE_CORNER = 2,
-          DRAG_E_EDGE = 3,
-          DRAG_SE_CORNER = 4,
-          DRAG_S_EDGE = 5,
-          DRAG_SW_CORNER = 6,
-          DRAG_W_EDGE = 7;
 
-        var /** @type {CPTransform} The current transformation */
-          affine,
-          /** @type {CPRect} The initial document rectangle to transform */
-          srcRect,
-          /** @type {CPPolygon} The initial transform rect */
-          origCornerPoints,
-          /** @type {CPPolygon} The current corners of the transform rect in document space */
-          cornerPoints,
-          draggingMode = DRAG_NONE,
-          lastDragPointDisplay,
-          lastDragPointDoc,
-          // Keep track of how many degrees we've rotated so far during this transformation
-          rotationAccumulator;
+        /** @type {CPTransform} The current transformation */
+        this.affine;
+        /** @type {CPRect} The initial document rectangle to transform */
+        this.srcRect;
+        /** @type {CPPolygon} The initial transform rect */
+        this.origCornerPoints;
+        /** @type {CPPolygon} The current corners of the transform rect in document space */
+        this.cornerPoints;
+        this.draggingMode = CPTransformMode.DRAG_NONE;
+        this.lastDragPointDisplay = { x: 0, y: 0 };
+        this.lastDragPointDoc = { x: 0, y: 0 };
+        // Keep track of how many degrees we've rotated so far during this transformation
+        this.rotationAccumulator = 0;
+        this.maintainAspectCheckd = false;
+      }
+      /**
+       * Get the polygon that represents the current transform result area in display coordinates.
+       * @returns {CPPolygon}
+       */
+      cornersToDisplayPolygon() {
+        return this.cornerPoints.getTransformed(transform);
+      }
 
-        /**
-         * Get the polygon that represents the current transform result area in display coordinates.
-         *
-         * @returns {CPPolygon}
-         */
-        function cornersToDisplayPolygon() {
-          return cornerPoints.getTransformed(transform);
+      /**
+       * @param {{x: number, y: number}} p1
+       * @param {{x: number, y: number}} p2
+       * @returns {{x: number, y: number}}
+       */
+      static averagePoints(p1, p2) {
+        return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+      }
+
+      /**
+       * @param {{x: number, y: number}} p
+       * @returns {{x: number, y: number}}
+       */
+      static roundPoint(p) {
+        return { x: Math.round(p.x), y: Math.round(p.y) };
+      }
+
+      /**
+       * Decide which drag action should be taken if our mouse was pressed in the given position.
+       *
+       * @param {CPPolygon} corners - The corners of the current transform area
+       * @param {{x:number,y:number}} mouse - The mouse point
+       * @returns {number} A DRAG_* constant
+       */
+      static classifyDragAction(corners, mouse) {
+        const HANDLE_CAPTURE_RADIUS = 7,
+          HANDLE_CAPTURE_RADIUS_SQR =
+            HANDLE_CAPTURE_RADIUS * HANDLE_CAPTURE_RADIUS,
+          EDGE_CAPTURE_RADIUS = HANDLE_CAPTURE_RADIUS,
+          EDGE_CAPTURE_RADIUS_SQR = EDGE_CAPTURE_RADIUS * EDGE_CAPTURE_RADIUS;
+
+        // Are we dragging a corner?
+        for (let i = 0; i < corners.points.length; i++) {
+          if (
+            (mouse.x - corners.points[i].x) * (mouse.x - corners.points[i].x) +
+              (mouse.y - corners.points[i].y) *
+                (mouse.y - corners.points[i].y) <=
+            HANDLE_CAPTURE_RADIUS_SQR
+          ) {
+            return i * 2;
+          }
         }
 
-        function averagePoints(p1, p2) {
-          return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
-        }
+        // Are we dragging an edge?
+        for (let i = 0; i < corners.points.length; i++) {
+          var edgeP1 = corners.points[i],
+            edgeP2 = corners.points[(i + 1) % corners.points.length],
+            vEdge = new CPVector(edgeP2.x - edgeP1.x, edgeP2.y - edgeP1.y),
+            vMouse = new CPVector(mouse.x - edgeP1.x, mouse.y - edgeP1.y),
+            vEdgeLen = vEdge.getLength(),
+            vEdgeScaled = vEdge.getScaled(1 / vEdgeLen),
+            vMouseScaled = vMouse.getScaled(1 / vEdgeLen),
+            mousePropOnLine = vEdgeScaled.getDotProduct(vMouseScaled);
 
-        function roundPoint(p) {
-          return { x: Math.round(p.x), y: Math.round(p.y) };
-        }
+          // If we're within the ends of the line (perpendicularly speaking)
+          if (mousePropOnLine >= 0.0 && mousePropOnLine <= 1.0) {
+            // This gives us the point on the line closest to the mouse
+            vEdge.scale(mousePropOnLine);
 
-        /**
-         * Decide which drag action should be taken if our mouse was pressed in the given position.
-         *
-         * @param {CPPolygon} corners - The corners of the current transform area
-         * @param mouse - The mouse point
-         * @returns {number} A DRAG_* constant
-         */
-        function classifyDragAction(corners, mouse) {
-          const HANDLE_CAPTURE_RADIUS = 7,
-            HANDLE_CAPTURE_RADIUS_SQR =
-              HANDLE_CAPTURE_RADIUS * HANDLE_CAPTURE_RADIUS,
-            EDGE_CAPTURE_RADIUS = HANDLE_CAPTURE_RADIUS,
-            EDGE_CAPTURE_RADIUS_SQR = EDGE_CAPTURE_RADIUS * EDGE_CAPTURE_RADIUS;
-
-          // Are we dragging a corner?
-          for (let i = 0; i < corners.points.length; i++) {
             if (
-              (mouse.x - corners.points[i].x) *
-                (mouse.x - corners.points[i].x) +
-                (mouse.y - corners.points[i].y) *
-                  (mouse.y - corners.points[i].y) <=
-              HANDLE_CAPTURE_RADIUS_SQR
+              (vEdge.x - vMouse.x) * (vEdge.x - vMouse.x) +
+                (vEdge.y - vMouse.y) * (vEdge.y - vMouse.y) <=
+              EDGE_CAPTURE_RADIUS_SQR
             ) {
-              return i * 2;
+              return i * 2 + 1;
             }
-          }
-
-          // Are we dragging an edge?
-          for (let i = 0; i < corners.points.length; i++) {
-            var edgeP1 = corners.points[i],
-              edgeP2 = corners.points[(i + 1) % corners.points.length],
-              vEdge = new CPVector(edgeP2.x - edgeP1.x, edgeP2.y - edgeP1.y),
-              vMouse = new CPVector(mouse.x - edgeP1.x, mouse.y - edgeP1.y),
-              vEdgeLen = vEdge.getLength(),
-              vEdgeScaled = vEdge.getScaled(1 / vEdgeLen),
-              vMouseScaled = vMouse.getScaled(1 / vEdgeLen),
-              mousePropOnLine = vEdgeScaled.getDotProduct(vMouseScaled);
-
-            // If we're within the ends of the line (perpendicularly speaking)
-            if (mousePropOnLine >= 0.0 && mousePropOnLine <= 1.0) {
-              // This gives us the point on the line closest to the mouse
-              vEdge.scale(mousePropOnLine);
-
-              if (
-                (vEdge.x - vMouse.x) * (vEdge.x - vMouse.x) +
-                  (vEdge.y - vMouse.y) * (vEdge.y - vMouse.y) <=
-                EDGE_CAPTURE_RADIUS_SQR
-              ) {
-                return i * 2 + 1;
-              }
-            }
-          }
-
-          if (corners.containsPoint(mouse)) {
-            return DRAG_MOVE;
-          }
-
-          return DRAG_ROTATE;
-        }
-
-        function setCursorForHandles() {
-          var corners = cornersToDisplayPolygon(),
-            mouse = { x: mouseX, y: mouseY },
-            dragAction = classifyDragAction(corners, mouse);
-
-          switch (dragAction) {
-            case DRAG_NW_CORNER:
-            case DRAG_NE_CORNER:
-            case DRAG_SE_CORNER:
-            case DRAG_SW_CORNER:
-              // Choose a cursor for a 45-degree resize from this corner
-              let cornerIndex = ~~(dragAction / 2),
-                cornerBefore = corners.points[(cornerIndex + 3) % 4],
-                corner = corners.points[cornerIndex],
-                cornerAfter = corners.points[(cornerIndex + 1) % 4],
-                // Get a vector which points 45 degrees toward the center of the box, this'll do for cursor direction
-                v45 = CPVector.subtractPoints(cornerBefore, corner)
-                  .normalize()
-                  .add(
-                    CPVector.subtractPoints(cornerAfter, corner).normalize(),
-                  );
-
-              setResizeCursorForVector(v45);
-              break;
-            case DRAG_N_EDGE:
-            case DRAG_E_EDGE:
-            case DRAG_S_EDGE:
-            case DRAG_W_EDGE:
-              // Resizing from here will move edge perpendicularly
-              let corner1 = corners.points[~~(dragAction / 2)],
-                corner2 = corners.points[(~~(dragAction / 2) + 1) % 4],
-                vPerp = CPVector.subtractPoints(
-                  corner2,
-                  corner1,
-                ).getPerpendicular();
-
-              setResizeCursorForVector(vPerp);
-              break;
-            case DRAG_MOVE:
-              //一時的なパン･回転時にペンの移動でカーソルがちらつくのを防ぐ
-              if (!key.isPressed("r") && !key.isPressed("space")) {
-                setCursor(CURSOR_MOVE);
-              }
-              break;
-            case DRAG_ROTATE:
-              if (!key.isPressed("r") && !key.isPressed("space")) {
-                setCursor(CURSOR_PANNABLE);
-              }
-              break;
-            default:
-              // No drag action, so just use the default cursor
-              setCursor(CURSOR_DEFAULT);
           }
         }
 
-        let maintainAspectCheckd = false;
+        if (corners.containsPoint(mouse)) {
+          return CPTransformMode.DRAG_MOVE;
+        }
+
+        return CPTransformMode.DRAG_ROTATE;
+      }
+
+      setCursorForHandles() {
+        var corners = this.cornersToDisplayPolygon(),
+          mouse = { x: mouseX, y: mouseY },
+          dragAction = CPTransformMode.classifyDragAction(corners, mouse);
+
+        switch (dragAction) {
+          case CPTransformMode.DRAG_NW_CORNER:
+          case CPTransformMode.DRAG_NE_CORNER:
+          case CPTransformMode.DRAG_SE_CORNER:
+          case CPTransformMode.DRAG_SW_CORNER:
+            // Choose a cursor for a 45-degree resize from this corner
+            let cornerIndex = ~~(dragAction / 2),
+              cornerBefore = corners.points[(cornerIndex + 3) % 4],
+              corner = corners.points[cornerIndex],
+              cornerAfter = corners.points[(cornerIndex + 1) % 4],
+              // Get a vector which points 45 degrees toward the center of the box, this'll do for cursor direction
+              v45 = CPVector.subtractPoints(cornerBefore, corner)
+                .normalize()
+                .add(CPVector.subtractPoints(cornerAfter, corner).normalize());
+
+            CPTransformMode.setResizeCursorForVector(v45);
+            break;
+          case CPTransformMode.DRAG_N_EDGE:
+          case CPTransformMode.DRAG_E_EDGE:
+          case CPTransformMode.DRAG_S_EDGE:
+          case CPTransformMode.DRAG_W_EDGE:
+            // Resizing from here will move edge perpendicularly
+            let corner1 = corners.points[~~(dragAction / 2)],
+              corner2 = corners.points[(~~(dragAction / 2) + 1) % 4],
+              vPerp = CPVector.subtractPoints(
+                corner2,
+                corner1,
+              ).getPerpendicular();
+
+            CPTransformMode.setResizeCursorForVector(vPerp);
+            break;
+          case CPTransformMode.DRAG_MOVE:
+            //一時的なパン･回転時にペンの移動でカーソルがちらつくのを防ぐ
+            if (!key.isPressed("r") && !key.isPressed("space")) {
+              setCursor(CURSOR_MOVE);
+            }
+            break;
+          case CPTransformMode.DRAG_ROTATE:
+            if (!key.isPressed("r") && !key.isPressed("space")) {
+              setCursor(CURSOR_PANNABLE);
+            }
+            break;
+          default:
+            // No drag action, so just use the default cursor
+            setCursor(CURSOR_DEFAULT);
+        }
+      }
+
+      /**
+       * @param {PointerEvent} e
+       * @param {Number} button
+       * @param {Number} pressure
+       */
+      mouseDown(e, button, pressure) {
+        //ブラシパレットの要素を取得
+        const brushpalette = controller.getBrushPaletteElement();
+        //縦横比固定のチェックボックスの要素を取得
+        const maintainAspectCheckbox = brushpalette.querySelector(
+          "#chickenpaint-t-maintainAspectCheckbox",
+        );
+
+        if (
+          maintainAspectCheckbox &&
+          maintainAspectCheckbox instanceof HTMLInputElement
+        ) {
+          this.maintainAspectCheckd = maintainAspectCheckbox.checked;
+        }
+
+        if (
+          !this.capture &&
+          button == BUTTON_PRIMARY &&
+          !e.altKey &&
+          !key.isPressed("space")
+        ) {
+          const corners = this.cornersToDisplayPolygon();
+
+          this.draggingMode = CPTransformMode.classifyDragAction(corners, {
+            x: mouseX,
+            y: mouseY,
+          });
+
+          this.lastDragPointDisplay = { x: mouseX, y: mouseY };
+          const lastDragPointDoc = coordToDocument(this.lastDragPointDisplay);
+          if (!lastDragPointDoc) {
+            return;
+          }
+          this.lastDragPointDoc = lastDragPointDoc;
+          this.capture = true;
+
+          this.setCursorForHandles();
+
+          return true;
+        }
+      }
+      mouseDrag = throttle(
+        80,
         /**
          * @param {PointerEvent} e
-         * @param {Number} button
-         * @param {Number} pressure
          */
-
-        this.mouseDown = function (e, button, pressure) {
-          //ブラシパレットの要素を取得
-          const brushpalette = controller.getBrushPaletteElement();
-          //縦横比固定のチェックボックスの要素を取得
-          const maintainAspectCheckbox = brushpalette.querySelector(
-            "#chickenpaint-t-maintainAspectCheckbox",
-          );
-
-          if (
-            maintainAspectCheckbox &&
-            maintainAspectCheckbox instanceof HTMLInputElement
-          ) {
-            maintainAspectCheckd = maintainAspectCheckbox.checked;
-          }
-
-          if (
-            !this.capture &&
-            button == BUTTON_PRIMARY &&
-            !e.altKey &&
-            !key.isPressed("space")
-          ) {
-            var corners = cornersToDisplayPolygon();
-
-            draggingMode = classifyDragAction(corners, {
-              x: mouseX,
-              y: mouseY,
-            });
-
-            lastDragPointDisplay = { x: mouseX, y: mouseY };
-            lastDragPointDoc = coordToDocument(lastDragPointDisplay);
-
-            this.capture = true;
-
-            setCursorForHandles();
-
-            return true;
-          }
-        };
-
-        this.mouseDrag = throttle(80, function (e) {
+        (e) => {
           const MIN_SCALE = 0.001;
 
-          if (ref.capture) {
+          if (this.capture) {
             var dragPointDisplay = { x: mouseX, y: mouseY };
 
-            switch (draggingMode) {
-              case DRAG_MOVE:
-                let dragPointDoc = roundPoint(
-                    coordToDocument(dragPointDisplay),
-                  ),
+            switch (this.draggingMode) {
+              case CPTransformMode.DRAG_MOVE:
+                const docPoint = coordToDocument(dragPointDisplay);
+                if (!docPoint) {
+                  return;
+                }
+                let dragPointDoc = CPTransformMode.roundPoint(docPoint),
                   translation = CPVector.subtractPoints(
                     dragPointDoc,
-                    lastDragPointDoc,
+                    this.lastDragPointDoc,
                   ),
                   // Only translate in whole-pixel increments (in document space not canvas space)
                   translationRounded = translation.getTruncated(),
@@ -2162,25 +2194,25 @@ export default class CPCanvas extends EventEmitter {
                   translationRounded.y,
                 );
 
-                affine.preMultiply(translateInstance);
+                this.affine.preMultiply(translateInstance);
 
                 // Accumulate the fractional move that we didn't apply for next time
-                lastDragPointDoc = CPVector.subtractPoints(
+                this.lastDragPointDoc = CPVector.subtractPoints(
                   dragPointDoc,
                   translationRemainder,
                 );
                 break;
-              case DRAG_ROTATE:
+              case CPTransformMode.DRAG_ROTATE:
                 const DRAG_ROTATE_SNAP_ANGLE = Math.PI / 4;
 
-                const centerDoc = cornerPoints.getCenter();
+                const centerDoc = this.cornerPoints.getCenter();
                 const centerDisplay = coordToDisplay(centerDoc);
                 if (!centerDisplay) {
                   return;
                 }
                 let oldMouseAngle = Math.atan2(
-                    lastDragPointDisplay.y - centerDisplay.y,
-                    lastDragPointDisplay.x - centerDisplay.x,
+                    this.lastDragPointDisplay.y - centerDisplay.y,
+                    this.lastDragPointDisplay.x - centerDisplay.x,
                   ),
                   newMouseAngle = Math.atan2(
                     dragPointDisplay.y - centerDisplay.y,
@@ -2190,7 +2222,7 @@ export default class CPCanvas extends EventEmitter {
                   rotateAngle,
                   rotateInstance = new CPTransform();
 
-                rotationAccumulator += deltaMouseAngle;
+                this.rotationAccumulator += deltaMouseAngle;
 
                 if (e.shiftKey) {
                   /*
@@ -2198,11 +2230,13 @@ export default class CPCanvas extends EventEmitter {
                    * center of the selection, so first rotate the selection to square it up with the axes,
                    * then we'll pivot the selection about its center to the new angle.
                    */
-                  const affineDecompose = affine.decompose();
+                  const affineDecompose = this.affine.decompose();
                   if (affineDecompose) {
                     rotateAngle =
                       -affineDecompose.rotate +
-                      Math.round(rotationAccumulator / DRAG_ROTATE_SNAP_ANGLE) *
+                      Math.round(
+                        this.rotationAccumulator / DRAG_ROTATE_SNAP_ANGLE,
+                      ) *
                         DRAG_ROTATE_SNAP_ANGLE;
                   }
                 } else {
@@ -2222,25 +2256,30 @@ export default class CPCanvas extends EventEmitter {
                   centerDoc.y,
                 );
 
-                affine.preMultiply(rotateInstance);
+                this.affine.preMultiply(rotateInstance);
 
-                lastDragPointDisplay = dragPointDisplay;
+                this.lastDragPointDisplay = dragPointDisplay;
                 break;
-              case DRAG_NW_CORNER:
-              case DRAG_NE_CORNER:
-              case DRAG_SE_CORNER:
-              case DRAG_SW_CORNER:
+              case CPTransformMode.DRAG_NW_CORNER:
+              case CPTransformMode.DRAG_NE_CORNER:
+              case CPTransformMode.DRAG_SE_CORNER:
+              case CPTransformMode.DRAG_SW_CORNER:
                 {
-                  const draggingCorner = ~~(draggingMode / 2);
+                  const draggingCorner = ~~(this.draggingMode / 2);
 
-                  const oldCorner = origCornerPoints.points[draggingCorner];
+                  const oldCorner =
+                    this.origCornerPoints.points[draggingCorner];
                   // The corner we dragged will move into its new position
-                  const affineGetInverted = affine.getInverted();
+                  const affineGetInverted = this.affine.getInverted();
                   if (!affineGetInverted) {
                     return;
                   }
+                  const docPoint = coordToDocument(dragPointDisplay);
+                  if (!docPoint) {
+                    return;
+                  }
                   const newCorner = affineGetInverted.getTransformedPoint(
-                    roundPoint(coordToDocument(dragPointDisplay)),
+                    CPTransformMode.roundPoint(docPoint),
                   );
 
                   if (!newCorner) {
@@ -2249,7 +2288,7 @@ export default class CPCanvas extends EventEmitter {
 
                   let // The opposite corner to the one we dragged must not move
                     fixCorner =
-                      origCornerPoints.points[(draggingCorner + 2) % 4],
+                      this.origCornerPoints.points[(draggingCorner + 2) % 4],
                     /* Now we can see how much we'd need to scale the original rectangle about the fixed corner
                      * for the other corner to reach the new position.
                      */
@@ -2272,7 +2311,7 @@ export default class CPCanvas extends EventEmitter {
                   }
 
                   // Does user want proportional resize?
-                  if (maintainAspectCheckd || e.shiftKey) {
+                  if (this.maintainAspectCheckd || e.shiftKey) {
                     var largestScale = Math.max(scaleX, scaleY);
 
                     scaleX = largestScale;
@@ -2280,7 +2319,7 @@ export default class CPCanvas extends EventEmitter {
                   }
 
                   // The transform we do here will be performed first before any of the other transforms (scale, rotate, etc)
-                  affine.scaleAroundPoint(
+                  this.affine.scaleAroundPoint(
                     scaleX,
                     scaleY,
                     fixCorner.x,
@@ -2288,24 +2327,28 @@ export default class CPCanvas extends EventEmitter {
                   );
                 }
                 break;
-              case DRAG_N_EDGE:
-              case DRAG_S_EDGE:
-              case DRAG_E_EDGE:
-              case DRAG_W_EDGE:
+              case CPTransformMode.DRAG_N_EDGE:
+              case CPTransformMode.DRAG_S_EDGE:
+              case CPTransformMode.DRAG_E_EDGE:
+              case CPTransformMode.DRAG_W_EDGE:
                 {
-                  let cornerIndex = ~~(draggingMode / 2),
-                    oldHandle = averagePoints(
-                      origCornerPoints.points[cornerIndex],
-                      origCornerPoints.points[(cornerIndex + 1) % 4],
+                  let cornerIndex = ~~(this.draggingMode / 2),
+                    oldHandle = CPTransformMode.averagePoints(
+                      this.origCornerPoints.points[cornerIndex],
+                      this.origCornerPoints.points[(cornerIndex + 1) % 4],
                     );
 
                   // The handle we dragged will move into its new position
-                  const affineGetInverted = affine.getInverted();
+                  const affineGetInverted = this.affine.getInverted();
                   if (!affineGetInverted) {
                     return;
                   }
+                  const docPoint = coordToDocument(dragPointDisplay);
+                  if (!docPoint) {
+                    return;
+                  }
                   const newHandle = affineGetInverted.getTransformedPoint(
-                    roundPoint(coordToDocument(dragPointDisplay)),
+                    CPTransformMode.roundPoint(docPoint),
                   );
                   if (!newHandle) {
                     console.error(
@@ -2314,9 +2357,9 @@ export default class CPCanvas extends EventEmitter {
                     return;
                   }
                   // The opposite handle to the one we dragged must not move
-                  const fixHandle = averagePoints(
-                    origCornerPoints.points[(cornerIndex + 2) % 4],
-                    origCornerPoints.points[(cornerIndex + 3) % 4],
+                  const fixHandle = CPTransformMode.averagePoints(
+                    this.origCornerPoints.points[(cornerIndex + 2) % 4],
+                    this.origCornerPoints.points[(cornerIndex + 3) % 4],
                   );
                   let scaleX;
                   let scaleY;
@@ -2343,8 +2386,8 @@ export default class CPCanvas extends EventEmitter {
                   }
 
                   if (
-                    draggingMode == DRAG_N_EDGE ||
-                    draggingMode == DRAG_S_EDGE
+                    this.draggingMode == CPTransformMode.DRAG_N_EDGE ||
+                    this.draggingMode == CPTransformMode.DRAG_S_EDGE
                   ) {
                     scaleX = 1.0;
                     scaleY = newScale;
@@ -2353,7 +2396,7 @@ export default class CPCanvas extends EventEmitter {
                     scaleY = 1.0;
                   }
 
-                  affine.scaleAroundPoint(
+                  this.affine.scaleAroundPoint(
                     scaleX,
                     scaleY,
                     fixHandle.x,
@@ -2363,163 +2406,176 @@ export default class CPCanvas extends EventEmitter {
                 break;
             }
 
-            cornerPoints = origCornerPoints.getTransformed(affine);
+            this.cornerPoints = this.origCornerPoints.getTransformed(
+              this.affine,
+            );
 
-            artwork.transformAffineAmend(affine);
+            artwork.transformAffineAmend(this.affine);
 
             // TODO make me more specific
             that.repaintAll();
 
             return true;
           }
-        });
+        },
+      );
 
-        this.mouseUp = function (e, button, pressure) {
-          if (this.capture && button == BUTTON_PRIMARY) {
-            this.capture = false;
-            draggingMode = DRAG_NONE;
-            return true;
-          }
-        };
+      /**
+       * @param {PointerEvent} e
+       * @param {Number} button
+       * @param {Number} pressure
+       */
+      mouseUp(e, button, pressure) {
+        if (this.capture && button == BUTTON_PRIMARY) {
+          this.capture = false;
+          this.draggingMode = CPTransformMode.DRAG_NONE;
+          return true;
+        }
+      }
 
-        /*
-         * Set an appropriate resize cursor for the specified vector from the center to the handle.
-         */
-        function setResizeCursorForVector(v) {
-          let angle = Math.atan2(-v.y, v.x),
-            /*
-             * Slice up into 45 degrees slices so that there are +-22.5 degrees centered around each corner,
-             * and a 45 degree segment for each edge
-             */
-            slice = Math.floor(angle / (Math.PI / 4) + 0.5),
-            cursor;
+      /**
+       *
+       * Set an appropriate resize cursor for the specified vector from the center to the handle.
+       *
+       * @param {CPVector} v
+       */
+      static setResizeCursorForVector(v) {
+        let angle = Math.atan2(-v.y, v.x),
+          /*
+           * Slice up into 45 degrees slices so that there are +-22.5 degrees centered around each corner,
+           * and a 45 degree segment for each edge
+           */
+          slice = Math.floor(angle / (Math.PI / 4) + 0.5),
+          cursor;
 
-          // Wrap angles below the x-axis wrap to positive ones...
-          if (slice < 0) {
-            slice += 4;
-          }
-
-          switch (slice) {
-            case 0:
-            default:
-              cursor = CURSOR_EW_RESIZE;
-              break;
-            case 1:
-              cursor = CURSOR_NESW_RESIZE;
-              break;
-            case 2:
-              cursor = CURSOR_NS_RESIZE;
-              break;
-            case 3:
-              cursor = CURSOR_NWSE_RESIZE;
-              break;
-          }
-
-          setCursor(cursor);
+        // Wrap angles below the x-axis wrap to positive ones...
+        if (slice < 0) {
+          slice += 4;
         }
 
-        this.mouseMove = function () {
-          // We want to stick with our choice of cursor throughout the drag operation
-          if (!this.capture) {
-            setCursorForHandles();
-          }
-        };
+        switch (slice) {
+          case 0:
+          default:
+            cursor = CURSOR_EW_RESIZE;
+            break;
+          case 1:
+            cursor = CURSOR_NESW_RESIZE;
+            break;
+          case 2:
+            cursor = CURSOR_NS_RESIZE;
+            break;
+          case 3:
+            cursor = CURSOR_NWSE_RESIZE;
+            break;
+        }
 
-        this.paint = function () {
-          var corners = cornersToDisplayPolygon().points,
-            handles = new Array(corners.length * 2);
+        setCursor(cursor);
+      }
 
-          // Collect the positions of the edge and corner handles...
-          for (let i = 0; i < corners.length; i++) {
-            handles[i] = corners[i];
-          }
+      mouseMove() {
+        // We want to stick with our choice of cursor throughout the drag operation
+        if (!this.capture) {
+          this.setCursorForHandles();
+        }
+      }
 
-          for (let i = 0; i < corners.length; i++) {
-            var edgeP1 = corners[i],
-              edgeP2 = corners[(i + 1) % corners.length],
-              midWay = {
-                x: (edgeP1.x + edgeP2.x) / 2,
-                y: (edgeP1.y + edgeP2.y) / 2,
-              };
+      paint() {
+        var corners = this.cornersToDisplayPolygon().points,
+          handles = new Array(corners.length * 2);
 
-            handles[i + corners.length] = midWay;
-          }
+        // Collect the positions of the edge and corner handles...
+        for (let i = 0; i < corners.length; i++) {
+          handles[i] = corners[i];
+        }
 
-          if (!canvasContext) {
+        for (let i = 0; i < corners.length; i++) {
+          var edgeP1 = corners[i],
+            edgeP2 = corners[(i + 1) % corners.length],
+            midWay = {
+              x: (edgeP1.x + edgeP2.x) / 2,
+              y: (edgeP1.y + edgeP2.y) / 2,
+            };
+
+          handles[i + corners.length] = midWay;
+        }
+
+        if (!canvasContext) {
+          return;
+        }
+        setContrastingDrawStyle(canvasContext, "fill");
+        for (let i = 0; i < handles.length; i++) {
+          canvasContext.fillRect(
+            handles[i].x - CPTransformMode.HANDLE_RADIUS,
+            handles[i].y - CPTransformMode.HANDLE_RADIUS,
+            CPTransformMode.HANDLE_RADIUS * 2 + 1,
+            CPTransformMode.HANDLE_RADIUS * 2 + 1,
+          );
+        }
+
+        strokePolygon(canvasContext, corners);
+      }
+
+      /**
+       * @param {KeyboardEvent} e
+       */
+      keyDown(e) {
+        if (e.key === "Enter") {
+          if (modalIsShown || desableEnterKey) {
+            // モーダル表示中
+            // またはモーダルを閉じてから300ms経過していない場合
             return;
           }
-          setContrastingDrawStyle(canvasContext, "fill");
-          for (let i = 0; i < handles.length; i++) {
-            canvasContext.fillRect(
-              handles[i].x - HANDLE_RADIUS,
-              handles[i].y - HANDLE_RADIUS,
-              HANDLE_RADIUS * 2 + 1,
-              HANDLE_RADIUS * 2 + 1,
-            );
-          }
 
-          strokePolygon(canvasContext, corners);
-        };
+          controller.actionPerformed({ action: "CPTransformAccept" });
 
-        this.keyDown = function (e) {
-          if (e.key === "Enter") {
-            if (modalIsShown || desableEnterKey) {
-              // モーダル表示中
-              // またはモーダルを閉じてから300ms経過していない場合
-              return;
-            }
+          return true;
+        }
+      }
 
-            controller.actionPerformed({ action: "CPTransformAccept" });
+      enter() {
+        super.enter();
 
-            return true;
-          }
-        };
+        // Start off with the identity transform
+        let initial = artwork.transformAffineBegin(),
+          initialSelection;
+        if (!initial) {
+          console.error("Failed to begin affine transformation.");
+          return;
+        }
+        this.affine = initial.transform;
+        this.srcRect = initial.rect;
 
-        this.enter = function () {
-          CPMode.prototype.enter.call(this);
+        // Decide on the rectangle we'll show as the boundary of the transform area
+        initialSelection = initial.selection;
 
-          // Start off with the identity transform
-          let initial = artwork.transformAffineBegin(),
-            initialSelection;
-          if (!initial) {
-            console.error("Failed to begin affine transformation.");
-            return;
-          }
-          affine = initial.transform;
-          srcRect = initial.rect;
+        /* If the user didn't have anything selected, we'll use the actual shrink-wrapped transform area instead. */
+        if (initialSelection.isEmpty()) {
+          initialSelection = initial.rect.clone();
+        }
 
-          // Decide on the rectangle we'll show as the boundary of the transform area
-          initialSelection = initial.selection;
+        this.origCornerPoints = new CPPolygon(initialSelection.toPoints());
+        this.cornerPoints = this.origCornerPoints.getTransformed(this.affine);
 
-          /* If the user didn't have anything selected, we'll use the actual shrink-wrapped transform area instead. */
-          if (initialSelection.isEmpty()) {
-            initialSelection = initial.rect.clone();
-          }
+        this.draggingMode = -1;
+        this.rotationAccumulator = 0;
 
-          origCornerPoints = new CPPolygon(initialSelection.toPoints());
-          cornerPoints = origCornerPoints.getTransformed(affine);
+        that.repaintAll();
+      }
 
-          draggingMode = -1;
-          rotationAccumulator = 0;
-
-          that.repaintAll();
-        };
-
-        this.leave = function () {
-          CPMode.prototype.leave.call(this);
-          that.repaintAll();
-        };
-        // キーボード用の移動関数
-        this.moveByKey = function (dx, dy) {
-          if (!affine) return;
-          let translateInstance = new CPTransform();
-          translateInstance.translate(dx, dy);
-          affine.preMultiply(translateInstance);
-          // 変形のハンドルを更新
-          cornerPoints = origCornerPoints.getTransformed(affine); // transformの更新を反映させる関数呼び出しなど
-          artwork.transformAffineAmend(affine);
-          // that.repaintAll(); // コメントアウト
-        };
+      leave() {
+        super.leave();
+        that.repaintAll();
+      }
+      // キーボード用の移動関数
+      moveByKey(dx, dy) {
+        if (!this.affine) return;
+        let translateInstance = new CPTransform();
+        translateInstance.translate(dx, dy);
+        this.affine.preMultiply(translateInstance);
+        // 変形のハンドルを更新
+        this.cornerPoints = this.origCornerPoints.getTransformed(this.affine); // transformの更新を反映させる関数呼び出しなど
+        artwork.transformAffineAmend(this.affine);
+        // that.repaintAll(); // コメントアウト
       }
     }
 
@@ -2583,187 +2639,197 @@ export default class CPCanvas extends EventEmitter {
     class CPRotateCanvasMode extends CPMode {
       constructor() {
         super();
-        const ref = this;
-        var firstClick,
-          initAngle = 0.0,
-          initTransform,
-          dragged = false,
-          rotateButton = -1;
+        this.firstClick = { x: 0, y: 0 };
+        this.initAngle = 0.0;
+        this.initTransform;
 
-        /**
-         * @param {PointerEvent} e
-         * @param {Number} button
-         * @param {Number} pressure
-         */
+        ((this.dragged = false), (this.rotateButton = -1));
+      }
 
-        this.mouseDown = function (e, button, pressure) {
-          if (ref.capture) {
-            return true;
-          } else if (
-            (!ref.transient &&
-              button == BUTTON_PRIMARY &&
-              !e.altKey &&
-              !key.isPressed("space")) ||
-            (button == BUTTON_PRIMARY &&
-              !e.altKey &&
-              !key.isPressed("space") &&
-              key.isPressed("r"))
-          ) {
-            firstClick = { x: mouseX, y: mouseY };
+      /**
+       * @param {PointerEvent} e
+       * @param {Number} button
+       * @param {Number} pressure
+       */
+      mouseDown(e, button, pressure) {
+        if (this.capture) {
+          return true;
+        } else if (
+          (!this.transient &&
+            button == BUTTON_PRIMARY &&
+            !e.altKey &&
+            !key.isPressed("space")) ||
+          (button == BUTTON_PRIMARY &&
+            !e.altKey &&
+            !key.isPressed("space") &&
+            key.isPressed("r"))
+        ) {
+          this.firstClick = { x: mouseX, y: mouseY };
 
-            initAngle = that.getRotation();
+          this.initAngle = that.getRotation();
 
-            // もし一時的に反転している状態ならば、
-            // cloneしたtransformに反転変換を適用して
-            // 反転状態を反映させる
-            initTransform = transform.clone();
-            if (isViewFlipped) {
-              viewFlip(initTransform);
-            }
-            dragged = false;
-
-            this.capture = true;
-            rotateButton = button;
-
-            setCursor(CURSOR_PANNABLE);
-
-            return true;
-          } else if (ref.transient) {
-            modeStack.pop();
+          // もし一時的に反転している状態ならば、
+          // cloneしたtransformに反転変換を適用して
+          // 反転状態を反映させる
+          this.initTransform = transform.clone();
+          if (isViewFlipped) {
+            viewFlip(this.initTransform);
           }
-        };
+          this.dragged = false;
 
-        this.mouseDrag = function (e) {
-          if (this.capture) {
-            const p = { x: mouseX, y: mouseY };
+          this.capture = true;
+          this.rotateButton = button;
 
-            const displayCenter = {
-              x: canvas.clientWidth / 2,
-              y: canvas.clientHeight / 2,
-            };
-            const canvasCenter = {
-              x: canvas.width / 2,
-              y: canvas.height / 2,
-            };
+          setCursor(CURSOR_PANNABLE);
 
-            let deltaAngle =
-              Math.atan2(p.y - displayCenter.y, p.x - displayCenter.x) -
-              Math.atan2(
-                firstClick.y - displayCenter.y,
-                firstClick.x - displayCenter.x,
-              );
+          return true;
+        } else if (this.transient) {
+          modeStack.pop();
+        }
+      }
 
-            let rotTrans = new CPTransform();
+      /**
+       * @param {PointerEvent} e
+       */
+      mouseDrag(e) {
+        if (this.capture) {
+          const p = { x: mouseX, y: mouseY };
 
-            rotTrans.rotateAroundPoint(
-              deltaAngle,
-              canvasCenter.x,
-              canvasCenter.y,
+          const displayCenter = {
+            x: canvas.clientWidth / 2,
+            y: canvas.clientHeight / 2,
+          };
+          const canvasCenter = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+          };
+
+          let deltaAngle =
+            Math.atan2(p.y - displayCenter.y, p.x - displayCenter.x) -
+            Math.atan2(
+              this.firstClick.y - displayCenter.y,
+              this.firstClick.x - displayCenter.x,
             );
 
-            rotTrans.multiply(initTransform);
+          let rotTrans = new CPTransform();
 
-            that.setRotation(initAngle + deltaAngle);
-            const rotTransGetTranslateX = rotTrans.getTranslateX();
-            const rotTransGetTranslateY = rotTrans.getTranslateY();
-            if (
-              typeof rotTransGetTranslateX === "number" &&
-              typeof rotTransGetTranslateY === "number"
-            ) {
-              that.setOffset(~~rotTransGetTranslateX, ~~rotTransGetTranslateY);
-            }
-
-            dragged = true;
-
-            return true;
+          rotTrans.rotateAroundPoint(
+            deltaAngle,
+            canvasCenter.x,
+            canvasCenter.y,
+          );
+          if (this.initTransform) {
+            rotTrans.multiply(this.initTransform);
           }
-        };
-        this.enter = function () {
-          setCursor(CURSOR_PANNABLE);
-        };
 
-        /**
-         * When the mouse is released after rotation, we might want to snap our angle to the nearest 90 degree mark.
-         */
-        function finishRotation() {
-          const ROTATE_SNAP_DEGREES = 5;
+          that.setRotation(this.initAngle + deltaAngle);
+          const rotTransGetTranslateX = rotTrans.getTranslateX();
+          const rotTransGetTranslateY = rotTrans.getTranslateY();
+          if (
+            typeof rotTransGetTranslateX === "number" &&
+            typeof rotTransGetTranslateY === "number"
+          ) {
+            that.setOffset(~~rotTransGetTranslateX, ~~rotTransGetTranslateY);
+          }
 
-          let nearest90 =
-            (Math.round(canvasRotation / (Math.PI / 2)) * Math.PI) / 2;
+          this.dragged = true;
+
+          return true;
+        }
+      }
+      enter() {
+        setCursor(CURSOR_PANNABLE);
+      }
+
+      /**
+       * When the mouse is released after rotation, we might want to snap our angle to the nearest 90 degree mark.
+       */
+      finishRotation() {
+        const ROTATE_SNAP_DEGREES = 5;
+
+        let nearest90 =
+          (Math.round(canvasRotation / (Math.PI / 2)) * Math.PI) / 2;
+
+        if (
+          Math.abs(canvasRotation - nearest90) <
+          (ROTATE_SNAP_DEGREES / 180) * Math.PI
+        ) {
+          let deltaAngle = nearest90 - this.initAngle,
+            center = { x: canvas.width / 2, y: canvas.height / 2 },
+            rotTrans = new CPTransform();
+
+          rotTrans.rotateAroundPoint(deltaAngle, center.x, center.y);
+          if (this.initTransform) {
+            rotTrans.multiply(this.initTransform);
+          }
+
+          that.setRotation(this.initAngle + deltaAngle);
+          const rotTransGetTranslateX = rotTrans.getTranslateX();
+          const rotTransGetTranslateY = rotTrans.getTranslateY();
 
           if (
-            Math.abs(canvasRotation - nearest90) <
-            (ROTATE_SNAP_DEGREES / 180) * Math.PI
+            typeof rotTransGetTranslateX === "number" &&
+            typeof rotTransGetTranslateY === "number"
           ) {
-            let deltaAngle = nearest90 - initAngle,
-              center = { x: canvas.width / 2, y: canvas.height / 2 },
-              rotTrans = new CPTransform();
-
-            rotTrans.rotateAroundPoint(deltaAngle, center.x, center.y);
-
-            rotTrans.multiply(initTransform);
-
-            that.setRotation(initAngle + deltaAngle);
-            const rotTransGetTranslateX = rotTrans.getTranslateX();
-            const rotTransGetTranslateY = rotTrans.getTranslateY();
-
-            if (
-              typeof rotTransGetTranslateX === "number" &&
-              typeof rotTransGetTranslateY === "number"
-            ) {
-              that.setOffset(~~rotTransGetTranslateX, ~~rotTransGetTranslateY);
-            }
-            that.repaintAll();
+            that.setOffset(~~rotTransGetTranslateX, ~~rotTransGetTranslateY);
           }
-
-          that.emitEvent("canvasRotated90", [that.getRotation90()]);
+          that.repaintAll();
         }
 
-        this.mouseUp = function (e, button, pressure) {
-          if (this.capture && button == rotateButton) {
-            if (dragged) {
-              finishRotation();
-            } else {
-              that.resetRotation();
-            }
+        that.emitEvent("canvasRotated90", [that.getRotation90()]);
+      }
 
-            this.capture = false;
-
-            if (ref.transient && !key.isPressed("r")) {
-              setCursor(CURSOR_DEFAULT);
-
-              modeStack.pop();
-            } else {
-              setCursor(CURSOR_PANNABLE);
-            }
-
-            return true;
+      /**
+       * @param {PointerEvent} e
+       * @param {Number} button
+       * @param {Number} pressure
+       */
+      mouseUp(e, button, pressure) {
+        if (this.capture && button == this.rotateButton) {
+          if (this.dragged) {
+            this.finishRotation();
+          } else {
+            that.resetRotation();
           }
-        };
 
-        this.keyUp = function (e) {
-          if (
-            this.transient &&
-            rotateButton != BUTTON_WHEEL &&
-            e.key.toLowerCase() === "r"
-          ) {
+          this.capture = false;
+
+          if (this.transient && !key.isPressed("r")) {
             setCursor(CURSOR_DEFAULT);
 
-            modeStack.pop(); // yield control to the default mode
-
-            return true;
+            modeStack.pop();
+          } else {
+            setCursor(CURSOR_PANNABLE);
           }
-        };
 
-        this.keyDown = function (e) {
-          if (e.key.toLowerCase() === "r") {
-            // That's our hotkey, so stay in this mode (don't forward to CPDefaultMode)
-            return true;
-          }
-        };
+          return true;
+        }
+      }
+      /**
+       *
+       * @param {KeyboardEvent} e
+       */
+      keyUp(e) {
+        if (
+          this.transient &&
+          this.rotateButton != BUTTON_WHEEL &&
+          e.key.toLowerCase() === "r"
+        ) {
+          setCursor(CURSOR_DEFAULT);
+
+          modeStack.pop(); // yield control to the default mode
+
+          return true;
+        }
+      }
+
+      keyDown(e) {
+        if (e.key.toLowerCase() === "r") {
+          // That's our hotkey, so stay in this mode (don't forward to CPDefaultMode)
+          return true;
+        }
       }
     }
-
     class CPGradientFillMode extends CPLineMode {
       constructor() {
         super();
@@ -3716,12 +3782,17 @@ export default class CPCanvas extends EventEmitter {
       // タイマーをリスタートして再計測
       restartAutoSaveTimer();
     }
-
+    /**
+     * @param {KeyboardEvent} e
+     */
     function handleKeyDown(e) {
       modeStack.keyDown(e);
       handleArrowKeyNavigation_keyDoun(e);
     }
 
+    /**
+     * @param {KeyboardEvent} e
+     */
     function handleKeyUp(e) {
       //altキーを押下した直後にショートカットキーが動作しなくなる問題を修正
       if (e.key.toLowerCase() === "alt") {

@@ -925,7 +925,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
     let samples = [{ x: x, y: y }];
 
     for (let r = 0.25; r < 1.001; r += 0.25) {
-      Array.prototype.push.apply(samples, [
+      samples.push(
         { x: ~~(x + r * dx), y: y },
         { x: ~~(x - r * dx), y: y },
         { x: x, y: ~~(y + r * dy) },
@@ -935,7 +935,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         { x: ~~(x + r * 0.7 * dx), y: ~~(y - r * 0.7 * dy) },
         { x: ~~(x - r * 0.7 * dx), y: ~~(y + r * 0.7 * dy) },
         { x: ~~(x - r * 0.7 * dx), y: ~~(y - r * 0.7 * dy) },
-      ]);
+      );
     }
 
     return average(samples.map((coord) => mask.getPixel(coord.x, coord.y)));
