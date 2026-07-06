@@ -35,10 +35,8 @@ export default class CPClip {
   /**
    *
    * @param {(CPColorBmp|CPGreyBmp)} bmp
-   * @param int x - Position of the clipboard bmp within the document
-   * @param int y
-   * @constructor
-   * @this {any}
+   * @param {number} x - Position of the clipboard bmp within the document
+   * @param {number}  y
    */
   constructor(bmp, x, y) {
     this.bmp = bmp;

@@ -102,7 +102,6 @@ function arrayEquals(a, b) {
  * @param {number} _width
  * @param {number} _height
  * @constructor
- * @this {any}
  */
 export default class CPArtwork extends EventEmitter {
   static EDITING_MODE_IMAGE = 0;
@@ -809,7 +808,7 @@ export default class CPArtwork extends EventEmitter {
       const sampleImage =
         sampleAllLayers && !maskEditingMode ? fusion : destImage;
 
-      const selection = !maskEditingMode ? that.getSelection() : null;
+      const selection = that.getSelection();
 
       if (!selection || selection.isEmpty()) {
         // 選択範囲なし → 元の安全な処理
@@ -2127,9 +2126,11 @@ export default class CPArtwork extends EventEmitter {
      */
     this.cutSelection = function () {
       if (this.isCutSelectionAllowed()) {
-        addUndo(
-          new CPActionCut(curLayer, maskEditingMode, this.getSelection()),
-        );
+        if (curLayer instanceof CPImageLayer) {
+          addUndo(
+            new CPActionCut(curLayer, maskEditingMode, this.getSelection()),
+          );
+        }
       }
     };
 
@@ -3622,7 +3623,8 @@ export default class CPArtwork extends EventEmitter {
           eraseRects = CPRect.subtract(
             oldDstRect.isEmpty()
               ? this.srcRect
-              : (this.srcRect.getIntersection(oldDstRect) ?? new CPRect()),
+              : (this.srcRect.getIntersection(oldDstRect) ??
+                  new CPRect(0, 0, 0, 0)),
             this.dstRect,
           ),
           // The region of the source rectangle that we want to compose onto
@@ -3759,10 +3761,6 @@ export default class CPArtwork extends EventEmitter {
                 this.affineTransform.m[3],
                 this.affineTransform.m[4],
                 this.affineTransform.m[5],
-              );
-              console.log(
-                "layerInfo.maskSourceCanvas",
-                layerInfo.maskSourceCanvas,
               );
               this.composeCanvasContext.drawImage(
                 layerInfo.maskSourceCanvas,
@@ -4070,47 +4068,85 @@ export default class CPArtwork extends EventEmitter {
 
     /**
      * Cut the selected rectangle from the layer
-     *
-     * @param {CPImageLayer} layer - Layer to cut from
-     * @param {boolean} cutFromMask - True to cut from the mask of the layer, false to cut from the image
-     * @param {CPRect} selection - The cut rectangle co-ordinates
      */
     class CPActionCut extends CPUndo {
+      /**
+       *
+       * @param {CPImageLayer} layer - Layer to cut from
+       * @param {boolean} cutFromMask - True to cut from the mask of the layer, false to cut from the image
+       * @param {CPRect} selection - The cut rectangle co-ordinates
+       */
       constructor(layer, cutFromMask, selection) {
         super();
-        const fromImage = cutFromMask ? layer.mask : layer.image,
-          cutData = fromImage.cloneRect(selection);
+        this.layer = layer;
+        this.cutFromMask = cutFromMask;
+        this.fromImage = cutFromMask ? layer.mask : layer.image;
+        this.cutData = this.fromImage?.cloneRect(selection);
 
-        selection = selection.clone();
-
-        this.undo = function () {
-          fromImage.copyBitmapRect(
-            cutData,
-            selection.left,
-            selection.top,
-            cutData.getBounds(),
-          );
-
-          that.setActiveLayer(layer, cutFromMask);
-          that.setSelection(selection);
-          invalidateLayer(layer, selection, !cutFromMask, cutFromMask);
-        };
-
-        this.redo = function () {
-          if (cutFromMask) {
-            fromImage.clearRect(selection, EMPTY_MASK_COLOR);
-          } else {
-            fromImage.clearRect(selection, EMPTY_LAYER_COLOR);
-          }
-
-          clipboard = new CPClip(cutData, selection.left, selection.top);
-
-          that.setActiveLayer(layer, cutFromMask);
-          that.emptySelection();
-          invalidateLayer(layer, selection, !cutFromMask, cutFromMask);
-        };
+        this.selection = selection.clone();
 
         this.redo();
+      }
+      undo() {
+        if (!this.fromImage || !this.cutData) {
+          return;
+        }
+        if (
+          this.fromImage instanceof CPColorBmp &&
+          this.cutData instanceof CPColorBmp
+        ) {
+          this.fromImage.copyBitmapRect(
+            this.cutData,
+            this.selection.left,
+            this.selection.top,
+            this.cutData.getBounds(),
+          );
+        } else if (
+          this.fromImage instanceof CPGreyBmp &&
+          this.cutData instanceof CPGreyBmp
+        ) {
+          this.fromImage.copyBitmapRect(
+            this.cutData,
+            this.selection.left,
+            this.selection.top,
+            this.cutData.getBounds(),
+          );
+        }
+        that.setActiveLayer(this.layer, this.cutFromMask);
+        that.setSelection(this.selection);
+        invalidateLayer(
+          this.layer,
+          this.selection,
+          !this.cutFromMask,
+          this.cutFromMask,
+        );
+      }
+
+      redo() {
+        if (!this.fromImage) {
+          return;
+        }
+        if (this.cutFromMask) {
+          this.fromImage.clearRect(this.selection, EMPTY_MASK_COLOR);
+        } else {
+          this.fromImage.clearRect(this.selection, EMPTY_LAYER_COLOR);
+        }
+        if (this.cutData) {
+          clipboard = new CPClip(
+            this.cutData,
+            this.selection.left,
+            this.selection.top,
+          );
+        }
+
+        that.setActiveLayer(this.layer, this.cutFromMask);
+        that.emptySelection();
+        invalidateLayer(
+          this.layer,
+          this.selection,
+          !this.cutFromMask,
+          this.cutFromMask,
+        );
       }
     }
 
@@ -4122,59 +4158,58 @@ export default class CPArtwork extends EventEmitter {
     class CPActionPaste extends CPUndo {
       constructor(clip) {
         super();
-        const oldSelection = that.getSelection(),
-          oldMask = maskEditingMode,
-          newLayer = new CPImageLayer(
-            that.width,
-            that.height,
-            that.getDefaultLayerName(false),
-          ),
-          oldLayer = curLayer,
-          parentGroup = oldLayer.parent;
-
-        this.undo = function () {
-          parentGroup.removeLayer(newLayer);
-
-          that.setSelection(oldSelection);
-
-          artworkStructureChanged();
-          that.setActiveLayer(oldLayer, oldMask);
-        };
-
-        this.redo = function () {
-          let layerIndex = parentGroup.indexOf(oldLayer),
-            sourceRect = clip.bmp.getBounds(),
-            x,
-            y;
-
-          parentGroup.insertLayer(layerIndex + 1, newLayer);
-
-          if (sourceRect.isInside(that.getBounds())) {
-            x = clip.x;
-            y = clip.y;
-          } else {
-            x = ((that.width - clip.bmp.width) / 2) | 0;
-            y = ((that.height - clip.bmp.height) / 2) | 0;
-          }
-
-          if (clip.bmp instanceof CPGreyBmp) {
-            // Need to convert greyscale to color before we can paste
-            let clone = new CPColorBmp(clip.bmp.width, clip.bmp.height);
-
-            clone.copyPixelsFromGreyscale(clip.bmp);
-
-            newLayer.image?.copyBitmapRect(clone, x, y, sourceRect);
-          } else {
-            newLayer.image?.copyBitmapRect(clip.bmp, x, y, sourceRect);
-          }
-
-          that.emptySelection();
-
-          artworkStructureChanged();
-          that.setActiveLayer(newLayer, false);
-        };
-
+        this.clip = clip;
+        this.oldSelection = that.getSelection();
+        this.oldMask = maskEditingMode;
+        this.newLayer = new CPImageLayer(
+          that.width,
+          that.height,
+          that.getDefaultLayerName(false),
+        );
+        this.oldLayer = curLayer;
+        this.parentGroup = this.oldLayer.parent;
         this.redo();
+      }
+      undo() {
+        this.parentGroup.removeLayer(this.newLayer);
+
+        that.setSelection(this.oldSelection);
+
+        artworkStructureChanged();
+        that.setActiveLayer(this.oldLayer, this.oldMask);
+      }
+
+      redo() {
+        let layerIndex = this.parentGroup.indexOf(this.oldLayer),
+          sourceRect = this.clip.bmp.getBounds(),
+          x,
+          y;
+
+        this.parentGroup.insertLayer(layerIndex + 1, this.newLayer);
+
+        if (sourceRect.isInside(that.getBounds())) {
+          x = this.clip.x;
+          y = this.clip.y;
+        } else {
+          x = ((that.width - this.clip.bmp.width) / 2) | 0;
+          y = ((that.height - this.clip.bmp.height) / 2) | 0;
+        }
+
+        if (this.clip.bmp instanceof CPGreyBmp) {
+          // Need to convert greyscale to color before we can paste
+          let clone = new CPColorBmp(this.clip.bmp.width, this.clip.bmp.height);
+
+          clone.copyPixelsFromGreyscale(this.clip.bmp);
+
+          this.newLayer.image?.copyBitmapRect(clone, x, y, sourceRect);
+        } else {
+          this.newLayer.image?.copyBitmapRect(this.clip.bmp, x, y, sourceRect);
+        }
+
+        that.emptySelection();
+
+        artworkStructureChanged();
+        that.setActiveLayer(this.newLayer, false);
       }
     }
 
