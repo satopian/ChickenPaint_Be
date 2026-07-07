@@ -4196,13 +4196,7 @@ export default class CPArtwork extends EventEmitter {
         }
 
         that.setActiveLayer(this.layer, this.maskEditingMode);
-        that.emptySelection();
-        invalidateLayer(
-          this.layer,
-          this.selection,
-          !this.maskEditingMode,
-          this.maskEditingMode,
-        );
+        invalidateLayer(this.layer, this.selection, true, true);
       }
     }
 
@@ -4277,8 +4271,6 @@ export default class CPArtwork extends EventEmitter {
           this.newLayer.maskVisible = true;
           this.newLayer.setMask(newMask);
         }
-
-        that.emptySelection();
 
         artworkStructureChanged();
         that.setActiveLayer(this.newLayer, maskEditingMode);
