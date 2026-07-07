@@ -465,6 +465,9 @@ export default class CPArtwork extends EventEmitter {
     function getActiveImage() {
       return maskEditingMode ? curLayer.mask : curLayer.image;
     }
+    function getActiveImageAndMask() {
+      return { image: curLayer.image, mask: curLayer.mask };
+    }
 
     this.setHasUnsavedChanges = function (value) {
       if (value != hasUnsavedChanges) {
@@ -2126,12 +2129,15 @@ export default class CPArtwork extends EventEmitter {
         curLayer instanceof CPImageLayer
       );
     };
+    /**
+     * 選択範囲のコピーは許可されているか?
+     * @returns {boolean}
+     */
     this.isCopySelectionAllowed = function () {
       return (
         !this.getSelection().isEmpty() &&
         getActiveImage() !== null &&
-        curLayer instanceof CPImageLayer &&
-        !maskEditingMode
+        curLayer instanceof CPImageLayer
       );
     };
 
@@ -2141,9 +2147,7 @@ export default class CPArtwork extends EventEmitter {
     this.cutSelection = function () {
       if (this.isCutSelectionAllowed()) {
         if (curLayer instanceof CPImageLayer) {
-          addUndo(
-            new CPActionCut(curLayer, maskEditingMode, this.getSelection()),
-          );
+          addUndo(new CPActionCut(curLayer, this.getSelection()));
         }
       }
     };
@@ -2155,11 +2159,12 @@ export default class CPArtwork extends EventEmitter {
       if (this.isCopySelectionAllowed()) {
         if (curLayer instanceof CPImageLayer) {
           let selection = that.getSelection(),
-            image = getActiveImage();
+            imageAndNask = getActiveImageAndMask();
 
-          if (image) {
+          if (imageAndNask.image) {
             clipboard = new CPClip(
-              image.cloneRect(selection),
+              imageAndNask.image.cloneRect(selection),
+              imageAndNask.mask?.cloneRect(selection),
               selection.left,
               selection.top,
             );
@@ -2178,6 +2183,7 @@ export default class CPArtwork extends EventEmitter {
 
         clipboard = new CPClip(
           this.fusionLayers().cloneRect(selection),
+          null,
           selection.left,
           selection.top,
         );
@@ -2185,7 +2191,7 @@ export default class CPArtwork extends EventEmitter {
     };
 
     this.isPasteClipboardAllowed = function () {
-      return !this.isClipboardEmpty() && !maskEditingMode;
+      return !this.isClipboardEmpty();
     };
 
     this.pasteClipboard = function () {
@@ -4130,90 +4136,78 @@ export default class CPArtwork extends EventEmitter {
     }
 
     /**
+     * 選択範囲をカット
      * Cut the selected rectangle from the layer
      */
     class CPActionCut extends CPUndo {
       /**
        *
        * @param {CPImageLayer} layer - Layer to cut from
-       * @param {boolean} cutFromMask - True to cut from the mask of the layer, false to cut from the image
        * @param {CPRect} selection - The cut rectangle co-ordinates
        */
-      constructor(layer, cutFromMask, selection) {
+      constructor(layer, selection) {
         super();
         this.layer = layer;
-        this.cutFromMask = cutFromMask;
-        this.fromImage = cutFromMask ? layer.mask : layer.image;
-        this.cutData = this.fromImage?.cloneRect(selection);
+        this.maskEditingMode = maskEditingMode;
+        this.cutImage = layer.image?.cloneRect(selection);
+        this.cutMask = layer.mask?.cloneRect(selection);
 
         this.selection = selection.clone();
 
         this.redo();
       }
       undo() {
-        if (!this.fromImage || !this.cutData) {
-          return;
-        }
-        if (
-          this.fromImage instanceof CPColorBmp &&
-          this.cutData instanceof CPColorBmp
-        ) {
-          this.fromImage.copyBitmapRect(
-            this.cutData,
+        if (this.layer.image && this.cutImage) {
+          this.layer.image.copyBitmapRect(
+            this.cutImage,
             this.selection.left,
             this.selection.top,
-            this.cutData.getBounds(),
-          );
-        } else if (
-          this.fromImage instanceof CPGreyBmp &&
-          this.cutData instanceof CPGreyBmp
-        ) {
-          this.fromImage.copyBitmapRect(
-            this.cutData,
-            this.selection.left,
-            this.selection.top,
-            this.cutData.getBounds(),
+            this.cutImage.getBounds(),
           );
         }
-        that.setActiveLayer(this.layer, this.cutFromMask);
+        if (this.layer.mask && this.cutMask) {
+          this.layer.mask.copyBitmapRect(
+            this.cutMask,
+            this.selection.left,
+            this.selection.top,
+            this.cutMask.getBounds(),
+          );
+        }
+        that.setActiveLayer(this.layer, this.maskEditingMode);
         that.setSelection(this.selection);
         invalidateLayer(
           this.layer,
           this.selection,
-          !this.cutFromMask,
-          this.cutFromMask,
+          !this.maskEditingMode,
+          this.maskEditingMode,
         );
       }
 
       redo() {
-        if (!this.fromImage) {
-          return;
-        }
-        if (this.cutFromMask) {
-          this.fromImage.clearRect(this.selection, EMPTY_MASK_COLOR);
-        } else {
-          this.fromImage.clearRect(this.selection, EMPTY_LAYER_COLOR);
-        }
-        if (this.cutData) {
+        this.layer.mask?.clearRect(this.selection, 0xff);
+        this.layer.image?.clearRect(this.selection, EMPTY_MASK_COLOR);
+        if (this.cutImage) {
           clipboard = new CPClip(
-            this.cutData,
+            this.cutImage,
+            this.cutMask,
             this.selection.left,
             this.selection.top,
           );
         }
 
-        that.setActiveLayer(this.layer, this.cutFromMask);
+        that.setActiveLayer(this.layer, this.maskEditingMode);
         that.emptySelection();
         invalidateLayer(
           this.layer,
           this.selection,
-          !this.cutFromMask,
-          this.cutFromMask,
+          !this.maskEditingMode,
+          this.maskEditingMode,
         );
       }
     }
 
     /**
+     * 選択範囲をペースト
      * Paste the given clipboard onto the given layer.
      */
     class CPActionPaste extends CPUndo {
@@ -4245,7 +4239,7 @@ export default class CPArtwork extends EventEmitter {
 
       redo() {
         let layerIndex = this.parentGroup.indexOf(this.oldLayer),
-          sourceRect = this.clip.bmp.getBounds(),
+          sourceRect = this.clip.image.getBounds(),
           x,
           y;
 
@@ -4255,24 +4249,39 @@ export default class CPArtwork extends EventEmitter {
           x = this.clip.x;
           y = this.clip.y;
         } else {
-          x = ((that.width - this.clip.bmp.width) / 2) | 0;
-          y = ((that.height - this.clip.bmp.height) / 2) | 0;
+          x = ((that.width - this.clip.image.width) / 2) | 0;
+          y = ((that.height - this.clip.image.height) / 2) | 0;
         }
 
-        if (this.clip.bmp instanceof CPGreyBmp) {
-          // Need to convert greyscale to color before we can paste
-          let clone = new CPColorBmp(this.clip.bmp.width, this.clip.bmp.height);
-          clone.copyPixelsFromGreyscale(this.clip.bmp);
+        if (this.clip.image instanceof CPColorBmp) {
+          this.newLayer.image?.copyBitmapRect(
+            this.clip.image,
+            x,
+            y,
+            sourceRect,
+          );
+        }
+        if (this.clip.mask instanceof CPGreyBmp) {
+          // 新規レイヤーにはまだマスクがないので、先に作成する
+          let newMask = new CPGreyBmp(that.width, that.height, 8);
+          newMask.clearAll(255); // 土台は白(全部見える)にしておく
 
-          this.newLayer.image?.copyBitmapRect(clone, x, y, sourceRect);
-        } else {
-          this.newLayer.image?.copyBitmapRect(this.clip.bmp, x, y, sourceRect);
+          newMask.copyBitmapRect(
+            this.clip.mask,
+            x,
+            y,
+            this.clip.mask.getBounds(),
+          );
+
+          this.newLayer.maskLinked = true;
+          this.newLayer.maskVisible = true;
+          this.newLayer.setMask(newMask);
         }
 
         that.emptySelection();
 
         artworkStructureChanged();
-        that.setActiveLayer(this.newLayer, false);
+        that.setActiveLayer(this.newLayer, maskEditingMode);
       }
     }
 
