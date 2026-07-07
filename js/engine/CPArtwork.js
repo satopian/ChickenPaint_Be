@@ -4272,6 +4272,8 @@ export default class CPArtwork extends EventEmitter {
           this.newLayer.setMask(newMask);
         }
 
+        that.emptySelection();
+
         artworkStructureChanged();
         that.setActiveLayer(this.newLayer, maskEditingMode);
       }
