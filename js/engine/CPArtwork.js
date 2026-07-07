@@ -644,7 +644,8 @@ export default class CPArtwork extends EventEmitter {
 
     this.mergeDown = function () {
       if (this.isMergeDownAllowed()) {
-        addUndo(new CPActionMergeDownLayer(curLayer));
+        if (curLayer instanceof CPImageLayer)
+          addUndo(new CPActionMergeDownLayer(curLayer));
       }
     };
 
@@ -655,7 +656,7 @@ export default class CPArtwork extends EventEmitter {
     };
 
     this.mergeGroup = function () {
-      if (this.isMergeGroupAllowed()) {
+      if (this.isMergeGroupAllowed() && curLayer instanceof CPLayerGroup) {
         addUndo(new CPActionMergeGroup(curLayer));
       }
     };
@@ -1449,6 +1450,9 @@ export default class CPArtwork extends EventEmitter {
       curSelection.clipTo(this.getBounds());
     };
 
+    /**
+     * 選択解除
+     */
     this.emptySelection = function () {
       curSelection.makeEmpty();
     };
@@ -2116,10 +2120,20 @@ export default class CPArtwork extends EventEmitter {
 
     // Copy/Paste functions
     this.isCutSelectionAllowed = function () {
-      return !this.getSelection().isEmpty() && getActiveImage() !== null;
+      return (
+        !this.getSelection().isEmpty() &&
+        getActiveImage() !== null &&
+        curLayer instanceof CPImageLayer
+      );
     };
-
-    this.isCopySelectionAllowed = this.isCutSelectionAllowed;
+    this.isCopySelectionAllowed = function () {
+      return (
+        !this.getSelection().isEmpty() &&
+        getActiveImage() !== null &&
+        curLayer instanceof CPImageLayer &&
+        !maskEditingMode
+      );
+    };
 
     /**
      * 選択範囲をカット
@@ -2139,15 +2153,17 @@ export default class CPArtwork extends EventEmitter {
      */
     this.copySelection = function () {
       if (this.isCopySelectionAllowed()) {
-        let selection = that.getSelection(),
-          image = getActiveImage();
+        if (curLayer instanceof CPImageLayer) {
+          let selection = that.getSelection(),
+            image = getActiveImage();
 
-        if (image) {
-          clipboard = new CPClip(
-            image.cloneRect(selection),
-            selection.left,
-            selection.top,
-          );
+          if (image) {
+            clipboard = new CPClip(
+              image.cloneRect(selection),
+              selection.left,
+              selection.top,
+            );
+          }
         }
       }
     };
@@ -2169,11 +2185,11 @@ export default class CPArtwork extends EventEmitter {
     };
 
     this.isPasteClipboardAllowed = function () {
-      return !this.isClipboardEmpty();
+      return !this.isClipboardEmpty() && !maskEditingMode;
     };
 
     this.pasteClipboard = function () {
-      if (this.isPasteClipboardAllowed()) {
+      if (this.isPasteClipboardAllowed() && clipboard) {
         addUndo(new CPActionPaste(clipboard));
       }
     };
@@ -2390,335 +2406,339 @@ export default class CPArtwork extends EventEmitter {
        */
       constructor(paintedImage = false, paintedMask = false) {
         super();
-        if (!paintedImage && !paintedMask) {
-          paintedImage = !maskEditingMode;
-          paintedMask = maskEditingMode;
+        this.paintedImage = paintedImage;
+        this.paintedMask = paintedMask;
+        if (!this.paintedImage && !this.paintedMask) {
+          this.paintedImage = !maskEditingMode;
+          this.paintedMask = maskEditingMode;
         }
 
-        let rect = paintUndoArea.clone(),
-          xorImage = paintedImage
-            ? undoImage.copyRectXOR(curLayer.image, rect)
-            : null,
-          xorMask =
-            paintedMask && curLayer.mask instanceof CPGreyBmp
-              ? undoMask.copyRectXOR(curLayer.mask, rect)
-              : null;
+        this.rect = paintUndoArea.clone();
+        this.xorImage = this.paintedImage
+          ? undoImage.copyRectXOR(curLayer.image, this.rect)
+          : null;
+        this.xorMask =
+          this.paintedMask && curLayer.mask instanceof CPGreyBmp
+            ? undoMask.copyRectXOR(curLayer.mask, this.rect)
+            : null;
 
         this.layer = curLayer;
 
         paintUndoArea.makeEmpty();
 
-        this.undo = function () {
-          if (xorImage) {
-            this.layer.image.setRectXOR(xorImage, rect);
-          }
-          if (xorMask) {
-            this.layer.mask?.setRectXOR(xorMask, rect);
-          }
-
-          invalidateLayer(this.layer, rect, xorImage != null, xorMask != null);
-        };
-
         this.redo = this.undo;
       }
-    }
+      undo() {
+        if (this.xorImage) {
+          this.layer.image.setRectXOR(this.xorImage, this.rect);
+        }
+        if (this.xorMask) {
+          this.layer.mask?.setRectXOR(this.xorMask, this.rect);
+        }
 
-    /**
-     * Upon creation, adds a layer mask to the given layer.
-     *
-     * @param {CPLayer} layer
-     *
-     * @constructor
-     */
-    class CPActionAddLayerMask extends CPUndo {
-      constructor(layer) {
-        super();
-        let oldMaskLinked = layer.maskLinked,
-          oldMaskVisible = layer.maskVisible;
-
-        this.undo = function () {
-          layer.setMask(null);
-
-          layer.maskLinked = oldMaskLinked;
-          layer.maskVisible = oldMaskVisible;
-
-          artworkStructureChanged();
-
-          that.setActiveLayer(layer, false);
-        };
-
-        this.redo = function () {
-          let newMask = new CPGreyBmp(that.width, that.height, 8);
-
-          newMask.clearAll(255);
-
-          layer.maskLinked = true;
-          layer.maskVisible = true;
-
-          layer.setMask(newMask);
-
-          artworkStructureChanged();
-
-          that.setActiveLayer(layer, true);
-        };
-
-        this.redo();
+        invalidateLayer(
+          this.layer,
+          this.rect,
+          this.xorImage != null,
+          this.xorMask != null,
+        );
       }
     }
 
     /**
-     * Upon creation, removes, or applies and removes, the layer mask on the given layer.
-     *
-     * @param {CPLayer} layer
-     * @param {boolean} apply
-     *
-     * @constructor
+     * Upon creation, adds a this.layer mask to the given this.layer.
      */
-    class CPActionRemoveLayerMask extends CPUndo {
-      constructor(layer, apply) {
+    class CPActionAddLayerMask extends CPUndo {
+      /**
+       * @param {CPLayer} layer
+       */
+      constructor(layer) {
         super();
-
-        let oldMask = layer.mask,
-          oldLayerImage,
-          maskWasSelected = false;
-
-        if (apply && layer instanceof CPImageLayer) {
-          oldLayerImage = layer.image?.clone();
-        } else {
-          oldLayerImage = null;
-        }
-
-        maskWasSelected = curLayer == layer && maskEditingMode;
+        this.layer = layer;
+        let oldMaskLinked = this.layer.maskLinked,
+          oldMaskVisible = this.layer.maskVisible;
 
         this.undo = function () {
-          layer.setMask(oldMask);
+          this.layer.setMask(null);
 
-          if (oldLayerImage) {
-            layer.image.copyPixelsFrom(oldLayerImage);
-            invalidateLayer(layer, layer.image.getBounds(), true, false);
-          }
-
-          if (maskWasSelected) {
-            that.setActiveLayer(layer, true);
-          }
+          this.layer.maskLinked = oldMaskLinked;
+          this.layer.maskVisible = oldMaskVisible;
 
           artworkStructureChanged();
+
+          that.setActiveLayer(this.layer, false);
         };
-
-        this.redo = function () {
-          if (oldLayerImage) {
-            CPBlend.multiplyAlphaByMask(layer.image, 100, layer.mask);
-
-            // Ensure thumbnail is repainted (artworkStructureChanged() doesn't repaint thumbs)
-            invalidateLayer(layer, that.getBounds(), true, false);
-          }
-
-          if (maskWasSelected) {
-            that.setActiveLayer(layer, false);
-          }
-
-          layer.setMask(null);
-
-          artworkStructureChanged();
-        };
-
         this.redo();
+      }
+      redo() {
+        let newMask = new CPGreyBmp(that.width, that.height, 8);
+
+        newMask.clearAll(255);
+
+        this.layer.maskLinked = true;
+        this.layer.maskVisible = true;
+
+        this.layer.setMask(newMask);
+
+        artworkStructureChanged();
+
+        that.setActiveLayer(this.layer, true);
+      }
+    }
+
+    /**
+     * Upon creation, removes, or applies and removes, the this.layer mask on the given this.layer.
+     */
+    class CPActionRemoveLayerMask extends CPUndo {
+      /**
+       * @param {CPLayer} layer
+       * @param {boolean} apply
+       */
+      constructor(layer, apply) {
+        super();
+        this.layer = layer;
+        this.apply = apply;
+
+        this.oldMask = this.layer.mask;
+        this.oldLayerImage;
+        this.maskWasSelected = false;
+
+        if (this.apply && this.layer instanceof CPImageLayer) {
+          this.oldLayerImage = this.layer.image?.clone();
+        } else {
+          this.oldLayerImage = null;
+        }
+        this.maskWasSelected = curLayer == this.layer && maskEditingMode;
+        this.redo();
+      }
+      undo() {
+        this.layer.setMask(this.oldMask);
+
+        if (this.oldLayerImage) {
+          this.layer.image.copyPixelsFrom(this.oldLayerImage);
+          invalidateLayer(
+            this.layer,
+            this.layer.image.getBounds(),
+            true,
+            false,
+          );
+        }
+
+        if (this.maskWasSelected) {
+          that.setActiveLayer(this.layer, true);
+        }
+
+        artworkStructureChanged();
+      }
+
+      redo() {
+        if (this.oldLayerImage) {
+          CPBlend.multiplyAlphaByMask(this.layer.image, 100, this.layer.mask);
+
+          // Ensure thumbnail is repainted (artworkStructureChanged() doesn't repaint thumbs)
+          invalidateLayer(this.layer, that.getBounds(), true, false);
+        }
+
+        if (this.maskWasSelected) {
+          that.setActiveLayer(this.layer, false);
+        }
+
+        this.layer.setMask(null);
+
+        artworkStructureChanged();
       }
     }
 
     /**
      * Upon creation, adds a layer at the given index in the given layer group.
      *
-     * @param {CPLayerGroup} parentGroup
-     * @param {number} newLayerIndex
-     * @param {CPLayer} newLayer
-     *
-     * @constructor
      */
     class CPActionAddLayer extends CPUndo {
+      /**
+       * Upon creation, adds a layer at the given index in the given layer group.
+       *
+       * @param {CPLayerGroup} parentGroup
+       * @param {number} newLayerIndex
+       * @param {CPLayer} newLayer
+       */
       constructor(parentGroup, newLayerIndex, newLayer) {
         super();
+        this.parentGroup = parentGroup;
+        this.newLayerIndex = newLayerIndex;
+        this.newLayer = newLayer;
 
-        const newLayerWasClipped =
-            newLayer instanceof CPImageLayer && newLayer.clip,
-          toBelowLayer = parentGroup.layers[newLayerIndex],
-          toBelowLayerWasClipped =
-            toBelowLayer instanceof CPImageLayer && toBelowLayer.clip,
-          fromMask = maskEditingMode;
-
-        this.undo = function () {
-          parentGroup.removeLayer(newLayer);
-
-          let newSelection =
-            parentGroup.layers[newLayerIndex - 1] ||
-            parentGroup.layers[0] ||
-            parentGroup;
-
-          if (toBelowLayer instanceof CPImageLayer) {
-            toBelowLayer.clip = toBelowLayerWasClipped;
-          }
-          if (newLayer instanceof CPImageLayer) {
-            newLayer.clip = newLayerWasClipped;
-          }
-
-          artworkStructureChanged();
-          that.setActiveLayer(newSelection, fromMask);
-        };
-
-        this.redo = function () {
-          parentGroup.insertLayer(newLayerIndex, newLayer);
-
-          if (toBelowLayerWasClipped) {
-            if (newLayer instanceof CPImageLayer) {
-              // Join a clipping group if we add an image layer in the middle of it
-              newLayer.clip = true;
-            } else {
-              // If we add a group into a clipping group, break it
-              toBelowLayer.clip = false;
-            }
-          }
-
-          artworkStructureChanged();
-          that.setActiveLayer(newLayer, false);
-        };
-
+        this.newLayerWasClipped =
+          this.newLayer instanceof CPImageLayer && this.newLayer.clip;
+        this.toBelowLayer = this.parentGroup.layers[this.newLayerIndex];
+        this.toBelowLayerWasClipped =
+          this.toBelowLayer instanceof CPImageLayer && this.toBelowLayer.clip;
+        this.fromMask = maskEditingMode;
         this.redo();
+      }
+      undo() {
+        this.parentGroup.removeLayer(this.newLayer);
+
+        let newSelection =
+          this.parentGroup.layers[this.newLayerIndex - 1] ||
+          this.parentGroup.layers[0] ||
+          this.parentGroup;
+
+        if (this.toBelowLayer instanceof CPImageLayer) {
+          this.toBelowLayer.clip = this.toBelowLayerWasClipped;
+        }
+        if (this.newLayer instanceof CPImageLayer) {
+          this.newLayer.clip = this.newLayerWasClipped;
+        }
+
+        artworkStructureChanged();
+        that.setActiveLayer(newSelection, this.fromMask);
+      }
+
+      redo() {
+        this.parentGroup.insertLayer(this.newLayerIndex, this.newLayer);
+
+        if (this.toBelowLayerWasClipped) {
+          if (this.newLayer instanceof CPImageLayer) {
+            // Join a clipping group if we add an image layer in the middle of it
+            this.newLayer.clip = true;
+          } else {
+            // If we add a group into a clipping group, break it
+            this.toBelowLayer.clip = false;
+          }
+        }
+
+        artworkStructureChanged();
+        that.setActiveLayer(this.newLayer, false);
       }
     }
 
     /**
      * Make a copy of the currently selected layer and add the new layer on top of the current layer.
-     *
-     * @param {CPLayer} sourceLayer
-     * @constructor
      */
     class CPActionDuplicateLayer extends CPUndo {
+      /**
+       * @param {CPLayer} sourceLayer
+       */
       constructor(sourceLayer) {
         super();
-        let newLayer = sourceLayer.clone(),
-          oldMask = maskEditingMode;
-
-        this.undo = function () {
-          newLayer.parent.removeLayer(newLayer);
-
-          artworkStructureChanged();
-          that.setActiveLayer(sourceLayer, oldMask);
-        };
-
-        this.redo = function () {
-          const COPY_SUFFIX = " Copy";
-
-          let newLayerName = sourceLayer.name;
-
-          if (!newLayerName.endsWith(COPY_SUFFIX)) {
-            newLayerName += COPY_SUFFIX;
-          }
-
-          newLayer.name = newLayerName;
-
-          sourceLayer.parent.insertLayer(
-            sourceLayer.parent.indexOf(sourceLayer) + 1,
-            newLayer,
-          );
-
-          artworkStructureChanged();
-          that.setActiveLayer(newLayer, false);
-        };
-
+        this.sourceLayer = sourceLayer;
+        this.newLayer = this.sourceLayer.clone();
+        this.oldMask = maskEditingMode;
         this.redo();
+      }
+      undo() {
+        this.newLayer.parent.removeLayer(this.newLayer);
+
+        artworkStructureChanged();
+        that.setActiveLayer(this.sourceLayer, this.oldMask);
+      }
+
+      redo() {
+        const COPY_SUFFIX = " Copy";
+
+        let newLayerName = this.sourceLayer.name;
+
+        if (!newLayerName.endsWith(COPY_SUFFIX)) {
+          newLayerName += COPY_SUFFIX;
+        }
+
+        this.newLayer.name = newLayerName;
+
+        this.sourceLayer.parent.insertLayer(
+          this.sourceLayer.parent.indexOf(this.sourceLayer) + 1,
+          this.newLayer,
+        );
+
+        artworkStructureChanged();
+        that.setActiveLayer(this.newLayer, false);
       }
     }
 
     /**
-     * @param {CPLayer} layer
+     * レイヤー削除
      */
     class CPActionRemoveLayer extends CPUndo {
+      /**
+       * @param {CPLayer} layer
+       */
       constructor(layer) {
         super();
-        let oldGroup = layer.parent,
-          oldIndex = oldGroup.indexOf(layer),
-          oldMask = maskEditingMode,
-          numLayersClippedAbove = 0;
+        this.layer = layer;
+        ((this.oldGroup = this.layer.parent),
+          (this.oldIndex = this.oldGroup.indexOf(this.layer)),
+          (this.oldMask = maskEditingMode),
+          (this.numLayersClippedAbove = 0));
 
-        if (layer instanceof CPImageLayer && !layer.clip) {
-          for (let i = oldIndex + 1; i < oldGroup.layers.length; i++) {
+        if (this.layer instanceof CPImageLayer && !this.layer.clip) {
+          for (
+            let i = this.oldIndex + 1;
+            i < this.oldGroup.layers.length;
+            i++
+          ) {
             if (
-              oldGroup.layers[i] instanceof CPImageLayer &&
-              oldGroup.layers[i].clip
+              this.oldGroup.layers[i] instanceof CPImageLayer &&
+              this.oldGroup.layers[i].clip
             ) {
-              numLayersClippedAbove++;
+              this.numLayersClippedAbove++;
             } else {
               break;
             }
           }
         }
-        this.undo = function () {
-          oldGroup.insertLayer(oldIndex, layer);
-
-          for (let i = 0; i < numLayersClippedAbove; i++) {
-            oldGroup.layers[i + oldIndex + 1].clip = true;
-          }
-
-          artworkStructureChanged();
-          that.setActiveLayer(layer, oldMask);
-        };
-
-        this.redo = function () {
-          // Release the clip of any layers who had us as their clipping root
-          for (let i = 0; i < numLayersClippedAbove; i++) {
-            oldGroup.layers[i + oldIndex + 1].clip = false;
-          }
-
-          oldGroup.removeLayerAtIndex(oldIndex);
-
-          let newSelectedLayer;
-
-          /* Attempt to select the layer underneath the one that was removed, otherwise the one on top,
-           * otherwise the group that contained the layer.
-           */
-          if (oldGroup.layers.length == 0) {
-            newSelectedLayer = layer.parent;
-          } else {
-            newSelectedLayer = oldGroup.layers[Math.max(oldIndex - 1, 0)];
-          }
-
-          artworkStructureChanged();
-          that.setActiveLayer(newSelectedLayer, false);
-        };
-
         this.redo();
+      }
+      undo() {
+        this.oldGroup.insertLayer(this.oldIndex, this.layer);
+
+        for (let i = 0; i < this.numLayersClippedAbove; i++) {
+          this.oldGroup.layers[i + this.oldIndex + 1].clip = true;
+        }
+
+        artworkStructureChanged();
+        that.setActiveLayer(this.layer, this.oldMask);
+      }
+
+      redo() {
+        // Release the clip of any layers who had us as their clipping root
+        for (let i = 0; i < this.numLayersClippedAbove; i++) {
+          this.oldGroup.layers[i + this.oldIndex + 1].clip = false;
+        }
+
+        this.oldGroup.removeLayerAtIndex(this.oldIndex);
+
+        let newSelectedLayer;
+
+        /* Attempt to select the this.layer underneath the one that was removed, otherwise the one on top,
+         * otherwise the group that contained the this.layer.
+         */
+        if (this.oldGroup.layers.length == 0) {
+          newSelectedLayer = this.layer.parent;
+        } else {
+          newSelectedLayer =
+            this.oldGroup.layers[Math.max(this.oldIndex - 1, 0)];
+        }
+
+        artworkStructureChanged();
+        that.setActiveLayer(newSelectedLayer, false);
       }
     }
 
     /**
      * Merge the given group together to form an image layer.
      *
-     * @param {CPLayerGroup} layerGroup
-     * @constructor
      */
     class CPActionMergeGroup extends CPUndo {
+      /**
+       * @param {CPLayerGroup} layerGroup
+       */
       constructor(layerGroup) {
         super();
-        let oldGroupIndex = layerGroup.parent.indexOf(layerGroup),
-          fromMask = maskEditingMode,
-          mergedLayer = new CPImageLayer(that.width, that.height, "");
-
-        this.undo = function () {
-          layerGroup.parent.setLayerAtIndex(oldGroupIndex, layerGroup);
-
-          artworkStructureChanged();
-          that.setActiveLayer(layerGroup, fromMask);
-        };
-
-        this.redo = function () {
-          layerGroup.parent.setLayerAtIndex(oldGroupIndex, mergedLayer);
-
-          artworkStructureChanged();
-          that.setActiveLayer(mergedLayer, false);
-        };
-
+        this.layerGroup = layerGroup;
+        this.oldGroupIndex = this.layerGroup.parent.indexOf(this.layerGroup);
+        this.fromMask = maskEditingMode;
+        this.mergedLayer = new CPImageLayer(that.width, that.height, "");
         let blendTree = new CPBlendTree(
-            layerGroup,
+            this.layerGroup,
             that.width,
             that.height,
             false,
@@ -2729,325 +2749,372 @@ export default class CPArtwork extends EventEmitter {
 
         blended = blendTree.blendTree();
 
-        mergedLayer.name = layerGroup.name;
+        this.mergedLayer.name = this.layerGroup.name;
 
-        mergedLayer.alpha = blended.alpha;
-        mergedLayer.image = blended.image;
-        mergedLayer.blendMode = blended.blendMode;
-        mergedLayer.mask = blended.mask;
+        this.mergedLayer.alpha = blended.alpha;
+        this.mergedLayer.image = blended.image;
+        this.mergedLayer.blendMode = blended.blendMode;
+        this.mergedLayer.mask = blended.mask;
 
-        if (mergedLayer.blendMode == CPBlend.LM_PASSTHROUGH) {
+        if (this.mergedLayer.blendMode == CPBlend.LM_PASSTHROUGH) {
           // Passthrough is not a meaningful blend mode for a single layer
-          mergedLayer.blendMode = CPBlend.LM_NORMAL;
+          this.mergedLayer.blendMode = CPBlend.LM_NORMAL;
         }
-
         this.redo();
       }
-    }
+      undo() {
+        this.layerGroup.parent.setLayerAtIndex(
+          this.oldGroupIndex,
+          this.layerGroup,
+        );
 
+        artworkStructureChanged();
+        that.setActiveLayer(this.layerGroup, this.fromMask);
+      }
+
+      redo() {
+        this.layerGroup.parent.setLayerAtIndex(
+          this.oldGroupIndex,
+          this.mergedLayer,
+        );
+
+        artworkStructureChanged();
+        that.setActiveLayer(this.mergedLayer, false);
+      }
+    }
     /**
      * Merge the top layer onto the under layer and remove the top layer.
-     *
-     * @param {CPImageLayer} topLayer
-     * @constructor
      */
     class CPActionMergeDownLayer extends CPUndo {
+      /**
+       * @param {CPImageLayer} topLayer
+       */
       constructor(topLayer) {
         super();
-        let group = topLayer.parent,
-          underLayer = group.layers[group.indexOf(topLayer) - 1],
-          mergedLayer = new CPImageLayer(that.width, that.height, ""),
-          fromMask = maskEditingMode;
-
-        this.undo = function () {
-          let mergedIndex = group.indexOf(mergedLayer);
-
-          group.removeLayerAtIndex(mergedIndex);
-
-          group.insertLayer(mergedIndex, topLayer);
-          group.insertLayer(mergedIndex, underLayer);
-
-          artworkStructureChanged();
-          that.setActiveLayer(topLayer, fromMask);
-        };
-
-        this.redo = function () {
-          // 上のレイヤーがクリッピングされていない時と、下のレイヤーがクリッピングされている時には、クリッピング処理は必要ない。
-          if (underLayer.clip || !topLayer.clip) {
-            // `underLayer` を `mergedLayer` にコピー
-            mergedLayer.copyFrom(underLayer);
-            if (topLayer.getEffectiveAlpha() > 0) {
-              // Ensure base layer has alpha 100, and apply its mask, ready for blending
-              if (mergedLayer.mask) {
-                CPBlend.multiplyAlphaByMask(
-                  mergedLayer.image,
-                  mergedLayer.alpha,
-                  mergedLayer.mask,
-                );
-              } else {
-                CPBlend.multiplyAlphaBy(mergedLayer.image, mergedLayer.alpha);
-              }
-
-              CPBlend.fuseImageOntoImage(
-                mergedLayer.image,
-                true,
-                topLayer.image,
-                topLayer.alpha,
-                topLayer.blendMode,
-                topLayer.getBounds(),
-                topLayer.mask,
-              );
-            }
-          } else {
-            // 下のレイヤーと結合する時にクリッピング処理が必要
-            // 上下のレイヤーを含むレイヤーグループを一時的に作成
-            const tempGroup = new CPLayerGroup();
-            tempGroup.layers = [underLayer, topLayer];
-            tempGroup.parent = null; // No parent for this temporary group
-            tempGroup.name = "Temporary Group";
-
-            // ブレンドツリーを作成してビルド
-            let blendTree = new CPBlendTree(
-              tempGroup,
-              that.width,
-              that.height,
-              false,
-            );
-            blendTree.buildTree();
-
-            const blended = blendTree.blendTree();
-            if (!blended) {
-              return;
-            }
-            // `mergedLayer` の合成結果を設定
-            mergedLayer.image = blended.image;
-          }
-
-          // 合成結果を `mergedLayer` のプロパティに設定する
-          mergedLayer.name = underLayer.name; // 下のレイヤーの名前が残る
-          mergedLayer.alpha = 100;
-          mergedLayer.blendMode = underLayer.blendMode; // 下のレイヤーの合成方法を使用
-          mergedLayer.mask = null; // マスクをクリア
-
-          let underIndex = group.indexOf(underLayer);
-          // 上下のレイヤーを結合されたレイヤーに置き換える
-          group.removeLayerAtIndex(underIndex);
-          group.removeLayerAtIndex(underIndex);
-          // 下のレイヤーの位置に結合したレイヤーを挿入する
-          group.insertLayer(underIndex, mergedLayer);
-
-          artworkStructureChanged();
-          that.setActiveLayer(mergedLayer, false);
-        };
-
+        this.topLayer = topLayer;
+        this.group = this.topLayer.parent;
+        this.underLayer =
+          this.group.layers[this.group.indexOf(this.topLayer) - 1];
+        this.mergedLayer = new CPImageLayer(that.width, that.height, "");
+        this.fromMask = maskEditingMode;
         this.redo();
       }
-    }
+      undo() {
+        let mergedIndex = this.group.indexOf(this.mergedLayer);
 
+        this.group.removeLayerAtIndex(mergedIndex);
+
+        this.group.insertLayer(mergedIndex, this.topLayer);
+        this.group.insertLayer(mergedIndex, this.underLayer);
+
+        artworkStructureChanged();
+        that.setActiveLayer(this.topLayer, this.fromMask);
+      }
+
+      redo() {
+        // 上のレイヤーがクリッピングされていない時と、下のレイヤーがクリッピングされている時には、クリッピング処理は必要ない。
+        if (this.underLayer.clip || !this.topLayer.clip) {
+          // `this.underLayer` を `this.mergedLayer` にコピー
+          this.mergedLayer.copyFrom(this.underLayer);
+          if (this.topLayer.getEffectiveAlpha() > 0) {
+            // Ensure base layer has alpha 100, and apply its mask, ready for blending
+            if (this.mergedLayer.mask) {
+              CPBlend.multiplyAlphaByMask(
+                this.mergedLayer.image,
+                this.mergedLayer.alpha,
+                this.mergedLayer.mask,
+              );
+            } else {
+              CPBlend.multiplyAlphaBy(
+                this.mergedLayer.image,
+                this.mergedLayer.alpha,
+              );
+            }
+
+            CPBlend.fuseImageOntoImage(
+              this.mergedLayer.image,
+              true,
+              this.topLayer.image,
+              this.topLayer.alpha,
+              this.topLayer.blendMode,
+              this.topLayer.getBounds(),
+              this.topLayer.mask,
+            );
+          }
+        } else {
+          // 下のレイヤーと結合する時にクリッピング処理が必要
+          // 上下のレイヤーを含むレイヤーグループを一時的に作成
+          const tempGroup = new CPLayerGroup();
+          tempGroup.layers = [this.underLayer, this.topLayer];
+          tempGroup.parent = null; // No parent for this temporary this.group
+          tempGroup.name = "Temporary Group";
+
+          // ブレンドツリーを作成してビルド
+          let blendTree = new CPBlendTree(
+            tempGroup,
+            that.width,
+            that.height,
+            false,
+          );
+          blendTree.buildTree();
+
+          const blended = blendTree.blendTree();
+          if (!blended) {
+            return;
+          }
+          // `this.mergedLayer` の合成結果を設定
+          this.mergedLayer.image = blended.image;
+        }
+
+        // 合成結果を `this.mergedLayer` のプロパティに設定する
+        this.mergedLayer.name = this.underLayer.name; // 下のレイヤーの名前が残る
+        this.mergedLayer.alpha = 100;
+        this.mergedLayer.blendMode = this.underLayer.blendMode; // 下のレイヤーの合成方法を使用
+        this.mergedLayer.mask = null; // マスクをクリア
+
+        let underIndex = this.group.indexOf(this.underLayer);
+        // 上下のレイヤーを結合されたレイヤーに置き換える
+        this.group.removeLayerAtIndex(underIndex);
+        this.group.removeLayerAtIndex(underIndex);
+        // 下のレイヤーの位置に結合したレイヤーを挿入する
+        this.group.insertLayer(underIndex, this.mergedLayer);
+
+        artworkStructureChanged();
+        that.setActiveLayer(this.mergedLayer, false);
+      }
+    }
+    /**
+     * 全レイヤー結合
+     */
     class CPActionMergeAllLayers extends CPUndo {
+      /**
+       * @param {boolean} addFlattenedLayer - 結合レイヤーを追加
+       *
+       */
       constructor(addFlattenedLayer = false) {
         super();
-        let oldActiveLayer = that.getActiveLayer(),
-          oldRootLayers = layersRoot.layers.slice(0), // 元のレイヤー構造を保存
-          flattenedLayer = new CPImageLayer(that.width, that.height, "");
-
-        this.undo = function () {
-          layersRoot.layers = oldRootLayers.slice(0);
-          artworkStructureChanged();
-          that.setActiveLayer(oldActiveLayer, false);
-        };
-
-        this.redo = function () {
-          let mergedImage = that.fusionLayers();
-          flattenedLayer.copyImageFrom(mergedImage);
-          // Generate the name after the document is empty (so it can be "Layer 1")
-          flattenedLayer.setName(that.getDefaultLayerName(false));
-
-          if (addFlattenedLayer) {
-            // 元のレイヤーは残して、flattenedLayer を上に追加
-            layersRoot.layers = oldRootLayers.slice(0); // 念のため復元
-            layersRoot.addLayer(flattenedLayer);
-          } else {
-            // 元のレイヤーをすべて削除し、flattenedLayer だけにする
-            layersRoot.clearLayers();
-            layersRoot.addLayer(flattenedLayer);
-          }
-
-          artworkStructureChanged();
-          that.setActiveLayer(flattenedLayer, false);
-        };
-
+        this.addFlattenedLayer = addFlattenedLayer;
+        this.oldActiveLayer = that.getActiveLayer();
+        this.oldRootLayers = layersRoot.layers.slice(0); // 元のレイヤー構造を保存
+        this.flattenedLayer = new CPImageLayer(that.width, that.height, "");
         this.redo();
+      }
+      undo() {
+        layersRoot.layers = this.oldRootLayers.slice(0);
+        artworkStructureChanged();
+        that.setActiveLayer(this.oldActiveLayer, false);
+      }
+
+      redo() {
+        let mergedImage = that.fusionLayers();
+        this.flattenedLayer.copyImageFrom(mergedImage);
+        // Generate the name after the document is empty (so it can be "Layer 1")
+        this.flattenedLayer.setName(that.getDefaultLayerName(false));
+
+        if (this.addFlattenedLayer) {
+          // 元のレイヤーは残して、flattenedLayer を上に追加
+          layersRoot.layers = this.oldRootLayers.slice(0); // 念のため復元
+          layersRoot.addLayer(this.flattenedLayer);
+        } else {
+          // 元のレイヤーをすべて削除し、flattenedLayer だけにする
+          layersRoot.clearLayers();
+          layersRoot.addLayer(this.flattenedLayer);
+        }
+
+        artworkStructureChanged();
+        that.setActiveLayer(this.flattenedLayer, false);
       }
     }
 
     /**
      * 結合レイヤーを追加し、任意のフィルタを適用する Undo。
-     *
-     * @constructor
-     * @extends CPUndo
-     * @param {Function} applyFilterFn - (target, r) => void
      */
     class CPCreateMergedLayerWithFilter extends CPUndo {
+      /**
+       * @param {Function} applyFilterFn - (target, r) => void
+       */
       constructor(applyFilterFn, blendMode = CPBlend.LM_NORMAL) {
         super();
+        this.applyFilterFn = applyFilterFn;
+        this.blendMode = blendMode;
+
         if (maskEditingMode) return;
 
-        let oldActiveLayer = that.getActiveLayer(),
-          oldRootLayers = layersRoot.layers.slice(0),
-          flattenedLayer = new CPImageLayer(that.width, that.height, "");
-
-        this.undo = function () {
-          layersRoot.layers = oldRootLayers.slice(0);
-          artworkStructureChanged();
-          that.setActiveLayer(oldActiveLayer, false);
-        };
-
-        this.redo = function () {
-          let mergedImage = that.fusionLayers();
-          flattenedLayer.copyImageFrom(mergedImage);
-          flattenedLayer.setName(that.getDefaultLayerName(false));
-          flattenedLayer.setBlendMode(blendMode);
-          layersRoot.layers = oldRootLayers.slice(0);
-          layersRoot.addLayer(flattenedLayer);
-          artworkStructureChanged();
-          that.setActiveLayer(flattenedLayer, false);
-
-          let r = that.getSelectionAutoSelect(),
-            target = getActiveImage();
-
-          if (target) {
-            prepareForLayerPaintUndo();
-            paintUndoArea = r.clone();
-
-            applyFilterFn(target, r);
-
-            invalidateLayerPaint(curLayer, r);
-          }
-        };
-
+        this.oldActiveLayer = that.getActiveLayer();
+        this.oldRootLayers = layersRoot.layers.slice(0);
+        this.flattenedLayer = new CPImageLayer(that.width, that.height, "");
         this.redo();
+      }
+      undo() {
+        if (this.oldRootLayers) {
+          layersRoot.layers = this.oldRootLayers.slice(0);
+        }
+        artworkStructureChanged();
+        if (this.oldActiveLayer) {
+          that.setActiveLayer(this.oldActiveLayer, false);
+        }
+      }
+
+      redo() {
+        let mergedImage = that.fusionLayers();
+        if (!this.flattenedLayer || !this.oldRootLayers) {
+          return;
+        }
+        this.flattenedLayer.copyImageFrom(mergedImage);
+        this.flattenedLayer.setName(that.getDefaultLayerName(false));
+        this.flattenedLayer.setBlendMode(this.blendMode);
+        layersRoot.layers = this.oldRootLayers.slice(0);
+        layersRoot.addLayer(this.flattenedLayer);
+        artworkStructureChanged();
+        that.setActiveLayer(this.flattenedLayer, false);
+
+        let r = that.getSelectionAutoSelect(),
+          target = getActiveImage();
+
+        if (target) {
+          prepareForLayerPaintUndo();
+          paintUndoArea = r.clone();
+
+          this.applyFilterFn(target, r);
+
+          invalidateLayerPaint(curLayer, r);
+        }
       }
     }
 
     /**
      * レイヤーを新しい階層へ移動し、クリッピング状態を再構築。
      *  移動元と移動先の前後でクリッピングの連鎖が壊れないよう自動調整を行う。
-     * Move the layer to the given position in the layer tree.
-     *
-     * @param {CPLayer} layer
-     * @param {CPLayerGroup} toGroup - The group that the layer will be a child of after moving
-     * @param {number} toIndex - The index of the layer inside the destination group that the layer will be below after the
-     *                        move.
-     * @constructor
+     * Move the this.layer to the given position in the this.layer tree.
      */
     class CPActionRelocateLayer extends CPUndo {
+      /**
+       * @param {CPLayer} layer
+       * @param {CPLayerGroup} toGroup - The group that the this.layer will be a child of after moving
+       * @param {number} toIndex - The index of the this.layer inside the destination group that the this.layer will be below after the
+       */
       constructor(layer, toGroup, toIndex) {
         super();
-        const fromGroup = layer.parent,
-          fromIndex = layer.parent.indexOf(layer),
-          fromMask = maskEditingMode,
-          fromBelowLayer = fromGroup.layers[fromGroup.indexOf(layer) + 1],
-          toBelowLayer = toGroup.layers[toIndex],
-          wasClipped = layer instanceof CPImageLayer && layer.clip,
-          wasClippedTo = wasClipped ? layer.getClippingBase() : false;
+        this.layer = layer;
+        this.toGroup = toGroup;
+        this.toIndex = toIndex;
+        this.fromGroup = this.layer.parent;
+        this.fromIndex = this.layer.parent.indexOf(this.layer);
+        this.fromMask = maskEditingMode;
+        this.fromBelowLayer =
+          this.fromGroup.layers[this.fromGroup.indexOf(this.layer) + 1];
+        this.toBelowLayer = this.toGroup.layers[toIndex];
+        this.wasClipped = this.layer instanceof CPImageLayer && this.layer.clip;
+        if (this.layer instanceof CPImageLayer) {
+          this.wasClippedTo = this.wasClipped
+            ? this.layer.getClippingBase()
+            : false;
+        }
 
-        let fromNumLayersClippedAbove = 0,
-          toNumLayersClippedAbove = 0;
+        this.fromNumLayersClippedAbove = 0;
+        this.toNumLayersClippedAbove = 0;
 
-        if (layer instanceof CPImageLayer && !layer.clip) {
+        if (this.layer instanceof CPImageLayer && !this.layer.clip) {
           // Release the clip of any layers that had us as their clipping root
-          for (let i = fromIndex + 1; i < fromGroup.layers.length; i++) {
+          for (
+            let i = this.fromIndex + 1;
+            i < this.fromGroup.layers.length;
+            i++
+          ) {
             if (
-              fromGroup.layers[i] instanceof CPImageLayer &&
-              fromGroup.layers[i].clip
+              this.fromGroup.layers[i] instanceof CPImageLayer &&
+              this.fromGroup.layers[i].clip
             ) {
-              fromNumLayersClippedAbove++;
+              this.fromNumLayersClippedAbove++;
             } else {
               break;
             }
           }
-        } else if (layer instanceof CPLayerGroup) {
+        } else if (this.layer instanceof CPLayerGroup) {
           // If we move a group into the middle of a clipping group, release the clip of the layers above
           for (let i = toIndex; i < toGroup.layers.length; i++) {
             if (
               toGroup.layers[i] instanceof CPImageLayer &&
               toGroup.layers[i].clip
             ) {
-              toNumLayersClippedAbove++;
+              this.toNumLayersClippedAbove++;
             } else {
               break;
             }
           }
         }
-
-        this.undo = function () {
-          layer.parent.removeLayer(layer);
-
-          let newIndex = fromBelowLayer
-            ? fromGroup.indexOf(fromBelowLayer)
-            : fromGroup.layers.length;
-
-          fromGroup.insertLayer(newIndex, layer);
-
-          if (layer instanceof CPImageLayer) {
-            layer.clip = wasClipped;
-          }
-
-          for (let i = 0; i < fromNumLayersClippedAbove; i++) {
-            fromGroup.layers[i + fromIndex + 1].clip = true;
-          }
-
-          for (let i = 0; i < toNumLayersClippedAbove; i++) {
-            toGroup.layers[i + toIndex].clip = true;
-          }
-
-          artworkStructureChanged();
-          that.setActiveLayer(layer, fromMask);
-        };
-
-        this.redo = function () {
-          for (let i = 0; i < fromNumLayersClippedAbove; i++) {
-            fromGroup.layers[i + fromIndex + 1].clip = false;
-          }
-
-          layer.parent.removeLayer(layer);
-
-          let newIndex = toBelowLayer
-            ? toGroup.indexOf(toBelowLayer)
-            : toGroup.layers.length;
-
-          toGroup.insertLayer(newIndex, layer);
-
-          for (let i = 0; i < toNumLayersClippedAbove; i++) {
-            toGroup.layers[i + newIndex + 1].clip = false;
-          }
-
-          if (layer instanceof CPImageLayer) {
-            /*
-             * Release the layer clip if we move the layer somewhere it won't be clipped onto its original base
-             */
-            if (layer.clip && layer.getClippingBase() != wasClippedTo) {
-              layer.clip = false;
-            }
-
-            // If we're moving into the middle of a new clipping group, join the clip
-            if (toBelowLayer instanceof CPImageLayer && toBelowLayer.clip) {
-              layer.clip = true;
-            }
-          }
-
-          for (let i = 0; i < toNumLayersClippedAbove; i++) {
-            toGroup.layers[i + newIndex + 1].clip = false;
-          }
-
-          artworkStructureChanged();
-
-          // TODO if moving to a collapsed group, select the group rather than the layer
-          that.setActiveLayer(layer, false);
-        };
-
         this.redo();
+      }
+      undo() {
+        this.layer.parent.removeLayer(this.layer);
+
+        let newIndex = this.fromBelowLayer
+          ? this.fromGroup.indexOf(this.fromBelowLayer)
+          : this.fromGroup.layers.length;
+
+        this.fromGroup.insertLayer(newIndex, this.layer);
+
+        if (this.layer instanceof CPImageLayer) {
+          this.layer.clip = this.wasClipped;
+        }
+
+        for (let i = 0; i < this.fromNumLayersClippedAbove; i++) {
+          this.fromGroup.layers[i + this.fromIndex + 1].clip = true;
+        }
+
+        for (let i = 0; i < this.toNumLayersClippedAbove; i++) {
+          this.toGroup.layers[i + this.toIndex].clip = true;
+        }
+
+        artworkStructureChanged();
+        that.setActiveLayer(this.layer, this.fromMask);
+      }
+
+      redo() {
+        for (let i = 0; i < this.fromNumLayersClippedAbove; i++) {
+          this.fromGroup.layers[i + this.fromIndex + 1].clip = false;
+        }
+
+        this.layer.parent.removeLayer(this.layer);
+
+        let newIndex = this.toBelowLayer
+          ? this.toGroup.indexOf(this.toBelowLayer)
+          : this.toGroup.layers.length;
+
+        this.toGroup.insertLayer(newIndex, this.layer);
+
+        for (let i = 0; i < this.toNumLayersClippedAbove; i++) {
+          this.toGroup.layers[i + newIndex + 1].clip = false;
+        }
+
+        if (this.layer instanceof CPImageLayer) {
+          /*
+           * Release the this.layer clip if we move the this.layer somewhere it won't be clipped onto its original base
+           */
+          if (
+            this.layer.clip &&
+            this.layer.getClippingBase() != this.wasClippedTo
+          ) {
+            this.layer.clip = false;
+          }
+
+          // If we're moving into the middle of a new clipping group, join the clip
+          if (
+            this.toBelowLayer instanceof CPImageLayer &&
+            this.toBelowLayer.clip
+          ) {
+            this.layer.clip = true;
+          }
+        }
+
+        for (let i = 0; i < this.toNumLayersClippedAbove; i++) {
+          this.toGroup.layers[i + newIndex + 1].clip = false;
+        }
+
+        artworkStructureChanged();
+
+        // TODO if moving to a collapsed group, select the group rather than the this.layer
+        that.setActiveLayer(this.layer, false);
       }
     }
 
@@ -3150,10 +3217,7 @@ export default class CPArtwork extends EventEmitter {
       );
 
     /**
-     * @param {CPRect} from
-     * @param {CPRect} to
-     *
-     * @constructor
+     * 選択範囲のアンドゥ･リドゥ
      */
     class CPUndoRectangleSelection extends CPUndo {
       /**
@@ -3162,23 +3226,22 @@ export default class CPArtwork extends EventEmitter {
        */
       constructor(from, to) {
         super();
-        from = from.clone();
-        to = to.clone();
+        this.from = from.clone();
+        this.to = to.clone();
+      }
+      undo() {
+        that.setSelection(this.from);
+        // TODO this is just because CPCanvas doesn't know when to repaint the selection box
+        callListenersUpdateRegion(that.getBounds());
+      }
 
-        this.undo = function () {
-          that.setSelection(from);
-          // TODO this is just because CPCanvas doesn't know when to repaint the selection box
-          callListenersUpdateRegion(that.getBounds());
-        };
+      redo() {
+        that.setSelection(this.to);
+        callListenersUpdateRegion(that.getBounds());
+      }
 
-        this.redo = function () {
-          that.setSelection(to);
-          callListenersUpdateRegion(that.getBounds());
-        };
-
-        this.noChange = function () {
-          return from.equals(to);
-        };
+      noChange() {
+        return this.from.equals(this.to);
       }
     }
 
@@ -4152,10 +4215,11 @@ export default class CPArtwork extends EventEmitter {
 
     /**
      * Paste the given clipboard onto the given layer.
-     *
-     * @param {CPClip} clip
      */
     class CPActionPaste extends CPUndo {
+      /**
+       * @param {CPClip} clip
+       */
       constructor(clip) {
         super();
         this.clip = clip;
@@ -4198,7 +4262,6 @@ export default class CPArtwork extends EventEmitter {
         if (this.clip.bmp instanceof CPGreyBmp) {
           // Need to convert greyscale to color before we can paste
           let clone = new CPColorBmp(this.clip.bmp.width, this.clip.bmp.height);
-
           clone.copyPixelsFromGreyscale(this.clip.bmp);
 
           this.newLayer.image?.copyBitmapRect(clone, x, y, sourceRect);
