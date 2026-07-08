@@ -2165,7 +2165,7 @@ export default class CPArtwork extends EventEmitter {
             clipboard = new CPClip(
               imageAndNask.image.cloneRect(selection),
               imageAndNask.mask?.cloneRect(selection),
-              curLayer.maskVisible,
+              !!curLayer.maskVisible,
               selection.left,
               selection.top,
             );
@@ -4192,7 +4192,7 @@ export default class CPArtwork extends EventEmitter {
           clipboard = new CPClip(
             this.cutImage,
             this.cutMask,
-            this.layer.maskVisible,
+            !!this.layer.maskVisible,
             this.selection.left,
             this.selection.top,
           );

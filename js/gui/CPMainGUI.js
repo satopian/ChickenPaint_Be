@@ -66,9 +66,6 @@ export default class CPMainGUI extends EventEmitter {
 
     this.uiElem.appendChild(this.lowerArea);
 
-    this.togglePalettes = this.togglePalettes.bind(this);
-    this.resize = this.resize.bind(this);
-
     const that = this;
     this.canvas.on("canvasRotated90", function (newAngle) {
       that.paletteManager.palettes.layers.setRotation90(newAngle);
