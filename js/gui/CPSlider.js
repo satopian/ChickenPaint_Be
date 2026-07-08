@@ -195,6 +195,8 @@ export default class CPSlider extends EventEmitter {
       let width = canvas.clientWidth;
       let left = canvas.getBoundingClientRect().left + window.scrollX;
       let proportion = (e.pageX - left) / width;
+      // ドラッグでスライダー範囲外に出てもNaNを生まないようクランプ
+      proportion = Math.max(0, Math.min(1, proportion));
 
       let finalValue;
 

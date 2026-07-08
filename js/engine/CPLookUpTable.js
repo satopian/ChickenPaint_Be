@@ -28,21 +28,21 @@
     You should have received a copy of the GNU General Public License
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
-
-/**
- * @this {any}
- */
-
-export default function CPLookUpTable() {
-  this.table = new Uint8Array(256);
-
-  this.loadIdentity = function () {
+export default class CPLookUpTable {
+  constructor() {
+    this.table = new Uint8Array(256);
+  }
+  loadIdentity() {
     for (var i = 0; i < 256; i++) {
       this.table[i] = i;
     }
-  };
+  }
 
-  this.loadBrightnessContrast = function (brightness, contrast) {
+  /**
+   * @param {Number} brightness (-1.0 - 1.0)
+   * @param {Number} contrast (-1.0 - 1.0)
+   */
+  loadBrightnessContrast(brightness, contrast) {
     var slope = contrast > 0.0 ? 1.0 / (1.0001 - contrast) : 1.0 + contrast,
       offset = 0.5 - slope * 0.5 + brightness;
 
@@ -52,11 +52,11 @@ export default function CPLookUpTable() {
 
       this.table[i] = Math.min(255, Math.max(~~(y * 255.0), 0));
     }
-  };
+  }
 
-  this.invert = function () {
+  invert() {
     for (var i = 0; i < 256; i++) {
       this.table[i] = 255 - this.table[i];
     }
-  };
+  }
 }

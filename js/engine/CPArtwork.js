@@ -2165,6 +2165,7 @@ export default class CPArtwork extends EventEmitter {
             clipboard = new CPClip(
               imageAndNask.image.cloneRect(selection),
               imageAndNask.mask?.cloneRect(selection),
+              curLayer.maskVisible,
               selection.left,
               selection.top,
             );
@@ -2183,6 +2184,7 @@ export default class CPArtwork extends EventEmitter {
 
         clipboard = new CPClip(
           this.fusionLayers().cloneRect(selection),
+          null,
           null,
           selection.left,
           selection.top,
@@ -4190,6 +4192,7 @@ export default class CPArtwork extends EventEmitter {
           clipboard = new CPClip(
             this.cutImage,
             this.cutMask,
+            this.layer.maskVisible,
             this.selection.left,
             this.selection.top,
           );
@@ -4268,7 +4271,7 @@ export default class CPArtwork extends EventEmitter {
           );
 
           this.newLayer.maskLinked = true;
-          this.newLayer.maskVisible = true;
+          this.newLayer.maskVisible = !!this.clip.maskVisible;
           this.newLayer.setMask(newMask);
         }
 
