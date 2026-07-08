@@ -65,60 +65,62 @@ export default class CPColorPalette extends CPPalette {
   }
 }
 
-/**
- * @param {ChickenPaint|import('./CPColorSwatch.js').default} controller
- */
-function CPColorShow(controller) {
-  let color = 0,
-    element = document.createElement("div");
+class CPColorShow {
+  /**
+   * @param {ChickenPaint|import('./CPColorSwatch.js').default} controller
+   */
+  constructor(controller) {
+    let color = 0,
+      element = document.createElement("div");
 
-  function padLeft(string, padding, len) {
-    while (string.length < len) {
-      string = padding + string;
+    function padLeft(string, padding, len) {
+      while (string.length < len) {
+        string = padding + string;
+      }
+      return string;
     }
-    return string;
-  }
 
-  function paint() {
-    element.style.backgroundColor =
-      "#" + padLeft(Number(color).toString(16), "0", 6);
-  }
-
-  function mouseClick(e) {
-    e.preventDefault();
-
-    const _colHex = "#" + padLeft(Number(color).toString(16), "0", 6);
-
-    let colHex = window.prompt(
-      _("Please enter a color in hex format"),
-      _colHex,
-    );
-
-    if (colHex != null) {
-      try {
-        if (colHex.match(/^#/) || colHex.match(/^$/)) {
-          colHex = colHex.substring(1);
-        }
-
-        let newColor = parseInt(colHex, 16);
-
-        controller.setCurColor(new CPColor(newColor));
-      } catch (e) {}
+    function paint() {
+      element.style.backgroundColor =
+        "#" + padLeft(Number(color).toString(16), "0", 6);
     }
-  }
 
-  this.getElement = function () {
-    return element;
-  };
+    function mouseClick(e) {
+      e.preventDefault();
 
-  controller.on("colorChange", function (_color) {
-    color = _color.getRgb();
+      const _colHex = "#" + padLeft(Number(color).toString(16), "0", 6);
+
+      let colHex = window.prompt(
+        _("Please enter a color in hex format"),
+        _colHex,
+      );
+
+      if (colHex != null) {
+        try {
+          if (colHex.match(/^#/) || colHex.match(/^$/)) {
+            colHex = colHex.substring(1);
+          }
+
+          let newColor = parseInt(colHex, 16);
+
+          controller.setCurColor(new CPColor(newColor));
+        } catch (e) {}
+      }
+    }
+
+    this.getElement = function () {
+      return element;
+    };
+
+    controller.on("colorChange", function (_color) {
+      color = _color.getRgb();
+      paint();
+    });
+
+    element.className = "chickenpaint-colorpicker-show";
+
+    element.addEventListener("click", mouseClick);
+
     paint();
-  });
-
-  element.className = "chickenpaint-colorpicker-show";
-
-  element.addEventListener("click", mouseClick);
-
-  paint();
+  }
 }

@@ -33,12 +33,11 @@ import EventEmitter from "wolfy87-eventemitter";
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
-/**
- * @this {any}
- * @param {HTMLElement} parent
- * @param {import('../ChickenPaint.js').default} controller
- */
 export default class CPConfirmTransformDialog extends EventEmitter {
+  /**
+   * @param {HTMLElement} parent
+   * @param {import('../ChickenPaint.js').default} controller
+   */
   constructor(parent, controller) {
     super();
     // ダイアログ要素を作成

@@ -48,102 +48,30 @@ export default class CPMainGUI extends EventEmitter {
    */
   constructor(controller, uiElem) {
     super();
-    let lowerArea = document.createElement("div"),
-      canvas = new CPCanvas(controller),
-      paletteManager = new CPPaletteManager(controller),
-      menuBar,
-      fullScreenMode = false,
-      that = this;
+    this.controller = controller;
+    this.uiElem = uiElem;
+    this.lowerArea = document.createElement("div");
+    this.canvas = new CPCanvas(this.controller);
+    this.paletteManager = new CPPaletteManager(this.controller);
+    this.fullScreenMode = false;
 
-    this.togglePalettes = function () {
-      paletteManager.togglePalettes();
-    };
+    this.menuBar = new CPMainMenu(this.controller, this);
 
-    this.arrangePalettes = function () {
-      // Give the browser a chance to do the sizing of the palettes before we try to rearrange them
-      setTimeout(paletteManager.arrangePalettes.bind(paletteManager), 0);
-    };
+    this.uiElem.appendChild(this.menuBar.getElement());
 
-    this.constrainPalettes = function () {
-      paletteManager.constrainPalettes();
-    };
-    /**
-     * @param {string} paletteName
-     * @param {boolean} show
-     */
-    this.showPalette = function (paletteName, show) {
-      paletteManager.showPaletteByName(paletteName, show);
-    };
+    this.lowerArea.className = "chickenpaint-main-section";
 
-    this.getSwatches = function () {
-      return paletteManager.palettes.swatches.getSwatches();
-    };
+    this.lowerArea.appendChild(this.canvas.getElement());
+    this.lowerArea.appendChild(this.paletteManager.getElement());
 
-    this.setSwatches = function (swatches) {
-      paletteManager.palettes.swatches.setSwatches(swatches);
-    };
+    this.uiElem.appendChild(this.lowerArea);
 
-    this.getPaletteManager = function () {
-      return paletteManager;
-    };
+    this.togglePalettes = this.togglePalettes.bind(this);
+    this.resize = this.resize.bind(this);
 
-    /**
-     *
-     * @param {number} rotation - in 90 degree increments
-     */
-    this.setRotation90 = function (rotation) {
-      canvas.setRotation((rotation * Math.PI) / 2);
-      paletteManager.palettes.layers.setRotation90(rotation);
-    };
-
-    this.setFullScreenMode = function (value) {
-      if (fullScreenMode !== value) {
-        fullScreenMode = value;
-
-        that.resize();
-        that.arrangePalettes();
-      }
-    };
-
-    this.resize = function (doConstrain = true) {
-      let newHeight;
-
-      let windowHeight = window.innerHeight,
-        menuBarHeight = menuBar.getElement().getBoundingClientRect().height;
-
-      if (fullScreenMode) {
-        newHeight = windowHeight - menuBarHeight;
-      } else {
-        newHeight = Math.min(
-          Math.max(windowHeight - menuBarHeight - 65, 500),
-          850,
-        );
-      }
-
-      canvas.resize(newHeight, false);
-      if (doConstrain) {
-        // パレットの再配置を行う
-        that.constrainPalettes();
-      }
-    };
-
-    menuBar = new CPMainMenu(controller, this);
-
-    this.getMainMenu = function () {
-      return menuBar;
-    };
-
-    uiElem.appendChild(menuBar.getElement());
-
-    lowerArea.className = "chickenpaint-main-section";
-
-    lowerArea.appendChild(canvas.getElement());
-    lowerArea.appendChild(paletteManager.getElement());
-
-    uiElem.appendChild(lowerArea);
-
-    canvas.on("canvasRotated90", function (newAngle) {
-      paletteManager.palettes.layers.setRotation90(newAngle);
+    const that = this;
+    this.canvas.on("canvasRotated90", function (newAngle) {
+      that.paletteManager.palettes.layers.setRotation90(newAngle);
     });
 
     // デバイスの向きの変更時にパレットの配置を初期化
@@ -156,13 +84,13 @@ export default class CPMainGUI extends EventEmitter {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               //一回では並び変わらないため3回リアレンジ
-              controller.actionPerformed({
+              this.controller.actionPerformed({
                 action: "CPArrangePalettes",
               });
-              controller.actionPerformed({
+              this.controller.actionPerformed({
                 action: "CPArrangePalettes",
               });
-              controller.actionPerformed({
+              this.controller.actionPerformed({
                 action: "CPArrangePalettes",
               });
             });
@@ -233,14 +161,93 @@ export default class CPMainGUI extends EventEmitter {
     });
     observer.observe(document.body);
 
-    controller.on("fullScreen", (fullscreen) =>
+    this.controller.on("fullScreen", (fullscreen) =>
       this.setFullScreenMode(fullscreen),
     );
 
-    controller.on("unsavedChanges", (unsaved) => {
-      uiElem.classList.toggle("chickenpaint-unsaved", unsaved);
+    this.controller.on("unsavedChanges", (unsaved) => {
+      this.uiElem.classList.toggle("chickenpaint-unsaved", unsaved);
     });
 
     setTimeout(this.resize.bind(this), 0);
+  }
+
+  togglePalettes() {
+    this.paletteManager.togglePalettes();
+  }
+
+  arrangePalettes() {
+    // Give the browser a chance to do the sizing of the palettes before we try to rearrange them
+    setTimeout(
+      this.paletteManager.arrangePalettes.bind(this.paletteManager),
+      0,
+    );
+  }
+
+  constrainPalettes() {
+    this.paletteManager.constrainPalettes();
+  }
+  /**
+   * @param {string} paletteName
+   * @param {boolean} show
+   */
+  showPalette(paletteName, show) {
+    this.paletteManager.showPaletteByName(paletteName, show);
+  }
+
+  getSwatches() {
+    return this.paletteManager.palettes.swatches.getSwatches();
+  }
+
+  setSwatches(swatches) {
+    this.paletteManager.palettes.swatches.setSwatches(swatches);
+  }
+
+  getPaletteManager() {
+    return this.paletteManager;
+  }
+
+  /**
+   *
+   * @param {number} rotation - in 90 degree increments
+   */
+  setRotation90(rotation) {
+    this.canvas.setRotation((rotation * Math.PI) / 2);
+    this.paletteManager.palettes.layers.setRotation90(rotation);
+  }
+
+  setFullScreenMode(value) {
+    if (this.fullScreenMode !== value) {
+      this.fullScreenMode = value;
+
+      this.resize();
+      this.arrangePalettes();
+    }
+  }
+
+  resize(doConstrain = true) {
+    let newHeight;
+
+    let windowHeight = window.innerHeight,
+      menuBarHeight = this.menuBar.getElement().getBoundingClientRect().height;
+
+    if (this.fullScreenMode) {
+      newHeight = windowHeight - menuBarHeight;
+    } else {
+      newHeight = Math.min(
+        Math.max(windowHeight - menuBarHeight - 65, 500),
+        850,
+      );
+    }
+
+    this.canvas.resize(newHeight, false);
+    if (doConstrain) {
+      // パレットの再配置を行う
+      this.constrainPalettes();
+    }
+  }
+
+  getMainMenu() {
+    return this.menuBar;
   }
 }
