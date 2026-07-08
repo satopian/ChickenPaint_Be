@@ -465,9 +465,6 @@ export default class CPArtwork extends EventEmitter {
     function getActiveImage() {
       return maskEditingMode ? curLayer.mask : curLayer.image;
     }
-    function getActiveImageAndMask() {
-      return { image: curLayer.image, mask: curLayer.mask };
-    }
 
     this.setHasUnsavedChanges = function (value) {
       if (value != hasUnsavedChanges) {
@@ -2158,13 +2155,11 @@ export default class CPArtwork extends EventEmitter {
     this.copySelection = function () {
       if (this.isCopySelectionAllowed()) {
         if (curLayer instanceof CPImageLayer) {
-          let selection = that.getSelection(),
-            imageAndNask = getActiveImageAndMask();
-
-          if (imageAndNask.image) {
+          let selection = that.getSelection();
+          if (curLayer.image) {
             clipboard = new CPClip(
-              imageAndNask.image.cloneRect(selection),
-              imageAndNask.mask?.cloneRect(selection),
+              curLayer.image.cloneRect(selection),
+              curLayer.mask?.cloneRect(selection),
               !!curLayer.maskVisible,
               selection.left,
               selection.top,
