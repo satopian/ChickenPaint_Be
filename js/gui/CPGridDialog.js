@@ -34,7 +34,6 @@ import { _ } from "../languages/lang.js";
 import CPCanvas from "./CPCanvas.js";
 
 /**
- * @this {any}
  * @param {HTMLElement} parent
  * @param {CPCanvas} canvas
  */

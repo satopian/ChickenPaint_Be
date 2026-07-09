@@ -33,7 +33,6 @@ import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { _ } from "../languages/lang.js";
 
 /**
- * @this {any}
  * @param {HTMLElement} parent
  * @param {import('../ChickenPaint.js').default} controller
  */

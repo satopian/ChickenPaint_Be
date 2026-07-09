@@ -40,5 +40,12 @@
     "test": "babel-node node_modules/.bin/_mocha -- test/*.js",
     "prepare": "make all",
     "format": "prettier --write \"js/**/*.js\""
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.5.6": true,
+    "@swc/core@1.15.43": true,
+    "canvas@3.2.3": true,
+    "lmdb@2.8.5": true,
+    "msgpackr-extract@3.0.4": true
   }
 }

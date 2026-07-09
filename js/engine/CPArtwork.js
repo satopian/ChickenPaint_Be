@@ -1638,17 +1638,8 @@ export default class CPArtwork extends EventEmitter {
     this.flip = function (horizontal) {
       let rect = this.getSelection();
       let flipWholeLayer = rect.isEmpty();
-      let transformBoth =
-        flipWholeLayer &&
-        curLayer instanceof CPImageLayer &&
-        curLayer.mask &&
-        curLayer.maskLinked;
-      let transformImage =
-        (!maskEditingMode || transformBoth) && curLayer instanceof CPImageLayer;
-      let transformMask = !!(
-        (maskEditingMode || transformBoth) &&
-        curLayer.mask
-      );
+      let transformImage = curLayer instanceof CPImageLayer;
+      let transformMask = !!curLayer.mask;
       let routine = horizontal ? "copyRegionHFlip" : "copyRegionVFlip";
 
       if (!transformImage && !transformMask) {
@@ -1663,7 +1654,6 @@ export default class CPArtwork extends EventEmitter {
 
       if (transformImage) {
         prepareForLayerImageUndo();
-
         curLayer.image[routine](rect, undoImage);
       }
       if (transformMask) {
@@ -3271,11 +3261,8 @@ export default class CPArtwork extends EventEmitter {
 
         this.movingWholeLayer = this.fromSelection.isEmpty();
 
-        this.movingImage =
-          !maskEditingMode || (this.movingWholeLayer && this.layer.maskLinked);
-        this.movingMask =
-          maskEditingMode || (this.movingWholeLayer && this.layer.maskLinked);
-
+        this.movingImage = this.layer instanceof CPImageLayer;
+        this.movingMask = this.layer.mask !== null;
         this.hasFullUndo = false;
 
         /**
@@ -3336,7 +3323,7 @@ export default class CPArtwork extends EventEmitter {
             this.layer.getLinearizedLayerList(false).map((layer) => ({
               layer: layer,
               moveImage: layer instanceof CPImageLayer,
-              moveMask: layer.mask !== null && layer.maskLinked,
+              moveMask: layer.mask !== null,
               imageRect: new Map(),
               maskRect: new Map(),
             })),

@@ -32,11 +32,10 @@
 import CPPalette from "./CPPalette.js";
 import { _ } from "../languages/lang.js";
 
-/**
- * @this {any}
- */
-
 export default class CPMiscPalette extends CPPalette {
+  /**
+   *  @param {import("./CPColorPalette.js").ChickenPaint} cpController
+   */
   constructor(cpController) {
     super(cpController, "misc", "Misc");
 
