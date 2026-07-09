@@ -81,7 +81,9 @@ export default class CPConfirmTransformDialog extends EventEmitter {
     const cancelButton = dialog.querySelector(".chickenpaint-cancel-transform");
 
     // Bootstrap 5: Modalコンストラクタを使用してmodalを初期化
-    const modal = new bootstrap.Modal(dialog);
+    const modal = new bootstrap.Modal(dialog, {
+      backdrop: "static", // 背景クリックで閉じない
+    });
     // イベントリスナーを追加
     applyButton?.addEventListener("click", function (e) {
       controller.actionPerformed({ action: "CPTransformAccept" });

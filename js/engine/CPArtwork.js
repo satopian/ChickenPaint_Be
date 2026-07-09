@@ -2001,7 +2001,8 @@ export default class CPArtwork extends EventEmitter {
       if (
         !copy &&
         activeOp instanceof CPActionMoveSelection &&
-        activeOp.layer == this.getActiveLayer()
+        activeOp.layer == this.getActiveLayer() &&
+        activeOp.fromMaskMode == maskEditingMode
       ) {
         activeOp.amendOffset(offsetX, offsetY);
         redoList = [];
@@ -3260,8 +3261,9 @@ export default class CPArtwork extends EventEmitter {
         this.fromMaskMode = maskEditingMode;
 
         this.movingWholeLayer = this.fromSelection.isEmpty();
-
-        this.movingImage = this.layer instanceof CPImageLayer;
+        //マスクだけの変形を可能にするためマスク編集モードの時はレイヤーの画像を変形しない
+        this.movingImage =
+          !maskEditingMode && this.layer instanceof CPImageLayer;
         this.movingMask = this.layer.mask !== null;
         this.hasFullUndo = false;
 
