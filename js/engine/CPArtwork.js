@@ -3561,11 +3561,12 @@ export default class CPArtwork extends EventEmitter {
        * @param {string} [interpolation] - 補間方法。"smooth"（滑らか）または "sharp"（シャープ）。省略時は "smooth"
        */
       constructor(affineTransform, interpolation = "smooth") {
-        super(true); // pairImageAndMask=true → マスク編集モードでも画像とペアで動く
+        super(); // pairImageAndMask=true → マスク編集モードでも画像とペアで動く
 
         this.erasesSourceRect = true;
 
         this.affineTransform = affineTransform.clone();
+        this.interpolation = interpolation;
 
         /**
          * A canvas for composing the transform onto
@@ -3607,7 +3608,6 @@ export default class CPArtwork extends EventEmitter {
 
               layerInfo.imageSourceCanvas = canvas;
             }
-
             if (layerInfo.moveMask) {
               let canvas = createCanvas(
                   this.srcRect.getWidth(),
@@ -3709,11 +3709,8 @@ export default class CPArtwork extends EventEmitter {
           // Erase the source area that won't be replaced by the canvas dest area
           eraseRects.forEach((rect) => {
             if (layerInfo.moveImage) {
+              //画像レイヤーの時
               layerInfo.layer.image.clearRect(rect, EMPTY_LAYER_COLOR);
-            }
-
-            if (layerInfo.moveMask) {
-              layerInfo.layer.mask?.clearRect(rect, 0xff);
             }
           });
 
@@ -3791,30 +3788,40 @@ export default class CPArtwork extends EventEmitter {
             }
 
             if (layerInfo.moveMask) {
-              composeOntoRects.forEach((rect) => {
-                this.composeCanvasContext.putImageData(
-                  layerInfo.layer.mask?.getImageData(
-                    rect.left,
-                    rect.top,
-                    rect.getWidth(),
-                    rect.getHeight(),
-                  ),
-                  rect.left,
-                  rect.top,
+              //マスクレイヤーの時
+              // マスク側だけ「invalidateRect全体をmaskUndoから丸ごと復元してから焼き込む」方式に変更
+              const invalidateRect = this.srcRect
+                .getUnion(this.dstRect)
+                .getUnion(oldDstRect);
+
+              if (layerInfo.maskUndo) {
+                layerInfo.layer.mask?.copyBitmapRect(
+                  layerInfo.maskUndo,
+                  invalidateRect.left,
+                  invalidateRect.top,
+                  invalidateRect,
                 );
-              });
-
-              this.composeCanvasContext.fillStyle = "#fff";
-
-              this.composeCanvasContext.fillRect(
-                srcComposeRect?.left,
-                srcComposeRect?.top,
-                srcComposeRect?.getWidth() ?? 0,
-                srcComposeRect?.getHeight() ?? 0,
+              }
+              // 白塗り + 回転焼き込みは今まで通り
+              this.composeCanvasContext.putImageData(
+                layerInfo.layer.mask?.getImageData(
+                  invalidateRect.left,
+                  invalidateRect.top,
+                  invalidateRect.getWidth(),
+                  invalidateRect.getHeight(),
+                ),
+                invalidateRect.left,
+                invalidateRect.top,
               );
 
+              this.composeCanvasContext.fillStyle = "#fff";
+              this.composeCanvasContext.fillRect(
+                this.srcRect.left,
+                this.srcRect.top,
+                this.srcRect.getWidth(),
+                this.srcRect.getHeight(),
+              );
               this.composeCanvasContext.save();
-
               // TODO set blend mode to replace? We don't have any alpha in the source or dest images
 
               const affineTransform_m = this.affineTransform?.m;
@@ -3840,17 +3847,16 @@ export default class CPArtwork extends EventEmitter {
 
               layerInfo.layer.mask?.pasteImageData(
                 this.composeCanvasContext.getImageData(
-                  this.dstRect.left,
-                  this.dstRect.top,
-                  this.dstRect.getWidth(),
-                  this.dstRect.getHeight(),
+                  invalidateRect.left,
+                  invalidateRect.top,
+                  invalidateRect.getWidth(),
+                  invalidateRect.getHeight(),
                 ),
-                this.dstRect.left,
-                this.dstRect.top,
+                invalidateRect.left,
+                invalidateRect.top,
               );
             }
           }
-
           /*
            * Use the CPColorBmp/CPGreyBmp undo data to erase any leftovers from the previous redo(). We do this
            * instead of just copying from the canvas, since Canvas' getImageData/setImageData doesn't round-trip
@@ -3861,15 +3867,6 @@ export default class CPArtwork extends EventEmitter {
             if (layerInfo.moveImage) {
               layerInfo.layer.image.copyBitmapRect(
                 layerInfo.imageUndo,
-                rect.left,
-                rect.top,
-                rect,
-              );
-            }
-
-            if (layerInfo.moveMask && layerInfo.maskUndo) {
-              layerInfo.layer.mask?.copyBitmapRect(
-                layerInfo.maskUndo,
                 rect.left,
                 rect.top,
                 rect,
@@ -3996,6 +3993,12 @@ export default class CPArtwork extends EventEmitter {
      * @constructor
      */
     class CPActionMoveSelection extends CPActionTransformSelection {
+      /**
+       *
+       * @param {Number} offsetX
+       * @param {Number} offsetY
+       * @param {boolean} copy
+       */
       constructor(offsetX, offsetY, copy) {
         super();
 
