@@ -3244,7 +3244,11 @@ export default class CPArtwork extends EventEmitter {
      * @extends {CPUndo}
      */
     class CPActionTransformSelection extends CPUndo {
-      constructor() {
+      /**
+       * @param {boolean|undefined} [pairImageAndMask]
+       *
+       */
+      constructor(pairImageAndMask = false) {
         super();
 
         /**
@@ -3261,9 +3265,11 @@ export default class CPArtwork extends EventEmitter {
         this.fromMaskMode = maskEditingMode;
 
         this.movingWholeLayer = this.fromSelection.isEmpty();
-        //マスクだけの変形を可能にするためマスク編集モードの時はレイヤーの画像を変形しない
+        //マスクだけの移動を可能にするためマスク編集モードの時はレイヤーを移動しない
+        //pairImageAndMaskがtrueの時は常に画像レイヤーとマスクレイヤーを連動させる
         this.movingImage =
-          !maskEditingMode && this.layer instanceof CPImageLayer;
+          (!maskEditingMode || pairImageAndMask) &&
+          this.layer instanceof CPImageLayer;
         this.movingMask = this.layer.mask !== null;
         this.hasFullUndo = false;
 
@@ -3550,13 +3556,16 @@ export default class CPArtwork extends EventEmitter {
      * @param {string} interpolation - "smooth" or "sharp"
      */
     class CPActionAffineTransformSelection extends CPActionTransformSelection {
-      constructor(affineTransform, interpolation) {
-        super();
+      /**
+       * @param {CPTransform} affineTransform - 適用するアフィン変換
+       * @param {string} [interpolation] - 補間方法。"smooth"（滑らか）または "sharp"（シャープ）。省略時は "smooth"
+       */
+      constructor(affineTransform, interpolation = "smooth") {
+        super(true); // pairImageAndMask=true → マスク編集モードでも画像とペアで動く
 
         this.erasesSourceRect = true;
 
         this.affineTransform = affineTransform.clone();
-        this.interpolation = interpolation || "smooth";
 
         /**
          * A canvas for composing the transform onto
@@ -3655,7 +3664,9 @@ export default class CPArtwork extends EventEmitter {
 
         let oldDstRect = this.dstRect.clone(),
           dstCorners = this.srcRect.toPoints();
-
+        if (!this.affineTransform) {
+          return;
+        }
         this.affineTransform.transformPoints(dstCorners);
 
         this.dstRect.set(
@@ -3702,11 +3713,7 @@ export default class CPArtwork extends EventEmitter {
             }
 
             if (layerInfo.moveMask) {
-              if (this.movingWholeLayer) {
-                layerInfo.layer.mask?.clearRect(rect, 0xff);
-              } else {
-                layerInfo.layer.mask?.clearRect(rect, EMPTY_MASK_COLOR);
-              }
+              layerInfo.layer.mask?.clearRect(rect, 0xff);
             }
           });
 
@@ -3740,14 +3747,19 @@ export default class CPArtwork extends EventEmitter {
 
               this.composeCanvasContext.save();
 
+              const affineTransform_m = this.affineTransform?.m;
+              if (!affineTransform_m) {
+                return;
+              }
+
               // Apply the transform when drawing the transformed fragment
               this.composeCanvasContext.setTransform(
-                this.affineTransform.m[0],
-                this.affineTransform.m[1],
-                this.affineTransform.m[2],
-                this.affineTransform.m[3],
-                this.affineTransform.m[4],
-                this.affineTransform.m[5],
+                affineTransform_m[0],
+                affineTransform_m[1],
+                affineTransform_m[2],
+                affineTransform_m[3],
+                affineTransform_m[4],
+                affineTransform_m[5],
               );
               this.composeCanvasContext.drawImage(
                 layerInfo.imageSourceCanvas,
@@ -3792,11 +3804,7 @@ export default class CPArtwork extends EventEmitter {
                 );
               });
 
-              if (this.movingWholeLayer) {
-                this.composeCanvasContext.fillStyle = "#FFF";
-              } else {
-                this.composeCanvasContext.fillStyle = "#000";
-              }
+              this.composeCanvasContext.fillStyle = "#fff";
 
               this.composeCanvasContext.fillRect(
                 srcComposeRect?.left,
@@ -3809,13 +3817,18 @@ export default class CPArtwork extends EventEmitter {
 
               // TODO set blend mode to replace? We don't have any alpha in the source or dest images
 
+              const affineTransform_m = this.affineTransform?.m;
+              if (!affineTransform_m) {
+                return;
+              }
+
               this.composeCanvasContext.setTransform(
-                this.affineTransform.m[0],
-                this.affineTransform.m[1],
-                this.affineTransform.m[2],
-                this.affineTransform.m[3],
-                this.affineTransform.m[4],
-                this.affineTransform.m[5],
+                affineTransform_m[0],
+                affineTransform_m[1],
+                affineTransform_m[2],
+                affineTransform_m[3],
+                affineTransform_m[4],
+                affineTransform_m[5],
               );
               this.composeCanvasContext.drawImage(
                 layerInfo.maskSourceCanvas,
@@ -3950,7 +3963,7 @@ export default class CPArtwork extends EventEmitter {
        * Get a copy of the affine transform.
        */
       getTransform() {
-        return this.affineTransform.clone();
+        return this.affineTransform?.clone();
       }
 
       /**
@@ -4037,10 +4050,7 @@ export default class CPArtwork extends EventEmitter {
               layerInfo.layer.image.clearRect(eraseRegion, EMPTY_LAYER_COLOR);
             }
             if (layerInfo.moveMask) {
-              layerInfo.layer.mask?.clearRect(
-                eraseRegion,
-                this.movingWholeLayer ? 0xff : EMPTY_MASK_COLOR,
-              );
+              layerInfo.layer.mask?.clearRect(eraseRegion, 0xff);
             }
           }
 
