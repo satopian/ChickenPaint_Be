@@ -3244,11 +3244,7 @@ export default class CPArtwork extends EventEmitter {
      * @extends {CPUndo}
      */
     class CPActionTransformSelection extends CPUndo {
-      /**
-       * @param {boolean|undefined} [pairImageAndMask]
-       *
-       */
-      constructor(pairImageAndMask = false) {
+      constructor() {
         super();
 
         /**
@@ -3265,11 +3261,7 @@ export default class CPArtwork extends EventEmitter {
         this.fromMaskMode = maskEditingMode;
 
         this.movingWholeLayer = this.fromSelection.isEmpty();
-        //マスクだけの移動を可能にするためマスク編集モードの時はレイヤーを移動しない
-        //pairImageAndMaskがtrueの時は常に画像レイヤーとマスクレイヤーを連動させる
-        this.movingImage =
-          (!maskEditingMode || pairImageAndMask) &&
-          this.layer instanceof CPImageLayer;
+        this.movingImage = this.layer instanceof CPImageLayer;
         this.movingMask = this.layer.mask !== null;
         this.hasFullUndo = false;
 
@@ -3342,6 +3334,7 @@ export default class CPArtwork extends EventEmitter {
         let occupiedSpace = new CPRect(0, 0, 0, 0);
 
         if (this.movingWholeLayer) {
+          // レイヤー全体（キャンバス全体）が対象
           /**
            * @type {CPRect}
            */
@@ -3356,6 +3349,7 @@ export default class CPArtwork extends EventEmitter {
 
             if (layerInfo.moveMask) {
               // Find the non-white pixels, since we'll be erasing the moved area with white
+              // 白以外のピクセルを探す。移動後の領域は白で消去するため
               occupiedSpace.union(
                 layerInfo.layer.mask?.getValueBounds(this.srcRect, 0xff),
               );
@@ -3378,9 +3372,10 @@ export default class CPArtwork extends EventEmitter {
             let layerInfo = this.movingLayers[i];
 
             if (layerInfo.moveMask) {
-              // Find the non-black pixels, since we'll be erasing the moved area with black
+              // Find the non-white pixels, since we'll be erasing the moved area with white
+              // 白以外のピクセルを探す。移動後の領域は白で消去するため
               occupiedSpace.union(
-                layerInfo.layer.mask?.getValueBounds(this.srcRect, 0x00),
+                layerInfo.layer.mask?.getValueBounds(this.srcRect, 0xff),
               );
             }
 
@@ -3561,7 +3556,7 @@ export default class CPArtwork extends EventEmitter {
        * @param {string} [interpolation] - 補間方法。"smooth"（滑らか）または "sharp"（シャープ）。省略時は "smooth"
        */
       constructor(affineTransform, interpolation = "smooth") {
-        super(); // pairImageAndMask=true → マスク編集モードでも画像とペアで動く
+        super();
 
         this.erasesSourceRect = true;
 

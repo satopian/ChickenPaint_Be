@@ -61,6 +61,16 @@ export default class CPRect {
     this.bottom = 0;
   }
 
+  /**
+   * この矩形と指定した矩形の和集合（両方を含む最小の外接矩形）を計算し、この矩形を上書きする。
+   *
+   * - this が空の場合は that をそのままコピーする。
+   * - that が空の場合は何もしない（this は変化しない）。
+   * - どちらも空でない場合は、両矩形を包含する最小の矩形に拡張する。
+   *
+   * @param {CPRect} that - 合成する相手の矩形
+   * @returns {void} - 破壊的メソッド。戻り値はなく、this自身が更新される
+   */
   union(that) {
     if (this.isEmpty()) {
       this.set(that);
@@ -72,6 +82,14 @@ export default class CPRect {
     }
   }
 
+  /**
+   * この矩形と指定した矩形の和集合（両方を含む最小の外接矩形）を、新しい CPRect インスタンスとして返す。
+   *
+   * this 自身は変更されない。
+   *
+   * @param {CPRect} that - 合成する相手の矩形
+   * @returns {CPRect} - this と that を包含する最小の矩形（新しいインスタンス）
+   */
   getUnion(that) {
     var result = this.clone();
 
