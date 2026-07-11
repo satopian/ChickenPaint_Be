@@ -3261,7 +3261,10 @@ export default class CPArtwork extends EventEmitter {
         this.fromMaskMode = maskEditingMode;
 
         this.movingWholeLayer = this.fromSelection.isEmpty();
-        this.movingImage = this.layer instanceof CPImageLayer;
+        //マスクだけの移動を可能にするためマスク編集モードの時はレイヤーを移動しない
+        //pairImageAndMaskがtrueの時は常に画像レイヤーとマスクレイヤーを連動させる
+        this.movingImage =
+          !maskEditingMode && this.layer instanceof CPImageLayer;
         this.movingMask = this.layer.mask !== null;
         this.hasFullUndo = false;
 
@@ -3350,9 +3353,11 @@ export default class CPArtwork extends EventEmitter {
             if (layerInfo.moveMask) {
               // Find the non-white pixels, since we'll be erasing the moved area with white
               // 白以外のピクセルを探す。移動後の領域は白で消去するため
-              occupiedSpace.union(
-                layerInfo.layer.mask?.getValueBounds(this.srcRect, 0xff),
-              );
+              const mask = layerInfo.layer.mask;
+              if (!mask) {
+                return;
+              }
+              occupiedSpace.union(mask.getValueBounds(this.srcRect, 0xff));
             }
 
             if (layerInfo.moveImage) {
@@ -3372,11 +3377,13 @@ export default class CPArtwork extends EventEmitter {
             let layerInfo = this.movingLayers[i];
 
             if (layerInfo.moveMask) {
+              const mask = layerInfo.layer.mask;
+              if (!mask) {
+                return;
+              }
               // Find the non-white pixels, since we'll be erasing the moved area with white
               // 白以外のピクセルを探す。移動後の領域は白で消去するため
-              occupiedSpace.union(
-                layerInfo.layer.mask?.getValueBounds(this.srcRect, 0xff),
-              );
+              occupiedSpace.union(mask.getValueBounds(this.srcRect, 0xff));
             }
 
             if (layerInfo.moveImage) {
@@ -4034,7 +4041,9 @@ export default class CPArtwork extends EventEmitter {
              */
             eraseRegion = this.srcRect.getIntersection(oldDestRect);
           }
-
+          if (!eraseRegion) {
+            return;
+          }
           invalidateRegion.union(eraseRegion);
 
           restoreFromUndoAreas = oldDestRect.subtract(this.srcRect);
