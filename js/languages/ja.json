@@ -232,7 +232,7 @@
   "Whoops! This layer is currently hidden.": "非表示レイヤーです。",
   "Whoops! This layer's opacity is currently 0%.": "レイヤーの不透明度が0%です。",
   "Whoops! You can't draw on a group.": "グループフォルダには描けません。",
-  "Whoops! All of the selected pixels are transparent!": "レイヤーが空です。",
+  "Whoops! All of the targeted pixels are empty!": "レイヤーが空です。",
 
   "Image": "画像",
   "Layer mask": "レイヤーマスク",

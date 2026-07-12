@@ -604,7 +604,7 @@ export default class ChickenPaint extends EventEmitter {
           if (that.artwork.transformAffineBegin() == null) {
             that.showLayerNotification(
               layer,
-              _("Whoops! All of the selected pixels are transparent!"),
+              _("Whoops! All of the targeted pixels are empty!"),
               "layer",
             );
           } else {

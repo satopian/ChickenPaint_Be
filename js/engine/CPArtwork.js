@@ -3260,9 +3260,8 @@ export default class CPArtwork extends EventEmitter {
         this.fromSelection = that.getSelection();
         this.fromMaskMode = maskEditingMode;
 
-        this.movingWholeLayer = this.fromSelection.isEmpty();
+        this.selectionIsEmpty = this.fromSelection.isEmpty();
         //マスクだけの移動を可能にするためマスク編集モードの時はレイヤーを移動しない
-        //pairImageAndMaskがtrueの時は常に画像レイヤーとマスクレイヤーを連動させる
         this.movingImage =
           !maskEditingMode && this.layer instanceof CPImageLayer;
         this.movingMask = this.layer.mask !== null;
@@ -3320,7 +3319,7 @@ export default class CPArtwork extends EventEmitter {
         if (
           this.layer instanceof CPLayerGroup &&
           this.movingImage &&
-          this.movingWholeLayer
+          this.selectionIsEmpty
         ) {
           this.movingLayers = this.movingLayers.concat(
             this.layer.getLinearizedLayerList(false).map((layer) => ({
@@ -3336,7 +3335,7 @@ export default class CPArtwork extends EventEmitter {
         // Only need to transform the non-transparent pixels
         let occupiedSpace = new CPRect(0, 0, 0, 0);
 
-        if (this.movingWholeLayer) {
+        if (this.selectionIsEmpty) {
           // レイヤー全体（キャンバス全体）が対象
           /**
            * @type {CPRect}
