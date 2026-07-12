@@ -2029,27 +2029,36 @@ export default class CPArtwork extends EventEmitter {
     };
 
     /**
-     * If the current operation is an affine transform, roll it back and remove it from the undo history.
+     * 現在進行中の操作がアフィン変換（選択範囲の変形）である場合、
+     * その変形をロールバック（元に戻す）し、アンドゥ履歴からも取り除く。
+     *  未確定の一時的な変形操作を破棄するための処理。
      */
     this.transformAffineAbort = function () {
       if (previewOperation instanceof CPActionAffineTransformSelection) {
+        // 変形操作自体が持つundo()を呼び、キャンバス・選択範囲・マスクなどを
+        // 変形前の状態に戻す。
         previewOperation.undo();
+        // 進行中の操作への参照を破棄。
+        // これにより「変形モード中」ではない通常の状態に戻る。
         previewOperation = null;
         endPaintingInteraction(true);
       }
     };
 
     /**
-     * Begins transforming the current selection/layer, and returns the initial source rectangle and initial transform.
-     * You can update the transform by calling transformAffineAmend().
+     * 現在の選択範囲/レイヤーの変形（アフィン変換）を開始し、
+     * 初期のソース矩形と初期変換を返す。
+     * 変換の更新は transformAffineAmend() で行う。
      *
-     * You must call transformAffineFinish() or transformAffineAbort() to finish the transformation.
+     * 変形を終える際は必ず transformAffineFinish() か
+     * transformAffineAbort() を呼ぶこと。
      *
-     * Returns null if the current selection/layer doesn't contain any non-transparent pixels, and doesn't start
-     * transforming.
+     * 選択範囲/レイヤーが非透明ピクセルを一切含まない場合は
+     * 変形を開始せず null を返す。
      */
     this.transformAffineBegin = function () {
-      // Are we already transforming? Continue that instead
+      // すでに変形操作が進行中なら、新規に始めず既存の状態を返す
+      // （二重に変形操作を作らないためのガード）
       if (previewOperation instanceof CPActionAffineTransformSelection) {
         return {
           transform: previewOperation.getTransform(),
