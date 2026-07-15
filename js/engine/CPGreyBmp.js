@@ -385,10 +385,12 @@ export default class CPGreyBmp extends CPBitmap {
    * @param {number} width
    * @param {number} height
    *
-   * @returns {any}
+   * @returns {ImageData}
    */
   getImageData(x, y, width, height) {
-    let imageData = createImageData(width, height),
+    let imageData = /** @type {ImageData} */ (
+        /** @type {unknown} */ (createImageData(width, height))
+      ),
       srcIndex = this.offsetOfPixel(x, y),
       dstIndex = 0,
       ySkip = this.width - width;

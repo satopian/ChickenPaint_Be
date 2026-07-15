@@ -589,7 +589,11 @@ export default class CPArtwork extends EventEmitter {
         children.unshift(parent.layers.pop());
       }
 
-      children.forEach((child) => group.addLayer(child));
+      children.forEach((child) => {
+        if (child) {
+          group.addLayer(child);
+        }
+      });
 
       this.addLayerObject(parent, group);
     };
@@ -3624,17 +3628,18 @@ export default class CPArtwork extends EventEmitter {
                   this.srcRect.getHeight(),
                 ),
                 context = canvas.getContext("2d");
-
-              context.putImageData(
-                layerInfo.layer.mask?.getImageData(
-                  this.srcRect.left,
-                  this.srcRect.top,
-                  this.srcRect.getWidth(),
-                  this.srcRect.getHeight(),
-                ),
-                0,
-                0,
-              );
+              if (layerInfo.layer.mask) {
+                context.putImageData(
+                  layerInfo.layer.mask.getImageData(
+                    this.srcRect.left,
+                    this.srcRect.top,
+                    this.srcRect.getWidth(),
+                    this.srcRect.getHeight(),
+                  ),
+                  0,
+                  0,
+                );
+              }
 
               layerInfo.maskSourceCanvas = canvas;
             }

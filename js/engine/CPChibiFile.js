@@ -43,8 +43,8 @@ import { Zlib, unzlibSync } from "fflate";
  *
  * Either one may be set to null. If either one is null, the other is returned. If both are null, null is
  * returned.
- * @param {Object|null} one
- * @param {Object|null} two
+ * @param {Uint8Array|null} one
+ * @param {Uint8Array|null} two
  */
 function concatBuffers(one, two) {
   if (one === null || one.length === 0) {
@@ -72,7 +72,7 @@ const OUR_MAJOR_VERSION = 0,
   CHUNK_TAG_END = "ZEND";
 
 /**
- * @param {Object} stream
+ * @param {ArrayDataStream} stream
  */
 function CPChibiFileHeader(stream) {
   this.version = stream.readU32BE();
@@ -84,7 +84,7 @@ function CPChibiFileHeader(stream) {
 CPChibiFileHeader.FIXED_HEADER_LENGTH = 4 * 4;
 
 /**
- * @param {Object} stream
+ * @param {ArrayDataStream} stream
  */
 function ChibiChunkHeader(stream) {
   let chunkType = new Array(4);
@@ -141,6 +141,9 @@ class ChibiLayerDecoder {
     /** @type {boolean} */
     this.clip = false;
     this.childLayers = 0;
+    this.alpha = 0;
+    this.blendMode = 0;
+    this.name = "";
   }
 
   /**
@@ -149,6 +152,9 @@ class ChibiLayerDecoder {
    * @returns {any}
    */
   createLayer() {}
+  /**
+   * @param {ArrayDataStream} stream
+   */
   readFixedHeader(stream) {
     this.payloadOffset = stream.readU32BE();
 
@@ -186,6 +192,9 @@ class ChibiLayerDecoder {
   // readVariableSizeHeader(stream) {
   //     this.name = stream.readString(this.nameLength);
   // }
+  /**
+   * @param {ArrayDataStream} stream
+   */
   readVariableSizeHeader(stream) {
     // stream.readString がバイト列を 0..255 の文字として返す実装を想定しているので、
     // まずそれを受け取りバイト配列に戻してから UTF-8 デコードする
@@ -348,12 +357,20 @@ class ChibiImageLayerDecoder extends ChibiLayerDecoder {
 }
 
 class ChibiLayerGroupDecoder extends ChibiLayerDecoder {
+  /**
+   * @param {ChibiChunkHeader} chunkHeader - Header of the chunk currently being decoded.
+   * @param {number} width - Width of the canvas/image in pixels.
+   * @param {number} height - Height of the canvas/image in pixels.
+   */
   constructor(chunkHeader, width, height) {
     super(chunkHeader, width, height);
 
     this.childLayers = 0;
   }
 
+  /**
+   * @param {ArrayDataStream} stream
+   */
   readFixedHeader(stream) {
     super.readFixedHeader.call(this, stream);
 
@@ -375,7 +392,7 @@ class ChibiLayerGroupDecoder extends ChibiLayerDecoder {
     group.setAlpha(this.alpha);
 
     group.setVisible(this.visible);
-    group.setExpanded(this.expanded);
+    group.setExpanded(!!this.expanded);
 
     group.setMaskLinked(this.maskLinked);
     group.setMaskVisible(this.maskVisible);
@@ -575,10 +592,18 @@ function makeChibiVersion(major, minor) {
   return (major << 16) | minor;
 }
 
+/**
+ * @param {Number} version
+ * @returns {{major:number,minor:number}}
+ */
 function decomposeChibiVersion(version) {
   return { major: (version >> 16) & 0xffff, minor: version & 0xffff };
 }
 
+/**
+ * @param {Number} version
+ * @returns {string}
+ */
 function chibiVersionToString(version) {
   let decomposed = decomposeChibiVersion(version);
 
@@ -616,6 +641,12 @@ function minimumVersionForArtwork(artwork) {
   return makeChibiVersion(0, 0); // The version used by the original ChibiPaint
 }
 
+/**
+ *
+ * @param {ArrayDataStream} stream
+ * @param {string} tag
+ * @param {Number} chunkSize
+ */
 function writeChunkHeader(stream, tag, chunkSize) {
   stream.writeString(tag);
   stream.writeU32BE(chunkSize);
@@ -782,9 +813,9 @@ const yieldToMain = () => {
  * @property {String} SerializeResult.version - Version string of created artwork, "ChibiPaint v0.0" or "ChickenPaint v0.10"
  *
  * @param {CPArtwork} artwork
- * @param {?Object} options
  * @param {Object} [options] -
- * @param {boolean} options.forceOldVersion - Mark this as a version 0.0 (ChibiPaint) drawing even if it uses new features
+ * @param {Object} [options.savedb] -
+ * @param {boolean} [options.forceOldVersion] - Mark this as a version 0.0 (ChibiPaint) drawing even if it uses new features
  *
  * @returns {Promise.<SerializeResult>}
  */

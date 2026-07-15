@@ -33,7 +33,7 @@ export default class CPUndo {
   /**
    * Attempt to merge the given undo into this one, and return true if successful.
    *
-   * @param undo
+   * @param {CPUndo} undo
    * @returns {boolean}
    */
   merge(undo) {

@@ -90,7 +90,15 @@ function CPGradientPreview(controller) {
   function paint() {
     image.gradient(image.getBounds(), 0, 0, image.width, 0, gradient, true);
     if (imageCanvasContext) {
-      imageCanvasContext.putImageData(image.imageData, 0, 0, 0, 0, w, h);
+      imageCanvasContext.putImageData(
+        /** @type {ImageData} */ (image.imageData),
+        0,
+        0,
+        0,
+        0,
+        w,
+        h,
+      );
     }
     if (canvasContext) {
       canvasContext.fillRect(0, 0, canvas.width, canvas.height);
@@ -542,6 +550,9 @@ CPBrushPalette.CPBrushPreview = function (controller) {
     controller.setBrushSize(size);
   }
 
+  /**
+   * @param {PointerEvent} e
+   */
   function handlePointerUp(e) {
     if (mouseCaptured) {
       mouseCaptured = false;
@@ -955,16 +966,30 @@ function CPPanPanel(controller) {
     rotationSlider.setValue(controller.getRotationDegrees());
   }
 
+  /**
+   * @param {number} value
+   * @returns {string}
+   */
   zoomSlider.title = function (value) {
     return _("Zoom") + ": " + value + "%";
   };
+  /**
+   * @param {number} value
+   * @returns {string}
+   */
   rotationSlider.title = function (value) {
     return _("Rotation") + ": " + value + "°";
   };
 
+  /**
+   * @param {number} value
+   */
   zoomSlider.on("valueChange", function (value) {
     controller.zoomOnCenter(value / 100);
   });
+  /**
+   * @param {number} value
+   */
   rotationSlider.on("valueChange", function (value) {
     controller.setRotationDegrees(value);
   });
@@ -992,6 +1017,9 @@ function CPPanPanel(controller) {
     rotationSlider.setValue(controller.getRotationDegrees());
   };
 
+  /**
+   * @param {PointerEvent} e
+   */
   const isZoomRotateEnabled = (e) => {
     return (
       controller.isPanOrRotateMode() ||
@@ -1000,7 +1028,10 @@ function CPPanPanel(controller) {
       key.isPressed("z")
     );
   };
-
+  /**
+   * @param {EventTarget|null} el
+   * @returns
+   */
   const isMainPaintCanvas = (el) => {
     return (
       el instanceof HTMLCanvasElement &&
@@ -1093,9 +1124,17 @@ function CPFloodFillPanel(controller) {
     alphaSlider.setValue(255);
   }
 
+  /**
+   * @param {number} value
+   * @returns {string}
+   */
   growSlider.title = function (value) {
     return _("Grow fill area") + ": " + value;
   };
+  /**
+   * @param {number} value
+   * @returns {string}
+   */
   alphaSlider.title = function (value) {
     return _("Opacity") + ": " + value;
   };

@@ -75,16 +75,22 @@ export default class CPLayerGroup extends CPLayer {
     this.layers = [];
   }
 
+  /** @param {CPLayer} layer */
   addLayer(layer) {
     layer.parent = this;
     this.layers.push(layer);
   }
 
+  /**
+   * @param {Number} index
+   *  @param {CPLayer} layer
+   */
   insertLayer(index, layer) {
     layer.parent = this;
     this.layers.splice(index, 0, layer);
   }
 
+  /** @param {CPLayer} layer */
   removeLayer(layer) {
     var index = this.layers.indexOf(layer);
 
@@ -93,6 +99,7 @@ export default class CPLayerGroup extends CPLayer {
     }
   }
 
+  /** @param {Number} index */
   removeLayerAtIndex(index) {
     var layer = this.layers[index];
 
@@ -103,6 +110,10 @@ export default class CPLayerGroup extends CPLayer {
     return layer;
   }
 
+  /**
+   * @param {Number} index
+   *  @param {CPLayer} layer
+   */
   setLayerAtIndex(index, layer) {
     var oldLayer = this.layers[index];
 
@@ -111,7 +122,7 @@ export default class CPLayerGroup extends CPLayer {
 
     return oldLayer;
   }
-
+  /** @param  {boolean} expanded */
   setExpanded(expanded) {
     this.expanded = expanded;
   }
@@ -130,6 +141,12 @@ export default class CPLayerGroup extends CPLayer {
     return this.layers.indexOf(layer);
   }
 
+  /**
+   *
+   * @param {Number} a
+   * @param {Number} b
+   * @returns {Number}
+   */
   static sum(a, b) {
     return a + b;
   }

@@ -44,12 +44,12 @@ import EventEmitter from "wolfy87-eventemitter";
  * @param {CPRect} rect
  */
 function copyGreyscaleRectToImageData(imageData, greyscale, rect) {
-  var srcIndex = rect.top * greyscale.width + rect.left,
-    dstIndex = srcIndex * CPColorBmp.BYTES_PER_PIXEL,
-    width = rect.getWidth(),
-    height = rect.getHeight(),
-    srcYSkip = greyscale.width - width,
-    dstYSkip = srcYSkip * CPColorBmp.BYTES_PER_PIXEL;
+  let srcIndex = rect.top * greyscale.width + rect.left;
+  let dstIndex = srcIndex * CPColorBmp.BYTES_PER_PIXEL;
+  const width = rect.getWidth();
+  const height = rect.getHeight();
+  const srcYSkip = greyscale.width - width;
+  const dstYSkip = srcYSkip * CPColorBmp.BYTES_PER_PIXEL;
 
   for (let y = 0; y < height; y++, srcIndex += srcYSkip, dstIndex += dstYSkip) {
     for (
@@ -100,7 +100,7 @@ export default class CPMaskView extends EventEmitter {
   }
 
   close() {
-    this.buffer = null;
+    this.buffer = /** @type {any} */ (null);
     this.layer = /** @type {any} */ (null);
 
     this.emitEvent("changeLayer");
@@ -127,14 +127,17 @@ export default class CPMaskView extends EventEmitter {
   }
 
   /**
-   * Get the pixels of the mask as an ImageData object, or null if this view has already been closed.
+   * マスクのピクセルをImageDataのObjectとして取得
    *
-   * @returns {ImageData}
+   * @returns {ImageData|undefined}
    */
   getImageData() {
     this.prepareMask();
 
     if (!this.invalidRect.isEmpty() && this.layer && this.layer.mask) {
+      if (!this.buffer) {
+        return;
+      }
       copyGreyscaleRectToImageData(
         this.buffer,
         this.layer.mask,

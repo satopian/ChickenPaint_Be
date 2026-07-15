@@ -33,27 +33,27 @@ import CPBitmap from "./CPBitmap.js";
 import CPRect from "../util/CPRect.js";
 import { createCanvas } from "../util/Canvas.js";
 import { createImageData } from "../util/Canvas.js";
+import { ImageData } from "canvas";
 
 export default class CPColorBmp extends CPBitmap {
-  /**
-   * A 32bpp bitmap class (one byte per channel in RGBA order)
-   *
-   * @param {(ImageData|number)} width - The width of the bitmap, or the ImageData object to use by reference
-   * @param {?number} [height=null] - The height of the bitmap
-   *
-   * @property {number} width
-   * @property {number} [height]
-   * @property {CanvasPixelArray} data - The bitmap data array (one byte per channel in RGBA order). We'd prefer this to
-   *                                     be Uint8ClampedArray, but IE 10 doesn't support it
-   * @property {ImageData} imageData
-   */
-
   static BYTES_PER_PIXEL = 4;
   static RED_BYTE_OFFSET = 0;
   static GREEN_BYTE_OFFSET = 1;
   static BLUE_BYTE_OFFSET = 2;
   static ALPHA_BYTE_OFFSET = 3;
 
+  /**
+   * A 32bpp bitmap class (one byte per channel in RGBA order)
+   *
+   * @param {(ImageData|number)} width - The width of the bitmap, or the ImageData object to use by reference
+   * @param {number} [height=null] - The height of the bitmap
+   *
+   * @property {number} width
+   * @property {number} [height]
+   * @property {Uint8ClampedArray} data - The bitmap data array (one byte per channel in RGBA order). We'd prefer this to
+   *                                     be Uint8ClampedArray, but IE 10 doesn't support it
+   * @property {ImageData} imageData
+   */
   constructor(width, height) {
     if (typeof width == "number") {
       super(width, height);
@@ -94,7 +94,10 @@ export default class CPColorBmp extends CPBitmap {
 
   /**
    * Pixel access with friendly clipping.
-   *
+   * @param {number} x
+   * @param {number} y
+   * @param {object} [options]
+   * @param {object} [options.colorPicker]
    * @returns {number|null} 32-bit integer in ARGB format
    */
   getPixel(x, y, options = {}) {
@@ -298,11 +301,6 @@ export default class CPColorBmp extends CPBitmap {
 
     if ("set" in this.data) {
       this.data.set(bmp.data);
-    } else {
-      // IE doesn't use Uint8ClampedArray for ImageData, so set() isn't available
-      for (var i = 0; i < this.data.length; i++) {
-        this.data[i] = bmp.data[i];
-      }
     }
   }
 
@@ -535,6 +533,12 @@ export default class CPColorBmp extends CPBitmap {
     const oldB = srcData[idx0 + CPColorBmp.BLUE_BYTE_OFFSET];
     const oldA = srcData[idx0 + CPColorBmp.ALPHA_BYTE_OFFSET];
 
+    /**
+     *
+     * @param {number} px
+     * @param {number} py
+     * @returns {boolean}
+     */
     const comparePixel = (px, py) => {
       if (px < 0 || py < 0 || px >= w || py >= h) return false;
       if (Processed[py * w + px]) return false;
@@ -546,7 +550,14 @@ export default class CPColorBmp extends CPBitmap {
         srcData[idx + CPColorBmp.ALPHA_BYTE_OFFSET] === oldA
       );
     };
-
+    /**
+     * @param {number} px
+     * @param {number} py
+     * @param {number} r
+     * @param {number} g
+     * @param {number} b
+     * @param {number} a
+     */
     const setPixel = (px, py, r, g, b, a) => {
       const idx = (py * w + px) * BYTES;
       data[idx + CPColorBmp.RED_BYTE_OFFSET] = r;
@@ -927,6 +938,15 @@ export default class CPColorBmp extends CPBitmap {
 
     this.data.set(dst);
 
+    /**
+     * @param {number} cx
+     * @param {number} cy
+     * @param {number} radius
+     * @param {number} r
+     * @param {number} g
+     * @param {number} b
+     */
+
     function drawDot(cx, cy, radius, r, g, b) {
       const r2 = radius * radius;
 
@@ -1196,6 +1216,11 @@ export default class CPColorBmp extends CPBitmap {
 
     /* ===== 内部 ===== */
 
+    /**
+     * @param {number} cx
+     * @param {number} cy
+     * @param {number} radius
+     */
     function drawDot(cx, cy, radius) {
       const r2 = radius * radius;
 
@@ -1232,6 +1257,9 @@ export default class CPColorBmp extends CPBitmap {
     return this.data.length;
   }
 
+  /**
+   * @returns {ImageData}
+   */
   getImageData() {
     return this.imageData;
   }
@@ -1825,6 +1853,8 @@ export default class CPColorBmp extends CPBitmap {
    * 1. 輝度 0〜255 の滑らかな階調を作る。
    * 2. 元の Alpha を参照せず、輝度から一発で Alpha を決定することで「縁の浮き」を防止する。
    * 3. RGB を指定色で完全に上書きし、元の背景色の残滓を消去する。
+   * @param {CPRect} rect  
+   * @param {number} color
    */
 
   brightnessToOpacity(rect, color) {
@@ -2086,7 +2116,8 @@ export default class CPColorBmp extends CPBitmap {
     imageContext.drawImage(image, 0, 0);
 
     return new CPColorBmp(
-      imageContext.getImageData(0, 0, image.width, image.height),
+      /** @type {ImageData} */
+      (imageContext.getImageData(0, 0, image.width, image.height)),
     );
   }
 
@@ -2146,6 +2177,8 @@ function multiplyAlpha(buffer, len) {
 
 /**
  * Inverse of multiplyAlpha()
+ * @param {Uint8Array} buffer
+ * @param {number} len  
  */
 function separateAlpha(buffer, len) {
   var pixIndex = 0;

@@ -241,6 +241,11 @@ export default class CPResourceSaver extends EventEmitter {
      *                            total progress could not be determined.
      * savingFailure(error)     - When saving fails, along with a string error message to display to the user.
      * savingComplete()         - When saving completes succesfully
+     * @param {object} [save_options]
+     * @param {object} [save_options.zip]
+     * @param {object} [save_options.saveUrl]
+     * @param {object} [save_options.savedb]
+     * @param {object} [save_options.savedbFromMenu]
      */
     this.save = function (save_options = {}) {
       const zip = save_options.zip ?? false;
@@ -264,7 +269,6 @@ export default class CPResourceSaver extends EventEmitter {
 
       serializeLayers = chiSave(options.artwork, {
         savedb: savedb,
-        savedbFromMenu: savedbFromMenu,
       });
 
       serializeLayers

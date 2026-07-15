@@ -2542,6 +2542,9 @@ export default class CPCanvas extends EventEmitter {
           console.error("Failed to begin affine transformation.");
           return;
         }
+        if (!initial.transform) {
+          return;
+        }
         this.affine = initial.transform;
         this.srcRect = initial.rect;
 
@@ -3870,7 +3873,7 @@ export default class CPCanvas extends EventEmitter {
         }
 
         artworkCanvasContext?.putImageData(
-          imageData,
+          /** @type {ImageData}**/ (imageData),
           0,
           0,
           artworkUpdateRegion.left,
