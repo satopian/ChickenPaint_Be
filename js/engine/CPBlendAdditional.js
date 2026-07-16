@@ -41,6 +41,13 @@ import CPGreyBmp from "./CPGreyBmp.js";
 const BYTES_PER_PIXEL = 4,
   ALPHA_BYTE_OFFSET = 3;
 
+/**
+ * @param {boolean} fusionHasTransparency
+ * @param {Number} imageAlpha
+ * @param {Number} imageBlendMode
+ * @param {boolean} hasMask
+ * @returns {string}
+ */
 CPBlend.blendFunctionNameForParameters = function (
   fusionHasTransparency,
   imageAlpha,

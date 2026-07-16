@@ -310,15 +310,38 @@ function createDrawingTools() {
  * @param {any} options
  *
  * @throws ChickenPaint.UnsupportedBrowserException if the web browser does not support ChickenPaint
- * @this {any}
  *
  */
 export default class ChickenPaint extends EventEmitter {
+  /**
+   *
+   * @param {object} options
+   * @param {string} [options.language]
+   * @param {string} [options.fullScreenMode]
+   * @param {boolean} [options.allowFullScreen]
+   * @param {boolean} [options.allowDownload]
+   * @param {string} [options.saveUrl]
+   * @param {string&Location} [options.exitUrl]
+   * @param {string&Location} [options.postUrl]
+   * @param {HTMLElement} options.uiElem
+   * @param {string} options.resourcesRoot
+   * @param {boolean} [options.allowMultipleSends]
+   * @param {Number} [options.post_max_size]
+   * @param {string} [options.loadImageUrl]
+   * @param {string} [options.loadChibiFileUrl]
+   * @param {string} [options.loadSwatchesUrl]
+   * @param {Number} [options.rotation]
+   * @param {function} [options.onLoaded]
+   * @param {CPArtwork} [options.artwork]
+   * @param {Number} [options.canvasWidth]
+   * @param {Number} [options.canvasHeight]
+   *
+   */
   constructor(options) {
     super();
     guessLanguage();
 
-    if (options.language) {
+    if (options?.language) {
       setLanguage(options.language);
     }
     /** @type {HTMLElement} */
@@ -936,7 +959,7 @@ export default class ChickenPaint extends EventEmitter {
       },
       CPApplyLayerMask: {
         action: function () {
-          that.artwork.applyLayerMask(true);
+          that.artwork.applyLayerMask();
         },
         modifies: { document: true },
         allowed: "isApplyLayerMaskAllowed",
@@ -1128,7 +1151,9 @@ export default class ChickenPaint extends EventEmitter {
           if (typeof window["handleExit"] === "function") {
             return window["handleExit"]();
           }
-          window.location = options.postUrl;
+          if (options.postUrl) {
+            window.location = options.postUrl;
+          }
         },
         isSupported: function () {
           return !!(
@@ -1146,7 +1171,9 @@ export default class ChickenPaint extends EventEmitter {
       CPExit: {
         action: function () {
           // Exit the drawing session without posting the drawing to the forum
-          window.location = options.exitUrl;
+          if (options.exitUrl) {
+            window.location = options.exitUrl;
+          }
         },
         isSupported: function () {
           return !!options.exitUrl;

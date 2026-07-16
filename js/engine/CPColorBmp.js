@@ -1738,7 +1738,7 @@ export default class CPColorBmp extends CPBitmap {
    * pixels in the bitmap.
    *
    * @param {CPRect} rect
-   * @param {Object[]} gradientPoints Array with gradient colors (ARGB integers)
+   * @param {Number[]} gradientPoints Array with gradient colors (ARGB integers)
    * @param {number} fromX
    * @param {number} fromY
    * @param {number} toX

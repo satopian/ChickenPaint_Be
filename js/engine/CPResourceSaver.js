@@ -242,10 +242,10 @@ export default class CPResourceSaver extends EventEmitter {
      * savingFailure(error)     - When saving fails, along with a string error message to display to the user.
      * savingComplete()         - When saving completes succesfully
      * @param {object} [save_options]
-     * @param {object} [save_options.zip]
-     * @param {object} [save_options.saveUrl]
-     * @param {object} [save_options.savedb]
-     * @param {object} [save_options.savedbFromMenu]
+     * @param {boolean} [save_options.zip]
+     * @param {boolean} [save_options.saveUrl]
+     * @param {boolean} [save_options.savedb]
+     * @param {boolean} [save_options.savedbFromMenu]
      */
     this.save = function (save_options = {}) {
       const zip = save_options.zip ?? false;

@@ -465,7 +465,9 @@ export default class CPArtwork extends EventEmitter {
     function getActiveImage() {
       return maskEditingMode ? curLayer.mask : curLayer.image;
     }
-
+    /**
+     * @param {boolean} value
+     */
     this.setHasUnsavedChanges = function (value) {
       if (value != hasUnsavedChanges) {
         hasUnsavedChanges = value;
@@ -504,7 +506,7 @@ export default class CPArtwork extends EventEmitter {
       return curLayer.mask !== null && curLayer instanceof CPImageLayer;
     };
 
-    this.applyLayerMask = function (apply) {
+    this.applyLayerMask = function () {
       if (this.isApplyLayerMaskAllowed()) {
         addUndo(new CPActionRemoveLayerMask(curLayer, true));
       }
