@@ -3254,10 +3254,6 @@ export default class CPArtwork extends EventEmitter {
       }
     }
 
-    /**
-     * @class
-     * @extends {CPUndo}
-     */
     class CPActionTransformSelection extends CPUndo {
       constructor() {
         super();
