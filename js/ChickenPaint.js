@@ -97,7 +97,7 @@ function createDrawingTools() {
     tip: CPBrushInfo.TIP_ROUND_AA,
     brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
     paintMode: CPBrushInfo.PAINT_MODE_OPACITY,
-    smoothing: 0.03,
+    smoothing: 0.05,
   });
 
   tools[ChickenPaint.T_ERASER] = new CPBrushInfo({
@@ -128,7 +128,7 @@ function createDrawingTools() {
     brushMode: CPBrushInfo.BRUSH_MODE_PAINT,
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 2,
-    smoothing: 0.03,
+    smoothing: 0.05,
   });
 
   tools[ChickenPaint.T_SOFTERASER] = new CPBrushInfo({
