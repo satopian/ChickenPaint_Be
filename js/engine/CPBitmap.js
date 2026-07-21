@@ -31,15 +31,11 @@
 
 import CPRect from "../util/CPRect.js";
 
-/**
- *
- * @param width
- * @param height
- * @constructor
- * @this {any}
- */
-
 export default class CPBitmap {
+  /**
+   * @param {Number} width
+   * @param {Number} height
+   */
   constructor(width, height) {
     // Width and height forced to integers
     this.width = width | 0;

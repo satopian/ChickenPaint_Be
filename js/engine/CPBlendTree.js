@@ -116,16 +116,16 @@ class CPBlendNode {
  * Analyses a stack of layers in a CPLayerGroup and optimizes a drawing scheme for them. Then you can reuse that
  * scheme to blend all the layers together.
  *
- * @param {CPLayerGroup} drawingRootGroup - The root of the layer stack.
- * @param {number} width - Dimension of layers and final merge result.
- * @param {number} height
- * @param {boolean} requireSimpleFusion - Set to true if the result must have alpha 100 and no mask.
  *
- * @constructor
- * @this {any}
  */
 
 export default class CPBlendTree {
+  /**
+   * @param {CPLayerGroup} drawingRootGroup - The root of the layer stack.
+   * @param {number} width - Dimension of layers and final merge result.
+   * @param {number} height
+   * @param {boolean} requireSimpleFusion - Set to true if the result must have alpha 100 and no mask.
+   */
   constructor(drawingRootGroup, width, height, requireSimpleFusion) {
     const DEBUG = false;
 

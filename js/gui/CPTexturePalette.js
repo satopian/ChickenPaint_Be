@@ -524,15 +524,12 @@ export default class CPTexturePalette extends CPPalette {
       this.updateTexture();
     }
 
-    /**
-     *
-     * @param {CPGreyBmp} texture
-     * @param {number} width
-     * @param {number} height
-     * @constructor
-     * @this {any}
-     */
     class CPTextureSwatch extends EventEmitter {
+      /**
+       * @param {CPGreyBmp|null} texture
+       * @param {number} width
+       * @param {number} height
+       */
       constructor(texture, width, height) {
         super();
         let canvas = document.createElement("canvas"),
@@ -541,7 +538,7 @@ export default class CPTexturePalette extends CPPalette {
         this.texture = null;
 
         /**
-         * @param {CPGreyBmp} texture
+         * @param {CPGreyBmp|null} texture
          */
         this.setTexture = function (texture) {
           this.texture = texture;

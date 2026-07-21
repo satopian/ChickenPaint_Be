@@ -276,25 +276,20 @@ function buildBrushSoft(brush, brushInfo) {
 }
 
 /**
- * A brush spot
- *
- * @typedef {Object} CPBrushDab
- *
- * @property {Uint8Array} brush - The brush image mask
- * @property {number} width - The size of the brush image (note, it need not occupy the entire brush array).
- * @property {number} height
- * @property {number} x - Pixel in the document where the brush will be applied
- * @property {number} y
- * @property {number} alpha
- */
-
-/**
  * Creates and holds one cached brush at a time, with the given parameters.
  *
- * @constructor
- * @this {any}
  */
 export default class CPBrushManager {
+  /**
+   * A brush spot
+   *
+   * @property {Uint8Array} brush - The brush image mask
+   * @property {number} width - The size of the brush image (note, it need not occupy the entire brush array).
+   * @property {number} height
+   * @property {number} x - Pixel in the document where the brush will be applied
+   * @property {number} y
+   * @property {number} alpha
+   */
   constructor() {
     const BRUSH_MAX_DIM = 401,
       BRUSH_AA_MAX_DIM = 402;

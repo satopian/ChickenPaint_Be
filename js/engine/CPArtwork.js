@@ -99,9 +99,6 @@ function arrayEquals(a, b) {
  * Note that an artwork with no layers is invalid, so you must call a routine like addBackgroundLayer(), addLayer(), or
  * addLayerObject() before calling any other routines.
  *
- * @param {number} _width
- * @param {number} _height
- * @constructor
  */
 export default class CPArtwork extends EventEmitter {
   static EDITING_MODE_IMAGE = 0;
@@ -3998,19 +3995,13 @@ export default class CPArtwork extends EventEmitter {
 
     /**
      * Upon creation, moves the currently selected region of the current layer by the given offset
-     *
-     * @param {?CPRect} srcRect - Rectangle that will be moved, or an empty rectangle to move whole layer.
-     * @param {number} offsetX
-     * @param {number} offsetY
-     * @param {boolean} copy - True if we should copy to the destination instead of move.
-     * @constructor
      */
     class CPActionMoveSelection extends CPActionTransformSelection {
       /**
        *
        * @param {Number} offsetX
        * @param {Number} offsetY
-       * @param {boolean} copy
+       * @param {boolean} copy - True if we should copy to the destination instead of move.
        */
       constructor(offsetX, offsetY, copy) {
         super();

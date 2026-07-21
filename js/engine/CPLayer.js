@@ -39,14 +39,10 @@ import CPRect from "../util/CPRect.js";
  * @typedef {import("./CPLayerGroup.js").default} CPLayerGroup
  */
 
-/**
- * @param {String} name
- *
- * @constructor
- * @this {any}
- */
-
 export default class CPLayer {
+  /**
+   * @param {String} name
+   */
   constructor(name) {
     /**
      *

@@ -644,8 +644,6 @@ export default class CPCanvas extends EventEmitter {
     }
     /**
      * A base for the three drawing modes, so they can all share the same brush-preview-circle drawing behaviour.
-     *
-     * @constructor
      */
     class CPDrawingMode extends CPMode {
       constructor() {

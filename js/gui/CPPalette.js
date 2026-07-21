@@ -41,24 +41,18 @@ function distanceGreaterThan(a, b, threshold) {
   return dist > threshold * threshold;
 }
 
-/**
- *
- * @param {typeof ChickenPaint} cpController
- * @param {String} paletteName
- * @param {String} title
- * @param {Object} [options]
- * @param {boolean} options.resizeVert
- * @param {boolean} options.resizeHorz
- * @param {boolean} options.collapseDownwards
- *
- * @constructor
- */
-
-/**
- * @this {any}
- */
-
 export default class CPPalette extends EventEmitter {
+  /**
+   *
+   * @param {ChickenPaint} cpController
+   * @param {String} paletteName
+   * @param {String} title
+   * @param {Object} [options]
+   * @param {boolean} [options.resizeVert]
+   * @param {boolean} [options.resizeHorz]
+   * @param {boolean} [options.collapseDownwards]
+   *
+   */
   constructor(cpController, paletteName, title, options) {
     super();
     // Use a shorter version of the title if needed and one is available
@@ -71,7 +65,7 @@ export default class CPPalette extends EventEmitter {
       this.title = _(title);
     }
 
-    options = options || {};
+    options = options ?? {};
 
     this.paletteName = paletteName;
     this.resizeVert = options.resizeVert || false;
