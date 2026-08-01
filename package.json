@@ -16,7 +16,7 @@
   "devDependencies": {
     "@parcel/optimizer-data-url": "^2.16.3",
     "@parcel/transformer-inline-string": "^2.16.3",
-    "canvas": "^3.0.0",
+    "buffer": "^6.0.3",
     "google-closure-compiler": "^20250915.0.0",
     "multipipe": "^2.0.3",
     "parcel": "^2.13.2",
@@ -32,20 +32,10 @@
     "random-js": "^2.1.0",
     "wolfy87-eventemitter": "^5.2.9"
   },
-  "browser": {
-    "./js/util/Canvas.js": "./js/browser/util/Canvas.js"
-  },
   "scripts": {
     "dev": "BUILD_TIME=$(date -u +\"%Y-%m-%dT%H:%M:%S\") parcel index.html --no-cache",
     "test": "babel-node node_modules/.bin/_mocha -- test/*.js",
     "prepare": "make all",
     "format": "prettier --write \"js/**/*.js\""
-  },
-  "allowScripts": {
-    "@parcel/watcher@2.5.6": true,
-    "@swc/core@1.15.43": true,
-    "canvas@3.2.3": true,
-    "lmdb@2.8.5": true,
-    "msgpackr-extract@3.0.4": true
   }
 }

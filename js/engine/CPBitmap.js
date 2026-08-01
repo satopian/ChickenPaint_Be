@@ -34,12 +34,12 @@ import CPRect from "../util/CPRect.js";
 export default class CPBitmap {
   /**
    * @param {Number} width
-   * @param {Number} height
+   * @param {Number} [height]
    */
   constructor(width, height) {
     // Width and height forced to integers
-    this.width = width | 0;
-    this.height = height | 0;
+    this.width = width ?? 0;
+    this.height = height ?? 0;
   }
   getBounds() {
     return new CPRect(0, 0, this.width, this.height);

@@ -23,19 +23,6 @@ clean_dist :
 	rm -rf dist/
 	rm -rf .parcel-cache/
 
-test: thumbnail-test integration-test blending-test
-
-tools: blending-bench blending-compare
-
-blending-bench: test/blending/bench/blending.js
-blending-compare: test/blending/test/blending.js
-
-thumbnail-test: test/thumbnail_test/thumbnail.js
-integration-test: test/integration_test/integration.js
-
-js/engine/CPBlend2.js :
-	touch js/engine/CPBlend2.js
-
 js/engine/CPBlend.js : codegenerator/BlendGenerator.js
 	node codegenerator/BlendGenerator.js > js/engine/CPBlend.js
 

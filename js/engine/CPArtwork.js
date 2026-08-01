@@ -47,7 +47,7 @@ import CPColor from "../util/CPColor.js";
 import CPRect from "../util/CPRect.js";
 import CPRandom from "../util/CPRandom.js";
 import CPTransform from "../util/CPTransform.js";
-import { createCanvas } from "../util/Canvas.js";
+import { createCanvas } from "../browser/util/Canvas.js";
 
 import EventEmitter from "wolfy87-eventemitter";
 import {
@@ -3270,9 +3270,8 @@ export default class CPArtwork extends EventEmitter {
 
         this.selectionIsEmpty = this.fromSelection.isEmpty();
         //マスクだけの移動を可能にするためマスク編集モードの時はレイヤーを移動しない
-        this.movingImage =
-          !maskEditingMode && this.layer instanceof CPImageLayer;
-        this.movingMask = this.layer.mask !== null;
+        this.movingImage = this.layer instanceof CPImageLayer;
+        this.movingMask = this.layer.mask instanceof CPGreyBmp;
         this.hasFullUndo = false;
 
         /**
@@ -3317,7 +3316,7 @@ export default class CPArtwork extends EventEmitter {
           {
             layer: this.layer,
             moveImage: this.layer instanceof CPImageLayer && this.movingImage,
-            moveMask: this.layer.mask !== null && this.movingMask,
+            moveMask: this.layer.mask instanceof CPGreyBmp && this.movingMask,
             imageRect: new Map(),
             maskRect: new Map(),
           },
@@ -3605,6 +3604,10 @@ export default class CPArtwork extends EventEmitter {
                 ),
                 context = canvas.getContext("2d");
 
+              if (!context) {
+                throw new Error("Failed to get 2D context from canvas");
+              }
+
               context.putImageData(
                 layerInfo.layer.image.getImageData(),
                 -this.srcRect.left,
@@ -3623,6 +3626,11 @@ export default class CPArtwork extends EventEmitter {
                   this.srcRect.getHeight(),
                 ),
                 context = canvas.getContext("2d");
+              if (!context) {
+                console.error("Failed to get 2D context from canvas");
+                return;
+              }
+
               if (layerInfo.layer.mask) {
                 context.putImageData(
                   layerInfo.layer.mask.getImageData(

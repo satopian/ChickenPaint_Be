@@ -31,9 +31,8 @@
 
 import CPBitmap from "./CPBitmap.js";
 import CPRect from "../util/CPRect.js";
-import { createCanvas } from "../util/Canvas.js";
-import { createImageData } from "../util/Canvas.js";
-import { ImageData } from "canvas";
+import { createCanvas } from "../browser/util/Canvas.js";
+import { createImageData } from "../browser/util/Canvas.js";
 
 export default class CPColorBmp extends CPBitmap {
   static BYTES_PER_PIXEL = 4;
@@ -65,7 +64,6 @@ export default class CPColorBmp extends CPBitmap {
 
       this.imageData = imageData;
     }
-
     this.data = this.imageData.data;
   }
 
@@ -1258,7 +1256,7 @@ export default class CPColorBmp extends CPBitmap {
   }
 
   /**
-   * @returns {ImageData}
+   * @returns {ImageData|undefined} ImageDataオブジェクトを返す。存在しない場合はundefinedを返す。
    */
   getImageData() {
     return this.imageData;
@@ -2019,11 +2017,15 @@ export default class CPColorBmp extends CPBitmap {
    * Rotation is [0..3] and selects a multiple of 90 degrees of clockwise rotation to be applied, or 0 to leave
    * unrotated.
    * @param {Number} rotation
-   * @returns {HTMLCanvasElement}
+   * @returns {HTMLCanvasElement} - Canvas element with the image drawn on it, or undefined if failed to create canvas
    */
   getAsCanvas(rotation) {
-    var canvas = createCanvas(this.imageData.width, this.imageData.height),
+    var canvas = createCanvas(this.imageData?.width, this.imageData?.height),
       canvasContext = canvas.getContext("2d");
+
+    if (!canvasContext || !this.imageData) {
+      throw new Error("Failed to get 2D context from canvas");
+    }
 
     canvasContext.putImageData(this.imageData, 0, 0);
 
@@ -2041,6 +2043,10 @@ export default class CPColorBmp extends CPBitmap {
    */
   getAsPNG(rotation) {
     let canvas = this.getAsCanvas(rotation);
+
+    if (!canvas) {
+      return false;
+    }
 
     return decodeBase64PNGDataURL(canvas.toDataURL("image/png"));
   }
@@ -2112,12 +2118,15 @@ export default class CPColorBmp extends CPBitmap {
     var imageCanvas = createCanvas(image.width, image.height),
       imageContext = imageCanvas.getContext("2d");
 
+    if (!imageContext) {
+      throw new Error("Failed to get 2D context from canvas");
+    }
+
     imageContext.globalCompositeOperation = "copy";
     imageContext.drawImage(image, 0, 0);
 
     return new CPColorBmp(
-      /** @type {ImageData} */
-      (imageContext.getImageData(0, 0, image.width, image.height)),
+      imageContext.getImageData(0, 0, image.width, image.height),
     );
   }
 
@@ -2269,9 +2278,9 @@ function decodeBase64PNGDataURL(url) {
 /**
  * Returns a new canvas with a rotated version of the given canvas.
  *
- * @param {any} canvas
+ * @param {HTMLCanvasElement} canvas
  * @param {number} rotation - [0..3], selects a multiple of 90 degrees of clockwise rotation to be applied.
- * @returns {any}
+ * @returns {HTMLCanvasElement}
  */
 export function getRotatedCanvas(canvas, rotation) {
   rotation = rotation % 4;
@@ -2282,6 +2291,10 @@ export function getRotatedCanvas(canvas, rotation) {
 
   let rotatedCanvas = createCanvas(0, 0),
     rotatedCanvasContext = rotatedCanvas.getContext("2d");
+
+  if (!rotatedCanvasContext) {
+    throw new Error("Failed to get 2D context from canvas");
+  }
 
   if (rotation % 2 == 0) {
     rotatedCanvas.width = canvas.width;

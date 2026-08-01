@@ -43,11 +43,19 @@ export function createCanvas(width, height) {
 
   return canvas;
 }
-
+/**
+ *
+ * @param {number} width
+ * @param {number} height
+ * @returns {ImageData}
+ */
 export function createImageData(width, height) {
   // return new ImageData(this.width, this.height); // Doesn't work on old IE
   var canvas = document.createElement("canvas"),
     context = canvas.getContext("2d");
+  if (!context) {
+    throw new Error("Failed to get 2D context from canvas");
+  }
 
-  return context?.createImageData(width, height);
+  return context.createImageData(width, height);
 }

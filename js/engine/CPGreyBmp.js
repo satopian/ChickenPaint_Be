@@ -31,7 +31,7 @@
 
 import CPBitmap from "./CPBitmap.js";
 import CPRect from "../util/CPRect.js";
-import { createCanvas, createImageData } from "../util/Canvas.js";
+import { createCanvas, createImageData } from "../browser/util/Canvas.js";
 import { getRotatedCanvas } from "./CPColorBmp.js";
 
 export default class CPGreyBmp extends CPBitmap {
@@ -371,6 +371,10 @@ export default class CPGreyBmp extends CPBitmap {
     var imageData = this.getImageData(0, 0, this.width, this.height),
       canvas = createCanvas(this.width, this.height),
       context = canvas.getContext("2d");
+
+    if (!context) {
+      throw new Error("Failed to get 2D context from canvas");
+    }
 
     context.putImageData(imageData, 0, 0);
 
