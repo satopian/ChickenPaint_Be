@@ -926,15 +926,15 @@ export function load(source, options = {}) {
     /**
      * Destination artwork
      *
-     * @type {any} CPArtwork
+     * @type {CPArtwork}
      */
-    artwork = null,
+    artwork = /** @type {CPArtwork} */ (/** @type {unknown} */ (null)),
     /**
      * Group we're currently loading layers into
      *
-     * @type {any} CPLayerGroup
+     * @type {CPLayerGroup}
      */
-    destGroup = null,
+    destGroup = /** @type {CPLayerGroup} */ (/** @type {unknown} */ (null)),
     /**
      * Decoder we're currently using to read a layer.
      *
@@ -950,19 +950,23 @@ export function load(source, options = {}) {
     /**
      * The overall file descriptor
      *
-     * @type {any} CPChibiFileHeader
+     * @type {CPChibiFileHeader}
      */
-    fileHeader = null,
+    fileHeader = /** @type {CPChibiFileHeader} */ (
+      /** @type {unknown} */ (null)
+    ),
     /**
      *
-     * @type {any} ChibiChunkHeader
+     * @type {ChibiChunkHeader}
      */
-    curChunkHeader = null,
+    curChunkHeader = /** @type {ChibiChunkHeader} */ (
+      /** @type {unknown} */ (null)
+    ),
     /**
      * Here we store data that we weren't able to process in previous iterations due to not enough
      * data being available at once.
      *
-     * @type {any} Uint8Array
+     * @type {Uint8Array|Null} Uint8Array
      */
     accumulator = null;
 
@@ -1082,7 +1086,7 @@ export function load(source, options = {}) {
           break;
 
         case STATE_DECODE_GROUP:
-          accumulator = /** @type {any} */ (layerDecoder.decode(accumulator));
+          accumulator = layerDecoder.decode(accumulator);
 
           if (layerDecoder.done) {
             artwork.addLayerGroupObject(

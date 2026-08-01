@@ -3303,8 +3303,8 @@ export default class CPArtwork extends EventEmitter {
          *
          * @property {Map} imageRect
          * @property {Map} maskRect
-         * @property {any} [imageSourceCanvas]
-         * @property {any} [maskSourceCanvas]
+         * @property {HTMLCanvasElement|null} [imageSourceCanvas]
+         * @property {HTMLCanvasElement} [maskSourceCanvas]
          */
 
         /**
@@ -3627,8 +3627,7 @@ export default class CPArtwork extends EventEmitter {
                 ),
                 context = canvas.getContext("2d");
               if (!context) {
-                console.error("Failed to get 2D context from canvas");
-                return;
+                throw new Error("Failed to get 2D context from canvas");
               }
 
               if (layerInfo.layer.mask) {

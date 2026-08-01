@@ -1529,7 +1529,7 @@ export default class ChickenPaint extends EventEmitter {
       ) {
         return;
       }
-      const saveUrl = savedbFromMenu ? false : options.saveUrl; // Ensure saveUrl is defined for CPResourceSaver
+      const saveUrl = savedbFromMenu ? undefined : options.saveUrl; // Ensure saveUrl is defined for CPResourceSaver
       let saver = new CPResourceSaver({
           artwork: that.getArtwork(),
           rotation: canvas.getRotation90(),

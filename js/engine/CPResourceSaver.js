@@ -30,7 +30,6 @@ export function binaryStringToByteArray(s) {
 
   return result;
 }
-
 /**
  * Saves ChickenPaint resources to a remote server or to the disk and emits progress events.
  *
@@ -40,11 +39,15 @@ export function binaryStringToByteArray(s) {
  *     rotation - Integer [0..3] of the number of 90 degree rotation steps that should be applied to canvas upon opening.
  *     swatches - Array of ARGB integer colors to save as the image swatches (optional)
  */
-/**
- * @this {any}
- */
-
 export default class CPResourceSaver extends EventEmitter {
+  /**
+   * @param {Object} options
+   * @param {string} [options.url] - URL to send to. If omitted, will save to the disk instead.
+   * @param {import('./CPArtwork').default} options.artwork - Artwork to send
+   * @param {number} [options.rotation] - Integer [0..3] of the number of 90 degree rotation steps that should be applied to canvas upon opening.
+   * @param {Array<number>} [options.swatches] - Array of ARGB integer colors to save as the image swatches (optional)
+   * @param {number} [options.post_max_size] - Maximum size for POST requests in MB
+   */
   constructor(options) {
     super();
     var that = this,
@@ -66,8 +69,15 @@ export default class CPResourceSaver extends EventEmitter {
     function reportFatal(serverMessage) {
       that.emitEvent("savingFailure", [serverMessage]);
     }
-
+    /**
+     *
+     * @param {FormData} formData
+     * @returns {Promise<void>}
+     */
     async function postDrawing(formData) {
+      if (!options.url) {
+        return;
+      }
       // FormDataサイズを取得してチェック
       try {
         const size = await getFormDataSize(formData);
@@ -99,8 +109,8 @@ export default class CPResourceSaver extends EventEmitter {
         reportFatal("An error occurred in the getFormDataSize function.");
         return;
       }
-      /** @type {any} */
-      var requestOptions = {
+      /** @type {RequestInit} */
+      const requestOptions = {
         method: "POST",
         mode: "same-origin",
         headers: {
@@ -193,45 +203,6 @@ export default class CPResourceSaver extends EventEmitter {
       const totalBlob = new Blob(blobs);
       return totalBlob.size;
     }
-    // 	function postDrawing(formData) {
-    //     var
-    //         xhr = new XMLHttpRequest();
-
-    //     xhr.upload.addEventListener("progress", function(evt) {
-    //         var
-    //             progress;
-
-    //         if (evt.lengthComputable) {
-    //             progress = evt.loaded / evt.total;
-    //         } else {
-    //             progress = null;
-    //         }
-
-    //         reportProgress(progress);
-    //     }, false);
-
-    //     xhr.addEventListener("load", function(evt) {
-    //         reportProgress(1.0);
-
-    //         if (this.status == 200 && /^CHIBIOK/.test(this.response)) {
-    //             that.emitEvent("savingComplete");
-    //         } else {
-    //             reportFatal(this.response);
-    //         }
-    //     }, false);
-
-    //     xhr.addEventListener("error", function() {
-    //         reportFatal(this.response);
-    //     }, false);
-
-    //     reportProgress(0);
-
-    //     xhr.open("POST", options.url, true);
-
-    //     xhr.responseType = "text";
-
-    //     xhr.send(formData);
-    // }
 
     /**
      * Begin saving the data provided in the constructor. Returns immediately, and fires these events to report the
@@ -358,7 +329,7 @@ export default class CPResourceSaver extends EventEmitter {
     };
 
     /**
-     * 複数のファイル（PNG、chi、スウォッチ）を ZIP にまとめて保存します。
+     * 複数のファイル（PNG、chi、スウォッチ）を ZIP にまとめて保存する。
      *
      * @async
      * @param {string} saveFilename - 保存時の基本ファイル名（拡張子なし）。

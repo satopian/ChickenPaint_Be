@@ -22,11 +22,13 @@ import EventEmitter from "wolfy87-eventemitter";
  * loadChibiFileURL - URL of .chi file to load for editing (optional). Used in preference to loadImage.
  * loadSwatchesURL - URL of an .aco palette to load (optional)
  */
-/**
- * @this {any}
- */
-
 export default class CPResourceLoader extends EventEmitter {
+  /**
+   * @param {Object} options
+   * @param {string} [options.loadImageUrl] - URL of PNG/JPEG image to load for editing (optional)
+   * @param {string} [options.loadChibiFileUrl] - URL of .chi file to load for editing (optional). Used in preference to loadImage.
+   * @param {string} [options.loadSwatchesUrl] - URL of an .aco palette to load (optional)
+   */
   constructor(options) {
     super();
     var resources = [],
