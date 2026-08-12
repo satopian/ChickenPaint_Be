@@ -3266,12 +3266,12 @@ export default class CPArtwork extends EventEmitter {
          * @type {CPRect}
          */
         this.fromSelection = that.getSelection();
+
         this.fromMaskMode = maskEditingMode;
 
+        /** @type {boolean} */
         this.selectionIsEmpty = this.fromSelection.isEmpty();
-        //マスクだけの移動を可能にするためマスク編集モードの時はレイヤーを移動しない
-        this.movingImage = this.layer instanceof CPImageLayer;
-        this.movingMask = this.layer.mask instanceof CPGreyBmp;
+
         this.hasFullUndo = false;
 
         /**
@@ -3315,19 +3315,15 @@ export default class CPArtwork extends EventEmitter {
         this.movingLayers = [
           {
             layer: this.layer,
-            moveImage: this.layer instanceof CPImageLayer && this.movingImage,
-            moveMask: this.layer.mask instanceof CPGreyBmp && this.movingMask,
+            moveImage: this.layer instanceof CPImageLayer,
+            moveMask: this.layer.mask instanceof CPGreyBmp,
             imageRect: new Map(),
             maskRect: new Map(),
           },
         ];
 
         // Moving the "image" of a group means to move all of its children
-        if (
-          this.layer instanceof CPLayerGroup &&
-          this.movingImage &&
-          this.selectionIsEmpty
-        ) {
+        if (this.layer instanceof CPLayerGroup && this.selectionIsEmpty) {
           this.movingLayers = this.movingLayers.concat(
             this.layer.getLinearizedLayerList(false).map((layer) => ({
               layer: layer,
