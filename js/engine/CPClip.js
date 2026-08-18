@@ -38,7 +38,7 @@ export default class CPClip {
    * @param {CPGreyBmp|undefined|null} mask
    * @param {boolean|null} maskVisible
    * @param {number} x - Position of the clipboard bmp within the document
-   * @param {number}  y
+   * @param {number} y
    */
   constructor(image, mask, maskVisible, x, y) {
     this.image = image;
