@@ -307,9 +307,10 @@ export default class CPBrushManager {
       cacheTip,
       that = this;
     this.texture = null;
-    this.alpha = null;
-    this.brush = null;
-    this.width = null;
+
+    this.alpha = /**@type {number} */ (/**@type {unknown} */ (null));
+    this.brush = /**@type {Uint8Array} */ (/**@type {unknown} */ (null));
+    this.width = /**@type {number} */ (/**@type {unknown} */ (null));
     /**
      * Shift a brush by a positive sub-pixel amount (dx, dy) [0..1), and return the new brush.
      *

@@ -99,6 +99,7 @@ export class CPBrushTool {
 
   /**
    * UI 不透明度 (1〜255) に対して描画用アルファスケールを返す。
+   * @param {number} alphaByte
    *
    * 挙動:
    * - FIXED_THRESHOLD 以下は常に 0.5
@@ -106,7 +107,7 @@ export class CPBrushTool {
    *   INPUT_MAX を与えた時に最終 alpha が CLAMP_TARGET_ALPHA になるように調整される。
    */
   calcAlphaScale(alphaByte) {
-    const FIXED_THRESHOLD = 230; // ここまでの値は 0.5 固定
+    const FIXED_THRESHOLD = 220; // ここまでの値は 0.5 固定
     const CLAMP_TARGET_ALPHA = 180; // 最終 alpha の上限
     const INPUT_MAX = 255; // UI の最大値
 
@@ -380,6 +381,10 @@ export class CPBrushTool {
 export class CPBrushToolEraser extends CPBrushTool {
   /**
    * @override
+   *
+   * @param {CPColorBmp} destImage - The layer to draw onto
+   * @param {CPColorBmp} undoImage - The original pixels for the layer before the stroke began
+   * @param {number} color - RGB color of the current brush
    */
   mergeOntoImage(destImage, undoImage, color) {
     let strokeData = this._strokeBuffer.data,
@@ -413,8 +418,11 @@ export class CPBrushToolEraser extends CPBrushTool {
 export class CPBrushToolDodge extends CPBrushTool {
   /**
    * Uses the opacity data in the strokeBuffer to brighten non-transparent pixels from the original image.
-   *
    * @override
+   *
+   * @param {CPColorBmp} destImage - The layer to draw onto
+   * @param {CPColorBmp} undoImage - The original pixels for the layer before the stroke began
+   * @param {number} color - RGB color of the current brush
    */
   mergeOntoImage(destImage, undoImage, color) {
     let strokeData = this._strokeBuffer.data,
@@ -465,6 +473,10 @@ export class CPBrushToolDodge extends CPBrushTool {
 
   /**
    * @override
+   *
+   * @param {CPGreyBmp} destMask
+   * @param {CPGreyBmp} undoMask
+   * @param {number} color
    */
   mergeOntoMask(destMask, undoMask, color) {
     let strokeData = this._strokeBuffer.data,
@@ -507,8 +519,11 @@ const BURN_CONSTANT = 260;
 export class CPBrushToolBurn extends CPBrushTool {
   /**
    * Uses the opacity data in the strokeBuffer to brighten non-transparent pixels from the original image.
-   *
    * @override
+   *
+   * @param {CPColorBmp} destImage - The layer to draw onto
+   * @param {CPColorBmp} undoImage - The original pixels for the layer before the stroke began
+   * @param {number} color - RGB color of the current brush
    */
   mergeOntoImage(destImage, undoImage, color) {
     let strokeData = this._strokeBuffer.data,
@@ -572,6 +587,10 @@ export class CPBrushToolBurn extends CPBrushTool {
 
   /**
    * @override
+   *
+   * @param {CPGreyBmp} destMask
+   * @param {CPGreyBmp} undoMask
+   * @param {number} color
    */
   mergeOntoMask(destMask, undoMask, color) {
     let strokeData = this._strokeBuffer.data,
@@ -619,6 +638,10 @@ const BLUR_MIN = 64,
 export class CPBrushToolBlur extends CPBrushTool {
   /**
    * @override
+   *
+   * @param {CPColorBmp} destImage - The layer to draw onto
+   * @param {CPColorBmp} undoImage - The original pixels for the layer before the stroke began
+   * @param {number} color - RGB color of the current brush
    */
   mergeOntoImage(destImage, undoImage, color) {
     let strokeData = this._strokeBuffer.data,
@@ -714,6 +737,10 @@ export class CPBrushToolBlur extends CPBrushTool {
 
   /**
    * @override
+   *
+   * @param {CPGreyBmp} destMask
+   * @param {CPGreyBmp} undoMask
+   * @param {number} color
    */
   mergeOntoMask(destMask, undoMask, color) {
     let strokeData = this._strokeBuffer.data,
@@ -786,6 +813,10 @@ export class CPBrushToolBlur extends CPBrushTool {
 class CPBrushToolDirectBrush extends CPBrushTool {
   /**
    * @override
+   *
+   * @param {CPColorBmp} destImage - The layer to draw onto
+   * @param {CPColorBmp} undoImage - The original pixels for the layer before the stroke began
+   * @param {number} color - RGB color of the current brush
    */
   mergeOntoImage(destImage, undoImage, color) {
     let strokeData = this._strokeBuffer.data,
@@ -858,6 +889,10 @@ class CPBrushToolDirectBrush extends CPBrushTool {
 
   /**
    * @override
+   *
+   * @param {CPGreyBmp} destMask
+   * @param {CPGreyBmp} undoMask
+   * @param {number} color
    */
   mergeOntoMask(destMask, undoMask, color) {
     let strokeData = this._strokeBuffer.data,
@@ -1171,6 +1206,12 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
 
   /**
    * @override
+   * @param {CPColorBmp} destImage
+   * @param {CPRect} imageRect - Rectangle of the canvas that our brush covers
+   * @param {CPColorBmp} sampleImage - Image to sample from
+   * @param {CPBrushInfo} brushConfig - The current brush tip configuration
+   * @param {CPRect} brushRect
+   * @param {number} color - RGB current brush color
    */
   paintDab(
     destImage,
@@ -1327,6 +1368,9 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
    * @override
    * 筆が作った色と透明度を、直接キャンバスの指定領域に転送（上書き）する。
    * undoImage を参照しないことで、同じストローク内で「一度消した場所を再度消す」ことが可能になる。
+   * @param {CPColorBmp} destImage - The layer to draw onto
+   * @param {CPColorBmp} undoImage - The original pixels for the layer before the stroke began
+   * @param {number} color - RGB color of the current brush
    */
   mergeOntoImage(destImage, undoImage, color) {
     let strokeData = this._strokeBuffer.data,
@@ -1780,6 +1824,13 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
 
   /**
    * @override
+   *
+   * @param {CPColorBmp} destImage
+   * @param {CPRect} imageRect - Rectangle of the canvas that our brush covers
+   * @param {CPColorBmp} sampleImage - Image to sample from
+   * @param {CPBrushInfo} brushConfig - The current brush tip configuration
+   * @param {CPRect} brushRect
+   * @param {number} color - RGB current brush color
    */
   paintDab(
     destImage,
@@ -2187,6 +2238,13 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
 
   /**
    * @override
+   *
+   * @param {CPColorBmp|CPGreyBmp} destImage
+   * @param {CPRect} imageRect
+   * @param {CPColorBmp|CPGreyBmp} sampleImage - Image to sample from
+   * @param {CPBrushInfo} brushConfig - The current brush tip configuration
+   * @param {CPRect} brushRect
+   * @param {number} color - RGB current brush color
    */
   paintDab(
     destImage,
@@ -2197,7 +2255,7 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
     dab,
     color,
   ) {
-    if (destImage instanceof CPColorBmp) {
+    if (destImage instanceof CPColorBmp && sampleImage instanceof CPColorBmp) {
       if (this._brushBuffer == null) {
         this._brushBuffer = new CPGreyBmp(dab.width, dab.height, 32);
         this._sampleFromImage(sampleImage, brushRect, imageRect, 0);
@@ -2205,7 +2263,10 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
         this._sampleFromImage(sampleImage, brushRect, imageRect, dab.alpha);
         this._paintToImage(destImage, brushRect, imageRect, dab.brush);
       }
-    } else {
+    } else if (
+      destImage instanceof CPGreyBmp &&
+      sampleImage instanceof CPGreyBmp
+    ) {
       if (this._brushBuffer == null) {
         this._brushBuffer = new CPGreyBmp(dab.width, dab.height, 16);
         this._sampleFromMask(sampleImage, brushRect, imageRect, 0);
@@ -2220,9 +2281,20 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
    * A no-op since our paint implementation paints directly to the underlying image during the stroke.
    *
    * @override
+   *
+   * @param {CPColorBmp} destImage - The layer to draw onto
+   * @param {CPColorBmp} undoImage - The original pixels for the layer before the stroke began
+   * @param {number} color - RGB color of the current brush
    */
   mergeOntoImage(destImage, undoImage, color) {}
 
+  /**
+   * @override
+   *
+   * @param {CPGreyBmp} destMask
+   * @param {CPGreyBmp} undoMask
+   * @param {number} color
+   */
   mergeOntoMask(destMask, undoMask, color) {}
 
   /**
