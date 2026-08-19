@@ -1206,6 +1206,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
 
   /**
    * @override
+   *
    * @param {CPColorBmp} destImage
    * @param {CPRect} imageRect - Rectangle of the canvas that our brush covers
    * @param {CPColorBmp} sampleImage - Image to sample from
@@ -2256,7 +2257,7 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
     color,
   ) {
     if (destImage instanceof CPColorBmp && sampleImage instanceof CPColorBmp) {
-      if (this._brushBuffer == null) {
+      if (this._brushBuffer === null) {
         this._brushBuffer = new CPGreyBmp(dab.width, dab.height, 32);
         this._sampleFromImage(sampleImage, brushRect, imageRect, 0);
       } else {
@@ -2267,7 +2268,7 @@ export class CPBrushToolSmudge extends CPBrushToolDirectBrush {
       destImage instanceof CPGreyBmp &&
       sampleImage instanceof CPGreyBmp
     ) {
-      if (this._brushBuffer == null) {
+      if (this._brushBuffer === null) {
         this._brushBuffer = new CPGreyBmp(dab.width, dab.height, 16);
         this._sampleFromMask(sampleImage, brushRect, imageRect, 0);
       } else {
