@@ -1767,7 +1767,10 @@ export default class CPArtwork extends EventEmitter {
     ) {
       if (createMergedLayer) {
         addUndo(
-          new CPCreateMergedLayerWithFilter(function (target, r) {
+          new CPCreateMergedLayerWithFilter(function (
+            /**@type {CPColorBmp|CPGreyBmp}*/ target,
+            /**@type {CPRect} */ r,
+          ) {
             for (let i = 0; i < iterations; i++) {
               target.boxBlur(r, radiusX, radiusY);
             }
@@ -1805,7 +1808,10 @@ export default class CPArtwork extends EventEmitter {
       if (maskEditingMode) return;
       if (createMergedLayer) {
         addUndo(
-          new CPCreateMergedLayerWithFilter(function (target, r) {
+          new CPCreateMergedLayerWithFilter(function (
+            /**@type {CPColorBmp}*/ target,
+            /**@type {CPRect} */ r,
+          ) {
             target.chromaticAberration(r, offsetX, offsetY);
           }),
         );
@@ -1875,7 +1881,10 @@ export default class CPArtwork extends EventEmitter {
     this.monoHalftone = function (dotSize, createMergedLayer = false) {
       if (createMergedLayer) {
         addUndo(
-          new CPCreateMergedLayerWithFilter(function (target, r) {
+          new CPCreateMergedLayerWithFilter(function (
+            /**@type {CPColorBmp|CPGreyBmp}*/ target,
+            /**@type {CPRect} */ r,
+          ) {
             target.monoHalftone(r, dotSize, curColor, 0.85);
           }),
         );
@@ -1905,7 +1914,10 @@ export default class CPArtwork extends EventEmitter {
       if (maskEditingMode) return;
       if (createMergedLayer) {
         addUndo(
-          new CPCreateMergedLayerWithFilter(function (target, r) {
+          new CPCreateMergedLayerWithFilter(function (
+            /**@type {CPColorBmp}*/ target,
+            /**@type {CPRect} */ r,
+          ) {
             target.colorHalftone(r, dotSize, 0.85);
           }, CPBlend.LM_MULTIPLY2),
         );
@@ -1935,7 +1947,10 @@ export default class CPArtwork extends EventEmitter {
     this.mosaic = function (blockSize, createMergedLayer = false) {
       if (createMergedLayer) {
         addUndo(
-          new CPCreateMergedLayerWithFilter(function (target, r) {
+          new CPCreateMergedLayerWithFilter(function (
+            /**@type {CPColorBmp|CPGreyBmp}*/ target,
+            /**@type {CPRect} */ r,
+          ) {
             target.mosaic(r, blockSize);
           }),
         );
@@ -2391,7 +2406,7 @@ export default class CPArtwork extends EventEmitter {
      *
      * Rotation is [0..3] and selects a multiple of 90 degrees of clockwise rotation to be applied to the drawing before
      * saving.
-     *
+     * @param {Number} rotation
      * @returns {Buffer|false}
      */
     this.getFlatPNGBuffer = function (rotation) {
@@ -2938,6 +2953,7 @@ export default class CPArtwork extends EventEmitter {
     class CPCreateMergedLayerWithFilter extends CPUndo {
       /**
        * @param {Function} applyFilterFn - (target, r) => void
+       * @param {number} blendMode
        */
       constructor(applyFilterFn, blendMode = CPBlend.LM_NORMAL) {
         super();
@@ -3398,7 +3414,7 @@ export default class CPArtwork extends EventEmitter {
 
         this.srcRect = occupiedSpace;
       }
-
+      /**  @param {CPTransform} affineTransform */
       amend(affineTransform) {}
       /**
        * @override
