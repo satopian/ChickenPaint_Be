@@ -75,8 +75,8 @@ function capitalizeFirst(string) {
  * * Undo（取り消し）履歴を統合（マージ）する際、
  * 操作対象となるレイヤーが一致しているかを確認する。
  *
- * @param {(CPImageLayer|CPLayerGroup)[]} a - 比較元レイヤー配列
- * @param {(CPImageLayer|CPLayerGroup)[]} b - 比較先レイヤー配列
+ * @param {(CPLayer)[]} a - 比較元レイヤー配列
+ * @param {(CPLayer)[]} b - 比較先レイヤー配列
  * @returns {boolean} 両者の長さと、各インデックスのレイヤーがすべて一致すれば true が返る。
  */
 function arrayEquals(a, b) {
@@ -3149,6 +3149,10 @@ export default class CPArtwork extends EventEmitter {
     function generateLayerPropertyChangeAction(propertyName, invalidatesLayer) {
       let capitalPropertyName = capitalizeFirst(propertyName);
       class ChangeAction extends CPUndo {
+        /**
+         * @param {CPLayer|CPLayer[]} layers
+         * @param {any} newValue
+         */
         constructor(layers, newValue) {
           super();
           if (!Array.isArray(layers)) {
