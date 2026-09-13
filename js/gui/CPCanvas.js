@@ -2581,8 +2581,8 @@ export default class CPCanvas extends EventEmitter {
     }
 
     /**
-     * モーダルの表示状態フラグを更新します。
-     * - 内部変数 modalIsShown に値をセットします。
+     * モーダルの表示状態のフラグを更新。
+     * 内部変数 modalIsShown に値をセットする。
      * @param {boolean} shown true の場合モーダルを表示、false の場合非表示
      */
     this.setModalShown = function (shown) {

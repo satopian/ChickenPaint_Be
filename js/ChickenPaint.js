@@ -1446,8 +1446,8 @@ export default class ChickenPaint extends EventEmitter {
     };
 
     /**
-     * モーダルの表示状態を設定します。
-     * - 内部フラグを更新し、必要に応じて Enter キーの一時無効化処理を行います。
+     * モーダルの表示状態を設定。
+     * 内部フラグを更新し、必要に応じて Enter キーの一時無効化処理を行う。
      * @param {boolean} shown true の場合モーダルを表示、false の場合非表示
      */
     this.setModalShown = function (shown) {
