@@ -1089,6 +1089,8 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
       );
 
     this._strokedRegion.union(imageRect);
+    // 明るさの保持率
+    const BRIGHTNESS_RETENTION = 0.99;
 
     for (
       let y = 0;
@@ -1121,9 +1123,6 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         const r2L = (c2r / 255) * (c2r / 255),
           g2L = (c2g / 255) * (c2g / 255),
           b2L = (c2b / 255) * (c2b / 255);
-
-        // 明るさの保持率
-        const BRIGHTNESS_RETENTION = 0.99;
 
         const rMixed = r1L + (r2L * invAlpha - r1L * invAlpha) / 255;
         const gMixed = g1L + (g2L * invAlpha - g1L * invAlpha) / 255;
@@ -1604,6 +1603,8 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
       srcYSkip = this._brushBuffer.width - width,
       dstYSkip = (imageToSample.width - width) * CPColorBmp.BYTES_PER_PIXEL;
 
+    // 明るさの保持率
+    const BRIGHTNESS_RETENTION = 0.99;
     for (
       let y = 0;
       y < height;
@@ -1646,9 +1647,6 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
         const rMixed = r1L + (r2L * invAlpha - r1L * invAlpha) / 255;
         const gMixed = g1L + (g2L * invAlpha - g1L * invAlpha) / 255;
         const bMixed = b1L + (b2L * invAlpha - b1L * invAlpha) / 255;
-
-        // 明るさの保持率
-        const BRIGHTNESS_RETENTION = 0.99;
 
         brushData[srcOffset] =
           (newAlpha << 24) |

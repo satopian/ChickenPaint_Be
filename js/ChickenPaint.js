@@ -205,8 +205,8 @@ function createDrawingTools() {
     brushMode: CPBrushInfo.BRUSH_MODE_WATER,
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 8,
-    resat: 0.3,
-    bleed: 0.55,
+    resat: 0.28,
+    bleed: 0.6,
   });
 
   tools[ChickenPaint.T_BLUR] = new CPBrushInfo({
