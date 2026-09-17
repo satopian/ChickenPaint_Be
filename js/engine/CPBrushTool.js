@@ -1121,16 +1121,33 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
         const r2L = (c2r / 255) * (c2r / 255),
           g2L = (c2g / 255) * (c2g / 255),
           b2L = (c2b / 255) * (c2b / 255);
+
+        // 明るさの保持率
+        const BRIGHTNESS_RETENTION = 0.99;
+
+        const rMixed = r1L + (r2L * invAlpha - r1L * invAlpha) / 255;
+        const gMixed = g1L + (g2L * invAlpha - g1L * invAlpha) / 255;
+        const bMixed = b1L + (b2L * invAlpha - b1L * invAlpha) / 255;
+
         // リニアRGB空間で混合しsRGBに戻す
         strokeData[imageOffset] =
           (newAlpha << 24) |
-          (((Math.sqrt(r1L + (r2L * invAlpha - r1L * invAlpha) / 255) * 255) |
+          (((Math.sqrt(
+            Math.max(rMixed, Math.max(r1L, r2L) * BRIGHTNESS_RETENTION),
+          ) *
+            255) |
             0) <<
             16) |
-          (((Math.sqrt(g1L + (g2L * invAlpha - g1L * invAlpha) / 255) * 255) |
+          (((Math.sqrt(
+            Math.max(gMixed, Math.max(g1L, g2L) * BRIGHTNESS_RETENTION),
+          ) *
+            255) |
             0) <<
             8) |
-          ((Math.sqrt(b1L + (b2L * invAlpha - b1L * invAlpha) / 255) * 255) |
+          ((Math.sqrt(
+            Math.max(bMixed, Math.max(b1L, b2L) * BRIGHTNESS_RETENTION),
+          ) *
+            255) |
             0);
       }
     }
