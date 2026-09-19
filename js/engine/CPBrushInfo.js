@@ -57,6 +57,29 @@ export default class CPBrushInfo {
    * @property {boolean} isAA
    *
    */
+  // Stroke modes
+  static STROKE_MODE_FREEHAND = 0;
+  static STROKE_MODE_LINE = 1;
+  static STROKE_MODE_BEZIER = 2;
+
+  // Brush dab types
+  static TIP_ROUND_PIXEL = 0;
+  static TIP_ROUND_AA = 1;
+  static TIP_ROUND_AIRBRUSH = 2;
+  static TIP_SQUARE_PIXEL = 3;
+  static TIP_SQUARE_AA = 4;
+
+  static BRUSH_MODE_PAINT = 0;
+  static BRUSH_MODE_ERASE = 1;
+  static BRUSH_MODE_DODGE = 2;
+  static BRUSH_MODE_BURN = 3;
+  static BRUSH_MODE_WATER = 4;
+  static BRUSH_MODE_BLUR = 5;
+  static BRUSH_MODE_SMUDGE = 6;
+  static BRUSH_MODE_OIL = 7;
+
+  static PAINT_MODE_OPACITY = 0;
+  static PAINT_MODE_FLOW = 1;
 
   constructor(properties) {
     var propName;
@@ -107,8 +130,8 @@ export default class CPBrushInfo {
   applyPressure(pressure, isFirstPoint) {
     // 1. 目標サイズ
     let targetSize = this.pressureSize /**筆圧が有効なら */
-      ? Math.max(0.5, this.size * pressure)
-      : Math.max(0.5, this.size);
+      ? Math.max(0.6, this.size * pressure)
+      : Math.max(0.6, this.size);
 
     // 2. 線幅ローパスフィルタ
     const sizeSmooth = 0.5;
@@ -141,27 +164,3 @@ export default class CPBrushInfo {
     return new CPBrushInfo(this);
   }
 }
-
-// Stroke modes
-CPBrushInfo.STROKE_MODE_FREEHAND = 0;
-CPBrushInfo.STROKE_MODE_LINE = 1;
-CPBrushInfo.STROKE_MODE_BEZIER = 2;
-
-// Brush dab types
-CPBrushInfo.TIP_ROUND_PIXEL = 0;
-CPBrushInfo.TIP_ROUND_AA = 1;
-CPBrushInfo.TIP_ROUND_AIRBRUSH = 2;
-CPBrushInfo.TIP_SQUARE_PIXEL = 3;
-CPBrushInfo.TIP_SQUARE_AA = 4;
-
-CPBrushInfo.BRUSH_MODE_PAINT = 0;
-CPBrushInfo.BRUSH_MODE_ERASE = 1;
-CPBrushInfo.BRUSH_MODE_DODGE = 2;
-CPBrushInfo.BRUSH_MODE_BURN = 3;
-CPBrushInfo.BRUSH_MODE_WATER = 4;
-CPBrushInfo.BRUSH_MODE_BLUR = 5;
-CPBrushInfo.BRUSH_MODE_SMUDGE = 6;
-CPBrushInfo.BRUSH_MODE_OIL = 7;
-
-CPBrushInfo.PAINT_MODE_OPACITY = 0;
-CPBrushInfo.PAINT_MODE_FLOW = 1;

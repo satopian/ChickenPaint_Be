@@ -108,7 +108,7 @@ export class CPBrushTool {
    */
   calcAlphaScale(alphaByte) {
     const FIXED_THRESHOLD = 220; // ここまでの値は 0.5 固定
-    const CLAMP_TARGET_ALPHA = 170; // 最終 alpha の上限
+    const CLAMP_TARGET_ALPHA = 160; // 最終 alpha の上限
     const INPUT_MAX = 255; // UI の最大値
 
     // maxScale は、入力が INPUT_MAX の場合に alpha が CLAMP_TARGET_ALPHA となる係数
@@ -1090,7 +1090,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
 
     this._strokedRegion.union(imageRect);
     // 明るさの保持率
-    const BRIGHTNESS_RETENTION = 0.99;
+    const BRIGHTNESS_RETENTION = 0.995;
 
     for (
       let y = 0;
@@ -1604,7 +1604,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
       dstYSkip = (imageToSample.width - width) * CPColorBmp.BYTES_PER_PIXEL;
 
     // 明るさの保持率
-    const BRIGHTNESS_RETENTION = 0.99;
+    const BRIGHTNESS_RETENTION = 0.995;
     for (
       let y = 0;
       y < height;
