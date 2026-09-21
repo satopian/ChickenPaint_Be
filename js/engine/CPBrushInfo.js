@@ -130,11 +130,11 @@ export default class CPBrushInfo {
   applyPressure(pressure, isFirstPoint) {
     // 1. 目標サイズ
     let targetSize = this.pressureSize /**筆圧が有効なら */
-      ? Math.max(0.6, this.size * pressure)
-      : Math.max(0.6, this.size);
+      ? Math.max(1.0, this.size * pressure)
+      : Math.max(1.0, this.size);
 
     // 2. 線幅ローパスフィルタ
-    const sizeSmooth = 0.6;
+    const sizeSmooth = 0.8;
 
     if (isFirstPoint || !this._lastSize) {
       // 書き始めの1点目なら、フィルタを通さず即座に目標値にする
