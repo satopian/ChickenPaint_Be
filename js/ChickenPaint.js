@@ -195,7 +195,7 @@ function createDrawingTools() {
   tools[ChickenPaint.T_WATER] = new CPBrushInfo({
     toolNb: ChickenPaint.T_WATER,
     size: 30,
-    alpha: 55,
+    alpha: 58,
     isAA: false,
     minSpacing: 0.5,
     spacing: 0.03,
@@ -206,7 +206,7 @@ function createDrawingTools() {
     paintMode: CPBrushInfo.PAINT_MODE_FLOW,
     alphaScale: 1 / 8,
     resat: 0.28,
-    bleed: 0.6,
+    bleed: 0.8,
   });
 
   tools[ChickenPaint.T_BLUR] = new CPBrushInfo({

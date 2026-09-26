@@ -1090,7 +1090,7 @@ export class CPBrushToolWatercolor extends CPBrushToolDirectBrush {
 
     this._strokedRegion.union(imageRect);
     // 明るさの保持率
-    const BRIGHTNESS_RETENTION = 0.995;
+    const BRIGHTNESS_RETENTION = 0.985;
 
     for (
       let y = 0;
@@ -1604,7 +1604,7 @@ export class CPBrushToolOil extends CPBrushToolDirectBrush {
       dstYSkip = (imageToSample.width - width) * CPColorBmp.BYTES_PER_PIXEL;
 
     // 明るさの保持率
-    const BRIGHTNESS_RETENTION = 0.995;
+    const BRIGHTNESS_RETENTION = 0.985;
     for (
       let y = 0;
       y < height;

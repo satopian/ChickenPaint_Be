@@ -134,7 +134,7 @@ export default class CPBrushInfo {
       : Math.max(1.0, this.size);
 
     // 2. 線幅ローパスフィルタ
-    const sizeSmooth = 0.8;
+    const sizeSmooth = 0.88;
 
     if (isFirstPoint || !this._lastSize) {
       // 書き始めの1点目なら、フィルタを通さず即座に目標値にする
