@@ -29,6 +29,30 @@
     along with ChickenPaint. If not, see <http://www.gnu.org/licenses/>.
 */
 export default class CPBrushInfo {
+  // Stroke modes
+  static STROKE_MODE_FREEHAND = 0;
+  static STROKE_MODE_LINE = 1;
+  static STROKE_MODE_BEZIER = 2;
+
+  // Brush dab types
+  static TIP_ROUND_PIXEL = 0;
+  static TIP_ROUND_AA = 1;
+  static TIP_ROUND_AIRBRUSH = 2;
+  static TIP_SQUARE_PIXEL = 3;
+  static TIP_SQUARE_AA = 4;
+
+  static BRUSH_MODE_PAINT = 0;
+  static BRUSH_MODE_ERASE = 1;
+  static BRUSH_MODE_DODGE = 2;
+  static BRUSH_MODE_BURN = 3;
+  static BRUSH_MODE_WATER = 4;
+  static BRUSH_MODE_BLUR = 5;
+  static BRUSH_MODE_SMUDGE = 6;
+  static BRUSH_MODE_OIL = 7;
+
+  static PAINT_MODE_OPACITY = 0;
+  static PAINT_MODE_FLOW = 1;
+
   /**
    * @param {Object} properties - Non-default properties to set on the brush
    *
@@ -57,30 +81,6 @@ export default class CPBrushInfo {
    * @property {boolean} isAA
    *
    */
-  // Stroke modes
-  static STROKE_MODE_FREEHAND = 0;
-  static STROKE_MODE_LINE = 1;
-  static STROKE_MODE_BEZIER = 2;
-
-  // Brush dab types
-  static TIP_ROUND_PIXEL = 0;
-  static TIP_ROUND_AA = 1;
-  static TIP_ROUND_AIRBRUSH = 2;
-  static TIP_SQUARE_PIXEL = 3;
-  static TIP_SQUARE_AA = 4;
-
-  static BRUSH_MODE_PAINT = 0;
-  static BRUSH_MODE_ERASE = 1;
-  static BRUSH_MODE_DODGE = 2;
-  static BRUSH_MODE_BURN = 3;
-  static BRUSH_MODE_WATER = 4;
-  static BRUSH_MODE_BLUR = 5;
-  static BRUSH_MODE_SMUDGE = 6;
-  static BRUSH_MODE_OIL = 7;
-
-  static PAINT_MODE_OPACITY = 0;
-  static PAINT_MODE_FLOW = 1;
-
   constructor(properties) {
     var propName;
 
@@ -130,8 +130,8 @@ export default class CPBrushInfo {
   applyPressure(pressure, isFirstPoint) {
     // 1. 目標サイズ
     let targetSize = this.pressureSize /**筆圧が有効なら */
-      ? Math.max(1.0, this.size * pressure)
-      : Math.max(1.0, this.size);
+      ? Math.max(1, this.size * pressure * 0.9)
+      : Math.max(1, this.size);
 
     // 2. 線幅ローパスフィルタ
     const sizeSmooth = 0.88;

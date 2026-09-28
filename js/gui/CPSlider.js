@@ -94,7 +94,7 @@ export default class CPSlider extends EventEmitter {
 
     centerMode = centerMode || false;
 
-    const boundaryValue = 5; // 均等表示の境目
+    const boundaryValue = 2.0; // 均等表示の境目
 
     // 値がboundaryValueになるときのスライダー上の位置（0.0〜1.0）を自動計算して、均等エリアの幅を決める
     const boundaryProp = Math.pow(
@@ -274,8 +274,11 @@ export default class CPSlider extends EventEmitter {
     this.setValue = function (_value) {
       _value = Math.max(minValue, Math.min(maxValue, _value));
 
-      if (fractionalStep && _value <= 5) {
-        // 0.5単位で丸める（例: 1.2 → 1.0, 1.3 → 1.5）
+      if (fractionalStep && _value <= 2) {
+        // 0.25単位で丸める（例: 1.3 → 1.25）
+        _value = Math.round(_value * 4) / 4;
+      } else if (fractionalStep && _value <= 3) {
+        // 0.5単位で丸める（例: 1.6 → 1.5）
         _value = Math.round(_value * 2) / 2;
       } else {
         // 10以上のときは従来通り整数にする
