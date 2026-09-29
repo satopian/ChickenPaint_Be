@@ -300,8 +300,8 @@ function CPBrushPanel(controller) {
     ],
     /** @desc ブラシサイズ変更のショートカットキーで変化する値 */
     BRUSH_SIZES = [
-      1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35,
-      40, 45, 50, 60, 70, 80, 90, 100, 125, 150,
+      1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30,
+      35, 40, 45, 50, 60, 70, 80, 90, 100, 125, 150,
     ];
 
   let panel = document.createElement("div"),
@@ -310,16 +310,16 @@ function CPBrushPanel(controller) {
       false,
       _("Control brush opacity with pen pressure"),
     ),
-    alphaSlider = new CPSlider(0, 255, false, true),
+    alphaSlider = new CPSlider(0, 255, false, false, 0, 1),
     sizeCB = new CPCheckbox(true, _("Control brush size with pen pressure")),
-    sizeSlider = new CPSlider(1, 150, false, true, 0, 3.8, true),
+    sizeSlider = new CPSlider(1, 150, false, true, 0, 4.1, true),
     scatteringCB = new CPCheckbox(
       false,
       _("Control brush scattering with pen pressure"),
     ),
     scatteringSlider = new CPSlider(0, 1000, false, true),
-    resatSlider = new CPSlider(0, 100, false, true),
-    bleedSlider = new CPSlider(0, 100, false, true),
+    resatSlider = new CPSlider(0, 100, false, false, 0, 1),
+    bleedSlider = new CPSlider(0, 100, false, false, 0, 1),
     spacingSlider = new CPSlider(0, 100, false, true),
     smoothingSlider = new CPSlider(0, 100, false, true),
     brushPreview = new CPBrushPalette.CPBrushPreview(controller);
