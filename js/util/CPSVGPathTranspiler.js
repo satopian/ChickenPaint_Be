@@ -101,13 +101,23 @@ export default function CPSVGPathTranspiler(path) {
         cursorY = bezierEndY;
         break;
       case "t":
-        var oldBezierStart = { x: bezierStartX, y: bezierStartY },
-          oldControlPoint = { x: bezierControlX, y: bezierControlY },
-          oldControlVector = CPVector.subtractPoints(
-            oldControlPoint,
-            oldBezierStart,
-          ),
-          normal = CPVector.subtractPoints(
+        if (
+          bezierStartX === undefined ||
+          bezierStartY === undefined ||
+          bezierControlX === undefined ||
+          bezierControlY === undefined
+        ) {
+          // 直前に q/t がない不正なパス。無視して次へ
+          console.warn("SVG 't' command without preceding 'q'/'t'");
+          break;
+        }
+        const oldBezierStart = { x: bezierStartX, y: bezierStartY };
+        const oldControlPoint = { x: bezierControlX, y: bezierControlY };
+        const oldControlVector = CPVector.subtractPoints(
+          oldControlPoint,
+          oldBezierStart,
+        );
+        const normal = CPVector.subtractPoints(
             { x: cursorX, y: cursorY },
             oldBezierStart,
           )
