@@ -170,6 +170,7 @@ export default class CPSlider extends EventEmitter {
         } else {
           barProp = (that.value - minValue) / valueRange;
         }
+        barProp = Math.max(0, Math.min(1, barProp)); // 上限を超える値でもバーは右端で止める
         let barWidth = barProp * width;
 
         canvasContext.save();
@@ -276,8 +277,11 @@ export default class CPSlider extends EventEmitter {
     canvas.addEventListener("pointerup", handlePointerUp);
     canvas.addEventListener("pointercancel", handlePointerUp);
 
-    this.setValue = function (_value) {
-      _value = Math.max(minValue, Math.min(currentMax, _value));
+    this.setValue = function (_value, allowOverflow = false) {
+      _value = Math.max(minValue, _value);
+      if (!allowOverflow) {
+        _value = Math.min(currentMax, _value);
+      }
 
       if (fractionalStep && _value <= 2.5) {
         // 0.25単位で丸める（例: 1.3 → 1.25）
@@ -310,10 +314,7 @@ export default class CPSlider extends EventEmitter {
       get: () => currentMax,
       set: (v) => {
         currentMax = v;
-        if (this.value !== undefined) {
-          this.setValue(this.value); // 新しい範囲でクランプし直す
-        }
-        if (doneInitialPaint) paint(); // 値が変わらなくても再描画
+        if (doneInitialPaint) paint();
       },
       enumerable: true,
     });

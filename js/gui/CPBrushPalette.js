@@ -303,7 +303,7 @@ function CPBrushPanel(controller) {
     /** @desc ブラシサイズ変更のショートカットキーで変化する値 */
     BRUSH_SIZES = [
       1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30,
-      35, 40, 45, 50, 60, 70, 80, 90, 100, 125, 150,
+      35, 40, 45, 50, 60, 70, 80, 90, 100, 125, 150, 200,
     ];
 
   const panel = document.createElement("div");
@@ -465,7 +465,7 @@ function CPBrushPanel(controller) {
       sizeSlider.maxValue = 150;
     }
     alphaSlider.setValue(toolInfo.alpha);
-    sizeSlider.setValue(toolInfo.size);
+    sizeSlider.setValue(toolInfo.size, true);
     sizeCB.setValue(toolInfo.pressureSize);
     alphaCB.setValue(toolInfo.pressureAlpha);
     tipCombo.value = toolInfo.tip;
