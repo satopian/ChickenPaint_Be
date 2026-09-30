@@ -43,31 +43,33 @@ export default class CPSlider extends EventEmitter {
    * @param {number} minValue スライダーの最小値
    * @param {number} maxValue スライダーの最大値
    * @param {boolean} centerMode 中央値を基準に、現在値との差分をバーで描画するモード（true時はexpModeは使用されない）
-   * @param {boolean} expMode 値がboundaryValue（5）以下の範囲は均等目盛り、それを超える範囲は指数的な目盛りでバー位置を計算するモード
-   * @param {number} defaultWidth スライダーのデフォルト幅（未指定時150px）
-   * @param {number} expModeFactor 低い値の時にスライダーの動作を細やかにする係数
-   * @param {boolean} fractionalStep true時、値が5以下の範囲では0.5刻みで丸める（falseの場合は常に整数）
+   * @param {boolean} [expMode] 値がboundaryValue（5）以下の範囲は均等目盛り、それを超える範囲は指数的な目盛りでバー位置を計算するモード
+   * @param {number} [defaultWidth] スライダーのデフォルト幅（未指定時150px）
+   * @param {number} [expModeFactor] 低い値の時にスライダーの動作を細やかにする係数
+   * @param {boolean} [fractionalStep] true時、値が5以下の範囲では0.5刻みで丸める（falseの場合は常に整数）
    */
   constructor(
     minValue,
     maxValue,
     centerMode,
-    expMode,
+    expMode = false,
     defaultWidth = 0,
     expModeFactor = 0,
     fractionalStep = false,
   ) {
     super();
-    defaultWidth = defaultWidth ? defaultWidth : 150;
+    this.maxValue = maxValue;
+    defaultWidth = defaultWidth ? defaultWidth : 155;
     expModeFactor = expModeFactor ? expModeFactor : 3.5;
     const PRECISE_DRAG_SCALE = 4,
       DRAG_MODE_IDLE = 0,
       DRAG_MODE_NORMAL = 1,
       DRAG_MODE_PRECISE = 2;
 
+    this.addListener;
     let canvas = document.createElement("canvas"),
       canvasContext = canvas.getContext("2d"),
-      valueRange = maxValue - minValue,
+      currentMax = maxValue,
       dragMode = DRAG_MODE_IDLE,
       dragPreciseX,
       doneInitialPaint = false,
@@ -97,12 +99,13 @@ export default class CPSlider extends EventEmitter {
     const boundaryValue = 2.5; // 均等表示の境目
 
     // 値がboundaryValueになるときのスライダー上の位置（0.0〜1.0）を自動計算して、均等エリアの幅を決める
-    const boundaryProp = Math.pow(
-      (boundaryValue - minValue) / valueRange,
-      1 / expModeFactor,
-    );
+    const getRange = () => currentMax - minValue;
+    const getBoundaryProp = () =>
+      Math.pow((boundaryValue - minValue) / getRange(), 1 / expModeFactor);
 
     function paint() {
+      const valueRange = getRange();
+      const boundaryProp = getBoundaryProp();
       let width = canvas.width || defaultWidth;
       let height = canvas.height;
       let title =
@@ -202,6 +205,8 @@ export default class CPSlider extends EventEmitter {
     }
 
     function mouseSelect(e) {
+      const valueRange = getRange();
+      const boundaryProp = getBoundaryProp();
       let width = canvas.clientWidth;
       let left = canvas.getBoundingClientRect().left + window.scrollX;
       let proportion = (e.pageX - left) / width;
@@ -272,7 +277,7 @@ export default class CPSlider extends EventEmitter {
     canvas.addEventListener("pointercancel", handlePointerUp);
 
     this.setValue = function (_value) {
-      _value = Math.max(minValue, Math.min(maxValue, _value));
+      _value = Math.max(minValue, Math.min(currentMax, _value));
 
       if (fractionalStep && _value <= 2.5) {
         // 0.25単位で丸める（例: 1.3 → 1.25）
@@ -300,6 +305,18 @@ export default class CPSlider extends EventEmitter {
         }
       }
     };
+
+    Object.defineProperty(this, "maxValue", {
+      get: () => currentMax,
+      set: (v) => {
+        currentMax = v;
+        if (this.value !== undefined) {
+          this.setValue(this.value); // 新しい範囲でクランプし直す
+        }
+        if (doneInitialPaint) paint(); // 値が変わらなくても再描画
+      },
+      enumerable: true,
+    });
 
     /**
      * Get the DOM element for the slider component.

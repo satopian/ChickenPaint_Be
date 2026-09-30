@@ -318,7 +318,7 @@ function CPBrushPanel(controller) {
     _("Control brush size with pen pressure"),
   );
 
-  const sizeSlider = new CPSlider(1, 150, false, true, 0, 4.1, true);
+  const sizeSlider = new CPSlider(1, 150, false, true, 0, 3.8, true);
   const scatteringCB = new CPCheckbox(
     false,
     _("Control brush scattering with pen pressure"),
@@ -457,6 +457,13 @@ function CPBrushPanel(controller) {
   fillWithInitialValues();
 
   controller.on("toolChange", function (tool, toolInfo) {
+    if (tool == 0) {
+      sizeSlider.maxValue = 100;
+    } else if (tool == 2) {
+      sizeSlider.maxValue = 20;
+    } else {
+      sizeSlider.maxValue = 150;
+    }
     alphaSlider.setValue(toolInfo.alpha);
     sizeSlider.setValue(toolInfo.size);
     sizeCB.setValue(toolInfo.pressureSize);
