@@ -458,12 +458,14 @@ function CPBrushPanel(controller) {
 
   controller.on("toolChange", function (tool, toolInfo) {
     if (tool == 0) {
-      sizeSlider.maxValue = 100;
+      sizeSlider.maxValue = 50;
     } else if (tool == 2) {
       sizeSlider.maxValue = 20;
     } else {
       sizeSlider.maxValue = 150;
     }
+    sizeSlider.overflowMax = 200; // ドラッグで到達できる上限
+
     alphaSlider.setValue(toolInfo.alpha);
     sizeSlider.setValue(toolInfo.size, true);
     sizeCB.setValue(toolInfo.pressureSize);

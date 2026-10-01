@@ -59,6 +59,7 @@ export default class CPSlider extends EventEmitter {
   ) {
     super();
     this.maxValue = maxValue;
+    this.overflowMax = maxValue; // 既定は currentMax と同じ（拡張しない）
     defaultWidth = defaultWidth ? defaultWidth : 155;
     expModeFactor = expModeFactor ? expModeFactor : 3.5;
     const PRECISE_DRAG_SCALE = 4,
@@ -210,11 +211,19 @@ export default class CPSlider extends EventEmitter {
       const boundaryProp = getBoundaryProp();
       let width = canvas.clientWidth;
       let left = canvas.getBoundingClientRect().left + window.scrollX;
-      let proportion = (e.pageX - left) / width;
-      // ドラッグでスライダー範囲外に出てもNaNを生まないようクランプ
-      proportion = Math.max(0, Math.min(1, proportion));
+      let raw = (e.pageX - left) / width;
+      let proportion = Math.max(0, Math.min(1, raw));
 
       let finalValue;
+      const OVERFLOW_ZONE = 0.18; // スライダー幅に対する割合（0.3 = 幅の30%）
+      if (raw > 1 && that.overflowMax > currentMax) {
+        // 右端を超えた分を、currentMax〜overflowMax に線形で割り当てる
+        // 1.0 → 2.0 の範囲（スライダー幅1個分）で overflowMax に到達
+        const over = Math.min(1, (raw - 1) / OVERFLOW_ZONE);
+        finalValue = currentMax + over * (that.overflowMax - currentMax);
+        that.setValue(finalValue, true);
+        return;
+      }
 
       if (expMode) {
         if (proportion <= boundaryProp) {
@@ -240,10 +249,8 @@ export default class CPSlider extends EventEmitter {
           return mouseSelect(e);
         case DRAG_MODE_PRECISE:
           let title = that.title();
-          //ブラシサイズと不透明度以外は細やかなスライダーの動作をしない
-          if (!(
-            title.includes(_("Brush size")) || title.includes(_("Opacity"))
-          )) {
+          //ブラシサイズの時は細やかなスライダーの動作をしない
+          if (title.includes(_("Brush size"))) {
             return mouseSelect(e);
           }
           let diff = (e.pageX - dragPreciseX) / PRECISE_DRAG_SCALE;
