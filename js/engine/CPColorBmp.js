@@ -1434,7 +1434,7 @@ export default class CPColorBmp extends CPBitmap {
   fillWithPerlinNoise(
     rect,
     color = 0,
-    opacity = 0.5,
+    opacity = 0.8,
     seed = (Math.random() * 65535) | 0,
   ) {
     rect = this.getBounds().clipTo(rect);
