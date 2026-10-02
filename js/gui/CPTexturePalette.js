@@ -195,7 +195,7 @@ export default class CPTexturePalette extends CPPalette {
       result.push(makeCheckerBoardTexture(4));
       result.push(makeCheckerBoardTexture(16));
       result.push(makeNoiseTexture1(256));
-      result.push(makeNoiseTexture2(512));
+      result.push(makeNoiseTexture2(256));
 
       return result;
     }
@@ -323,17 +323,21 @@ export default class CPTexturePalette extends CPPalette {
 
       const cellSize = 4; // 最大の格子の大きさ(px)。小さいほど目が細かい
       const baseCells = Math.max(1, Math.round(size / cellSize)); // size内の格子数(周期)
-      const octaves = 3; // 4px → 2px → 1px
+      const octaves = 3; // cellSize=4 のとき 4px → 2px → 1px
       const gain = 0.8; // 高いほど細かい層が強く残る
       const amplitude = 1.5; // 濃淡の強さ。上げると黒と中間グレー(約128)に飽和する
-      const seed = (Math.random() * 65535) | 0;
 
-      // 整数ハッシュ → 0..1
-      function hash(ix, iy, s) {
-        let h = (ix * 374761393 + iy * 668265263 + s * 144665) | 0;
-        h = Math.imul(h ^ (h >>> 13), 1274126177);
-        h = h ^ (h >>> 16);
-        return (h >>> 0) / 4294967295;
+      // 各層の勾配ベクトル(単位ベクトル)を格子ごとに乱数で作る
+      const grids = [];
+      for (let i = 0, cells = baseCells; i < octaves; i++, cells *= 2) {
+        const gx = new Float32Array(cells * cells);
+        const gy = new Float32Array(cells * cells);
+        for (let j = 0; j < cells * cells; j++) {
+          const angle = Math.random() * Math.PI * 2;
+          gx[j] = Math.cos(angle);
+          gy[j] = Math.sin(angle);
+        }
+        grids.push({ cells, gx, gy });
       }
 
       // パーリンのフェード曲線
@@ -345,28 +349,28 @@ export default class CPTexturePalette extends CPPalette {
         return a + (b - a) * t;
       }
 
-      // 格子点(ix, iy)の勾配(ランダムな向きの単位ベクトル)と、点への相対ベクトルの内積
-      function gradDot(ix, iy, s, dx, dy) {
-        const angle = hash(ix, iy, s) * Math.PI * 2;
-        return Math.cos(angle) * dx + Math.sin(angle) * dy;
-      }
-
-      // タイル可能な2Dパーリンノイズ(格子の周期 period で折り返す)
-      function perlin(x, y, period, s) {
+      // タイル可能な2Dパーリンノイズ(格子の周期 = grid.cells で折り返す)
+      function perlin(x, y, grid) {
+        const { cells, gx, gy } = grid;
         const x0 = Math.floor(x);
         const y0 = Math.floor(y);
         const fx = x - x0;
         const fy = y - y0;
 
-        const xa = ((x0 % period) + period) % period;
-        const xb = (xa + 1) % period;
-        const ya = ((y0 % period) + period) % period;
-        const yb = (ya + 1) % period;
+        const xa = ((x0 % cells) + cells) % cells;
+        const xb = (xa + 1) % cells;
+        const ya = ((y0 % cells) + cells) % cells;
+        const yb = (ya + 1) % cells;
 
-        const n00 = gradDot(xa, ya, s, fx, fy);
-        const n10 = gradDot(xb, ya, s, fx - 1, fy);
-        const n01 = gradDot(xa, yb, s, fx, fy - 1);
-        const n11 = gradDot(xb, yb, s, fx - 1, fy - 1);
+        const i00 = ya * cells + xa;
+        const i10 = ya * cells + xb;
+        const i01 = yb * cells + xa;
+        const i11 = yb * cells + xb;
+
+        const n00 = gx[i00] * fx + gy[i00] * fy;
+        const n10 = gx[i10] * (fx - 1) + gy[i10] * fy;
+        const n01 = gx[i01] * fx + gy[i01] * (fy - 1);
+        const n11 = gx[i11] * (fx - 1) + gy[i11] * (fy - 1);
 
         const u = fade(fx);
         const v = fade(fy);
@@ -378,15 +382,12 @@ export default class CPTexturePalette extends CPPalette {
       function fbm(u, v) {
         let sum = 0;
         let amp = 1;
-        let norm = 0;
-        let cells = baseCells;
         for (let i = 0; i < octaves; i++) {
-          sum += amp * perlin(u * cells, v * cells, cells, seed + i * 17);
-          norm += amp;
+          const grid = grids[i];
+          sum += amp * perlin(u * grid.cells, v * grid.cells, grid);
           amp *= gain;
-          cells *= 2;
         }
-        return sum / norm;
+        return sum;
       }
 
       const count = size * size;
@@ -397,6 +398,7 @@ export default class CPTexturePalette extends CPPalette {
       for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
           const n = fbm(x / size, y / size);
+          // const n = fbm((x + 0.5) / size, (y + 0.5) / size);
           values[y * size + x] = n;
           if (n < min) min = n;
           if (n > max) max = n;
