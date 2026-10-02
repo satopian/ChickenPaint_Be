@@ -830,7 +830,108 @@ export default class CPGreyBmp extends CPBitmap {
       }
     }
   }
+  /**
+   * パーリンノイズ
+   * 指定された矩形範囲を、パーリンノイズ(0〜255)で上書きする。
+   * ノイズの濃淡はキャンバス座標で決まるので、矩形をまたいでも模様がつながる。
+   * @param {CPRect} rect
+   * @param {number} color - 使用しない
+   * @param {number} opacity - 使用しない
+   * @param {number} seed - 乱数の種。同じ値なら同じ模様になる。デフォルトは呼び出しごとにランダム。
+   */
+  fillWithPerlinNoise(
+    rect,
+    color = 0,
+    opacity = 1,
+    seed = (Math.random() * 65535) | 0,
+  ) {
+    rect = this.getBounds().clipTo(rect);
 
+    const cellSize = 4; // 最大の格子の大きさ(px)。小さいほど目が細かい
+    const octaves = 2; // 4px → 2px。1px層は +0.5 なしだと値が0になるので入れない
+    const gain = 0.8; // 高いほど細かい層が強く残る
+    const amplitude = 1.5; // 濃淡の強さ。上げると0と255に飽和する
+
+    // 勾配ベクトルの向きのテーブル(ハッシュの上位8bitで引く)
+    const GRAD_COUNT = 256;
+    const gradX = new Float32Array(GRAD_COUNT);
+    const gradY = new Float32Array(GRAD_COUNT);
+    for (let i = 0; i < GRAD_COUNT; i++) {
+      const angle = (i / GRAD_COUNT) * Math.PI * 2;
+      gradX[i] = Math.cos(angle);
+      gradY[i] = Math.sin(angle);
+    }
+
+    // 整数ハッシュ → 符号なし32bit
+    function hash(ix, iy, s) {
+      let h =
+        Math.imul(ix, 374761393) ^
+        Math.imul(iy, 668265263) ^
+        Math.imul(s, 144665);
+      h = Math.imul(h ^ (h >>> 13), 1274126177);
+      h = Math.imul(h ^ (h >>> 16), 2246822519);
+      return (h ^ (h >>> 15)) >>> 0;
+    }
+
+    // パーリンのフェード曲線
+    function fade(t) {
+      return t * t * t * (t * (t * 6 - 15) + 10);
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    // 格子点(ix, iy)の勾配と、点への相対ベクトルの内積
+    function gradDot(ix, iy, s, dx, dy) {
+      const gi = hash(ix, iy, s) >>> 24;
+      return gradX[gi] * dx + gradY[gi] * dy;
+    }
+
+    // 2Dパーリンノイズ(タイル周期なし。キャンバス座標でそのまま使う)
+    function perlin(x, y, s) {
+      const x0 = Math.floor(x);
+      const y0 = Math.floor(y);
+      const fx = x - x0;
+      const fy = y - y0;
+
+      const n00 = gradDot(x0, y0, s, fx, fy);
+      const n10 = gradDot(x0 + 1, y0, s, fx - 1, fy);
+      const n01 = gradDot(x0, y0 + 1, s, fx, fy - 1);
+      const n11 = gradDot(x0 + 1, y0 + 1, s, fx - 1, fy - 1);
+
+      const u = fade(fx);
+      const v = fade(fy);
+
+      return lerp(lerp(n00, n10, u), lerp(n01, n11, u), v);
+    }
+
+    // fBm。戻り値はおよそ -0.7..0.7 (0付近に集まる)
+    function fbm(x, y) {
+      let sum = 0;
+      let amp = 1;
+      let norm = 0;
+      let freq = 1 / cellSize;
+      for (let i = 0; i < octaves; i++) {
+        sum += amp * perlin(x * freq, y * freq, seed + i * 17);
+        norm += amp;
+        amp *= gain;
+        freq *= 2;
+      }
+      return sum / norm;
+    }
+
+    var yStride = this.width - rect.getWidth(),
+      pixIndex = this.offsetOfPixel(rect.left, rect.top);
+
+    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+      for (var x = rect.left; x < rect.right; x++, pixIndex++) {
+        // ノイズ値(約 -0.7..0.7)を 0..1 に寄せて、0..255 に変換する
+        var t = Math.max(0, Math.min(1, 0.5 + fbm(x, y) * amplitude));
+        this.data[pixIndex] = (t * 255) | 0; // TODO we might usefully support bitmaps > 8 bits/channel here?
+      }
+    }
+  }
   /**
    * @param {CPRect} rect
    */

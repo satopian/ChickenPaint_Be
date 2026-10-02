@@ -1423,6 +1423,142 @@ export default class CPColorBmp extends CPBitmap {
     }
   }
   /**
+   * パーリンノイズノイズ
+   * 指定された矩形範囲に、指定色のノイズを一定の不透明度で重ねる（通常合成）。
+   * ノイズの濃淡はキャンバス座標で決まるので、矩形をまたいでも模様がつながる。
+   * @param {CPRect} rect - ノイズを適用する矩形範囲。
+   * @param {number} color - ノイズの色 (0xRRGGBB)。
+   * @param {number} opacity - ノイズの不透明度の上限 (0.0〜1.0)。デフォルトは 1.0。
+   * @param {number} seed - 乱数の種。同じ値なら同じ模様になる。デフォルトは呼び出しごとにランダム。
+   */
+  fillWithPerlinNoise(
+    rect,
+    color = 0,
+    opacity = 0.5,
+    seed = (Math.random() * 65535) | 0,
+  ) {
+    rect = this.getBounds().clipTo(rect);
+
+    const r = (color >> 16) & 0xff;
+    const g = (color >> 8) & 0xff;
+    const b = color & 0xff;
+
+    const cellSize = 4; // 最大の格子の大きさ(px)。小さいほど目が細かい
+    const octaves = 2; // 4px → 2px。1px層は +0.5 なしだと値が0になるので入れない
+    const gain = 0.8; // 高いほど細かい層が強く残る
+    const amplitude = 1.5; // 濃淡の強さ。上げると不透明度が0と上限に飽和する
+
+    // 勾配ベクトルの向きのテーブル(ハッシュの上位8bitで引く)
+    const GRAD_COUNT = 256;
+    const gradX = new Float32Array(GRAD_COUNT);
+    const gradY = new Float32Array(GRAD_COUNT);
+    for (let i = 0; i < GRAD_COUNT; i++) {
+      const angle = (i / GRAD_COUNT) * Math.PI * 2;
+      gradX[i] = Math.cos(angle);
+      gradY[i] = Math.sin(angle);
+    }
+
+    // 整数ハッシュ → 符号なし32bit
+    function hash(ix, iy, s) {
+      let h =
+        Math.imul(ix, 374761393) ^
+        Math.imul(iy, 668265263) ^
+        Math.imul(s, 144665);
+      h = Math.imul(h ^ (h >>> 13), 1274126177);
+      h = Math.imul(h ^ (h >>> 16), 2246822519);
+      return (h ^ (h >>> 15)) >>> 0;
+    }
+
+    // パーリンのフェード曲線
+    function fade(t) {
+      return t * t * t * (t * (t * 6 - 15) + 10);
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    // 格子点(ix, iy)の勾配と、点への相対ベクトルの内積
+    function gradDot(ix, iy, s, dx, dy) {
+      const gi = hash(ix, iy, s) >>> 24;
+      return gradX[gi] * dx + gradY[gi] * dy;
+    }
+
+    // 2Dパーリンノイズ(タイル周期なし。キャンバス座標でそのまま使う)
+    function perlin(x, y, s) {
+      const x0 = Math.floor(x);
+      const y0 = Math.floor(y);
+      const fx = x - x0;
+      const fy = y - y0;
+
+      const n00 = gradDot(x0, y0, s, fx, fy);
+      const n10 = gradDot(x0 + 1, y0, s, fx - 1, fy);
+      const n01 = gradDot(x0, y0 + 1, s, fx, fy - 1);
+      const n11 = gradDot(x0 + 1, y0 + 1, s, fx - 1, fy - 1);
+
+      const u = fade(fx);
+      const v = fade(fy);
+
+      return lerp(lerp(n00, n10, u), lerp(n01, n11, u), v);
+    }
+
+    // fBm。戻り値はおよそ -0.7..0.7 (0付近に集まる)
+    function fbm(x, y) {
+      let sum = 0;
+      let amp = 1;
+      let norm = 0;
+      let freq = 1 / cellSize;
+      for (let i = 0; i < octaves; i++) {
+        sum += amp * perlin(x * freq, y * freq, seed + i * 17);
+        norm += amp;
+        amp *= gain;
+        freq *= 2;
+      }
+      return sum / norm;
+    }
+
+    var srcA = opacity,
+      yStride = (this.width - rect.getWidth()) * CPColorBmp.BYTES_PER_PIXEL,
+      pixIndex = this.offsetOfPixel(rect.left, rect.top);
+
+    for (var y = rect.top; y < rect.bottom; y++, pixIndex += yStride) {
+      for (
+        var x = rect.left;
+        x < rect.right;
+        x++, pixIndex += CPColorBmp.BYTES_PER_PIXEL
+      ) {
+        // 1. ピクセルごとの不透明度をパーリンノイズで決める(0..1 → 0..opacity)
+        var t = Math.max(0, Math.min(1, 0.5 + fbm(x, y) * amplitude));
+        var currentSrcA = t * srcA;
+        var currentInvSrcA = 1 - currentSrcA;
+
+        var oldR = this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET];
+        var oldG = this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET];
+        var oldB = this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET];
+        var oldA = this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] / 255;
+
+        // 新しいアルファ値を計算（Source Over）
+        var outA = currentSrcA + oldA * currentInvSrcA;
+
+        if (outA > 0) {
+          // 合成後の色を計算
+          this.data[pixIndex + CPColorBmp.RED_BYTE_OFFSET] = Math.round(
+            (r * currentSrcA + oldR * oldA * currentInvSrcA) / outA,
+          );
+          this.data[pixIndex + CPColorBmp.GREEN_BYTE_OFFSET] = Math.round(
+            (g * currentSrcA + oldG * oldA * currentInvSrcA) / outA,
+          );
+          this.data[pixIndex + CPColorBmp.BLUE_BYTE_OFFSET] = Math.round(
+            (b * currentSrcA + oldB * oldA * currentInvSrcA) / outA,
+          );
+          this.data[pixIndex + CPColorBmp.ALPHA_BYTE_OFFSET] = Math.round(
+            outA * 255,
+          );
+        }
+      }
+    }
+  }
+  /**
    * Replace the pixels in the given rect with the given horizontal gradient.
    *
    * @param {CPRect} rect CPRect

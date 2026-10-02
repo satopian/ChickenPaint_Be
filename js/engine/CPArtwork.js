@@ -1692,6 +1692,20 @@ export default class CPArtwork extends EventEmitter {
         invalidateLayerPaint(curLayer, r);
       }
     };
+    this.perlinNoise = function () {
+      let r = this.getSelectionAutoSelect(),
+        target = getActiveImage();
+
+      if (target) {
+        prepareForLayerPaintUndo();
+        paintUndoArea = r.clone();
+
+        target.fillWithPerlinNoise(r, curColor);
+
+        addUndo(new CPUndoPaint());
+        invalidateLayerPaint(curLayer, r);
+      }
+    };
 
     this.isColorNoiseAllowed = function () {
       return !this.isEditingMask() && this.isActiveLayerDrawable();

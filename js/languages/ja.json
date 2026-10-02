@@ -65,6 +65,7 @@
   "Edge expand width": "縁の幅",
   "Fill Inside with edge color": "縁の色で内側を塗り潰す",
   "Convert to drawing color": "描画色に変換",
+  "Perlin noise": "パーリンノイズ",
   "Monochromatic noise": "単色ノイズ",
   "Color noise": "カラーノイズ",
 
@@ -103,6 +104,7 @@
   "Clears the selected area": "消去",
   "Invert the image colors": "ネガポジ反転",
   "Blur effect": "ぼかしフィルタ",
+  "Fills the selection with perlin noise": "パーリンノイズで塗り潰し",
   "Fills the selection with noise": "単色ノイズで塗り潰し",
   "Fills the selection with colored noise": "カラーノイズで塗り潰し",
   "Linear interpolation is used to give a smoothed looked to the picture when zoomed in.": "画像の拡大時に補完して滑らかに表示します。",

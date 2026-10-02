@@ -286,6 +286,12 @@ const MENU_ENTRIES = [
         name: "-",
       },
       {
+        name: "Perlin noise",
+        action: "CPPerlinNoise",
+        mnemonic: "P",
+        title: _("Fills the selection with perlin noise"),
+      },
+      {
         name: "Monochromatic noise",
         action: "CPMNoise",
         mnemonic: "M",

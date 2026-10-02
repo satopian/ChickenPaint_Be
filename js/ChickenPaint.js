@@ -803,6 +803,13 @@ export default class ChickenPaint extends EventEmitter {
         modifies: { document: true },
         requiresDrawable: true, //TODO
       },
+      CPPerlinNoise: {
+        action: function () {
+          that.artwork.perlinNoise();
+        },
+        modifies: { document: true },
+        requiresDrawable: true,
+      },
       CPMNoise: {
         action: function () {
           that.artwork.monochromaticNoise();
