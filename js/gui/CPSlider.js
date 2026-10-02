@@ -44,7 +44,7 @@ export default class CPSlider extends EventEmitter {
    * @param {number} maxValue スライダーの最大値
    * @param {boolean} centerMode 中央値を基準に、現在値との差分をバーで描画するモード（true時はexpModeは使用されない）
    * @param {boolean} [expMode] 値がboundaryValue（5）以下の範囲は均等目盛り、それを超える範囲は指数的な目盛りでバー位置を計算するモード
-   * @param {number} [defaultWidth] スライダーのデフォルト幅（未指定時150px）
+   * @param {number} [defaultWidth] スライダーのデフォルト幅（未指定時155px）
    * @param {number} [expModeFactor] 低い値の時にスライダーの動作を細やかにする係数
    * @param {boolean} [fractionalStep] true時、値が5以下の範囲では0.5刻みで丸める（falseの場合は常に整数）
    */

@@ -193,9 +193,9 @@ export default class CPTexturePalette extends CPPalette {
 
       result.push(makeCheckerBoardTexture(2));
       result.push(makeCheckerBoardTexture(4));
-      result.push(makeCheckerBoardTexture(8));
       result.push(makeCheckerBoardTexture(16));
-      result.push(makeNoiseTexture(256));
+      result.push(makeNoiseTexture1(256));
+      result.push(makeNoiseTexture2(512));
 
       return result;
     }
@@ -282,7 +282,7 @@ export default class CPTexturePalette extends CPPalette {
      *
      * @returns {CPGreyBmp} - A grayscale bitmap filled with random noise and adjusted brightness/contrast
      */
-    function makeNoiseTexture(size) {
+    function makeNoiseTexture1(size) {
       const brightnessFactor = 0.65;
       const contrastFactor = 0.65;
 
@@ -300,6 +300,124 @@ export default class CPTexturePalette extends CPPalette {
           (adjustedBrightness - 128) * contrastFactor + 128;
 
         // テクスチャデータに反映
+        texture.data[i] = Math.max(
+          0,
+          Math.min(255, Math.floor(adjustedContrast)),
+        );
+      }
+
+      return texture;
+    }
+
+    /**
+     * Make a fine-grained texture consisting of tileable Perlin fBm noise,
+     * with adjusted brightness and contrast.
+     *
+     * @param {number} size - The width and height of the square texture (e.g., 256 for a 256x256 texture)
+     *
+     * @returns {CPGreyBmp} - A grayscale bitmap filled with tileable fine-grained noise
+     */
+    function makeNoiseTexture2(size) {
+      const brightnessFactor = 0.5;
+      const contrastFactor = 0.8;
+
+      const cellSize = 4; // 最大の格子の大きさ(px)。小さいほど目が細かい
+      const baseCells = Math.max(1, Math.round(size / cellSize)); // size内の格子数(周期)
+      const octaves = 3; // 4px → 2px → 1px
+      const gain = 0.8; // 高いほど細かい層が強く残る
+      const amplitude = 1.5; // 濃淡の強さ。上げると黒と中間グレー(約128)に飽和する
+      const seed = (Math.random() * 65535) | 0;
+
+      // 整数ハッシュ → 0..1
+      function hash(ix, iy, s) {
+        let h = (ix * 374761393 + iy * 668265263 + s * 144665) | 0;
+        h = Math.imul(h ^ (h >>> 13), 1274126177);
+        h = h ^ (h >>> 16);
+        return (h >>> 0) / 4294967295;
+      }
+
+      // パーリンのフェード曲線
+      function fade(t) {
+        return t * t * t * (t * (t * 6 - 15) + 10);
+      }
+
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+
+      // 格子点(ix, iy)の勾配(ランダムな向きの単位ベクトル)と、点への相対ベクトルの内積
+      function gradDot(ix, iy, s, dx, dy) {
+        const angle = hash(ix, iy, s) * Math.PI * 2;
+        return Math.cos(angle) * dx + Math.sin(angle) * dy;
+      }
+
+      // タイル可能な2Dパーリンノイズ(格子の周期 period で折り返す)
+      function perlin(x, y, period, s) {
+        const x0 = Math.floor(x);
+        const y0 = Math.floor(y);
+        const fx = x - x0;
+        const fy = y - y0;
+
+        const xa = ((x0 % period) + period) % period;
+        const xb = (xa + 1) % period;
+        const ya = ((y0 % period) + period) % period;
+        const yb = (ya + 1) % period;
+
+        const n00 = gradDot(xa, ya, s, fx, fy);
+        const n10 = gradDot(xb, ya, s, fx - 1, fy);
+        const n01 = gradDot(xa, yb, s, fx, fy - 1);
+        const n11 = gradDot(xb, yb, s, fx - 1, fy - 1);
+
+        const u = fade(fx);
+        const v = fade(fy);
+
+        return lerp(lerp(n00, n10, u), lerp(n01, n11, u), v);
+      }
+
+      // fBm(octaveごとに周期が倍になるので全体もタイル可能)
+      function fbm(u, v) {
+        let sum = 0;
+        let amp = 1;
+        let norm = 0;
+        let cells = baseCells;
+        for (let i = 0; i < octaves; i++) {
+          sum += amp * perlin(u * cells, v * cells, cells, seed + i * 17);
+          norm += amp;
+          amp *= gain;
+          cells *= 2;
+        }
+        return sum / norm;
+      }
+
+      const count = size * size;
+      const values = new Float32Array(count);
+      let min = Infinity;
+      let max = -Infinity;
+
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const n = fbm(x / size, y / size);
+          values[y * size + x] = n;
+          if (n < min) min = n;
+          if (n > max) max = n;
+        }
+      }
+
+      const texture = new CPGreyBmp(size, size, 8);
+      const range = max - min || 1;
+
+      for (let i = 0; i < count; i++) {
+        // 最小〜最大を0..1に線形ストレッチ
+        let t = (values[i] - min) / range;
+
+        // 中央を基準に濃淡を増幅(範囲外はクランプ)
+        t = Math.max(0, Math.min(1, (t - 0.5) * amplitude + 0.5));
+
+        // 輝度・コントラスト調整
+        const adjustedBrightness = t * 255 * brightnessFactor;
+        const adjustedContrast =
+          (adjustedBrightness - 128) * contrastFactor + 128;
+
         texture.data[i] = Math.max(
           0,
           Math.min(255, Math.floor(adjustedContrast)),
