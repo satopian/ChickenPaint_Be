@@ -1427,12 +1427,14 @@ export default class CPColorBmp extends CPBitmap {
    * 指定された矩形範囲に、指定色のノイズを一定の不透明度で重ねる（通常合成）。
    * ノイズの濃淡はキャンバス座標で決まるので、矩形をまたいでも模様がつながる。
    * @param {CPRect} rect - ノイズを適用する矩形範囲。
+   * @param {number} cellSize - 格子の大きさ (px)。デフォルトは 4。
    * @param {number} color - ノイズの色 (0xRRGGBB)。
    * @param {number} opacity - ノイズの不透明度の上限 (0.0〜1.0)。デフォルトは 1.0。
    * @param {number} seed - 乱数の種。同じ値なら同じ模様になる。デフォルトは呼び出しごとにランダム。
    */
   fillWithPerlinNoise(
     rect,
+    cellSize = 4,
     color = 0,
     opacity = 0.8,
     seed = (Math.random() * 65535) | 0,
@@ -1443,8 +1445,10 @@ export default class CPColorBmp extends CPBitmap {
     const g = (color >> 8) & 0xff;
     const b = color & 0xff;
 
-    const cellSize = 4; // 最大の格子の大きさ(px)。小さいほど目が細かい
-    const octaves = 2; // 4px → 2px。1px層は +0.5 なしだと値が0になるので入れない
+    // 格子の大きさ(px)は引数で受ける。1.5未満だと最細層が整数座標に乗って値が0になるので下限を設ける
+    cellSize = Math.max(1.5, cellSize);
+    // 最細層の格子が1pxを超える段数(cellSize=4なら2、8なら3、16なら4)
+    const octaves = Math.max(1, Math.ceil(Math.log2(cellSize)));
     const gain = 0.8; // 高いほど細かい層が強く残る
     const amplitude = 1.5; // 濃淡の強さ。上げると不透明度が0と上限に飽和する
 

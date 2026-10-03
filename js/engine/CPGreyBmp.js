@@ -841,16 +841,19 @@ export default class CPGreyBmp extends CPBitmap {
    */
   fillWithPerlinNoise(
     rect,
+    cellSize = 4,
     color = 0,
     opacity = 1,
     seed = (Math.random() * 65535) | 0,
   ) {
     rect = this.getBounds().clipTo(rect);
 
-    const cellSize = 4; // 最大の格子の大きさ(px)。小さいほど目が細かい
-    const octaves = 2; // 4px → 2px。1px層は +0.5 なしだと値が0になるので入れない
+    // 格子の大きさ(px)は引数で受ける。1.5未満だと最細層が整数座標に乗って値が0になるので下限を設ける
+    cellSize = Math.max(1.5, cellSize);
+    // 最細層の格子が1pxを超える段数(cellSize=4なら2、8なら3、16なら4)
+    const octaves = Math.max(1, Math.ceil(Math.log2(cellSize)));
     const gain = 0.8; // 高いほど細かい層が強く残る
-    const amplitude = 1.5; // 濃淡の強さ。上げると0と255に飽和する
+    const amplitude = 1.5; // 濃淡の強さ。上げると不透明度が0と上限に飽和する
 
     // 勾配ベクトルの向きのテーブル(ハッシュの上位8bitで引く)
     const GRAD_COUNT = 256;

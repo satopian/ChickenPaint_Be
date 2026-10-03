@@ -51,6 +51,7 @@ import CPChromaticAberrationDialog from "./gui/CPChromaticAberrationDialog.js";
 import CPColorHalftoneDialog from "./gui/CPColorHalftoneDialog.js";
 import CPMonoHalftoneDialog from "./gui/CPMonoHalftoneDialog.js";
 import CPMosaicDialog from "./gui/CPMosaicDialog.js";
+import CPPerlinNoiseDialog from "./gui/CPPerlinNoiseDialog.js";
 import CPEdgeExpandDialog from "./gui/CPEdgeExpandDialog.js";
 import CPSendDialog from "./gui/CPSendDialog.js";
 
@@ -403,6 +404,7 @@ export default class ChickenPaint extends EventEmitter {
       boxBlurDialog,
       gridDialog,
       mosaicDialog,
+      perlinNoiseDialog,
       colorHalftoneDialog,
       monoHalftoneDialog,
       chromaticAberrationDialog,
@@ -805,10 +807,9 @@ export default class ChickenPaint extends EventEmitter {
       },
       CPPerlinNoise: {
         action: function () {
-          that.artwork.perlinNoise();
+          showPerlinNoiseDialog();
         },
-        modifies: { document: true },
-        requiresDrawable: true,
+        modifies: { gui: true },
       },
       CPMNoise: {
         action: function () {
@@ -1230,6 +1231,13 @@ export default class ChickenPaint extends EventEmitter {
       }
 
       mosaicDialog.show();
+    }
+    function showPerlinNoiseDialog() {
+      if (!perlinNoiseDialog) {
+        perlinNoiseDialog = new CPPerlinNoiseDialog(uiElem, that);
+      }
+
+      perlinNoiseDialog.show();
     }
     function showColorHalftoneDialog() {
       if (!colorHalftoneDialog) {

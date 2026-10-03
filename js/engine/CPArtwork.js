@@ -1692,7 +1692,7 @@ export default class CPArtwork extends EventEmitter {
         invalidateLayerPaint(curLayer, r);
       }
     };
-    this.perlinNoise = function () {
+    this.perlinNoise = function (cellSize = 4) {
       let r = this.getSelectionAutoSelect(),
         target = getActiveImage();
 
@@ -1700,7 +1700,7 @@ export default class CPArtwork extends EventEmitter {
         prepareForLayerPaintUndo();
         paintUndoArea = r.clone();
 
-        target.fillWithPerlinNoise(r, curColor);
+        target.fillWithPerlinNoise(r, cellSize, curColor);
 
         addUndo(new CPUndoPaint());
         invalidateLayerPaint(curLayer, r);

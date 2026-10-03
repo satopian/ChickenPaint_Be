@@ -54,6 +54,7 @@
   "Iterations (1~8, larger gives smoother blur)": "反復 (1~8,大きいほどぼかしが滑らか)",
   "Mosaic": "モザイク",
   "Block size": "ブロックサイズ",
+  "Grain size": "粒の大きさ",
   "Color halftone": "カラーハーフトーン",
   "Mono halftone": "単色ハーフトーン",
   "Dot size": "ドットサイズ",

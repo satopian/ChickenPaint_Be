@@ -458,7 +458,7 @@ function CPBrushPanel(controller) {
 
   controller.on("toolChange", function (tool, toolInfo) {
     if (tool == 0) {
-      sizeSlider.maxValue = 30;
+      sizeSlider.maxValue = 50;
     } else if (tool == 2) {
       sizeSlider.maxValue = 20;
     } else {
