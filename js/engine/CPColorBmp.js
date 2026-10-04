@@ -1436,7 +1436,7 @@ export default class CPColorBmp extends CPBitmap {
     rect,
     cellSize = 4,
     color = 0,
-    opacity = 0.9,
+    opacity = 1,
     seed = (Math.random() * 65535) | 0,
   ) {
     rect = this.getBounds().clipTo(rect);
@@ -1450,7 +1450,7 @@ export default class CPColorBmp extends CPBitmap {
     // 最細層の格子が1pxを超える段数(cellSize=4なら2、8なら3、16なら4)
     const octaves = Math.max(1, Math.ceil(Math.log2(cellSize)));
     const gain = 0.8; // 高いほど細かい層が強く残る
-    const amplitude = 0.65; // 濃淡の強さ。t の標準偏差が約0.16になり、ほとんどクランプされない
+    const amplitude = 0.7; // 濃淡の強さ。t の標準偏差が約0.16になり、ほとんどクランプされない
 
     // 勾配ベクトルの向きのテーブル(ハッシュの上位8bitで引く)
     const GRAD_COUNT = 256;
