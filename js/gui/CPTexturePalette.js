@@ -323,7 +323,7 @@ export default class CPTexturePalette extends CPPalette {
 
       const cellSize = 4; // 最大の格子の大きさ(px)。小さいほど目が細かい
       const gain = 0.8; // 高いほど細かい層が強く残る
-      const amplitude = 1.5; // 濃淡の強さ。上げると黒と中間グレー(約128)に飽和する
+      const amplitude = 1; // 濃淡の強さ。上げると黒と中間グレー(約128)に飽和する
 
       // 層ごとの整数回転 (a, b)。回転角は atan2(b, a)、倍率は hypot(a, b)。
       // 整数なのでタイルの継ぎ目が崩れない。層の数はこの配列の長さで決まる(約4px → 約2px)
