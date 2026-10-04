@@ -853,7 +853,7 @@ export default class CPGreyBmp extends CPBitmap {
     // 最細層の格子が1pxを超える段数(cellSize=4なら2、8なら3、16なら4)
     const octaves = Math.max(1, Math.ceil(Math.log2(cellSize)));
     const gain = 0.8; // 高いほど細かい層が強く残る
-    const amplitude = 1.5; // 濃淡の強さ。上げると不透明度が0と上限に飽和する
+    const amplitude = 0.8; // 濃淡の強さ。t の標準偏差が約0.16になり、ほとんどクランプされない
 
     // 勾配ベクトルの向きのテーブル(ハッシュの上位8bitで引く)
     const GRAD_COUNT = 256;
@@ -909,19 +909,30 @@ export default class CPGreyBmp extends CPBitmap {
       return lerp(lerp(n00, n10, u), lerp(n01, n11, u), v);
     }
 
-    // fBm。戻り値はおよそ -0.7..0.7 (0付近に集まる)
-    function fbm(x, y) {
+    // 層ごとに座標を回転する角度(rad)。格子の軸方向の癖を消すためのもの
+    const rotC = Math.cos(0.5);
+    const rotS = Math.sin(0.5);
+
+    // fBm。層の数が変わっても濃淡の強さが変わらないよう、重みの二乗和の平方根で割る
+    function fbm(px, py) {
+      let x = px;
+      let y = py;
       let sum = 0;
       let amp = 1;
       let norm = 0;
       let freq = 1 / cellSize;
       for (let i = 0; i < octaves; i++) {
+        // 層ごとに回転+ずらして、格子点上に揃わないようにする
+        const nx = x * rotC - y * rotS + 17.3;
+        y = x * rotS + y * rotC + 9.1;
+        x = nx;
+
         sum += amp * perlin(x * freq, y * freq, seed + i * 17);
-        norm += amp;
+        norm += amp * amp;
         amp *= gain;
         freq *= 2;
       }
-      return sum / norm;
+      return sum / Math.sqrt(norm);
     }
 
     var yStride = this.width - rect.getWidth(),

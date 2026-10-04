@@ -195,7 +195,7 @@ export default class CPTexturePalette extends CPPalette {
       result.push(makeCheckerBoardTexture(4));
       result.push(makeCheckerBoardTexture(16));
       result.push(makeNoiseTexture1(256));
-      result.push(makeNoiseTexture2(256));
+      result.push(makeNoiseTexture2(512));
 
       return result;
     }
@@ -313,7 +313,7 @@ export default class CPTexturePalette extends CPPalette {
      * Make a fine-grained texture consisting of tileable Perlin fBm noise,
      * with adjusted brightness and contrast.
      *
-     * @param {number} size - The width and height of the square texture (e.g., 256 for a 256x256 texture)
+     * @param {number} size - The width and height of the square texture (e.g., 512 for a 512x512 texture)
      *
      * @returns {CPGreyBmp} - A grayscale bitmap filled with tileable fine-grained noise
      */
@@ -322,14 +322,25 @@ export default class CPTexturePalette extends CPPalette {
       const contrastFactor = 0.8;
 
       const cellSize = 4; // 最大の格子の大きさ(px)。小さいほど目が細かい
-      const baseCells = Math.max(1, Math.round(size / cellSize)); // size内の格子数(周期)
-      const octaves = 3; // cellSize=4 のとき 4px → 2px → 1px
       const gain = 0.8; // 高いほど細かい層が強く残る
       const amplitude = 1.5; // 濃淡の強さ。上げると黒と中間グレー(約128)に飽和する
 
+      // 層ごとの整数回転 (a, b)。回転角は atan2(b, a)、倍率は hypot(a, b)。
+      // 整数なのでタイルの継ぎ目が崩れない。層の数はこの配列の長さで決まる(約4px → 約2px)
+      const rotations = [
+        [1, 1],
+        [2, -1],
+      ];
+
       // 各層の勾配ベクトル(単位ベクトル)を格子ごとに乱数で作る
-      const grids = [];
-      for (let i = 0, cells = baseCells; i < octaves; i++, cells *= 2) {
+      const grids = rotations.map(([a, b], i) => {
+        // 回転の倍率の分だけ、格子数を減らして、画面上の格子の大きさを cellSize / 2^i に合わせる
+        const targetPx = cellSize / 2 ** i;
+        const cells = Math.max(
+          1,
+          Math.round(size / (targetPx * Math.hypot(a, b))),
+        );
+
         const gx = new Float32Array(cells * cells);
         const gy = new Float32Array(cells * cells);
         for (let j = 0; j < cells * cells; j++) {
@@ -337,8 +348,18 @@ export default class CPTexturePalette extends CPPalette {
           gx[j] = Math.cos(angle);
           gy[j] = Math.sin(angle);
         }
-        grids.push({ cells, gx, gy });
-      }
+
+        // 層ごとのずらし(格子単位)。周期は cells なので、どんな値でもタイルは崩れない
+        return {
+          a,
+          b,
+          cells,
+          gx,
+          gy,
+          ox: Math.random() * cells,
+          oy: Math.random() * cells,
+        };
+      });
 
       // パーリンのフェード曲線
       function fade(t) {
@@ -378,13 +399,17 @@ export default class CPTexturePalette extends CPPalette {
         return lerp(lerp(n00, n10, u), lerp(n01, n11, u), v);
       }
 
-      // fBm(octaveごとに周期が倍になるので全体もタイル可能)
+      // fBm(層ごとの周期で折り返すので全体もタイル可能)
       function fbm(u, v) {
         let sum = 0;
         let amp = 1;
-        for (let i = 0; i < octaves; i++) {
-          const grid = grids[i];
-          sum += amp * perlin(u * grid.cells, v * grid.cells, grid);
+        for (const grid of grids) {
+          const p = u * grid.cells + grid.ox;
+          const q = v * grid.cells + grid.oy;
+          // 整数の回転行列で格子の向きを変える(縦横の癖を消す)
+          sum +=
+            amp *
+            perlin(grid.a * p - grid.b * q, grid.b * p + grid.a * q, grid);
           amp *= gain;
         }
         return sum;
@@ -398,7 +423,6 @@ export default class CPTexturePalette extends CPPalette {
       for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
           const n = fbm(x / size, y / size);
-          // const n = fbm((x + 0.5) / size, (y + 0.5) / size);
           values[y * size + x] = n;
           if (n < min) min = n;
           if (n > max) max = n;
