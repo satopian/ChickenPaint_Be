@@ -37,6 +37,7 @@ import CPSlider from "./CPSlider.js";
 import CPLayerGroup from "../engine/CPLayerGroup.js";
 import CPLayer from "../engine/CPLayer.js";
 import CPImageLayer from "../engine/CPImageLayer.js";
+import { throttle } from "../util/throttle-debounce.js";
 import { _ } from "../languages/lang.js";
 function absorbTouch(e) {
   e.preventDefault();
@@ -1710,10 +1711,11 @@ export default class CPLayersPalette extends CPPalette {
       return _("Opacity") + ": " + value + "%";
     };
 
-    alphaSlider.on("valueChange", function (value) {
+    const applyAlpha = throttle(100, (value) => {
       controller.actionPerformed({ action: "CPSetLayerAlpha", alpha: value });
     });
 
+    alphaSlider.on("valueChange", applyAlpha);
     body.appendChild(alphaSlider.getElement());
 
     // SampleAllLayersのチェックボックスの設定を取得
