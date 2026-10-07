@@ -1355,17 +1355,11 @@ export default class CPCanvas extends EventEmitter {
           if (!pf) {
             return;
           }
+          const colorPicker = artwork.colorPicker(pf.x, pf.y);
           if (
             artwork.isPointWithin(pf.x, pf.y) &&
-            artwork.colorPicker(pf.x, pf.y) !== null //取得色が透明以外の時
+            colorPicker !== null //取得色が透明以外の時
           ) {
-            const colorPicker = artwork.colorPicker(pf.x, pf.y);
-            if (!colorPicker) {
-              console.error(
-                "Failed to pick color: coordinates out of bounds or no pixel data available.",
-              );
-              return;
-            }
             this.curColor = new CPColor(colorPicker);
             controller.setCurColor(this.curColor);
           }
