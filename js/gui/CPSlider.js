@@ -104,6 +104,10 @@ export default class CPSlider extends EventEmitter {
     const getBoundaryProp = () =>
       Math.pow((boundaryValue - minValue) / getRange(), 1 / expModeFactor);
 
+    /**
+     * スライダーを canvas に描画する。
+     * @returns {void}
+     */
     function paint() {
       const valueRange = getRange();
       const boundaryProp = getBoundaryProp();
@@ -205,7 +209,7 @@ export default class CPSlider extends EventEmitter {
         canvasContext.restore();
       }
     }
-
+    /**@param {MouseEvent} e */
     function mouseSelect(e) {
       const valueRange = getRange();
       const boundaryProp = getBoundaryProp();
@@ -243,6 +247,7 @@ export default class CPSlider extends EventEmitter {
       that.setValue(finalValue);
     }
 
+    /**@param {PointerEvent} e */
     function pointerDragged(e) {
       switch (dragMode) {
         case DRAG_MODE_NORMAL:

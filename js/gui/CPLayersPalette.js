@@ -1711,7 +1711,7 @@ export default class CPLayersPalette extends CPPalette {
       return _("Opacity") + ": " + value + "%";
     };
 
-    const applyAlpha = throttle(100, (value) => {
+    const applyAlpha = throttle(180, (value) => {
       controller.actionPerformed({ action: "CPSetLayerAlpha", alpha: value });
     });
 
