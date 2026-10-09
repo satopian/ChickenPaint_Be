@@ -88,7 +88,8 @@ export default class CPResourceSaver extends EventEmitter {
 
         if (
           options &&
-          Number(options.post_max_size) &&
+          //0,-1は無制限
+          Number(options.post_max_size) > 0 &&
           size &&
           !isNaN(size) &&
           Number(size) > Number(options.post_max_size) * 1024 * 1024
