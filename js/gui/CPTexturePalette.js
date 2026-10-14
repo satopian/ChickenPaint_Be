@@ -318,8 +318,8 @@ export default class CPTexturePalette extends CPPalette {
      * @returns {CPGreyBmp} - A grayscale bitmap filled with tileable fine-grained noise
      */
     function makeNoiseTexture2(size) {
-      const brightnessFactor = 0.7;
-      const contrastFactor = 0.9;
+      const brightnessFactor = 0.8;
+      const contrastFactor = 0.85;
 
       const cellSize = 4; // 最大の格子の大きさ(px)。小さいほど目が細かい
       const gain = 0.8; // 高いほど細かい層が強く残る
