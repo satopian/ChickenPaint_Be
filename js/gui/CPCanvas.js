@@ -2607,6 +2607,7 @@ export default class CPCanvas extends EventEmitter {
           return null;
       }
     }
+    /**@param {KeyboardEvent} e */
     const handleArrowKeyNavigation_keyDoun = (e) => {
       // キーボードでの移動を有効にする
       const delta = getArrowKeyDelta(e.key);
