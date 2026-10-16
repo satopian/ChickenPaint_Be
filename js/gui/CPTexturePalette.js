@@ -284,7 +284,7 @@ export default class CPTexturePalette extends CPPalette {
      */
     function makeNoiseTexture1(size) {
       const brightnessFactor = 0.8;
-      const contrastFactor = 0.55;
+      const contrastFactor = 0.65;
 
       let texture = new CPGreyBmp(size, size, 8);
 
@@ -319,7 +319,7 @@ export default class CPTexturePalette extends CPPalette {
      */
     function makeNoiseTexture2(size) {
       const brightnessFactor = 0.88;
-      const contrastFactor = 0.68;
+      const contrastFactor = 0.8;
 
       const cellSize = 4; // 最大の格子の大きさ(px)。小さいほど目が細かい
       const gain = 0.8; // 高いほど細かい層が強く残る
